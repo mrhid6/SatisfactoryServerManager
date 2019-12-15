@@ -1,1 +1,1 @@
-# StatisfactoryServerManager
+# SatisfactoryServerManager
