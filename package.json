@@ -1,6 +1,6 @@
 {
     "name": "StatisfactoryServerManager",
-    "version": "1.0.0",
+    "version": "1.0.3",
     "main": "app.js",
     "repository": "git@github.com:mrhid6/StatisfactoryServerManager.git",
     "author": "Mrhid6 <mrhid6@gmail.com>",
@@ -17,7 +17,8 @@
         "fs-extra": "^8.1.0",
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
-        "simple-node-logger": "^18.12.23"
+        "simple-node-logger": "^18.12.23",
+        "@fortawesome/fontawesome-free": "^5.11.2"
     },
     "scripts": {
         "start": "node app.js",
@@ -28,7 +29,15 @@
     "workspaces": [
         "./*"
     ],
-    "devDependencies": {
-        "@fortawesome/fontawesome-free": "^5.11.2"
+    "pkg": {
+        "assets": [
+            "views/**/*",
+            "public/**/*",
+            "scripts/**/*.sh",
+            "node_modules/**/*"
+        ],
+        "targets": [
+            "node12"
+        ]
     }
 }

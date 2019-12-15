@@ -8,4 +8,4 @@ cd ${BASEDIR}
 
 bash ${CURDIR}/build_app.sh -i -u
 
-release-it -n
+release-it --ci
