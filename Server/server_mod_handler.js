@@ -5,7 +5,8 @@ const Config = require("./server_config");
 
 class SSM_Mod_Handler {
     constructor() {
-
+        Config.get("SMLCLI_location", "/opt/SSM")
+        Config.get("mods_location", "/opt/SSM/Temp")
     }
 
     init() {

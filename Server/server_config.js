@@ -37,7 +37,6 @@ if (fs.existsSync(versionFile)) {
 }
 
 Config.set("version", version);
-Config.set("SMLCLI_location", "D:\\Development\\Websites")
-Config.set("mods_location", "D:\\Development\\Websites\\Temp")
+
 
 module.exports = Config;

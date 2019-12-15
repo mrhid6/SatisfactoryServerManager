@@ -54,7 +54,7 @@ SMLauncher_VER=$(cat ${TEMP_DIR}/SMLauncherCLI_releases.json | jq -r ".tag_name"
 SMLauncher_URL=$(cat ${TEMP_DIR}/SMLauncherCLI_releases.json | jq -r ".assets[].browser_download_url" | sort | head -1)
 
 if [ -d "${INSTALL_DIR}" ]; then
-    if [ ${UPDATE} -eq 0 ]; then
+    if [[ ${UPDATE} -eq 0 ]] && [[ ${FORCE} -eq 0 ]]; then
         echo "Error: SSM is already installed!"
         exit 1
     else
