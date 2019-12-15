@@ -75,6 +75,23 @@ router.get('/modsinstalled', function (req, res, next) {
     }
 });
 
+router.get('/smlversion', function (req, res, next) {
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+
+    } else {
+        SSM_Mod_Handler.getSMLInfo().then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    }
+});
+
 
 
 module.exports = router;

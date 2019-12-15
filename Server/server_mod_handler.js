@@ -5,7 +5,7 @@ const Config = require("./server_config");
 
 class SSM_Mod_Handler {
     constructor() {
-        
+
     }
 
     init() {
@@ -31,6 +31,34 @@ class SSM_Mod_Handler {
 
                 resolve(stdout);
             })
+        });
+    }
+
+    getSMLInfo() {
+        return new Promise((resolve, reject) => {
+
+            const cmd = "sml_version -p " + Config.get("mods.location");
+
+            this.execSMLCLI(cmd).then(res => {
+
+                const resSplit = res.split(/\r?\n/);
+                const infoObject = {
+                    state: "not_installed",
+                    version: ""
+                }
+
+                for (let i = 0; i < resSplit.length; i++) {
+                    const info = resSplit[i];
+                    if (info == "") continue;
+                    if (info != "Not Installed") {
+                        infoObject.state = "installed"
+                    }
+                    infoObject.version = info;
+
+                };
+
+                resolve(infoObject);
+            });
         });
     }
 
