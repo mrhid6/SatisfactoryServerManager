@@ -37,7 +37,7 @@ class SSM_Mod_Handler {
     getModsInstalled() {
         return new Promise((resolve, reject) => {
 
-            const cmd = "list -p " + Config.get("mods_location");
+            const cmd = "list_installed -p " + Config.get("mods_location");
 
             this.execSMLCLI(cmd).then(res => {
 
