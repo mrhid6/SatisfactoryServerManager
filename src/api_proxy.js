@@ -8,6 +8,15 @@ class API_Proxy {
                 resolve(result)
             })
         })
+    }
+
+    post(...args) {
+        const url = "/api/" + (args.join("/"));
+        return new Promise((resolve, reject) => {
+            $.post(url, result => {
+                resolve(result)
+            })
+        })
 
     }
 }

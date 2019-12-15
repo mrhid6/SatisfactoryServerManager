@@ -1,0 +1,24 @@
+[SML::Info]    Attached SatisfactoryModLoader v1.1.0 to Satisfactory
+[SML::Info]    Finding config file...
+[SML::Info]    Validating system files...
+[SML::Info]    E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Content\Paks
+[SML::Info]    Sig file in place!
+[SML::Warning] Skipping already disabled crash reporter
+[SML::Info]    Version check passed!
+[SML::Info]    Initialized SDK
+[SML::Info]    Looking for mods in: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\mods
+[SML::Debug]   Attempting to load mod: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\mods\FarmingMod.dll
+[FarmingMod::Error]   FarmingMod finished cleanup!
+[SML::Debug]   Attempting to load mod: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\mods\MoarFactory.dll
+[MoarFactory::Error]   MoarFactory finished cleanup!
+[SML::Debug]   Attempting to load mod: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\mods\ProjectAssembly.dll
+[ProjectAssembly::Error]   ProjectAssembly finished cleanup!
+[SML::Debug]   Attempting to load mod: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\mods\RenewablePower.dll
+[RenewablePower::Info]    RenewablePower finished cleanup!
+[SML::Info]    Looking for mods in: E:\Program Files\Epic Games\SatisfactoryEarlyAccess\FactoryGame\Binaries\Win64\hiddenmods
+[SML::Info]    Registered hooks!
+[SML::Info]    Loaded 0 mods
+[SML::Debug]   Registered 0 Commands
+[SML::Debug]   Registered 0 API functions
+[SML::Debug]   Registered 0 Custom events
+[SML::Info]    SatisfactoryModLoader initialization complete. Launching Satisfactory...

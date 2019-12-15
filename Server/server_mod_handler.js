@@ -5,8 +5,7 @@ const Config = require("./server_config");
 
 class SSM_Mod_Handler {
     constructor() {
-        Config.get("SMLCLI_location", "/opt/SSM")
-        Config.get("mods_location", "/opt/SSM/Temp")
+        
     }
 
     init() {
@@ -15,7 +14,7 @@ class SSM_Mod_Handler {
 
     execSMLCLI(command) {
 
-        const SMLCLIExe = path.join(Config.get("SMLCLI_location"), "SatisfactoryModLauncherCLI.exe");
+        const SMLCLIExe = path.join(Config.get("mods.SMLauncher_location"), "SatisfactoryModLauncherCLI.exe");
 
         return new Promise((resolve, reject) => {
             const fullCommand = SMLCLIExe + " " + command;
@@ -38,7 +37,7 @@ class SSM_Mod_Handler {
     getModsInstalled() {
         return new Promise((resolve, reject) => {
 
-            const cmd = "list_installed -p " + Config.get("mods_location");
+            const cmd = "list_installed -p " + Config.get("mods.location");
 
             this.execSMLCLI(cmd).then(res => {
 

@@ -91,6 +91,37 @@ body {
     cursor: pointer;
 }
 
+.server-action-btn:disabled {
+    cursor: not-allowed;
+}
+
 .server-action-btn i {
     margin-right: 5px;
+}
+
+
+
+/* Modals */
+
+#server-action-error #error-msg {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#server-action-error .error-icon {
+    font-size: 50px;
+}
+
+
+#server-action-success #success-msg {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#server-action-success .success-icon {
+    font-size: 50px;
+}
+
+#server-action-confirm i {
+    font-size: 50px;
 }
