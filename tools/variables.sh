@@ -1,4 +1,4 @@
-export GITHUB_TOKEN="d6bf6b961049d0fa8d9e3536446805c136e57ae5"
+export GITHUB_TOKEN="$(cat ./tools/TOKEN.txt)"
 
 SSH_CMD="ssh -q -o HostKeyAlgorithms=ssh-rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
 SCP_CMD="scp -qpr -o HostKeyAlgorithms=ssh-rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
