@@ -1,0 +1,15 @@
+{
+    "git": {
+        "tagName": "v${version}"
+    },
+    "npm": {
+        "publish": false
+    },
+    "github": {
+        "release": true,
+        "assets": ["release-builds/*.zip", "release-builds/*.tar.gz"]
+    },
+    "hooks": {
+        "before:release": ["bash ./tools/compile.sh --version v${version}"]
+    }
+}

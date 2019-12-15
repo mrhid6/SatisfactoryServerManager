@@ -1,0 +1,43 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm\node_modules\yarn\bin\yarn.js add express express-hbs body-parser methodoverride
+
+PATH: 
+  C:\Program Files\Git\mingw64\bin;C:\Program Files\Git\usr\bin;D:\Users\Dominic.RNET-PC01\bin;C:\Python27;C:\Python27\Scripts;C:\ProgramData\Boxstarter;C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Program Files\Git\cmd;C:\Windows\System32\OpenSSH;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files (x86)\Bitvise SSH Client;C:\ProgramData\chocolatey\bin;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Windows\System32;C:\Windows;C:\Windows\System32\wbem;C:\Windows\System32\WindowsPowerShell\v1.0;C:\Windows\System32\OpenSSH;C:\Users\Dominic.RNET-PC01\AppData\Roaming\npm;C:\Program Files\NASM;C:\Program Files\Redis;C:\Program Files\7-Zip;C:\Program Files\PowerShell\6;C:\Program Files\nodejs;D:\Users\Dominic.RNET-PC01\AppData\Local\Microsoft\WindowsApps;D:\Users\Dominic.RNET-PC01\AppData\Local\Programs\Microsoft VS Code\bin;C:\Program Files (x86)\Nmap;D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm
+
+Yarn version: 
+  1.19.1
+
+Node version: 
+  12.9.0
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: https://registry.yarnpkg.com/methodoverride: Not found
+      at Request.params.callback [as _callback] (D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:66926:18)
+      at Request.self.callback (D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:140564:22)
+      at Request.emit (events.js:209:13)
+      at Request.<anonymous> (D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141536:10)
+      at Request.emit (events.js:209:13)
+      at IncomingMessage.<anonymous> (D:\Users\Dominic.RNET-PC01\AppData\Roaming\npm\node_modules\yarn\lib\cli.js:141458:12)
+      at Object.onceWrapper (events.js:297:20)
+      at IncomingMessage.emit (events.js:214:15)
+      at endReadableNT (_stream_readable.js:1178:12)
+      at processTicksAndRejections (internal/process/task_queues.js:77:11)
+
+npm manifest: 
+  {
+    "name": "StatisfactoryServerManager",
+    "version": "1.0.0",
+    "main": "app.js",
+    "repository": "git@github.com:mrhid6/StatisfactoryServerManager.git",
+    "author": "Mrhid6 <mrhid6@gmail.com>",
+    "license": "MIT"
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile

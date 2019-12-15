@@ -1,0 +1,64 @@
+<div class="page-container" data-page="dashboard">
+    <h2 class="mb-3">Dashboard</h2>
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Server Status</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <div class="status-info-card blue">
+                        <div class="status-info-card-main">Status:</div>
+                        <div class="status-info-card-secondary">Not Running</div>
+                        <div class="status-info-card-icon">
+                            <i class="fas fa-server"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="status-info-card orange">
+                        <div class="status-info-card-main">Users:</div>
+                        <div class="status-info-card-secondary">0</div>
+                        <div class="status-info-card-icon">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="status-info-card green">
+                        <div class="status-info-card-main">Mods:</div>
+                        <div class="status-info-card-secondary">0</div>
+                        <div class="status-info-card-icon">
+                            <i class="fas fa-pencil-ruler"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Server Control</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-success btn-block server-action-btn" id="server-action-start">
+                        <i class="fas fa-play"></i>
+                        Start Server</a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-warning btn-block server-action-btn" id="server-action-stop">
+                        <i class="fas fa-stop"></i>
+                        Stop Server</a>
+                </div>
+                <div class="col-12 col-md-4">
+                    <a class="btn btn-danger btn-block server-action-btn" id="server-action-kill">
+                        <i class="fas fa-skull-crossbones"></i>
+                        Kill Server</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
