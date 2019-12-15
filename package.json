@@ -1,8 +1,8 @@
 {
-    "name": "StatisfactoryServerManager",
+    "name": "SatisfactoryServerManager",
     "version": "1.0.3",
     "main": "app.js",
-    "repository": "git@github.com:mrhid6/StatisfactoryServerManager.git",
+    "repository": "git@github.com:mrhid6/SatisfactoryServerManager.git",
     "author": "Mrhid6 <mrhid6@gmail.com>",
     "license": "MIT",
     "dependencies": {
