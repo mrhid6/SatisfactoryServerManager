@@ -14,3 +14,9 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 ```
     vi /opt/SSM/SSM.json
 ```
+
+## Configure:
+**Windows:**
+```
+    Edit C:\ProgramData\SatisfactoryServerManager\SSM.json
+```
