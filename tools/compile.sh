@@ -3,19 +3,14 @@
 CURDIR=$(dirname "$(readlink -f "$0")")
 BASEDIR=$(readlink -f "$CURDIR/..")
 
-. ${BASEDIR}/_scripts/variables.sh
+. ${BASEDIR}/tools/variables.sh
 
-BUILD_ARMV7=0
 VERSION=""
 
 while [[ $# -gt 0 ]]; do
     key="$1"
 
     case $key in
-    --build-armv7)
-        BUILD_ARMV7=1
-        shift # past value
-        ;;
     --version)
         VERSION="$2"
         shift # past value
@@ -53,28 +48,26 @@ cd ${BASEDIR}
 
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
 
-cp -pr ${BASEDIR}/_scripts/init-scripts ${release_dir_linux}/.
-
 printDots "* Compiling Mac" 30
-pkg main.js -c package.json -t node12-mac-x64 --out-path ${release_dir_mac} -d >${release_dir_mac}/build.log
+pkg app.js -c package.json -t node12-mac-x64 --out-path ${release_dir_mac} -d >${release_dir_mac}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Linux" 30
-pkg main.js -c package.json -t node12-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
+pkg app.js -c package.json -t node12-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win32" 30
-pkg main.js -c package.json -t node12-win-x86 --out-path ${release_dir_win32} -d >${release_dir_win32}/build.log
+pkg app.js -c package.json -t node12-win-x86 --out-path ${release_dir_win32} -d >${release_dir_win32}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win64" 30
-pkg main.js -c package.json -t node12-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
+pkg app.js -c package.json -t node12-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
-ZipMacFileName="${release_dir}/SystemStatusAgent-Mac-x64-${VERSION}.tar.gz"
-ZipLinuxFileName="${release_dir}/SystemStatusAgent-Linux-x64-${VERSION}.tar.gz"
-ZipWin32FileName="${release_dir}/SystemStatusAgent-Win-x86-${VERSION}.zip"
-ZipWin64FileName="${release_dir}/SystemStatusAgent-Win-x64-${VERSION}.zip"
+ZipMacFileName="${release_dir}/SSM-Mac-x64-${VERSION}.tar.gz"
+ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
+ZipWin32FileName="${release_dir}/SSM-Win-x86-${VERSION}.zip"
+ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
 
 printDots "* Zipping Binaries" 30
 
@@ -87,7 +80,3 @@ cd ${release_dir_win32}
 cd ${release_dir_win64}
 7z a -tzip ${ZipWin64FileName} ./* -xr!build.log >/dev/null
 echo -en "\e[32m✔\e[0m\n"
-
-if [ $BUILD_ARMV7 -eq 1 ]; then
-    bash ${CURDIR}/compile_armv7.sh --version ${VERSION}
-fi

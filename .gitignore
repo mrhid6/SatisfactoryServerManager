@@ -1,3 +1,6 @@
 node_modules
 scripts/*.exe
 scripts/Temp
+build
+assets/version.txt
+release-builds
