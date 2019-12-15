@@ -1,5 +1,8 @@
-var logger = require("./server/server_logger");
-var Cleanup = require("./server/server_cleanup");
+global.__basedir = __dirname;
+
+
+var logger = require("./Server/server_logger");
+var Cleanup = require("./Server/server_cleanup");
 
 const express = require('express');
 const exphbs = require('express-handlebars');
@@ -9,6 +12,8 @@ const methodOverride = require('method-override');
 const app = express();
 const http = require('http').Server(app);
 const path = require('path');
+
+const SSM_Server_App = require("./Server/server_app");
 
 class AppServer {
     constructor() {
@@ -66,9 +71,14 @@ class AppServer {
 
         const http_port = 3000;
 
-        http.listen(http_port, function (req, res) {
+        http.listen(http_port, (req, res) => {
             logger.info("[APP] [INIT] - Server listening on port: (" + http_port + ")..");
+            this.startAppServer();
         });
+    }
+
+    startAppServer() {
+        SSM_Server_App.init();
     }
 
 }

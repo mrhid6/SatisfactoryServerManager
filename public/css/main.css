@@ -54,14 +54,15 @@ body {
 }
 
 .status-info-card .status-info-card-main {
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
     margin-top: 10px;
 }
 
 .status-info-card .status-info-card-secondary {
-    font-size: 15px;
+    font-size: 20px;
     font-weight: 700;
+
 }
 
 .status-info-card .status-info-card-icon {
