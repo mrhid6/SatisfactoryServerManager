@@ -19,6 +19,7 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 ```
     Edit C:\ProgramData\SatisfactoryServerManager\SSM.json
 ```
+
 ## Development:
 
 * Install nodejs
