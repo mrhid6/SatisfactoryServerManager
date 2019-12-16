@@ -19,3 +19,14 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 ```
     Edit C:\ProgramData\SatisfactoryServerManager\SSM.json
 ```
+
+
+## Development:
+
+* Install nodejs
+* Git clone this repo
+* Fetch git submodule `git submodule update --init`
+* Run `npm install`
+* Run `npm start` to start the webpage
+* Run `npm run watch` to bundle client js files
+* Run `bash ./tools/clean-css.sh` to minify css files
