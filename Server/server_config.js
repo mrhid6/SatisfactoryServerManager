@@ -40,8 +40,8 @@ Config.set("version", version);
 
 Config.get("satisfactory.testmode", true)
 Config.get("satisfactory.server_location", "")
-Config.get("satisfactory.save.session", "Testing1");
-Config.get("satisfactory.save.game", "RPTesting");
+Config.get("satisfactory.save.location", "")
+Config.get("satisfactory.save.file", "RPTesting");
 
 Config.get("mods.enabled", false);
 Config.get("mods.SMLauncher_location", "/opt/SSM/SMLauncher")

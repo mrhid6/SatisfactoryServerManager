@@ -1,0 +1,79 @@
+<div class="page-container" data-page="settings">
+    <h2 class="mb-3">Settings</h2>
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Satisfactory Settings</h5>
+        </div>
+        <div class="card-body">
+            <form action="" method="" class="form-horizontal">
+                <div class="row settings-row">
+                    <div class="col-12 col-md-4">
+                        <b class="settings-prop">Test Mode:</b>
+                        <span class="settings-info">
+                            Test mode will place SSM into test mode and will use the desktop version of satisfatory.
+                        </span>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <div class="checkbox">
+                            <input id="inp_sf_testmode" type="checkbox" data-on="Enabled" data-off="Disabled" data-onstyle="success"
+                                data-offstyle="danger" checked data-toggle="toggle" data-width="100" data-size="small"
+                                disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="row settings-row">
+                    <div class="col-12 col-md-4">
+                        <b class="settings-prop">Server Location:</b>
+                        <span class="settings-info">
+                            Satisfactory server installation location.
+                        </span>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" disabled class="form-control" placeholder="" id="inp_sf_serverloc">
+                    </div>
+                </div>
+                <div class="row settings-row">
+                    <div class="col-12 col-md-4">
+                        <b class="settings-prop">Saves Location:</b>
+                        <span class="settings-info">
+                            Satisfactory server saves location.
+                        </span>
+                    </div>
+                    <div class="col-12 col-md-6">
+                        <input type="text" disabled class="form-control" placeholder="" id="inp_sf_saveloc">
+                    </div>
+                    <div class="col-12 col-md-2">
+                        <button id="refresh-saves" class="btn btn-primary btn-block"><i class="fas fa-sync-alt"></i>
+                            Update
+                            Saves</button>
+                    </div>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-warning float-left" id="edit-sf-settings"><i class="fas fa-edit"></i>
+                        Edit</button>
+                    <button disabled class="btn btn-success float-right" id="save-sf-settings"><i
+                            class="fas fa-save"></i>
+                        Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Satisfactory Saves</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered" id="saves-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Last Updated</th>
+                        <th>Use Save</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+</div>

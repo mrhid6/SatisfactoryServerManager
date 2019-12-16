@@ -6,6 +6,9 @@ const {
 
 const process = require("process");
 
+const fs = require("fs-extra");
+const recursive = require("recursive-readdir");
+
 
 const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
@@ -134,6 +137,54 @@ class SF_Server_Handler {
 
         });
     }
+
+
+    getSaves() {
+        return new Promise((resolve, reject) => {
+            const saveLocation = Config.get("satisfactory.save.location")
+            if (saveLocation == "") {
+                reject("Save location not set!")
+                return;
+            }
+
+            if (fs.ensureDirSync(saveLocation) == false) {
+                reject("Save location doesn't exist!")
+                return;
+            }
+
+            const ResFiles = [];
+
+            recursive(saveLocation, [saveFileFilter], (err, files) => {
+
+                if (err) {
+                    reject(err);
+                    return;
+                }
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+
+                    const stats = fs.statSync(file)
+                    const basename = path.basename(file)
+                    const savename = basename.slice(0, -4);
+
+                    const fileObj = {
+                        fullpath: file,
+                        last_modified: stats.mtime,
+                        filename: basename,
+                        savename: savename
+                    }
+                    ResFiles.push(fileObj);
+                }
+
+                resolve(ResFiles);
+            });
+        });
+    }
+}
+
+function saveFileFilter(file, stats) {
+    return path.extname(file) != ".sav";
 }
 
 const sfs_handler = new SF_Server_Handler();

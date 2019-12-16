@@ -16,9 +16,13 @@ body {
 .main-container {
     background: #fff;
     padding: 15px 15px 15px 15px;
-    height: calc(100% - 58.41px);
     min-height: calc(100% - 58.41px);
     overflow: hidden;
+}
+
+
+.form-control {
+    font-size: 13px;
 }
 
 .status-info-card {
@@ -97,6 +101,47 @@ body {
 
 .server-action-btn i {
     margin-right: 5px;
+}
+
+/* Settings Page */
+.settings-row {
+    margin-bottom: 15px;
+}
+
+.settings-row>div {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.settings-prop {
+    font-size: 13px;
+    display: block;
+}
+
+.settings-info {
+    font-style: italic;
+}
+
+#refresh-saves {
+    font-size: 13px;
+}
+
+#refresh-saves i {
+    font-size: 14px;
+    margin-right: 3px;
+}
+
+
+/* Bootstrap Toggles*/
+
+.btn.toggle,
+.btn.toggle label {
+    cursor: pointer;
+}
+
+.toggle-handle {
+    background-color: white;
+    border: thin rgba(0, 0, 0, .25) solid;
 }
 
 

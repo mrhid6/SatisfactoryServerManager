@@ -9,6 +9,7 @@
         "@fortawesome/fontawesome-free": "^5.11.2",
         "body-parser": "^1.19.0",
         "bootstrap": "^4.3.1",
+        "bootstrap4-toggle": "^3.6.1",
         "cookie-parser": "^1.4.4",
         "cors": "^2.8.5",
         "datatables.net-bs4": "^1.10.20",
@@ -18,7 +19,9 @@
         "fs-extra": "^8.1.0",
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
+        "moment": "^2.24.0",
         "process-list": "^2.0.0",
+        "recursive-readdir": "^2.2.2",
         "simple-node-logger": "^18.12.23"
     },
     "scripts": {

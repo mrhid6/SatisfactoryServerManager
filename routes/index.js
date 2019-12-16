@@ -15,5 +15,12 @@ router.get('/mods', function (req, res, next) {
     });
 });
 
+/* GET settings. */
+router.get('/settings', function (req, res, next) {
+    res.render('settings.hbs', {
+        layout: "main.hbs"
+    });
+});
+
 
 module.exports = router;

@@ -58,6 +58,33 @@ router.get('/serverstatus', function (req, res, next) {
     })
 });
 
+router.get('/saves', function (req, res, next) {
+
+    SFS_Handler.getSaves().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.get('/config', function (req, res, next) {
+
+    res.json({
+        result: "success",
+        data: {
+            satisfactory: Config.get("satisfactory"),
+            mods: Config.get("mods")
+        }
+    });
+
+});
+
 router.get('/modsinstalled', function (req, res, next) {
     if (Config.get("mods.enabled") == false) {
         res.json({
