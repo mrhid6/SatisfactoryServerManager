@@ -6,10 +6,12 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 ## How To Install:
 **Debian / Ubuntu:**
 
-`wget -q https://raw.githubusercontent.com/mrhid6/SatisfactoryServerManager/master/install.sh -O - | bash`
+`wget -q https://git.io/Je7rx -O - | bash`
 
 
 ## Configure:
+Configuration of SSM can be done in the settings page or by editing the Json file.
+
 **Linux:**
 ```
     vi /opt/SSM/SSM.json
@@ -22,7 +24,7 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 
 ## Development:
 
-* Install nodejs
+* Install nodejs (tested on v12.13.1)
 * Git clone this repo
 * Fetch git submodule `git submodule update --init`
 * Install Dependencies:
