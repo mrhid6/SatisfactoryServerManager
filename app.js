@@ -10,11 +10,11 @@ const app = express();
 const http = require('http').Server(app);
 const path = require('path');
 
-var logger = require(__basedir + "/server/server_logger");
-var Cleanup = require(__basedir + "/server/server_cleanup");
-const Config = require(__basedir + "/server/server_config");
+var logger = require("./server/server_logger");
+var Cleanup = require("./server/server_cleanup");
+const Config = require("./server/server_config");
 
-const SSM_Server_App = require(__basedir + "/server/server_app");
+const SSM_Server_App = require("./server/server_app");
 
 
 class AppServer {

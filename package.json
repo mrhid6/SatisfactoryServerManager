@@ -38,7 +38,9 @@
             "views/**/*",
             "public/**/*",
             "scripts/**/*.sh",
-            "node_modules/**/*"
+            "node_modules/jquery/**/*",
+            "node_modules/@fortawesome/**/*",
+            "node_modules/moment/**/*"
         ],
         "targets": [
             "node12"
