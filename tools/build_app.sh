@@ -61,6 +61,8 @@ if [ $UPDATE -eq 1 ]; then
     npm i -g pkg npm-workspace release-it
 fi
 
+git submodule update --init
+
 npm-workspace install
 npm install
 npm rebuild
