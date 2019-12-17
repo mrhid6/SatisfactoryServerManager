@@ -21,30 +21,44 @@ if (fs.pathExistsSync(userDataPath) == false) {
     fs.mkdirSync(userDataPath);
 }
 
-const configOptions = {
-    configFileName: userDataPath + "/SSM.json"
+class ServerConfig extends iConfig {
+    constructor() {
+        super({
+            configFileName: userDataPath + "/SSM.json"
+        });
+
+        console.log("new instance!");
+    }
+
+    load() {
+        super.load();
+        this.setDefaults();
+    }
+
+    setDefaults() {
+
+        const versionFile = path.join(__basedir, 'assets/version.txt')
+        let version = "Unknown";
+
+        if (fs.existsSync(versionFile)) {
+            version = fs.readFileSync(versionFile, {
+                encoding: "utf8"
+            }).split(" ")[1]
+        }
+
+        super.set("version", version);
+
+        super.get("satisfactory.testmode", true)
+        super.get("satisfactory.server_location", "")
+        super.get("satisfactory.save.location", "")
+        super.get("satisfactory.save.file", "RPTesting");
+
+        super.get("mods.enabled", false);
+        super.get("mods.SMLauncher_location", "/opt/SSM/SMLauncher")
+        super.get("mods.location", "/opt/SSM/Temp")
+    }
 }
 
-const Config = new iConfig(configOptions);
+const serverConfig = new ServerConfig()
 
-const versionFile = path.join(__basedir, 'assets/version.txt')
-let version = "Unknown";
-
-if (fs.existsSync(versionFile)) {
-    version = fs.readFileSync(versionFile, {
-        encoding: "utf8"
-    }).split(" ")[1]
-}
-
-Config.set("version", version);
-
-Config.get("satisfactory.testmode", true)
-Config.get("satisfactory.server_location", "")
-Config.get("satisfactory.save.location", "")
-Config.get("satisfactory.save.file", "RPTesting");
-
-Config.get("mods.enabled", false);
-Config.get("mods.SMLauncher_location", "/opt/SSM/SMLauncher")
-Config.get("mods.location", "/opt/SSM/Temp")
-
-module.exports = Config;
+module.exports = serverConfig;

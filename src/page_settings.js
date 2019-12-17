@@ -13,7 +13,21 @@ class Page_Settings {
     }
 
     setupJqueryListeners() {
+        $("#refresh-saves").click(e => {
+            e.preventDefault();
 
+            const $self = $(e.currentTarget);
+
+            $self.prop("disabled", true);
+            $self.find("i").addClass("fa-spin");
+
+            this.displaySaveTable();
+        });
+
+        $("#edit-sf-settings").click(e => {
+            e.preventDefault();
+            this.unlockSFSettings();
+        })
     }
 
     getConfig() {
@@ -51,8 +65,12 @@ class Page_Settings {
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
 
         API_Proxy.get("saves").then(res => {
+            $("#refresh-saves").prop("disabled", false);
+            $("#refresh-saves").find("i").removeClass("fa-spin");
+
             const tableData = [];
             if (res.result == "success") {
+
                 for (let i = 0; i < res.data.length; i++) {
                     const save = res.data[i];
 
@@ -87,7 +105,15 @@ class Page_Settings {
         })
     }
 
+    unlockSFSettings() {
+        $("#edit-sf-settings").prop("disabled", true);
+        $("#refresh-saves").prop("disabled", true);
 
+        $("#save-sf-settings").prop("disabled", false);
+        $('#inp_sf_testmode').bootstrapToggle('enable');
+        $("#inp_sf_serverloc").prop("disabled", false);
+        $("#inp_sf_saveloc").prop("disabled", false);
+    }
 }
 
 function saveDate(dateStr) {

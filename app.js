@@ -1,9 +1,6 @@
 global.__basedir = __dirname;
 
 
-var logger = require("./Server/server_logger");
-var Cleanup = require("./Server/server_cleanup");
-
 const express = require('express');
 const exphbs = require('express-handlebars');
 const cors = require('cors');
@@ -13,7 +10,12 @@ const app = express();
 const http = require('http').Server(app);
 const path = require('path');
 
-const SSM_Server_App = require("./Server/server_app");
+var logger = require(__basedir + "/server/server_logger");
+var Cleanup = require(__basedir + "/server/server_cleanup");
+const Config = require(__basedir + "/server/server_config");
+
+const SSM_Server_App = require(__basedir + "/server/server_app");
+
 
 class AppServer {
     constructor() {
@@ -22,6 +24,7 @@ class AppServer {
     }
 
     init() {
+        Config.load();
         this.startExpress()
     }
 
@@ -50,6 +53,12 @@ class AppServer {
             next();
         });
 
+        const rawBodyBuffer = (req, res, buf, encoding) => {
+            if (buf && buf.length) {
+                req.rawBody = buf.toString(encoding || 'utf8');
+            }
+        };
+
         // methodOverride
         app.use(methodOverride('_method'));
 
@@ -61,9 +70,19 @@ class AppServer {
 
         app.use(cookieParser());
 
+        app.use(bodyParser.urlencoded({
+            verify: rawBodyBuffer,
+            extended: true
+        }));
+        app.use(bodyParser.json({
+            verify: rawBodyBuffer
+        }));
+        console.log("call2");
         logger.info("Setup Express Routes..");
         app.use("/", require("./routes"))
         app.use("/api", require("./routes/api"))
+
+        console.log("call3");
 
         logger.info("Finished");
 

@@ -1,6 +1,8 @@
 var express = require('express');
 var router = express.Router();
 
+const Config = require(__basedir + "/server/server_config");
+
 /* GET dashboard. */
 router.get('/', function (req, res, next) {
     res.render('index.hbs', {

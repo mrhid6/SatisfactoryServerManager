@@ -1,10 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+const SFS_Handler = require("../server/server_sfs_handler");
+const SSM_Mod_Handler = require("../server/server_mod_handler");
 const Config = require("../server/server_config");
-
-const SFS_Handler = require("../Server/server_sfs_handler");
-const SSM_Mod_Handler = require("../Server/server_mod_handler");
 
 router.post('/serveraction/start', function (req, res, next) {
     SFS_Handler.startServer().then(result => {
@@ -78,14 +77,29 @@ router.get('/config', function (req, res, next) {
     res.json({
         result: "success",
         data: {
-            satisfactory: Config.get("satisfactory"),
+            satisfactory: Config._data,
             mods: Config.get("mods")
         }
     });
+});
 
+router.post('/config/sfsettings', function (req, res, next) {
+    const post = req.body
+    SFS_Handler.updateSFSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
 });
 
 router.get('/modsinstalled', function (req, res, next) {
+
     if (Config.get("mods.enabled") == false) {
         res.json({
             result: "error",
@@ -103,6 +117,8 @@ router.get('/modsinstalled', function (req, res, next) {
 });
 
 router.get('/smlversion', function (req, res, next) {
+
+
     if (Config.get("mods.enabled") == false) {
         res.json({
             result: "error",

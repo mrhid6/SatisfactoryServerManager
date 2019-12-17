@@ -181,6 +181,49 @@ class SF_Server_Handler {
             });
         });
     }
+
+    updateSFSettings(data) {
+        return new Promise((resolve, reject) => {
+            const testmode = (data.testmode == "true") || true;
+            const server_location = data.server_location || "";
+            const save_location = data.save_location || "";
+
+            if (server_location == "" || save_location == "") {
+                reject("Both server location & save locations are required!")
+                return;
+            }
+
+            if (fs.pathExistsSync(server_location) == false) {
+                reject("Server location path doesn't exist!")
+                return;
+            }
+
+            if (fs.pathExistsSync(save_location) == false) {
+                reject("Save location path doesn't exist!")
+                return;
+            }
+
+            let SFSExeName = ""
+
+            if (testmode == true) {
+                SFSExeName = "FactoryGame.exe"
+            } else {
+                SFSExeName = "FactoryServer.exe"
+            }
+
+            const SFSExe = path.join(server_location, SFSExeName);
+            if (fs.existsSync(SFSExe) == false) {
+                reject("Cant find server executable (" + SFSExeName + ")")
+                return;
+            }
+
+            Config.set("satisfactory.testmode", testmode);
+            Config.set("satisfactory.server_location", server_location);
+            Config.set("satisfactory.save.location", save_location);
+            resolve();
+
+        });
+    }
 }
 
 function saveFileFilter(file, stats) {
