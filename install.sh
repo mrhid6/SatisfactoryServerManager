@@ -38,7 +38,7 @@ PLATFORM="$(uname -s)"
 
 if [ ! "${PLATFORM}" == "Linux" ]; then
     echo "Error: Install Script Only Works On Linux Platforms!"
-    #exit 1
+    exit 1
 fi
 
 apt update -y
