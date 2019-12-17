@@ -150,7 +150,7 @@ class Page_Dashboard {
         setInterval(() => {
             this.getServerStatus();
             this.getModCount();
-        }, 20 * 1000);
+        }, 5 * 1000);
     }
 }
 
