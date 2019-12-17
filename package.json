@@ -20,9 +20,9 @@
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
         "moment": "^2.24.0",
-        "process-list": "^2.0.0",
         "recursive-readdir": "^2.2.2",
-        "simple-node-logger": "^18.12.23"
+        "simple-node-logger": "^18.12.23",
+        "systeminformation": "^4.16.0"
     },
     "scripts": {
         "start": "node app.js",

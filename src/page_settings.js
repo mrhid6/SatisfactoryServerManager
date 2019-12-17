@@ -1,15 +1,18 @@
 const API_Proxy = require("./api_proxy");
-
+const Tools = require("../Mrhid6Utils/lib/tools");
 
 class Page_Settings {
     constructor() {
         this.Config = {};
+        this.ServerState = {};
     }
 
     init() {
         this.setupJqueryListeners();
         this.getConfig();
+        this.getServerStatus();
 
+        this.startPageInfoRefresh();
     }
 
     setupJqueryListeners() {
@@ -26,7 +29,27 @@ class Page_Settings {
 
         $("#edit-sf-settings").click(e => {
             e.preventDefault();
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
             this.unlockSFSettings();
+        })
+
+        $("#save-sf-settings").click(e => {
+            e.preventDefault();
+            this.submitSettings();
+        })
+
+        $("#cancel-sf-settings").click(e => {
+            e.preventDefault();
+            this.lockSFSettings();
+            this.getConfig();
         })
     }
 
@@ -34,10 +57,17 @@ class Page_Settings {
         API_Proxy.get("config").then(res => {
             if (res.result == "success") {
                 this.Config = res.data;
-                console.log(this.Config);
                 this.MainDisplayFunction();
             }
         });
+    }
+
+    getServerStatus() {
+        API_Proxy.get("serverstatus").then(res => {
+            if (res.result == "success") {
+                this.ServerState = res.data;
+            }
+        })
     }
 
     MainDisplayFunction() {
@@ -47,7 +77,6 @@ class Page_Settings {
 
     populateSFSettings() {
         const sfConfig = this.Config.satisfactory;
-        console.log(sfConfig.testmode);
         $('#inp_sf_testmode').bootstrapToggle('enable')
         if (sfConfig.testmode == true) {
             $('#inp_sf_testmode').bootstrapToggle('on')
@@ -106,13 +135,61 @@ class Page_Settings {
     }
 
     unlockSFSettings() {
+
         $("#edit-sf-settings").prop("disabled", true);
         $("#refresh-saves").prop("disabled", true);
 
         $("#save-sf-settings").prop("disabled", false);
+        $("#cancel-sf-settings").prop("disabled", false);
         $('#inp_sf_testmode').bootstrapToggle('enable');
         $("#inp_sf_serverloc").prop("disabled", false);
         $("#inp_sf_saveloc").prop("disabled", false);
+    }
+
+    lockSFSettings() {
+        $("#edit-sf-settings").prop("disabled", false);
+        $("#refresh-saves").prop("disabled", false);
+
+        $("#save-sf-settings").prop("disabled", true);
+        $("#cancel-sf-settings").prop("disabled", true);
+        $('#inp_sf_testmode').bootstrapToggle('disable');
+        $("#inp_sf_serverloc").prop("disabled", true);
+        $("#inp_sf_saveloc").prop("disabled", true);
+    }
+
+    submitSettings() {
+        const testmode = $('#inp_sf_testmode').is(":checked")
+        const server_location = $("#inp_sf_serverloc").val();
+        const save_location = $("#inp_sf_saveloc").val();
+        const postData = {
+            testmode,
+            server_location,
+            save_location
+        }
+
+        console.log(postData)
+
+        API_Proxy.postData("/config/sfsettings", postData).then(res => {
+
+            if (res.result == "success") {
+                this.lockSFSettings();
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Settings have been saved!")
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        });
+    }
+
+    startPageInfoRefresh() {
+        setInterval(() => {
+            this.getServerStatus();
+        }, 5 * 1000);
     }
 }
 

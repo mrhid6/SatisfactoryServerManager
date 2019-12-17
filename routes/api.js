@@ -77,7 +77,7 @@ router.get('/config', function (req, res, next) {
     res.json({
         result: "success",
         data: {
-            satisfactory: Config._data,
+            satisfactory: Config.get("satisfactory"),
             mods: Config.get("mods")
         }
     });

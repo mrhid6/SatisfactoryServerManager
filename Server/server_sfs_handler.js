@@ -1,10 +1,7 @@
 const exec = require("child_process").exec
 const path = require("path");
-const {
-    snapshot
-} = require("process-list");
 
-const process = require("process");
+const si = require("systeminformation")
 
 const fs = require("fs-extra");
 const recursive = require("recursive-readdir");
@@ -117,22 +114,29 @@ class SF_Server_Handler {
 
     getServerStatus() {
         return new Promise((resolve, reject) => {
-            snapshot('pid', 'name').then(res => {
+
+            si.processes().then(data => {
+                const process = data.list.find(el => el.name == "FactoryGame-Win64-Shipping.exe")
 
                 const state = {
                     pid: -1,
-                    status: ""
+                    status: "",
+                    pcpu: 0,
+                    pmem: 0
                 }
-
-                const process = res.find(el => el.name == "FactoryGame-Win64-Shipping.exe")
 
                 if (process == null) {
                     state.status = "stopped"
                 } else {
                     state.pid = process.pid
                     state.status = "running"
+                    state.pcpu = process.pcpu;
+                    state.pmem = process.pmem;
                 }
-                resolve(state);
+
+
+                resolve(state)
+                return
             })
 
         });
@@ -184,7 +188,7 @@ class SF_Server_Handler {
 
     updateSFSettings(data) {
         return new Promise((resolve, reject) => {
-            const testmode = (data.testmode == "true") || true;
+            const testmode = data.testmode || true;
             const server_location = data.server_location || "";
             const save_location = data.save_location || "";
 
@@ -227,7 +231,7 @@ class SF_Server_Handler {
 }
 
 function saveFileFilter(file, stats) {
-    return path.extname(file) != ".sav";
+    return (path.extname(file) != ".sav" && stats.isDirectory() == false);
 }
 
 const sfs_handler = new SF_Server_Handler();

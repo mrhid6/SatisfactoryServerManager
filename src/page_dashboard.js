@@ -56,6 +56,10 @@ class Page_Dashboard {
                 } else {
                     el.text("Running")
                 }
+
+                $("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
+                $("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
+
             } else {
                 el.text("Server Error!")
             }

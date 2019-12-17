@@ -1,20 +1,21 @@
-<div class="modal" id="server-action-success" role="dialog">
+<div class="modal" id="server-settings-confirm" role="dialog">
     <div class="modal-dialog modal-lg">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"> Server Action Success</h4>
+                <h4 class="modal-title"> Server Settings Confirm</h4>
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-2 text-center">
-                        <i class="fas fa-check success-icon text-success"></i>
+                        <i class="fas fa-question text-warning mx-auto"></i>
                     </div>
                     <div class="col-10">
-                        <h5>Hurray!</h5>
-                        <p id="success-msg" class="text-success"></p>
+                        <h5 class="mb-5">Are you sure you want to do that?</h5>
+                        <button class="btn btn-primary float-left" id="cancel-action">Cancel</button>
+                        <button class="btn btn-danger float-right" id="confirm-action">Confirm</button>
                     </div>
                 </div>
 

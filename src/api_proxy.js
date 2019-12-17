@@ -17,7 +17,15 @@ class API_Proxy {
                 resolve(result)
             })
         })
+    }
 
+    postData(posturl, data) {
+        const url = "/api/" + posturl
+        return new Promise((resolve, reject) => {
+            $.post(url, data, result => {
+                resolve(result)
+            })
+        })
     }
 }
 

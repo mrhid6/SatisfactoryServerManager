@@ -15,6 +15,10 @@ Number.prototype.pad = function (width, z) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
+Number.prototype.toDecimal = function () {
+    return this.toFixed(2);
+}
+
 
 function main() {
     Logger.displayBanner();

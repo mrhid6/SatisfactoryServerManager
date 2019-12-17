@@ -26,8 +26,6 @@ class ServerConfig extends iConfig {
         super({
             configFileName: userDataPath + "/SSM.json"
         });
-
-        console.log("new instance!");
     }
 
     load() {

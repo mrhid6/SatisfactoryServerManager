@@ -37,6 +37,7 @@ body {
     color: #313131;
     padding: 8px 12px;
     position: relative;
+    margin-bottom: 8px;
 }
 
 .status-info-card.blue {
@@ -103,6 +104,11 @@ body {
     margin-right: 5px;
 }
 
+#cpu-usage,
+#ram-usage {
+    max-width: calc(100% - 80px)
+}
+
 /* Settings Page */
 .settings-row {
     margin-bottom: 15px;
@@ -148,25 +154,54 @@ body {
 
 /* Modals */
 
-#server-action-error #error-msg {
+#server-action-error #error-msg,
+#server-settings-error #error-msg {
     font-size: 13px;
     font-weight: bold;
 }
 
-#server-action-error .error-icon {
+#server-action-error .error-icon,
+#server-settings-error .error-icon {
     font-size: 50px;
 }
 
 
-#server-action-success #success-msg {
+#server-action-success #success-msg,
+#server-settings-success #success-msg {
     font-size: 13px;
     font-weight: bold;
 }
 
-#server-action-success .success-icon {
+#server-action-success .success-icon,
+#server-settings-success .success-icon {
     font-size: 50px;
 }
 
-#server-action-confirm i {
+#server-action-confirm i,
+#server-settings-confirm i {
     font-size: 50px;
+}
+
+
+@media(max-width:991px) {
+    .status-info-card {
+        height: 70px;
+    }
+
+    .status-info-card .status-info-card-main {
+        margin-top: 2px;
+        font-size: 13px;
+    }
+
+    .status-info-card .status-info-card-secondary {
+        font-size: 15px;
+    }
+
+    .status-info-card .status-info-card-icon {
+        font-size: 35px;
+    }
+
+    .server-action-btn {
+        font-size: 13px;
+    }
 }
