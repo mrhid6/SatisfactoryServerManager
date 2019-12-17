@@ -19,7 +19,6 @@ const SSM_Server_App = require(__basedir + "/server/server_app");
 
 class AppServer {
     constructor() {
-        console.log("Test!");
         this.init();
     }
 
@@ -77,12 +76,9 @@ class AppServer {
         app.use(bodyParser.json({
             verify: rawBodyBuffer
         }));
-        console.log("call2");
         logger.info("Setup Express Routes..");
         app.use("/", require("./routes"))
         app.use("/api", require("./routes/api"))
-
-        console.log("call3");
 
         logger.info("Finished");
 
