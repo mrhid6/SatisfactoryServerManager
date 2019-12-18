@@ -5,3 +5,4 @@ build
 assets/version.txt
 release-builds
 tools/TOKEN.txt
+*.log
