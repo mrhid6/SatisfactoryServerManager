@@ -46,28 +46,35 @@ class SSM_Server_App {
             return;
         }
 
-        const defaultpasshash = CryptoJS.MD5("ssm").toString();
+        const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
 
-        const passhash = CryptoJS.MD5(pass).toString();
+        const passString = "SSM:" + UserAccount.username + "-" + pass;
+        const passhash = CryptoJS.MD5(passString).toString();
 
-        if (UserAccount.username == user && UserAccount.password == passhash) {
-            req.loginresult = "success";
-            req.session.loggedin = true;
-            req.session.userid = UserId;
+        if (UserAccount.username != user || UserAccount.password != passhash) {
+            req.loginresult = "error";
+            req.loginerror = "Invalid Login Credientials!";
 
-            if (UserAccount.password == defaultpasshash) {
-                req.changepass = true;
-                req.session.changepass = true;
-            } else {
-                req.changepass = false;
-            }
+            logger.warn("[SERVER_APP] [LOGIN] - Failed Login Attempt from " + clientip)
 
-            logger.debug("[SERVER_APP] [LOGIN] - Successful Login from " + clientip + " User:" + UserAccount.username)
             next();
             return;
         }
 
-        console.log(UserAccount);
+        req.loginresult = "success";
+        req.session.loggedin = true;
+        req.session.userid = UserId;
+
+        if (UserAccount.password == defaultpasshash) {
+            req.changepass = true;
+            req.session.changepass = true;
+        } else {
+            req.changepass = false;
+        }
+
+        logger.debug("[SERVER_APP] [LOGIN] - Successful Login from " + clientip + " User:" + UserAccount.username)
+        next();
+        return;
     }
 
     changeUserDefaultPassword(req, res, next) {
@@ -77,12 +84,27 @@ class SSM_Server_App {
             return;
         }
 
+        const UserAccount = Config.get("ssm.users." + req.session.userid)
+
+        if (UserAccount == null || typeof UserAccount === 'undifined') {
+            req.passchangeresult = "error";
+            req.passchangeerror = "Server Error";
+
+            logger.warn("[SERVER_APP] [LOGIN] - Failed change default password Attempt from " + clientip)
+
+            next();
+            return;
+        }
+
         const post = req.body;
         const pass1 = post.inp_pass1;
         const pass2 = post.inp_pass2;
 
-        const pass1hash = CryptoJS.MD5(pass1).toString();
-        const pass2hash = CryptoJS.MD5(pass2).toString();
+        const pass1String = "SSM:" + UserAccount.username + "-" + pass1;
+        const pass2String = "SSM:" + UserAccount.username + "-" + pass2;
+
+        const pass1hash = CryptoJS.MD5(pass1String).toString();
+        const pass2hash = CryptoJS.MD5(pass2String).toString();
 
         const defaultpasshash = CryptoJS.MD5("ssm").toString();
 
@@ -91,6 +113,26 @@ class SSM_Server_App {
         if (pass1hash != pass2hash) {
             req.passchangeresult = "error";
             req.passchangeerror = "Passwords dont match!";
+
+            logger.warn("[SERVER_APP] [LOGIN] - Failed change default password Attempt from " + clientip)
+
+            next();
+            return;
+        }
+
+        if (pass1 == UserAccount.username) {
+            req.passchangeresult = "error";
+            req.passchangeerror = "You can't use the same password as your username!";
+
+            logger.warn("[SERVER_APP] [LOGIN] - Failed change default password Attempt from " + clientip)
+
+            next();
+            return;
+        }
+
+        if (pass1hash == UserAccount.password) {
+            req.passchangeresult = "error";
+            req.passchangeerror = "The password you entered is the same as the current one!";
 
             logger.warn("[SERVER_APP] [LOGIN] - Failed change default password Attempt from " + clientip)
 

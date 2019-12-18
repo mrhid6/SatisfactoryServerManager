@@ -3,7 +3,7 @@
 ## Introduction
 Satisfactory Server Manager (SSM) is a webpage designed to manage and control you satisfactory dedicated server.
 
-As a **note** this project has not ben tested with the Satisfactory dedicated server software SSM is subject to change.
+As a **note** this project has not ben tested with the Satisfactory dedicated server software. SSM is subject to change.
 
 ## How To Install:
 **Debian / Ubuntu:**
@@ -36,5 +36,12 @@ npm install
 npm rebuild
 ```
 * Run `npm start` to start the webpage
+    * Open up http://localhost:3000
+    * Login with the following credientals: 
+    ```
+        User Name: admin
+        Password: ssm
+    ```
+
 * Run `npm run watch` to bundle client js files
 * Run `bash ./tools/clean-css.sh` to minify css files

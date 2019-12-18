@@ -36,7 +36,7 @@ class ServerConfig extends iConfig {
 
     setDefaults() {
 
-        const versionFile = path.join(__basedir, 'assets/version.txt')
+        const versionFile = 'assets/version.txt';
         let version = "Unknown";
 
         if (fs.existsSync(versionFile)) {
@@ -45,7 +45,7 @@ class ServerConfig extends iConfig {
             }).split(" ")[1]
         }
 
-        const defaultpasshash = CryptoJS.MD5("ssm").toString();
+        const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
 
         super.set("ssm.version", version);
 
@@ -56,7 +56,7 @@ class ServerConfig extends iConfig {
         super.get("satisfactory.server_location", "")
         super.get("satisfactory.password", "")
         super.get("satisfactory.save.location", "")
-        super.get("satisfactory.save.file", "RPTesting");
+        super.get("satisfactory.save.file", "");
 
         super.get("mods.enabled", false);
         super.get("mods.SMLauncher_location", "")
