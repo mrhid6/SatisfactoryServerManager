@@ -1,3 +1,4 @@
+const API_Proxy = require("./api_proxy");
 const Page_Dashboard = require("./page_dashboard");
 const Page_Mods = require("./page_mods");
 const Page_Settings = require("./page_settings");
@@ -9,6 +10,8 @@ class PageHandler {
 
     init() {
         this.setupJqueryHandler();
+        this.getSSMVersion();
+
         this.page = $(".page-container").attr("data-page");
 
         switch (this.page) {
@@ -26,6 +29,18 @@ class PageHandler {
 
     setupJqueryHandler() {
         $('[data-toggle="tooltip"]').tooltip()
+    }
+
+    getSSMVersion() {
+        API_Proxy.get("ssmversion").then(res => {
+            const el = $("#ssm-version");
+            if (res.result == "success") {
+                el.text(res.data)
+
+            } else {
+                el.text("Server Error!")
+            }
+        })
     }
 }
 

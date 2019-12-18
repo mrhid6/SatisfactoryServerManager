@@ -13,7 +13,10 @@ const middleWare = [
 router.post('/serveraction/start', middleWare, function (req, res, next) {
 
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -33,7 +36,10 @@ router.post('/serveraction/start', middleWare, function (req, res, next) {
 router.post('/serveraction/stop', middleWare, function (req, res, next) {
 
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -52,7 +58,10 @@ router.post('/serveraction/stop', middleWare, function (req, res, next) {
 
 router.post('/serveraction/kill', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -71,7 +80,10 @@ router.post('/serveraction/kill', middleWare, function (req, res, next) {
 
 router.get('/serverstatus', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -83,9 +95,27 @@ router.get('/serverstatus', middleWare, function (req, res, next) {
     })
 });
 
+router.get('/ssmversion', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    res.json({
+        result: "success",
+        data: Config.get("ssm.version")
+    });
+});
+
 router.get('/saves', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -104,7 +134,10 @@ router.get('/saves', middleWare, function (req, res, next) {
 
 router.get('/config', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -125,7 +158,10 @@ router.get('/config', middleWare, function (req, res, next) {
 
 router.post('/config/sfsettings', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -145,7 +181,10 @@ router.post('/config/sfsettings', middleWare, function (req, res, next) {
 
 router.post('/config/modssettings', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -165,7 +204,10 @@ router.post('/config/modssettings', middleWare, function (req, res, next) {
 
 router.get('/modsinstalled', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 
@@ -188,7 +230,10 @@ router.get('/modsinstalled', middleWare, function (req, res, next) {
 router.get('/smlversion', middleWare, function (req, res, next) {
 
     if (req.isLoggedin != true) {
-        res.redirect("/login");
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
         return;
     }
 

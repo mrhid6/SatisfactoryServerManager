@@ -957,6 +957,7 @@ const page = new Page_Dashboard();
 
 module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],9:[function(require,module,exports){
+const API_Proxy = require("./api_proxy");
 const Page_Dashboard = require("./page_dashboard");
 const Page_Mods = require("./page_mods");
 const Page_Settings = require("./page_settings");
@@ -968,6 +969,8 @@ class PageHandler {
 
     init() {
         this.setupJqueryHandler();
+        this.getSSMVersion();
+
         this.page = $(".page-container").attr("data-page");
 
         switch (this.page) {
@@ -986,12 +989,24 @@ class PageHandler {
     setupJqueryHandler() {
         $('[data-toggle="tooltip"]').tooltip()
     }
+
+    getSSMVersion() {
+        API_Proxy.get("ssmversion").then(res => {
+            const el = $("#ssm-version");
+            if (res.result == "success") {
+                el.text(res.data)
+
+            } else {
+                el.text("Server Error!")
+            }
+        })
+    }
 }
 
 const pagehandler = new PageHandler();
 
 module.exports = pagehandler;
-},{"./page_dashboard":8,"./page_mods":10,"./page_settings":11}],10:[function(require,module,exports){
+},{"./api_proxy":5,"./page_dashboard":8,"./page_mods":10,"./page_settings":11}],10:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 
 

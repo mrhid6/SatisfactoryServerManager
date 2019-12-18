@@ -19,7 +19,7 @@ body {
 }
 
 .navbar .rightnavbar {
-    width: 100px;
+    min-width: 165px;
 }
 
 .navbar .navbar-brand img {
@@ -35,6 +35,22 @@ body {
     padding: 15px 15px 15px 15px;
     min-height: calc(100% - 58.41px);
     overflow: hidden;
+    position: relative;
+    padding-bottom: 55px;
+}
+
+.page-footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: #fff;
+    font-size: 14px;
+}
+
+.page-footer a {
+    font-weight: bold;
+    color: #fff;
 }
 
 
