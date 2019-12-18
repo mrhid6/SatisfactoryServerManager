@@ -45,7 +45,6 @@ class Page_Dashboard {
 
     getServerStatus() {
         API_Proxy.get("serverstatus").then(res => {
-            console.log(res);
             const el = $("#server-status");
             if (res.result == "success") {
                 this.ServerState = res.data;

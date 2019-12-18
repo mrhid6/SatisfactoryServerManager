@@ -38,13 +38,14 @@ class SF_Server_Handler {
 
     execSFSCmd(command) {
 
-        let SFSExe = "";
-
+        let SFSExeName = ""
         if (Config.get("satisfactory.testmode") == true) {
-            SFSExe = path.join(Config.get("satisfactory.server_location"), "FactoryGame.exe");
+            SFSExeName = "FactoryGame.exe"
         } else {
-            SFSExe = path.join(Config.get("satisfactory.server_location"), "FactoryServer.exe");
+            SFSExeName = "FactoryServer.exe"
         }
+
+        const SFSExe = path.join(Config.get("satisfactory.server_location"), SFSExeName);
 
         return new Promise((resolve, reject) => {
             const fullCommand = "\"" + SFSExe + "\" " + command;
@@ -71,7 +72,7 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
 
                 if (server_status.pid == -1) {
-                    return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.game") + " &");
+                    return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " &");
                 } else {
                     reject("Server is already started!")
                     return;
@@ -188,7 +189,7 @@ class SF_Server_Handler {
 
     updateSFSettings(data) {
         return new Promise((resolve, reject) => {
-            const testmode = data.testmode || true;
+            const testmode = (data.testmode == "true");
             const server_location = data.server_location || "";
             const save_location = data.save_location || "";
 
@@ -224,6 +225,43 @@ class SF_Server_Handler {
             Config.set("satisfactory.testmode", testmode);
             Config.set("satisfactory.server_location", server_location);
             Config.set("satisfactory.save.location", save_location);
+            resolve();
+
+        });
+    }
+
+    updateModsSettings(data) {
+        return new Promise((resolve, reject) => {
+            const enabled = (data.enabled == "true");
+            const sml_location = data.sml_location || "";
+            const mods_location = data.mods_location || "";
+
+            if (sml_location == "" || mods_location == "") {
+                reject("Both SMLauncher & Mods folder locations are required!")
+                return;
+            }
+
+            if (fs.pathExistsSync(sml_location) == false) {
+                reject("SMLauncher path doesn't exist!")
+                return;
+            }
+
+            if (fs.pathExistsSync(mods_location) == false) {
+                reject("Mods path doesn't exist!")
+                return;
+            }
+
+            let SMLExeName = "SatisfactoryModLauncherCLI.exe"
+
+            const SMLExe = path.join(sml_location, SMLExeName);
+            if (fs.existsSync(SMLExe) == false) {
+                reject("Cant find SMLauncher executable (" + SMLExeName + ")")
+                return;
+            }
+
+            Config.set("mods.enabled", enabled);
+            Config.set("mods.SMLauncher_location", sml_location);
+            Config.set("mods.location", mods_location);
             resolve();
 
         });

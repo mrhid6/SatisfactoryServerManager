@@ -98,6 +98,21 @@ router.post('/config/sfsettings', function (req, res, next) {
     })
 });
 
+router.post('/config/modssettings', function (req, res, next) {
+    const post = req.body
+    SFS_Handler.updateModsSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
 router.get('/modsinstalled', function (req, res, next) {
 
     if (Config.get("mods.enabled") == false) {

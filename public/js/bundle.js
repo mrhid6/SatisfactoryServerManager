@@ -845,7 +845,6 @@ class Page_Dashboard {
 
     getServerStatus() {
         API_Proxy.get("serverstatus").then(res => {
-            console.log(res);
             const el = $("#server-status");
             if (res.result == "success") {
                 this.ServerState = res.data;
@@ -950,7 +949,7 @@ class Page_Dashboard {
         setInterval(() => {
             this.getServerStatus();
             this.getModCount();
-        }, 20 * 1000);
+        }, 5 * 1000);
     }
 }
 
@@ -1124,15 +1123,42 @@ class Page_Settings {
             this.unlockSFSettings();
         })
 
+
+
         $("#save-sf-settings").click(e => {
             e.preventDefault();
-            this.submitSettings();
+            this.submitSFSettings();
         })
 
         $("#cancel-sf-settings").click(e => {
             e.preventDefault();
             this.lockSFSettings();
             this.getConfig();
+        })
+
+        $("#edit-mods-settings").click(e => {
+            e.preventDefault();
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
+            this.unlockModsSettings();
+        })
+
+        $("#cancel-mods-settings").click(e => {
+            e.preventDefault();
+            this.lockModsSettings();
+            this.getConfig();
+        })
+
+        $("#save-mods-settings").click(e => {
+            e.preventDefault();
+            this.submitModsSettings();
         })
     }
 
@@ -1156,6 +1182,7 @@ class Page_Settings {
     MainDisplayFunction() {
         this.displaySaveTable();
         this.populateSFSettings();
+        this.populateModsSettings();
     }
 
     populateSFSettings() {
@@ -1170,6 +1197,20 @@ class Page_Settings {
 
         $("#inp_sf_serverloc").val(sfConfig.server_location)
         $("#inp_sf_saveloc").val(sfConfig.save.location)
+    }
+
+    populateModsSettings() {
+        const modsConfig = this.Config.mods;
+        $('#inp_mods_enabled').bootstrapToggle('enable')
+        if (modsConfig.enabled == true) {
+            $('#inp_mods_enabled').bootstrapToggle('on')
+        } else {
+            $('#inp_mods_enabled').bootstrapToggle('off')
+        }
+        $('#inp_mods_enabled').bootstrapToggle('disable')
+
+        $("#inp_mods_sml").val(modsConfig.SMLauncher_location)
+        $("#inp_mods_loc").val(modsConfig.location)
     }
 
     displaySaveTable() {
@@ -1240,7 +1281,28 @@ class Page_Settings {
         $("#inp_sf_saveloc").prop("disabled", true);
     }
 
-    submitSettings() {
+    unlockModsSettings() {
+
+        $("#edit-mods-settings").prop("disabled", true);
+
+        $("#save-mods-settings").prop("disabled", false);
+        $("#cancel-mods-settings").prop("disabled", false);
+        $('#inp_mods_enabled').bootstrapToggle('enable');
+        $("#inp_mods_sml").prop("disabled", false);
+        $("#inp_mods_loc").prop("disabled", false);
+    }
+
+    lockModsSettings() {
+        $("#edit-mods-settings").prop("disabled", false);
+
+        $("#save-mods-settings").prop("disabled", true);
+        $("#cancel-mods-settings").prop("disabled", true);
+        $('#inp_mods_enabled').bootstrapToggle('disable');
+        $("#inp_mods_sml").prop("disabled", true);
+        $("#inp_mods_loc").prop("disabled", true);
+    }
+
+    submitSFSettings() {
         const testmode = $('#inp_sf_testmode').is(":checked")
         const server_location = $("#inp_sf_serverloc").val();
         const save_location = $("#inp_sf_saveloc").val();
@@ -1256,6 +1318,35 @@ class Page_Settings {
 
             if (res.result == "success") {
                 this.lockSFSettings();
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Settings have been saved!")
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        });
+    }
+
+    submitModsSettings() {
+        const enabled = $('#inp_mods_enabled').is(":checked")
+        const sml_location = $("#inp_mods_sml").val();
+        const mods_location = $("#inp_mods_loc").val();
+        const postData = {
+            enabled,
+            sml_location,
+            mods_location
+        }
+
+        console.log(postData)
+
+        API_Proxy.postData("/config/modssettings", postData).then(res => {
+            console.log(res)
+            if (res.result == "success") {
+                this.lockModsSettings();
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")
