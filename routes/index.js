@@ -120,6 +120,17 @@ router.get('/mods', middleWare, function (req, res, next) {
     }
 });
 
+/* GET Logs. */
+router.get('/logs', middleWare, function (req, res, next) {
+    if (req.isLoggedin == true) {
+        res.render('logs.hbs', {
+            layout: "main.hbs"
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 /* GET settings. */
 router.get('/settings', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {

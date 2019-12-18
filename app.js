@@ -25,13 +25,14 @@ class AppServer {
 
     init() {
         Config.load();
+        logger.info("[APP] [PREINIT] - Starting SSM..");
         this.startExpress()
     }
 
     startExpress() {
         var cookieParser = require('cookie-parser')
 
-        logger.info("Starting Express..");
+        logger.info("[APP] [EXPRESS] - Starting Express..");
 
         const expsess = session({
             secret: 'SSM',
@@ -42,7 +43,7 @@ class AppServer {
             },
             rolling: true
         });
-    
+
         app.use(expsess);
 
         // View Engine
@@ -74,11 +75,11 @@ class AppServer {
         // methodOverride
         app.use(methodOverride('_method'));
 
-        logger.info("Setup Express Static Routes..");
+        logger.info("[APP] [EXPRESS] - Setup Express Static Routes..");
         app.use("/libraries", express.static(__dirname + '/node_modules'));
         app.use("/public", express.static(__dirname + '/public'));
         app.use("/docs", express.static(__dirname + '/docs'));
-        logger.info("Finished");
+        logger.info("[APP] [EXPRESS] - Finished");
 
         app.use(cookieParser());
 
@@ -89,15 +90,15 @@ class AppServer {
         app.use(bodyParser.json({
             verify: rawBodyBuffer
         }));
-        logger.info("Setup Express Routes..");
+        logger.info("[APP] [EXPRESS] - Setup Express Routers..");
         app.use("/", require("./routes"))
         app.use("/api", require("./routes/api"))
 
-        logger.info("Finished");
+        logger.info("[APP] [EXPRESS] - Finished");
 
-        logger.info("Started Express.");
+        logger.info("[APP] [EXPRESS] - Started Express.");
 
-        const http_port = 3000;
+        const http_port = Config.get("ssm.http_port", 3000);
 
         http.listen(http_port, (req, res) => {
             logger.info("[APP] [INIT] - Server listening on port: (" + http_port + ")..");

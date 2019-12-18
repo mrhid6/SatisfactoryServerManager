@@ -4,6 +4,9 @@ const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 
+const SFS_Handler = require("../server/server_sfs_handler");
+const SSM_Mod_Handler = require("../server/server_mod_handler");
+
 class SSM_Server_App {
 
     constructor() {
@@ -12,6 +15,14 @@ class SSM_Server_App {
 
     init() {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
+        this.setupEventHandlers();
+        SFS_Handler.init();
+    }
+
+    setupEventHandlers() {
+        Cleanup.addEventHandler(() => {
+            logger.info("[SERVER_APP] [CLEANUP] - Closing Server App...");
+        })
     }
 
     checkLoggedInMiddleWare(req, res, next) {

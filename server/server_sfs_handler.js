@@ -15,7 +15,22 @@ class SF_Server_Handler {
 
     constructor() {
 
+    }
 
+    init() {
+        logger.info("[SFS_Handler] [INIT] - SFS Handler Initialized");
+        this.setupEventHandlers();
+    }
+
+    setupEventHandlers() {
+        Cleanup.addEventHandler(() => {
+            logger.info("[SFS_Handler] [CLEANUP] - Closing SFS Handler ...");
+            this.CleanupSFSHandler();
+        })
+    }
+
+    CleanupSFSHandler() {
+        this.stopServer().catch(err => {})
     }
 
     execOSCmd(command) {
@@ -67,13 +82,16 @@ class SF_Server_Handler {
     }
 
     startServer() {
+        logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
         return new Promise((resolve, reject) => {
 
             this.getServerStatus().then(server_status => {
 
                 if (server_status.pid == -1) {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
                     return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " &");
                 } else {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
                     return;
                 }
@@ -86,12 +104,18 @@ class SF_Server_Handler {
     }
 
     stopServer() {
+        logger.debug("[SFS_Handler] [SERVER_ACTION] - Stopping SF Server ...");
+        Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
+                    Cleanup.decreaseCounter(1);
                     process.kill(server_status.pid, 'SIGINT');
                     resolve();
                 } else {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
+                    Cleanup.decreaseCounter(1);
                     reject("Server is already stopped!")
                     return;
                 }
@@ -100,12 +124,20 @@ class SF_Server_Handler {
     }
 
     killServer() {
+        logger.debug("[SFS_Handler] [SERVER_ACTION] - Killing SF Server ...");
+        Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
+
+
                     process.kill(server_status.pid, 'SIGKILL');
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
+                    Cleanup.decreaseCounter(1);
                     resolve();
                 } else {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
+                    Cleanup.decreaseCounter(1);
                     reject("Server is already stopped!")
                     return;
                 }
