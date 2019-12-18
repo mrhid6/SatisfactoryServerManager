@@ -142,6 +142,18 @@ body {
     max-width: calc(100% - 80px)
 }
 
+/* Logs Page */
+
+.log-viewer {
+    max-height: 400px;
+    overflow-x: auto;
+}
+
+.log-viewer p {
+    margin-bottom: 2px;
+}
+
+
 /* Settings Page */
 .settings-row {
     margin-bottom: 15px;

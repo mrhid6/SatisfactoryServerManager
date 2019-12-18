@@ -6,6 +6,7 @@ const Config = require("./server_config");
 
 const SFS_Handler = require("../server/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/server_mod_handler");
+const SSM_Log_Handler = require("../server/server_log_handler");
 
 class SSM_Server_App {
 
@@ -17,6 +18,7 @@ class SSM_Server_App {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
         this.setupEventHandlers();
         SFS_Handler.init();
+        SSM_Log_Handler.init();
     }
 
     setupEventHandlers() {
@@ -171,6 +173,27 @@ class SSM_Server_App {
         req.session.changepass = false;
         req.session.touch();
         next();
+    }
+
+    logoutUserAccount(req, res, next) {
+
+        if (req.session.loggedin != true) {
+            req.isLoggedin = false;
+            req.session.destroy();
+            next();
+            return;
+        }
+
+        const UserAccount = Config.get("ssm.users." + req.session.userid)
+        var clientip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+        logger.debug("[SERVER_APP] [LOGIN] - Successful Logged Out from " + clientip + " User:" + UserAccount.username)
+        req.session.destroy();
+
+        next();
+        return;
+
+
     }
 }
 

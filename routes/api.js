@@ -4,6 +4,7 @@ var router = express.Router();
 const ServerApp = require("../server/server_app");
 const SFS_Handler = require("../server/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/server_mod_handler");
+const SSM_Log_Handler = require("../server/server_log_handler");
 const Config = require("../server/server_config");
 
 const middleWare = [
@@ -251,6 +252,29 @@ router.get('/smlversion', middleWare, function (req, res, next) {
             });
         })
     }
+});
+
+router.get('/logs/ssmlog', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    SSM_Log_Handler.getSSMLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
 });
 
 

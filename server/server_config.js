@@ -46,7 +46,7 @@ class ServerConfig extends iConfig {
         }
 
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
-        Config.get("ssm.http_port", 3000);
+        super.get("ssm.http_port", 3000);
         super.set("ssm.version", version);
 
         super.get("ssm.users.0.username", "admin")
