@@ -98,7 +98,7 @@ class AppServer {
 
         logger.info("[APP] [EXPRESS] - Started Express.");
 
-        const http_port = Config.get("ssm.http_port", 3000);
+        const http_port = Config.get("ssm.http_port");
 
         http.listen(http_port, (req, res) => {
             logger.info("[APP] [INIT] - Server listening on port: (" + http_port + ")..");
