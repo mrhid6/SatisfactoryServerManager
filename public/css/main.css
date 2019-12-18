@@ -9,8 +9,25 @@ body {
     font-size: 12px;
 }
 
+.navbar {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.navbar ul {
+    width: 100%;
+}
+
+.navbar .rightnavbar {
+    width: 100px;
+}
+
 .navbar .navbar-brand img {
-    height: 32px;
+    height: 45px;
+}
+
+.navbar i {
+    font-size: 14px;
 }
 
 .main-container {
@@ -135,6 +152,10 @@ body {
 #refresh-saves i {
     font-size: 14px;
     margin-right: 3px;
+}
+
+#show-sf-password {
+    cursor: pointer;
 }
 
 

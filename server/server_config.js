@@ -1,5 +1,6 @@
 const fs = require("fs-extra");
 const path = require("path");
+const CryptoJS = require("crypto-js");
 
 const Mrhid6Utils = require("../Mrhid6Utils");
 const iConfig = Mrhid6Utils.Config;
@@ -44,7 +45,12 @@ class ServerConfig extends iConfig {
             }).split(" ")[1]
         }
 
-        super.set("version", version);
+        const defaultpasshash = CryptoJS.MD5("ssm").toString();
+
+        super.set("ssm.version", version);
+
+        super.get("ssm.users.0.username", "admin")
+        super.get("ssm.users.0.password", defaultpasshash)
 
         super.get("satisfactory.testmode", true)
         super.get("satisfactory.server_location", "")

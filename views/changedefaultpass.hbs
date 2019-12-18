@@ -1,0 +1,53 @@
+<div class="card border-dark mb-3 login-card">
+    <div class="card-header">
+        <div class="logo"><img src="/public/images/ssm_logo128.png" /></div>
+    </div>
+    <div class="card-body">
+        <h4 class="card-title">Change Default Password</h4>
+        <div class="error-content">{{{ERROR_MSG}}}</div>
+        <form class="form-horizontal signup-form" method="post" action="">
+            <fieldset>
+                <div class="row">
+                    <div class="col-12">
+                        <b>Looks like the the user ({{{UserName}}}) you signed in has the default password. <br />Please
+                            change the password
+                            below.</br />
+                    </div>
+                </div>
+                <div class="row form-group required">
+                    <label class="col-12 col-md-4 control-label" for="inp_pass1">Password:</label>
+                    <div class="col-12 col-md-8">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                            </div>
+                            <input id="inp_pass" name="inp_pass1" placeholder="" class="form-control input-md"
+                                type="password">
+                        </div>
+                    </div>
+                </div>
+                <div class="row form-group required">
+                    <label class="col-12 col-md-4 control-label" for="inp_pass2">Confirm Password:</label>
+                    <div class="col-12 col-md-8">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="fas fa-key"></i>
+                                </span>
+                            </div>
+                            <input id="inp_pass" name="inp_pass2" placeholder="" class="form-control input-md"
+                                type="password">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-success login-btn">Change Password</button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+</div>

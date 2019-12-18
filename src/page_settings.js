@@ -27,6 +27,19 @@ class Page_Settings {
             this.displaySaveTable();
         });
 
+        $("#show-sf-password").click(e => {
+            const $this = $(e.currentTarget);
+            if ($this.hasClass("fa-eye")) {
+                $("#inp_sf_password").attr("type", "text")
+                $this.attr("data-original-title", "Hide Password")
+                $this.removeClass("fa-eye").addClass("fa-eye-slash")
+            } else {
+                $("#inp_sf_password").attr("type", "password")
+                $this.attr("data-original-title", "Show Password")
+                $this.removeClass("fa-eye-slash").addClass("fa-eye");
+            }
+        })
+
         $("#edit-sf-settings").click(e => {
             e.preventDefault();
 
@@ -40,8 +53,6 @@ class Page_Settings {
 
             this.unlockSFSettings();
         })
-
-
 
         $("#save-sf-settings").click(e => {
             e.preventDefault();
@@ -114,6 +125,7 @@ class Page_Settings {
         $('#inp_sf_testmode').bootstrapToggle('disable')
 
         $("#inp_sf_serverloc").val(sfConfig.server_location)
+        $("#inp_sf_password").val(sfConfig.password)
         $("#inp_sf_saveloc").val(sfConfig.save.location)
     }
 
@@ -185,6 +197,7 @@ class Page_Settings {
         $("#cancel-sf-settings").prop("disabled", false);
         $('#inp_sf_testmode').bootstrapToggle('enable');
         $("#inp_sf_serverloc").prop("disabled", false);
+        $("#inp_sf_password").prop("disabled", false);
         $("#inp_sf_saveloc").prop("disabled", false);
     }
 
@@ -196,6 +209,7 @@ class Page_Settings {
         $("#cancel-sf-settings").prop("disabled", true);
         $('#inp_sf_testmode').bootstrapToggle('disable');
         $("#inp_sf_serverloc").prop("disabled", true);
+        $("#inp_sf_password").prop("disabled", true);
         $("#inp_sf_saveloc").prop("disabled", true);
     }
 
@@ -223,14 +237,14 @@ class Page_Settings {
     submitSFSettings() {
         const testmode = $('#inp_sf_testmode').is(":checked")
         const server_location = $("#inp_sf_serverloc").val();
+        const server_password = $("#inp_sf_password").val();
         const save_location = $("#inp_sf_saveloc").val();
         const postData = {
             testmode,
             server_location,
+            server_password,
             save_location
         }
-
-        console.log(postData)
 
         API_Proxy.postData("/config/sfsettings", postData).then(res => {
 

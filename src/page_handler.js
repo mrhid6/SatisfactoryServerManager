@@ -8,6 +8,7 @@ class PageHandler {
     }
 
     init() {
+        this.setupJqueryHandler();
         this.page = $(".page-container").attr("data-page");
 
         switch (this.page) {
@@ -21,6 +22,10 @@ class PageHandler {
                 Page_Settings.init();
                 break;
         }
+    }
+
+    setupJqueryHandler() {
+        $('[data-toggle="tooltip"]').tooltip()
     }
 }
 

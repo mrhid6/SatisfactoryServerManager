@@ -191,6 +191,7 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const testmode = (data.testmode == "true");
             const server_location = data.server_location || "";
+            const server_password = data.server_password || "";
             const save_location = data.save_location || "";
 
             if (server_location == "" || save_location == "") {
@@ -224,6 +225,7 @@ class SF_Server_Handler {
 
             Config.set("satisfactory.testmode", testmode);
             Config.set("satisfactory.server_location", server_location);
+            Config.set("satisfactory.password", server_password);
             Config.set("satisfactory.save.location", save_location);
             resolve();
 

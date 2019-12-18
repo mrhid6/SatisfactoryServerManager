@@ -2,6 +2,7 @@ global.__basedir = __dirname;
 
 
 const express = require('express');
+const session = require('express-session');
 const exphbs = require('express-handlebars');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -31,6 +32,18 @@ class AppServer {
         var cookieParser = require('cookie-parser')
 
         logger.info("Starting Express..");
+
+        const expsess = session({
+            secret: 'SSM',
+            resave: false,
+            saveUninitialized: true,
+            cookie: {
+                maxAge: (15 * 60 * 1000)
+            },
+            rolling: true
+        });
+    
+        app.use(expsess);
 
         // View Engine
         app.set('views', path.join(__dirname + '/views'));

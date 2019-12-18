@@ -1,11 +1,22 @@
 var express = require('express');
 var router = express.Router();
 
+const ServerApp = require("../server/server_app");
 const SFS_Handler = require("../server/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/server_mod_handler");
 const Config = require("../server/server_config");
 
-router.post('/serveraction/start', function (req, res, next) {
+const middleWare = [
+    ServerApp.checkLoggedInMiddleWare
+]
+
+router.post('/serveraction/start', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
     SFS_Handler.startServer().then(result => {
         res.json({
             result: "success",
@@ -19,7 +30,13 @@ router.post('/serveraction/start', function (req, res, next) {
     })
 });
 
-router.post('/serveraction/stop', function (req, res, next) {
+router.post('/serveraction/stop', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
     SFS_Handler.stopServer().then(result => {
         res.json({
             result: "success",
@@ -33,7 +50,12 @@ router.post('/serveraction/stop', function (req, res, next) {
     })
 });
 
-router.post('/serveraction/kill', function (req, res, next) {
+router.post('/serveraction/kill', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
     SFS_Handler.killServer().then(result => {
         res.json({
             result: "success",
@@ -47,7 +69,11 @@ router.post('/serveraction/kill', function (req, res, next) {
     })
 });
 
-router.get('/serverstatus', function (req, res, next) {
+router.get('/serverstatus', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
 
     SFS_Handler.getServerStatus().then(result => {
         res.json({
@@ -57,7 +83,11 @@ router.get('/serverstatus', function (req, res, next) {
     })
 });
 
-router.get('/saves', function (req, res, next) {
+router.get('/saves', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
 
     SFS_Handler.getSaves().then(result => {
         res.json({
@@ -72,18 +102,33 @@ router.get('/saves', function (req, res, next) {
     })
 });
 
-router.get('/config', function (req, res, next) {
+router.get('/config', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
+    const sfConfig = Config.get("satisfactory");
+    const modsConfig = Config.get("mods");
+
+    const sfConfig_clone = Object.assign(Object.create(Object.getPrototypeOf(sfConfig)), sfConfig)
+    sfConfig_clone.password = null;
 
     res.json({
         result: "success",
         data: {
-            satisfactory: Config.get("satisfactory"),
-            mods: Config.get("mods")
+            satisfactory: sfConfig_clone,
+            mods: modsConfig
         }
     });
 });
 
-router.post('/config/sfsettings', function (req, res, next) {
+router.post('/config/sfsettings', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
     const post = req.body
     SFS_Handler.updateSFSettings(post).then(result => {
         res.json({
@@ -98,7 +143,12 @@ router.post('/config/sfsettings', function (req, res, next) {
     })
 });
 
-router.post('/config/modssettings', function (req, res, next) {
+router.post('/config/modssettings', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
+
     const post = req.body
     SFS_Handler.updateModsSettings(post).then(result => {
         res.json({
@@ -113,7 +163,11 @@ router.post('/config/modssettings', function (req, res, next) {
     })
 });
 
-router.get('/modsinstalled', function (req, res, next) {
+router.get('/modsinstalled', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
 
     if (Config.get("mods.enabled") == false) {
         res.json({
@@ -131,8 +185,12 @@ router.get('/modsinstalled', function (req, res, next) {
     }
 });
 
-router.get('/smlversion', function (req, res, next) {
+router.get('/smlversion', middleWare, function (req, res, next) {
 
+    if (req.isLoggedin != true) {
+        res.redirect("/login");
+        return;
+    }
 
     if (Config.get("mods.enabled") == false) {
         res.json({
