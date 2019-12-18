@@ -3,6 +3,8 @@
 ## Introduction
 Satisfactory Server Manager (SSM) is a webpage designed to manage and control you satisfactory dedicated server.
 
+As a **note** this project has not ben tested with the Satisfactory dedicated server software SSM is subject to change.
+
 ## How To Install:
 **Debian / Ubuntu:**
 
