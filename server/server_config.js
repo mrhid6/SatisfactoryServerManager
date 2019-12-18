@@ -48,12 +48,13 @@ class ServerConfig extends iConfig {
 
         super.get("satisfactory.testmode", true)
         super.get("satisfactory.server_location", "")
+        super.get("satisfactory.password", "")
         super.get("satisfactory.save.location", "")
         super.get("satisfactory.save.file", "RPTesting");
 
         super.get("mods.enabled", false);
-        super.get("mods.SMLauncher_location", "/opt/SSM/SMLauncher")
-        super.get("mods.location", "/opt/SSM/Temp")
+        super.get("mods.SMLauncher_location", "")
+        super.get("mods.location", "")
     }
 }
 
