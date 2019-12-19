@@ -6,6 +6,8 @@ const si = require("systeminformation")
 const fs = require("fs-extra");
 const recursive = require("recursive-readdir");
 
+const br = require('binary-reader');
+
 
 const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
@@ -189,7 +191,6 @@ class SF_Server_Handler {
                 return;
             }
 
-            const ResFiles = [];
 
             recursive(saveLocation, [saveFileFilter], (err, files) => {
 
@@ -198,26 +199,159 @@ class SF_Server_Handler {
                     return;
                 }
 
+                const promises = [];
+
                 for (let i = 0; i < files.length; i++) {
                     const file = files[i];
+                    promises.push(this.getSaveInfo(file))
+                }
 
+                Promise.all(promises).then(values => {
+                    resolve(values)
+                }).catch(err => {
+                    console.log("Errored!", err)
+                    reject(err);
+                    return;
+                })
+            });
+        });
+    }
+
+    getSaveInfo(file) {
+        return new Promise((resolve, reject) => {
+            this.validateSaveFile(file).then(valid => {
+                if (valid == false) {
                     const stats = fs.statSync(file)
                     const basename = path.basename(file)
                     const savename = basename.slice(0, -4);
-
                     const fileObj = {
+                        result: "failed",
                         fullpath: file,
                         last_modified: stats.mtime,
                         filename: basename,
                         savename: savename
                     }
-                    ResFiles.push(fileObj);
+
+                    resolve(fileObj)
+                    return;
+                } else {
+                    return this.getSaveVersion(file);
+                }
+            }).then(saveVersion => {
+                if (saveVersion == null) return;
+
+                if (saveVersion < 20) {
+                    const stats = fs.statSync(file)
+                    const basename = path.basename(file)
+                    const savename = basename.slice(0, -4);
+                    const fileObj = {
+                        result: "failed",
+                        fullpath: file,
+                        last_modified: stats.mtime,
+                        filename: basename,
+                        savename: savename
+                    }
+
+                    resolve(fileObj)
+                    return;
                 }
 
-                resolve(ResFiles);
-            });
+                return this.getSaveBodyLength(file)
+            }).then(length => {
+                if (length == null) return;
+
+                return this.getSaveBodyString(file, length)
+            }).then(savebody => {
+                if (savebody == null) return;
+                const stats = fs.statSync(file)
+                const basename = path.basename(file)
+                const savename = basename.slice(0, -4);
+
+                const fileObj = {
+                    result: "success",
+                    fullpath: file,
+                    last_modified: stats.mtime,
+                    filename: basename,
+                    savename: savename,
+                    savebody: savebody
+                }
+
+                resolve(fileObj)
+            }).catch(err => {
+                console.log(err);
+                reject(err);
+            })
         });
     }
+
+    readSaveFileOffset(file, start, length) {
+        return new Promise((resolve, reject) => {
+            let resBuffer = null;
+
+            br.open(file)
+                .on("error", function (error) {
+                    reject(error);
+                })
+                .on("close", function () {
+                    resolve(resBuffer);
+                })
+                .seek(start)
+                .read(length, function (bytesRead, buffer) {
+                    resBuffer = buffer;
+                })
+                .close();
+        })
+    }
+
+    validateSaveFile(savefile) {
+        return new Promise((resolve, reject) => {
+            this.readSaveFileOffset(savefile, 38, 1).then(buffer => {
+                const test = buffer.readUInt8();
+
+                if (test == 0) {
+                    resolve(false)
+                } else {
+                    resolve(true)
+                }
+            }).catch(err => {
+                reject(err);
+            })
+        });
+    }
+
+    getSaveVersion(savefile) {
+        return new Promise((resolve, reject) => {
+
+            this.readSaveFileOffset(savefile, 4, 4).then(buffer => {
+                resolve(buffer.readUInt8())
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+    getSaveBodyLength(savefile) {
+        return new Promise((resolve, reject) => {
+            this.readSaveFileOffset(savefile, 33, 4).then(buffer => {
+                resolve(buffer.readUInt8());
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+    getSaveBodyString(savefile, length) {
+        return new Promise((resolve, reject) => {
+
+            this.readSaveFileOffset(savefile, 37, length).then(buffer => {
+                resolve(buffer.toString("utf-8").replace(/\0/g, ''))
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+
 
     selectSave(savename) {
         return new Promise((resolve, reject) => {

@@ -177,6 +177,8 @@ class Page_Settings {
             if (res.result == "success") {
 
                 res.data.forEach(save => {
+                    if (save.result == "failed") return;
+
                     let useSaveEl = $("<button/>")
                         .addClass("btn btn-primary btn-block select-save-btn")
                         .text("Select Save")
@@ -187,8 +189,12 @@ class Page_Settings {
                     }
                     const useSaveStr = useSaveEl.prop('outerHTML')
 
+                    const saveOptions = save.savebody.split("?");
+                    const saveSessionName = saveOptions[2].split("=")[1];
+
                     tableData.push([
-                        save.savename,
+                        saveSessionName.trunc(25),
+                        save.savename.trunc(40),
                         saveDate(save.last_modified),
                         useSaveStr
                     ])
@@ -202,11 +208,11 @@ class Page_Settings {
                     searching: false,
                     info: false,
                     order: [
-                        [1, "desc"]
+                        [2, "desc"]
                     ],
                     columnDefs: [{
                         type: 'date-euro',
-                        targets: 1
+                        targets: 2
                     }],
                     data: tableData
                 })
