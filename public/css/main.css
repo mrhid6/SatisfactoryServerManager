@@ -186,6 +186,10 @@ body {
     cursor: pointer;
 }
 
+.select-save {
+    font-size: 13px;
+    padding: 5px 12px;
+}
 
 /* Bootstrap Toggles*/
 

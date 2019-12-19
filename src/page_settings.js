@@ -89,6 +89,13 @@ class Page_Settings {
             e.preventDefault();
             this.submitModsSettings();
         })
+
+        $("body").on("click", ".select-save-btn", (e) => {
+            const $self = $(e.currentTarget);
+            const savename = $self.attr("data-save");
+
+            this.selectSave(savename);
+        })
     }
 
     getConfig() {
@@ -127,6 +134,12 @@ class Page_Settings {
         $("#inp_sf_serverloc").val(sfConfig.server_location)
         $("#inp_sf_password").val(sfConfig.password)
         $("#inp_sf_saveloc").val(sfConfig.save.location)
+        if (sfConfig.save.file == "") {
+            $("#current-save").text("No Save File Selected, Server will create a new world on start up.")
+        } else {
+            $("#current-save").text(sfConfig.save.file)
+        }
+
     }
 
     populateModsSettings() {
@@ -146,6 +159,7 @@ class Page_Settings {
     displaySaveTable() {
 
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
+        const sfConfig = this.Config.satisfactory;
 
         API_Proxy.get("saves").then(res => {
             $("#refresh-saves").prop("disabled", false);
@@ -154,15 +168,25 @@ class Page_Settings {
             const tableData = [];
             if (res.result == "success") {
 
-                for (let i = 0; i < res.data.length; i++) {
-                    const save = res.data[i];
+                res.data.forEach(save => {
+                    let useSaveEl = $("<button/>")
+                        .addClass("btn btn-primary btn-block select-save-btn")
+                        .text("Select Save")
+                        .attr("data-save", save.savename);
+
+                    if (save.savename == sfConfig.save.file) {
+                        useSaveEl.prop("disabled", true).text("Active Save");
+                    }
+                    console.log(useSaveEl);
+                    const useSaveStr = useSaveEl.prop('outerHTML')
 
                     tableData.push([
                         save.savename,
                         saveDate(save.last_modified),
-                        ""
+                        useSaveStr
                     ])
-                }
+                })
+
             }
 
             if (isDataTable == false) {
@@ -279,6 +303,27 @@ class Page_Settings {
             console.log(res)
             if (res.result == "success") {
                 this.lockModsSettings();
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Settings have been saved!")
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        });
+    }
+
+    selectSave(savename) {
+        const postData = {
+            savename
+        }
+
+        API_Proxy.postData("/config/selectsave", postData).then(res => {
+
+            if (res.result == "success") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")
