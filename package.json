@@ -22,6 +22,7 @@
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
         "moment": "^2.24.0",
+        "node-windows": "^0.1.14",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
         "simple-node-logger": "^18.12.23",

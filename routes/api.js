@@ -111,6 +111,29 @@ router.get('/ssmversion', middleWare, function (req, res, next) {
     });
 });
 
+router.get('/logs/ssmlog', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    SSM_Log_Handler.getSSMLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
 router.get('/saves', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
         res.json({
@@ -124,6 +147,30 @@ router.get('/saves', middleWare, function (req, res, next) {
         res.json({
             result: "success",
             data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/config/selectsave', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    const body = req.body;
+    const savename = body.savename;
+
+    SFS_Handler.selectSave(savename).then(() => {
+        res.json({
+            result: "success"
         });
     }).catch(err => {
         res.json({
@@ -252,29 +299,6 @@ router.get('/smlversion', middleWare, function (req, res, next) {
             });
         })
     }
-});
-
-router.get('/logs/ssmlog', middleWare, function (req, res, next) {
-
-    if (req.isLoggedin != true) {
-        res.json({
-            result: "error",
-            error: "not logged in to ssm!"
-        });
-        return;
-    }
-
-    SSM_Log_Handler.getSSMLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err
-        });
-    })
 });
 
 

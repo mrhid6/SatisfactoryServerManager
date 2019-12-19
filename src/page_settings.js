@@ -94,6 +94,14 @@ class Page_Settings {
             const $self = $(e.currentTarget);
             const savename = $self.attr("data-save");
 
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
             this.selectSave(savename);
         })
     }
@@ -177,7 +185,6 @@ class Page_Settings {
                     if (save.savename == sfConfig.save.file) {
                         useSaveEl.prop("disabled", true).text("Active Save");
                     }
-                    console.log(useSaveEl);
                     const useSaveStr = useSaveEl.prop('outerHTML')
 
                     tableData.push([
@@ -324,6 +331,7 @@ class Page_Settings {
         API_Proxy.postData("/config/selectsave", postData).then(res => {
 
             if (res.result == "success") {
+                this.getConfig();
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")

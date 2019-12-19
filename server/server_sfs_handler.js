@@ -219,6 +219,22 @@ class SF_Server_Handler {
         });
     }
 
+    selectSave(savename) {
+        return new Promise((resolve, reject) => {
+            this.getSaves().then(saves => {
+                const saveFile = saves.find(el => el.savename == savename);
+
+                if (saveFile == null) {
+                    reject("Save Doesn't Exist!")
+                    return;
+                }
+
+                Config.set("satisfactory.save.file", saveFile.savename);
+                resolve();
+            })
+        });
+    }
+
     updateSFSettings(data) {
         return new Promise((resolve, reject) => {
             const testmode = (data.testmode == "true");
