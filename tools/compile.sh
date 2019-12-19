@@ -58,7 +58,7 @@ ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
 printDots "* Zipping Binaries" 30
 
 cd ${release_dir_linux}
-tar czf ${ZipLinuxFileName} ./* >/dev/null
+tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
 cd ${release_dir_win64}
 7z a -tzip ${ZipWin64FileName} ./* -xr!build.log >/dev/null
 echo -en "\e[32m✔\e[0m\n"
