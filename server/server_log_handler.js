@@ -46,8 +46,8 @@ class SSM_Log_Handler {
                         reject(err);
                         return;
                     }
-                    const dataStr = data.toString();
-                    const dataArr = (dataStr.split("\r\n")).reverse().filter(el => el != "");
+                    const dataStr = data.toString().replace(/\r\n/g, '\n');
+                    const dataArr = (dataStr.split("\n")).reverse().filter(el => el != "");
                     resolve(dataArr)
                 })
             }).catch(err => {
