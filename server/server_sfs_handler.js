@@ -84,13 +84,12 @@ class SF_Server_Handler {
     }
 
     startServer() {
-        logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
-        return new Promise((resolve, reject) => {
 
+        return new Promise((resolve, reject) => {
+            logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
             this.getServerStatus().then(server_status => {
 
                 if (server_status.pid == -1) {
-                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
                     return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " &");
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
@@ -98,8 +97,10 @@ class SF_Server_Handler {
                     return;
                 }
             }).then(res => {
+                logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
                 resolve(res);
             }).catch(err => {
+                logger.warn("[SFS_Handler] [SERVER_ACTION] - SF Server Failed To Start");
                 reject(err);
             })
         });
