@@ -109,8 +109,8 @@ if [ ${SSM_SERVICE} -eq 0 ]; then
     systemctl stop ${SSM_SERVICENAME}
 fi
 
+echo "* Downloading SSM"
 rm -r ${INSTALL_DIR}/* 2>&1 >/dev/null
-
 mkdir -p "${INSTALL_DIR}/SMLauncher"
 
 wget -q "${SSM_URL}" -O "${INSTALL_DIR}/SSM.tar.gz"
@@ -119,10 +119,14 @@ rm "${INSTALL_DIR}/SSM.tar.gz" >/dev/null 2>&1
 rm "${INSTALL_DIR}/build.log" >/dev/null 2>&1
 echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
 
+echo "* Downloading SMLauncher"
 wget -q "${SMLauncher_URL}" -O "${INSTALL_DIR}/SMLauncher/SatisfactoryModLauncherCLI.exe"
 echo ${SMLauncher_VER} >"${INSTALL_DIR}/SMLauncher/version.txt"
 
 chmod -R +x ${INSTALL_DIR}
+
+echo "* Cleanup"
+rm -r ${TEMP_DIR}
 
 if [ ${NOSERVICE} -eq 0 ]; then
     echo "Creating SSM Service"
@@ -134,10 +138,13 @@ if [ ${NOSERVICE} -eq 0 ]; then
     fi
 
     if [ ${SSM_SERVICE} -eq 0 ]; then
+        echo "* Removing Old SSM Service"
         systemctl disable ${SSM_SERVICENAME}
         rm -r "${SSM_SERVICEFILE}" >/dev/null 2>&1
         systemctl daemon-reload
     fi
+
+    echo "* Create SSM Service"
 
     cat >>${SSM_SERVICEFILE} <<EOL
 [Unit]
@@ -158,7 +165,7 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOL
-
+    echo "* Start SSM Service"
     systemctl daemon-reload
     systemctl enable ${SSM_SERVICENAME}
     systemctl start ${SSM_SERVICENAME}
@@ -166,5 +173,3 @@ EOL
 else
     echo "SSM Service Skipped"
 fi
-
-rm -r ${TEMP_DIR}
