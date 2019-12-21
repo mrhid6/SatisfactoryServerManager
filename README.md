@@ -5,11 +5,20 @@ Satisfactory Server Manager (SSM) is a webpage designed to manage and control yo
 
 As a **note** this project has not ben tested with the Satisfactory dedicated server software. SSM is subject to change.
 
-## How To Install:
+## How To Install / Update:
 **Debian / Ubuntu:**
 
-`wget -q https://git.io/Je7rx -O - | bash`
+Install: `wget -q https://git.io/Je7rx -O - | bash`
+Update: `wget -q https://git.io/Je7rx -O - | bash /dev/stdin "--update"`
 
+**Windows**
+
+Open a PowerShell window as administrator and run the following commands:
+```
+Invoke-WebRequest https://git.io/JedBC -Out install.ps1
+.\install.ps1
+
+```
 
 ## Configure:
 Configuration of SSM can be done in the settings page or by editing the Json file.
