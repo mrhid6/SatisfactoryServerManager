@@ -114,7 +114,7 @@ rm -r ${INSTALL_DIR}/* 2>&1 >/dev/null
 mkdir -p "${INSTALL_DIR}/SMLauncher"
 
 wget -q "${SSM_URL}" -O "${INSTALL_DIR}/SSM.tar.gz"
-tar xzfv "${INSTALL_DIR}/SSM.tar.gz" -C "${INSTALL_DIR}"
+tar xzf "${INSTALL_DIR}/SSM.tar.gz" -C "${INSTALL_DIR}"
 rm "${INSTALL_DIR}/SSM.tar.gz" >/dev/null 2>&1
 rm "${INSTALL_DIR}/build.log" >/dev/null 2>&1
 echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
