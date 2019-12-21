@@ -179,6 +179,7 @@ else
     )
 
     if [ ${SSM_SERVICE} -eq 0 ]; then
+        echo "* Start SSM Service"
         systemctl start ${SSM_SERVICENAME} >/dev/null 2>&1
     fi
 fi
