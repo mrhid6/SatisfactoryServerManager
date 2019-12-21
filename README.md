@@ -8,7 +8,7 @@ As a **note** this project has not ben tested with the Satisfactory dedicated se
 ## How To Install / Update:
 **Debian / Ubuntu:**
 
-Install: `wget -q https://git.io/Je7rx -O - | bash`
+Install: `wget -q https://git.io/Je7rx -O - | bash` <br/>
 Update: `wget -q https://git.io/Je7rx -O - | bash /dev/stdin "--update"`
 
 **Windows**
