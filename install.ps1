@@ -93,5 +93,10 @@ if($noservice -eq $false){
 	write-host "* Start SSM Service"
 	$SSM_Service | Start-Service | out-null
 }else{
-	write-host "SSM Service Skipped"
+    write-host "SSM Service Skipped"
+    $SSM_Service = Get-Service -Name "SSM" -ErrorAction SilentlyContinue
+    if($SSM_Service -ne $null){
+        write-host "* Start SSM Service"
+        $SSM_Service | Start-Service | out-null
+    }
 }

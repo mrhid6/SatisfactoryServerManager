@@ -106,6 +106,7 @@ SSM_SERVICE=$(
 )
 
 if [ ${SSM_SERVICE} -eq 0 ]; then
+    echo "Stopping SSM Service"
     systemctl stop ${SSM_SERVICENAME}
 fi
 
@@ -172,4 +173,12 @@ EOL
 
 else
     echo "SSM Service Skipped"
+    SSM_SERVICE=$(
+        systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}"
+        echo $?
+    )
+
+    if [ ${SSM_SERVICE} -eq 0 ]; then
+        systemctl start ${SSM_SERVICENAME} >/dev/null 2>&1
+    fi
 fi
