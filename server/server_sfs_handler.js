@@ -90,7 +90,7 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
 
                 if (server_status.pid == -1) {
-                    return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " &");
+                    return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " -NoEpicPortal &");
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
