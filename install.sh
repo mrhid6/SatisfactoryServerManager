@@ -69,8 +69,8 @@ else
 fi
 
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
-    apt update -y
-    apt install curl wget jq
+    apt-get -qq upgrade -y
+    apt-get -qq install curl wget jq -y
 else
     echo "Error: This version of Linux is not supported for SSM"
     exit 2
@@ -139,9 +139,9 @@ if [ ${NOSERVICE} -eq 0 ]; then
 
     if [ ${SSM_SERVICE} -eq 0 ]; then
         echo "* Removing Old SSM Service"
-        systemctl disable ${SSM_SERVICENAME}
+        systemctl disable ${SSM_SERVICENAME} >/dev/null 2>&1
         rm -r "${SSM_SERVICEFILE}" >/dev/null 2>&1
-        systemctl daemon-reload
+        systemctl daemon-reload >/dev/null 2>&1
     fi
 
     echo "* Create SSM Service"
@@ -166,9 +166,9 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOL
     echo "* Start SSM Service"
-    systemctl daemon-reload
-    systemctl enable ${SSM_SERVICENAME}
-    systemctl start ${SSM_SERVICENAME}
+    systemctl daemon-reload >/dev/null 2>&1
+    systemctl enable ${SSM_SERVICENAME} >/dev/null 2>&1
+    systemctl start ${SSM_SERVICENAME} >/dev/null 2>&1
 
 else
     echo "SSM Service Skipped"
