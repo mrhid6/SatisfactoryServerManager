@@ -215,36 +215,14 @@ body {
 
 /* Modals */
 
-#server-action-error #error-msg,
-#server-settings-error #error-msg,
-#server-mods-error #error-msg {
+.ssm-modal i {
+    font-size: 50px;
+}
+
+
+.ssm-modal .ssm-modal-msg {
     font-size: 13px;
     font-weight: bold;
-}
-
-#server-action-error .error-icon,
-#server-settings-error .error-icon,
-#server-mods-error .error-icon {
-    font-size: 50px;
-}
-
-
-#server-action-success #success-msg,
-#server-settings-success #success-msg,
-#server-mods-success #success-msg {
-    font-size: 13px;
-    font-weight: bold;
-}
-
-#server-action-success .success-icon,
-#server-settings-success .success-icon,
-#server-mods-success .success-icon {
-    font-size: 50px;
-}
-
-#server-action-confirm i,
-#server-settings-confirm i  {
-    font-size: 50px;
 }
 
 
