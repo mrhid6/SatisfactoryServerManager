@@ -67,6 +67,30 @@ class FicsitHandler {
         })
     }
 
+    getFullModsList() {
+        return new Promise((resolve, reject) => {
+            const query = `{
+                getMods(filter:{limit:100}){
+                    mods{
+                      id name
+                      versions(filter: { limit: 100 }) {
+                        id
+                        version
+                        link
+                      }
+                    }
+                  }
+              }`
+
+            request(this.FICSIT_URL, query).then(data => {
+                const d = data.getMods.mods
+                resolve(d)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    }
+
     getModInfo(modid) {
         return new Promise((resolve, reject) => {
             const query = `{

@@ -18,11 +18,24 @@ class Page_Mods {
     setupJqueryListeners() {
         $("body").on("change", "#sel-add-mod-name", (e) => {
             this.getFicsitModInfo();
+        }).on("change", "#sel-add-mod-version", (e) => {
+            const $self = $(e.currentTarget);
+
+            if ($self.val() == -1) {
+                this.lockInstallModBtn();
+            } else {
+                this.unlockInstallModBtn();
+            }
         })
 
         $("#btn-install-sml").click(e => {
             const $self = $(e.currentTarget);
             this.installSMLVersion($self);
+        })
+
+        $("#btn-install-mod").click(e => {
+            const $self = $(e.currentTarget);
+            this.installModVersion($self);
         })
     }
 
@@ -209,6 +222,54 @@ class Page_Mods {
             }
 
         })
+    }
+
+    unlockInstallModBtn() {
+        $("#btn-install-mod").prop("disabled", false);
+    }
+
+    lockInstallModBtn() {
+        $("#btn-install-mod").prop("disabled", true);
+    }
+
+    installModVersion($btn) {
+        $btn.prop("disabled", true);
+        $btn.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");
+
+        const $selModEl = $("#sel-add-mod-name");
+        const $selVersionEl = $("#sel-add-mod-version");
+
+        $selModEl.prop("disabled", true);
+        $selVersionEl.prop("disabled", true);
+
+        const postData = {
+            modid: $selModEl.val(),
+            versionid: $selVersionEl.val()
+        }
+
+        API_Proxy.postData("/installmod", postData).then(res => {
+            console.log(res);
+
+            $btn.prop("disabled", false);
+            $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
+            $selModEl.prop("disabled", false);
+            $selVersionEl.prop("disabled", false);
+
+            if (res.result == "success") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Mod has been installed!")
+                    this.displayModsTable();
+                    this.getModCount();
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+
+        });
     }
 }
 

@@ -137,9 +137,6 @@ class SSM_Mod_Handler {
 
     installLatestSMLVersion() {
         return new Promise((resolve, reject) => {
-
-
-
             SSM_Ficsit_Handler.getSMLVersions().then(sml_versions => {
                 const version = sml_versions[0]
 
@@ -156,6 +153,62 @@ class SSM_Mod_Handler {
                 reject(err);
             })
         })
+    }
+
+    installModVersion(modid, versionid) {
+        return new Promise((resolve, reject) => {
+            SSM_Ficsit_Handler.getFullModsList().then(mods => {
+                const mod = mods.find(el => el.id == modid)
+
+                if (mod == null) {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing Mod Failed!");
+                    reject("Cant find mod!");
+                    return;
+                }
+
+                const version = mod.versions.find(el => el.id == versionid)
+
+                if (version == null) {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing Mod Failed!");
+                    reject("Cant find mod version!");
+                    return;
+                }
+
+                this.getModsInstalled().then(installed_mods => {
+                    const installed_mod = installed_mods.find(el => el.id == mod.id);
+
+                    if (installed_mod != null) {
+                        logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalling Mod: " + mod.name + " " + installed_mod.version);
+                        const cmd1 = "uninstall -m " + mod.id + " -v " + installed_mod.version + " -p " + Config.get("mods.location");
+                        return this.execSMLCLI(cmd1);
+                    }
+                }).catch(err => {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing Mod Failed!");
+                    reject(err);
+                }).finally(() => {
+                    logger.info("[MOD_HANDLER] [INSTALL] - Downloading Mod " + mod.name + " " + version.version + " ...")
+                    const cmd2 = "download -m " + mod.id + " -v " + version.version
+                    this.execSMLCLI(cmd2).then(res2 => {
+                        logger.info("[MOD_HANDLER] [INSTALL] - Downloaded Mod " + mod.name + " " + version.version + "!")
+                        logger.info("[MOD_HANDLER] [INSTALL] - Installing Mod " + mod.name + " " + version.version + " ...")
+
+                        const cmd3 = "install -m " + mod.id + " -v " + version.version + " -p " + Config.get("mods.location");
+                        return this.execSMLCLI(cmd3)
+
+
+                    }).then(res3 => {
+                        logger.info("[MOD_HANDLER] [INSTALL] - Installed Mod " + mod.name + " " + version.version + "!")
+                        resolve(res3);
+                    }).catch(err => {
+                        logger.error("[MOD_HANDLER] [INSTALL] - Installing Mod Failed!");
+                        reject(err);
+                    })
+                })
+            }).catch(err => {
+                logger.error("[MOD_HANDLER] [INSTALL] - Installing Mod Failed!");
+                reject(err);
+            })
+        });
     }
 }
 const ssm_mod_handler = new SSM_Mod_Handler();

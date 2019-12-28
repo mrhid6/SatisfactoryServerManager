@@ -58,6 +58,14 @@ body {
     font-size: 13px;
 }
 
+.btn {
+    font-size: 13px;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
 /* Dashboard Page*/
 
 .status-info-card {
