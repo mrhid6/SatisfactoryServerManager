@@ -92,7 +92,10 @@ router.post('/changedefaultpass', middleWare, ServerApp.changeUserDefaultPasswor
 
 /* GET Logout. */
 router.get('/logout', middleWare, ServerApp.logoutUserAccount, function (req, res, next) {
-    req.session.destroy();
+    if (req.session != null) {
+        req.session.destroy();
+    }
+
     res.render('logout.hbs', {
         layout: "login.hbs"
     });

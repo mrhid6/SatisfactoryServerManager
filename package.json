@@ -45,6 +45,7 @@
             "views/**/*",
             "public/**/*",
             "scripts/**/*.sh",
+            "assets/**/*",
             "node_modules/jquery/**/*",
             "node_modules/@fortawesome/**/*",
             "node_modules/moment/**/*"

@@ -36,18 +36,10 @@ class ServerConfig extends iConfig {
 
     setDefaults() {
 
-        const versionFile = 'assets/version.txt';
-        let version = "Unknown";
-
-        if (fs.existsSync(versionFile)) {
-            version = fs.readFileSync(versionFile, {
-                encoding: "utf8"
-            }).split(" ")[1]
-        }
 
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", version);
+        super.set("ssm.version", "v1.0.9");
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)

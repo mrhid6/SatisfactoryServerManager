@@ -344,13 +344,13 @@ router.post('/installsml', middleWare, function (req, res, next) {
 
 router.post('/installmod', middleWare, function (req, res, next) {
 
-    // if (req.isLoggedin != true) {
-    //     res.json({
-    //         result: "error",
-    //         error: "not logged in to ssm!"
-    //     });
-    //     return;
-    // }
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
 
     if (Config.get("mods.enabled") == false) {
         res.json({

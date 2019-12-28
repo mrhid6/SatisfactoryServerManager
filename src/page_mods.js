@@ -61,6 +61,7 @@ class Page_Mods {
         })
     }
 
+
     getServerStatus() {
         API_Proxy.get("serverstatus").then(res => {
             if (res.result == "success") {
