@@ -58,6 +58,8 @@ body {
     font-size: 13px;
 }
 
+/* Dashboard Page*/
+
 .status-info-card {
     background: #eee;
     width: 100%;
@@ -140,6 +142,12 @@ body {
 #cpu-usage,
 #ram-usage {
     max-width: calc(100% - 80px)
+}
+
+/* Mods Page*/
+
+#sml-install {
+    padding: 0 8px;
 }
 
 /* Logs Page */

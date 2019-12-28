@@ -5,6 +5,7 @@ const ServerApp = require("../server/server_app");
 const SFS_Handler = require("../server/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/server_mod_handler");
 const SSM_Log_Handler = require("../server/server_log_handler");
+const SSM_Ficsit_Handler = require("../server/server_ficsit_handler");
 const Config = require("../server/server_config");
 
 const middleWare = [
@@ -301,6 +302,111 @@ router.get('/smlversion', middleWare, function (req, res, next) {
     }
 });
 
+router.get('/ficsit/latestsml', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+
+    } else {
+        SSM_Ficsit_Handler.getLatestSMLVersion().then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    }
+});
+
+router.get('/ficsit/smlversions', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+
+    } else {
+        SSM_Ficsit_Handler.getSMLVersions().then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    }
+});
+
+router.get('/ficsit/modslist', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+
+    } else {
+        SSM_Ficsit_Handler.getModsList().then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    }
+});
+
+router.get('/ficsit/modinfo/:modid', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+
+    } else {
+        const modid = req.params.modid;
+
+        SSM_Ficsit_Handler.getModInfo(modid).then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    }
+});
 
 
 module.exports = router;

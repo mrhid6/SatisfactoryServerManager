@@ -1077,10 +1077,14 @@ class Page_Mods {
         this.getSMLVersion();
         this.getModCount();
         this.displayModsTable();
+        this.getFicsitSMLVersion();
+        this.getFicsitModList();
     }
 
     setupJqueryListeners() {
-
+        $("body").on("change", "#sel-add-mod-name", (e) => {
+            this.getFicsitModInfo();
+        })
     }
 
     displayModsTable() {
@@ -1121,8 +1125,8 @@ class Page_Mods {
 
     getSMLVersion() {
         API_Proxy.get("smlversion").then(res => {
-            const el = $("#sml-status");
-            const el2 = $("#sml-version");
+            const el = $(".sml-status");
+            const el2 = $(".sml-version");
             if (res.result == "success") {
                 this.Mods_State = res.data;
                 if (res.data.state == "not_installed") {
@@ -1150,7 +1154,60 @@ class Page_Mods {
         })
     }
 
+    getFicsitSMLVersion() {
+        API_Proxy.get("ficsit", "smlversions").then(res => {
+            const el1 = $("#sel-install-sml-ver");
+            const el2 = $(".sml-latest-version");
+            if (res.result == "success") {
+                el2.text(res.data[0].version);
+                res.data.forEach(sml => {
+                    el1.append("<option value='" + sml.id + "'>" + sml.version + "</option");
+                })
+            }
+        });
+    }
 
+    getFicsitModList() {
+        API_Proxy.get("ficsit", "modslist").then(res => {
+            const el = $("#sel-add-mod-name");
+            if (res.result == "success") {
+                res.data.forEach(mod => {
+                    el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
+                })
+            }
+        });
+    }
+
+    getFicsitModInfo() {
+        const modid = $("#sel-add-mod-name").val();
+
+        if (modid == "-1") {
+            this.hideNewModInfo();
+        } else {
+            API_Proxy.get("ficsit", "modinfo", modid).then(res => {
+                this.showNewModInfo(res.data);
+            });
+        }
+    }
+
+    hideNewModInfo() {
+        $("#add-mod-logo").attr("src", "/public/images/ssm_logo128_outline.png");
+        $("#sel-add-mod-version").prop("disabled", true);
+        $("#sel-add-mod-version").find('option').not(':first').remove();
+        console.log("Hide Mod Info!")
+    }
+
+    showNewModInfo(data) {
+        $("#add-mod-logo").attr("src", data.logo);
+        const sel_el = $("#sel-add-mod-version");
+        sel_el.prop("disabled", false);
+        sel_el.find('option').not(':first').remove();
+        console.log(data);
+        data.versions.forEach(mod_version => {
+            sel_el.append("<option value='" + mod_version.id + "'>" + mod_version.version + "</option");
+        })
+        console.log("Show Mod Info!")
+    }
 }
 
 const page = new Page_Mods();

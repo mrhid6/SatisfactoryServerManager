@@ -9,8 +9,8 @@
                 <div class="col-12 col-md-4">
                     <div class="status-info-card blue">
                         <div class="status-info-card-main">SML Status:</div>
-                        <div class="status-info-card-secondary"><span id="sml-status"></span></div>
-                        <div class="status-info-card-info">Version: <span id="sml-version"></span></div>
+                        <div class="status-info-card-secondary"><span class="sml-status"></span></div>
+                        <div class="status-info-card-info">Version: <span class="sml-version"></span></div>
                         <div class="status-info-card-icon">
                             <i class="fas fa-wrench"></i>
                         </div>
@@ -30,11 +30,89 @@
     </div>
     <div class="card border-secondary mb-3">
         <div class="card-header">
-            <h5>Add Mod</h5>
+            <h5>Install Mods</h5>
         </div>
         <div class="card-body">
             <div class="row">
+                <div class="col-12 col-md-5 col-lg-6 mb-4">
+                    <div class="row">
+                        <div class="col-6 col-md-6"><b>Installed SML Version:</b></div>
+                        <div class="col-6 col-md-6"><span class="sml-version"></span></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12">
+                            <b>Install SML:</b>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col-6">
 
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="customRadio1" name="customRadio" class="custom-control-input"
+                                    checked="">
+                                <label class="custom-control-label" for="customRadio1">Latest Version</label>
+                            </div>
+                        </div>
+                        <div class="col-6"><span class="sml-latest-version">latest-version</span></div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-6">
+                            <div class="custom-control custom-radio">
+                                <input type="radio" id="customRadio2" name="customRadio" class="custom-control-input">
+                                <label class="custom-control-label" for="customRadio2">Select Version</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <select id="sel-install-sml-ver" class="form-control">
+                                <option selected value="-1">-- Select Version --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-12 col-md-12 col-lg-4">
+                            <button id="btn-install-sml" class="btn btn-success btn-block" data-toggle="tooltip"
+                                data-placement="bottom" title="" data-original-title="Install SML">
+                                <i class="fas fa-download"></i>
+                                Install SML
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-7 col-lg-6">
+                    <div class="row">
+                        <div class="col-12 col-md-4 text-center">
+                            <img src="/public/images/ssm_logo128_outline.png" width="128px" height="128px"
+                                id="add-mod-logo" />
+                        </div>
+                        <div class="col-12 col-md-8">
+                            <div class="row mb-2">
+                                <div class="col-12 col-lg-4"><b>Select Mod:</b></div>
+                                <div class="col-12 col-lg-8">
+                                    <select id="sel-add-mod-name" class="form-control">
+                                        <option selected value="-1">-- Select Mod --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-lg-4"><b>Select Version:</b></div>
+                                <div class="col-12 col-lg-8">
+                                    <select disabled id="sel-add-mod-version" class="form-control">
+                                        <option selected value="-1">-- Select Version --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12">
+                                    <button id="btn-install-mod" class="btn btn-success btn-block" data-toggle="tooltip"
+                                        data-placement="bottom" title="" data-original-title="Install Mod">
+                                        <i class="fas fa-download"></i> Install Mod
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
