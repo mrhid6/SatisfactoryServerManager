@@ -17,7 +17,7 @@ class SSM_Mod_Handler {
         const SMLCLIExe = path.join(Config.get("mods.SMLauncher_location"), "SatisfactoryModLauncherCLI.exe");
 
         return new Promise((resolve, reject) => {
-            const fullCommand = SMLCLIExe + " " + command;
+            const fullCommand = '"' + SMLCLIExe + "\" " + command;
             exec(fullCommand, (error, stdout, stderr) => {
                 if (error) {
                     reject(error)
