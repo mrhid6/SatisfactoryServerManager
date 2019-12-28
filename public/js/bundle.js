@@ -1065,7 +1065,7 @@ const page = new Page_Logs();
 module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],11:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
-
+const Tools = require("../Mrhid6Utils/lib/tools");
 
 class Page_Mods {
     constructor() {
@@ -1084,6 +1084,11 @@ class Page_Mods {
     setupJqueryListeners() {
         $("body").on("change", "#sel-add-mod-name", (e) => {
             this.getFicsitModInfo();
+        })
+
+        $("#btn-install-sml").click(e => {
+            const $self = $(e.currentTarget);
+            this.installSMLVersion($self);
         })
     }
 
@@ -1198,7 +1203,13 @@ class Page_Mods {
     }
 
     showNewModInfo(data) {
-        $("#add-mod-logo").attr("src", data.logo);
+
+        if (data.logo == "") {
+            $("#add-mod-logo").attr("src", "https://ficsit.app/static/assets/images/no_image.png");
+        } else {
+            $("#add-mod-logo").attr("src", data.logo);
+        }
+
         const sel_el = $("#sel-add-mod-version");
         sel_el.prop("disabled", false);
         sel_el.find('option').not(':first').remove();
@@ -1208,12 +1219,69 @@ class Page_Mods {
         })
         console.log("Show Mod Info!")
     }
+
+    installSMLVersion($btn) {
+        $btn.prop("disabled", true);
+        $btn.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");
+        $("input[name='radio-install-sml']").prop("disabled", true);
+
+        const radioVal = $("input[name='radio-install-sml']:checked").val();
+        const $selEl = $("#sel-install-sml-ver");
+        $selEl.prop("disabled", true);
+
+        let version = "latest";
+
+        if (radioVal == 1) {
+            if ($selEl.val() == -1) {
+                Tools.openModal("server-mods-error")
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    $btn.prop("disabled", false);
+                    $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
+                    $selEl.prop("disabled", false);
+                    $("input[name='radio-install-sml']").prop("disabled", false);
+
+                    modal_el.find("#error-msg").text("Please select SML Version!")
+                });
+                return;
+            } else {
+                version = $selEl.val()
+            }
+        }
+
+        const postData = {
+            version
+        }
+
+        API_Proxy.postData("/installsml", postData).then(res => {
+            console.log(res);
+
+            $btn.prop("disabled", false);
+            $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
+            $selEl.prop("disabled", false);
+            $("input[name='radio-install-sml']").prop("disabled", false);
+
+            if (res.result == "success") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("SML has been installed!")
+                    this.getSMLVersion();
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+
+        })
+    }
 }
 
 const page = new Page_Mods();
 
 module.exports = page;
-},{"./api_proxy":5}],12:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],12:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 

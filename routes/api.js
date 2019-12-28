@@ -302,6 +302,46 @@ router.get('/smlversion', middleWare, function (req, res, next) {
     }
 });
 
+router.post('/installsml', middleWare, function (req, res, next) {
+
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    if (Config.get("mods.enabled") == false) {
+        res.json({
+            result: "error",
+            error: "Mods not enabled!"
+        });
+        return;
+
+    }
+
+    const post = req.body
+
+    const sml_versionid = post.version;
+    if (sml_versionid != "latest") {
+        SSM_Mod_Handler.installSMLVersion(sml_versionid).then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+    } else {
+        SSM_Mod_Handler.installLatestSMLVersion().then(result => {
+            res.json({
+                result: "success",
+                data: result
+            });
+        })
+
+    }
+});
+
 router.get('/ficsit/latestsml', middleWare, function (req, res, next) {
 
     if (req.isLoggedin != true) {

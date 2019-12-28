@@ -2,6 +2,8 @@ const exec = require("child_process").exec
 const path = require("path");
 
 const Config = require("./server_config");
+const logger = require("./server_logger");
+const SSM_Ficsit_Handler = require("../server/server_ficsit_handler");
 
 class SSM_Mod_Handler {
     constructor() {
@@ -91,6 +93,69 @@ class SSM_Mod_Handler {
                 resolve(resArr);
             })
         });
+    }
+
+    installSMLVersion(version_id) {
+        return new Promise((resolve, reject) => {
+
+            SSM_Ficsit_Handler.getSMLVersions().then(sml_versions => {
+                const version = sml_versions.find(el => el.id == version_id);
+
+                if (version == null) {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                    reject("Cant find sml version!");
+                    return;
+                }
+
+                this.getSMLInfo().then(smlinfo => {
+                    if (smlinfo.state == "installed") {
+                        logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalling SML " + smlinfo.version);
+                        const cmd1 = "uninstall_sml -p " + Config.get("mods.location");
+                        return this.execSMLCLI(cmd1);
+                    }
+                }).finally(() => {
+                    logger.info("[MOD_HANDLER] [INSTALL] - Installing SML " + version.version + " ...")
+                    const cmd2 = "install_sml -v " + version.version + " -p " + Config.get("mods.location");
+                    this.execSMLCLI(cmd2).then(res2 => {
+                        logger.info("[MOD_HANDLER] [INSTALL] - Installed SML " + version.version + "!")
+                        resolve(res2);
+
+                    }).catch(err => {
+                        logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                        reject(err);
+                    })
+                }).catch(err => {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                    reject(err);
+                })
+            }).catch(err => {
+                logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                reject(err);
+            })
+        })
+    }
+
+    installLatestSMLVersion() {
+        return new Promise((resolve, reject) => {
+
+
+
+            SSM_Ficsit_Handler.getSMLVersions().then(sml_versions => {
+                const version = sml_versions[0]
+
+                if (version == null) {
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                    reject("Cant find sml version!");
+                    return;
+                }
+
+                return this.installSMLVersion(version.id)
+            }).then(res => {
+                resolve(res)
+            }).catch(err => {
+                reject(err);
+            })
+        })
     }
 }
 const ssm_mod_handler = new SSM_Mod_Handler();
