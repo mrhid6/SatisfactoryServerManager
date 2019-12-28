@@ -1070,15 +1070,19 @@ const Tools = require("../Mrhid6Utils/lib/tools");
 class Page_Mods {
     constructor() {
         this.Mods_State = {};
+        this.ServerState = {};
     }
 
     init() {
         this.setupJqueryListeners();
+        this.getServerStatus();
         this.getSMLVersion();
         this.getModCount();
         this.displayModsTable();
         this.getFicsitSMLVersion();
         this.getFicsitModList();
+
+        this.startPageInfoRefresh();
     }
 
     setupJqueryListeners() {
@@ -1095,13 +1099,39 @@ class Page_Mods {
         })
 
         $("#btn-install-sml").click(e => {
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
             const $self = $(e.currentTarget);
             this.installSMLVersion($self);
         })
 
         $("#btn-install-mod").click(e => {
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
             const $self = $(e.currentTarget);
             this.installModVersion($self);
+        })
+    }
+
+    getServerStatus() {
+        API_Proxy.get("serverstatus").then(res => {
+            if (res.result == "success") {
+                this.ServerState = res.data;
+            }
         })
     }
 
@@ -1212,7 +1242,7 @@ class Page_Mods {
         $("#add-mod-logo").attr("src", "/public/images/ssm_logo128_outline.png");
         $("#sel-add-mod-version").prop("disabled", true);
         $("#sel-add-mod-version").find('option').not(':first').remove();
-        console.log("Hide Mod Info!")
+        this.lockInstallModBtn()
     }
 
     showNewModInfo(data) {
@@ -1230,7 +1260,6 @@ class Page_Mods {
         data.versions.forEach(mod_version => {
             sel_el.append("<option value='" + mod_version.id + "'>" + mod_version.version + "</option");
         })
-        console.log("Show Mod Info!")
     }
 
     installSMLVersion($btn) {
@@ -1336,6 +1365,12 @@ class Page_Mods {
             }
 
         });
+    }
+
+    startPageInfoRefresh() {
+        setInterval(() => {
+            this.getServerStatus();
+        }, 5 * 1000);
     }
 }
 
