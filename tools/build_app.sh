@@ -63,6 +63,4 @@ fi
 
 git submodule update --init
 
-npm-workspace install
-npm install
-npm rebuild
+yarn
