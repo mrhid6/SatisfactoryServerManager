@@ -1,6 +1,14 @@
 [submodule "Mrhid6Utils"]
+<<<<<<< HEAD
 path = Mrhid6Utils
 url = https://gitlab.com/mrhid6/nodejs_mrhid6_utils.git
 [submodule "SMLauncherAPI"]
 path = SMLauncherAPI
 url = https://github.com/mrhid6/SatisfactoryModLauncherAPI.git
+=======
+	path = Mrhid6Utils
+	url = git@gitlab.com:mrhid6/nodejs_mrhid6_utils.git
+[submodule "SMLauncherAPI"]
+	path = SMLauncherAPI
+	url = https://github.com/mircearoata/SatisfactoryModLauncherAPI.git
+>>>>>>> Added smlauncherapi submodule
