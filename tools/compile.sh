@@ -127,16 +127,31 @@ echo -en "\e[32m✔\e[0m\n"
 =======
     printDots "Building Linux Executables" 30
     sshargs="PATH+=:/root/n/bin; \
-        echo \$PATH; \
+        mkdir -p /nodejs/build >/dev/null 2>&1; \
         cd /nodejs/build; \
         rm -r SSM; \
         git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; \
         cd SSM; \
         git checkout -b SML_API origin/SML_API; \
-        which -a npm; \
-        bash ./tools/build_app.sh -i -u
+        bash ./tools/build_app.sh -i -u; \
+        exit \$?
     "
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}"
+    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
+
+    if [ $? -ne 0 ]; then
+        echo -en "\e[31m✘\e[0m\n"
+        ## exit 1
+    fi
+
+    sshargs="cd /nodejs/build/SSM; \
+        find /nodejs/build/SSM -name \"*.node\" | grep -v \"obj\"
+    "
+
+    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >${release_dir_linux}/exe.list
+    while read -r line; do
+        echo $line
+        ${SCP_CMD} root@${LINUX_SERVER}:${line} ${release_dir_linux}/.
+    done <${release_dir_linux}/exe.list
 fi
 
 exit
