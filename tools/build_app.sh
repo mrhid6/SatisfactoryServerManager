@@ -58,9 +58,11 @@ if [ $error -eq 1 ]; then
 fi
 
 if [ $UPDATE -eq 1 ]; then
-    npm i -g pkg release-it
+    npm i -g pkg release-it yarn
 fi
 
 git submodule update --init
 
 yarn
+
+exit $?
