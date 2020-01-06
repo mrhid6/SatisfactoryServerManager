@@ -4,6 +4,7 @@ CURDIR=$(dirname "$(readlink -f "$0")")
 BASEDIR=$(readlink -f "$CURDIR/..")
 
 . ${BASEDIR}/tools/variables.sh
+. ${BASEDIR}/tools/app_config.txt
 
 VERSION=""
 
@@ -43,6 +44,23 @@ release_dir_win64="${release_dir}/win64"
 cd ${BASEDIR}
 
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
+
+if [ "${USE_LINUX_SERVER}" == "1" ]; then
+    printDots "Building Linux Executables" 30
+    sshargs="PATH+=:/root/n/bin; \
+        echo \$PATH; \
+        cd /nodejs/build; \
+        rm -r SSM; \
+        git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; \
+        cd SSM; \
+        git checkout -b SML_API origin/SML_API; \
+        which -a npm; \
+        bash ./tools/build_app.sh -i -u
+    "
+    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}"
+fi
+
+exit
 
 printDots "* Compiling Linux" 30
 pkg app.js -c package.json -t node12-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log

@@ -26,15 +26,6 @@ if [ $(which -a npm | wc -l) -eq 0 ]; then
     error=1
 fi
 
-if [ $(which -a npm-workspace | wc -l) -eq 0 ]; then
-    if [ $INSTALL -eq 1 ]; then
-        npm i -g npm-workspace
-    else
-        echo "Error: NPM-WORKSPACE needs to be installed!"
-        error=1
-    fi
-fi
-
 if [ $(which -a pkg | wc -l) -eq 0 ]; then
     if [ $INSTALL -eq 1 ]; then
         npm i -g pkg
@@ -53,12 +44,21 @@ if [ $(which -a release-it | wc -l) -eq 0 ]; then
     fi
 fi
 
+if [ $(which -a yarn | wc -l) -eq 0 ]; then
+    if [ $INSTALL -eq 1 ]; then
+        npm i -g yarn
+    else
+        echo "Error: YARN needs to be installed!"
+        error=1
+    fi
+fi
+
 if [ $error -eq 1 ]; then
     exit 1
 fi
 
 if [ $UPDATE -eq 1 ]; then
-    npm i -g pkg npm-workspace release-it
+    npm i -g pkg release-it
 fi
 
 git submodule update --init

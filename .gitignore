@@ -6,3 +6,5 @@ assets/version.txt
 release-builds
 tools/TOKEN.txt
 *.log
+
+tools/app_config.txt
