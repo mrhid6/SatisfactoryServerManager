@@ -41,6 +41,23 @@ router.post('/selectsave', middleWare, function (req, res, next) {
     })
 });
 
+router.post('/newsession', middleWare, function (req, res, next) {
+    const body = req.body;
+    const sessionName = body.sessionName;
+
+    SFS_Handler.updateNewSession(sessionName).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
 router.post('/sfsettings', middleWare, function (req, res, next) {
 
     const post = req.body
