@@ -92,7 +92,7 @@ class AppServer {
         }));
         logger.info("[APP] [EXPRESS] - Setup Express Routers..");
         app.use("/", require("./routes"))
-        app.use("/api", require("./routes/api"))
+        app.use("/api", require("./routes/api/"))
 
         logger.info("[APP] [EXPRESS] - Finished");
 
