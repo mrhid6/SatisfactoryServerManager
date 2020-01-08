@@ -361,7 +361,7 @@ class Page_Settings {
 function saveDate(dateStr) {
     const date = new Date(dateStr)
     const day = date.getDate().pad(2);
-    const month = date.getMonth() + 1;
+    const month = (date.getMonth() + 1).pad(2);
     const year = date.getFullYear();
 
     const hour = date.getHours().pad(2);
