@@ -5,6 +5,12 @@ class Page_Mods {
     constructor() {
         this.Mods_State = {};
         this.ServerState = {};
+
+        this.FicsitModList = [];
+
+        this.loaded = {
+            ficsit_modlist: false
+        }
     }
 
     init() {
@@ -12,11 +18,32 @@ class Page_Mods {
         this.getServerStatus();
         this.getSMLInfo();
         this.getModCount();
-        this.displayModsTable();
         this.getFicsitSMLVersion();
         this.getFicsitModList();
 
         this.startPageInfoRefresh();
+
+        this.waitTilLoaded().then(() => {
+            this.displayModsTable();
+        })
+    }
+
+    isLoaded() {
+        if (this.loaded.ficsit_modlist == true) {
+            return true;
+        }
+        return false;
+    }
+
+    waitTilLoaded() {
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (this.isLoaded() == true) {
+                    clearInterval(interval);
+                    resolve()
+                }
+            }, 100)
+        })
     }
 
     setupJqueryListeners() {
@@ -79,10 +106,32 @@ class Page_Mods {
             if (res.result == "success") {
                 for (let i = 0; i < res.data.length; i++) {
                     const mod = res.data[i];
+
+                    const ficsitMod = this.FicsitModList.find(el => el.id == mod.id);
+
+                    if (ficsitMod == null) continue;
+
+                    const latestVersion = (mod.version == ficsitMod.latest_version)
+                    const latestStr = (latestVersion) ? "Latest" : "Old Version";
+
+                    const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
+                        .attr("data-modid", mod.id)
+                        .attr("data-toggle", "tooltip")
+                        .attr("data-placement", "bottom")
+                        .attr("title", "Update Mod")
+                        .html("<i class='fas fa-arrow-alt-circle-up'></i>")
+
+                    // Create uninstall btn
+                    const $btn_uninstall = $("<button/>")
+                        .addClass("btn btn-danger btn-block btn-uninstall-mod")
+                        .attr("data-modid", mod.id)
+                        .html("<i class='fas fa-trash'></i> Uninstall");
+
+                    const versionStr = mod.version + " " + ((latestVersion == false) ? $btn_update.prop("outerHTML") : "")
                     tableData.push([
                         mod.name,
-                        mod.id,
-                        mod.version
+                        versionStr,
+                        $btn_uninstall.prop('outerHTML')
                     ])
                 }
             }
@@ -95,6 +144,10 @@ class Page_Mods {
                     order: [
                         [0, "asc"]
                     ],
+                    columnDefs: [{
+                        "targets": 2,
+                        "orderable": false
+                    }],
                     data: tableData
                 })
             } else {
@@ -103,6 +156,8 @@ class Page_Mods {
                 datatable.rows.add(tableData);
                 datatable.draw();
             }
+
+            $('[data-toggle="tooltip"]').tooltip()
         })
     }
 
@@ -154,6 +209,8 @@ class Page_Mods {
         API_Proxy.get("ficsitinfo", "modslist").then(res => {
             const el = $("#sel-add-mod-name");
             if (res.result == "success") {
+                this.FicsitModList = res.data;
+                this.loaded.ficsit_modlist = true;
                 res.data.forEach(mod => {
                     el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
                 })
