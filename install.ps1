@@ -25,10 +25,6 @@ $SSM_release = (Invoke-WebRequest $SSM_releases -UseBasicParsing| ConvertFrom-Js
 $SSM_VER = $SSM_release[0].tag_name
 $SSM_URL = $SSM_release.assets[1].browser_download_url
 
-$SMLauncher_release = (Invoke-WebRequest $SMLauncher_releases -UseBasicParsing| ConvertFrom-Json)[0]
-$SMLauncher_VER = $SMLauncher_release[0].tag_name
-$SMLauncher_URL = $SMLauncher_release.assets[0].browser_download_url
-
 if((Test-Path $installDir) -eq $true){
 
     if($update -eq $false -and $force -eq $false){
@@ -54,12 +50,6 @@ if($SSM_Service -ne $null){
 write-host "* Downloading SSM"
 Remove-Item -Path "$($installDir)\*" -Recurse | out-null
 New-Item -ItemType Directory -Path "$($installDir)\SMLauncher" -Force | out-null
-
-write-host "* Downloading SMLauncher"
-Invoke-WebRequest $SSM_URL -Out "$($installDir)\SSM.zip" -UseBasicParsing
-Expand-Archive "$($installDir)\SSM.zip" -DestinationPath "$($installDir)" -Force
-
-Invoke-WebRequest $SMLauncher_URL -Out "$($installDir)\SMLauncher\SatisfactoryModLauncherCLI.exe" -UseBasicParsing
 
 write-host "* Cleanup"
 Remove-Item -Path "$($installDir)\SSM.zip"
