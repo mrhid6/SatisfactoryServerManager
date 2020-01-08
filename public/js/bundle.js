@@ -1343,7 +1343,7 @@ class Page_Mods {
             versionid: $selVersionEl.val()
         }
 
-        API_Proxy.postData("/installmod", postData).then(res => {
+        API_Proxy.postData("/mods/installmod", postData).then(res => {
             console.log(res);
 
             $btn.prop("disabled", false);
