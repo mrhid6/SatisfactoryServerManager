@@ -21,7 +21,6 @@ done
 cd ${BASEDIR}
 error=0
 
-<<<<<<< HEAD
 if [ $(which -a n | wc -l) -eq 0 ]; then
     if [ $INSTALL -eq 1 ]; then
         curl -L https://git.io/n-install | bash -s -- -y -q
@@ -31,8 +30,6 @@ if [ $(which -a n | wc -l) -eq 0 ]; then
     fi
 fi
 
-=======
->>>>>>> updated scripts
 if [ $(which -a npm | wc -l) -eq 0 ]; then
     echo "Error: NPM needs to be installed!"
     error=1
@@ -70,11 +67,7 @@ if [ $error -eq 1 ]; then
 fi
 
 if [ $UPDATE -eq 1 ]; then
-<<<<<<< HEAD
     npm i -g pkg release-it yarn
-=======
-    npm i -g pkg release-it
->>>>>>> updated scripts
 fi
 
 git submodule update --init

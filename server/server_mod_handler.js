@@ -90,6 +90,7 @@ class SSM_Mod_Handler {
         });
     }
 
+<<<<<<< HEAD
     installModVersion(modid, version) {
         return new Promise((resolve, reject) => {
 
@@ -146,6 +147,19 @@ class SSM_Mod_Handler {
             getAvailableSMLVersions().then(versions => {
                 const sml_version = versions.find(el => el.version == req_version)
 
+=======
+    installModVersion(modid, versionid) {
+        return new Promise((resolve, reject) => {
+
+        });
+    }
+
+    installSMLVersion(req_version) {
+        return new Promise((resolve, reject) => {
+            getAvailableSMLVersions().then(versions => {
+                const sml_version = versions.find(el => el.version == req_version)
+
+>>>>>>> sml Intergration
                 if (sml_version == null) {
                     logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
                     reject("Error: SML version doesn't exist!")
@@ -201,6 +215,7 @@ class SSM_Mod_Handler {
             })
         });
     }
+<<<<<<< HEAD
 
     getFicsitModList() {
         return new Promise((resolve, reject) => {
@@ -227,6 +242,28 @@ class SSM_Mod_Handler {
         })
     }
 
+=======
+
+    getFicsitModList() {
+        return new Promise((resolve, reject) => {
+            getAvailableMods().then(mods => {
+                const resArr = [];
+
+                for (let i = 0; i < mods.length; i++) {
+                    const mod = mods[i];
+                    resArr.push({
+                        id: mod.id,
+                        name: mod.name
+                    })
+                }
+                resolve(resArr);
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+>>>>>>> sml Intergration
     getFicsitModInfo(modid) {
         return new Promise((resolve, reject) => {
             const ModInfo = {
