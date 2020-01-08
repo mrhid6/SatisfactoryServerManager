@@ -21,6 +21,15 @@ done
 cd ${BASEDIR}
 error=0
 
+if [ $(which -a n | wc -l) -eq 0 ]; then
+    if [ $INSTALL -eq 1 ]; then
+        curl -L https://git.io/n-install | bash -s -- -y -q
+    else
+        echo "Error: N needs to be installed!"
+        error=1
+    fi
+fi
+
 if [ $(which -a npm | wc -l) -eq 0 ]; then
     echo "Error: NPM needs to be installed!"
     error=1

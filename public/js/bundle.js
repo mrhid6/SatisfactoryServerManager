@@ -849,7 +849,7 @@ class Page_Dashboard {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             const el = $("#server-status");
             if (res.result == "success") {
                 this.ServerState = res.data;
@@ -902,7 +902,7 @@ class Page_Dashboard {
 
     serverAction_Start() {
         if (this.ServerState.status == "stopped") {
-            API_Proxy.post("serveraction", "start").then(res => {
+            API_Proxy.post("serveractions", "start").then(res => {
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
                     this.getServerStatus();
@@ -926,7 +926,7 @@ class Page_Dashboard {
 
     serverAction_Stop(stopAction) {
         if (this.ServerState.status != "stopped") {
-            API_Proxy.post("serveraction", stopAction).then(res => {
+            API_Proxy.post("serveractions", stopAction).then(res => {
 
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
@@ -1000,7 +1000,7 @@ class PageHandler {
     }
 
     getSSMVersion() {
-        API_Proxy.get("ssmversion").then(res => {
+        API_Proxy.get("info", "ssmversion").then(res => {
             const el = $("#ssm-version");
             if (res.result == "success") {
                 el.text(res.data)
@@ -1076,7 +1076,7 @@ class Page_Mods {
     init() {
         this.setupJqueryListeners();
         this.getServerStatus();
-        this.getSMLVersion();
+        this.getSMLInfo();
         this.getModCount();
         this.displayModsTable();
         this.getFicsitSMLVersion();
@@ -1129,7 +1129,7 @@ class Page_Mods {
 
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             if (res.result == "success") {
                 this.ServerState = res.data;
             }
@@ -1140,7 +1140,7 @@ class Page_Mods {
 
         const isDataTable = $.fn.dataTable.isDataTable("#mods-table")
 
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const tableData = [];
             if (res.result == "success") {
                 for (let i = 0; i < res.data.length; i++) {
@@ -1172,8 +1172,8 @@ class Page_Mods {
         })
     }
 
-    getSMLVersion() {
-        API_Proxy.get("smlversion").then(res => {
+    getSMLInfo() {
+        API_Proxy.get("mods", "smlinfo").then(res => {
             const el = $(".sml-status");
             const el2 = $(".sml-version");
             if (res.result == "success") {
@@ -1193,7 +1193,7 @@ class Page_Mods {
     }
 
     getModCount() {
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const el = $("#mod-count");
             if (res.result == "success") {
                 el.text(res.data.length)
@@ -1204,20 +1204,20 @@ class Page_Mods {
     }
 
     getFicsitSMLVersion() {
-        API_Proxy.get("ficsit", "smlversions").then(res => {
+        API_Proxy.get("ficsitinfo", "smlversions").then(res => {
             const el1 = $("#sel-install-sml-ver");
             const el2 = $(".sml-latest-version");
             if (res.result == "success") {
                 el2.text(res.data[0].version);
                 res.data.forEach(sml => {
-                    el1.append("<option value='" + sml.id + "'>" + sml.version + "</option");
+                    el1.append("<option value='" + sml.version + "'>" + sml.version + "</option");
                 })
             }
         });
     }
 
     getFicsitModList() {
-        API_Proxy.get("ficsit", "modslist").then(res => {
+        API_Proxy.get("ficsitinfo", "modslist").then(res => {
             const el = $("#sel-add-mod-name");
             if (res.result == "success") {
                 res.data.forEach(mod => {
@@ -1233,7 +1233,7 @@ class Page_Mods {
         if (modid == "-1") {
             this.hideNewModInfo();
         } else {
-            API_Proxy.get("ficsit", "modinfo", modid).then(res => {
+            API_Proxy.get("ficsitinfo", "modinfo", modid).then(res => {
                 this.showNewModInfo(res.data);
             });
         }
@@ -1259,7 +1259,7 @@ class Page_Mods {
         sel_el.find('option').not(':first').remove();
         console.log(data);
         data.versions.forEach(mod_version => {
-            sel_el.append("<option value='" + mod_version.id + "'>" + mod_version.version + "</option");
+            sel_el.append("<option value='" + mod_version.version + "'>" + mod_version.version + "</option");
         })
     }
 
@@ -1296,7 +1296,7 @@ class Page_Mods {
             version
         }
 
-        API_Proxy.postData("/installsml", postData).then(res => {
+        API_Proxy.postData("/mods/installsml", postData).then(res => {
             console.log(res);
 
             $btn.prop("disabled", false);
@@ -1308,7 +1308,7 @@ class Page_Mods {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("SML has been installed!")
-                    this.getSMLVersion();
+                    this.getSMLInfo();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
@@ -1497,7 +1497,7 @@ class Page_Settings {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             if (res.result == "success") {
                 this.ServerState = res.data;
             }
@@ -1550,7 +1550,7 @@ class Page_Settings {
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
         const sfConfig = this.Config.satisfactory;
 
-        API_Proxy.get("saves").then(res => {
+        API_Proxy.get("info", "saves").then(res => {
             $("#refresh-saves").prop("disabled", false);
             $("#refresh-saves").find("i").removeClass("fa-spin");
 
