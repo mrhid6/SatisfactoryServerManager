@@ -21,6 +21,7 @@ class SSM_Mod_Handler {
     }
 
     init() {
+        logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
         //this.SML_API = new SatisfactoryInstall(Config.get("satisfactory.server_location"))
         this.SML_API = new SatisfactoryInstall(Config.get("mods.location"))
     }
@@ -185,9 +186,15 @@ class SSM_Mod_Handler {
 
                 for (let i = 0; i < mods.length; i++) {
                     const mod = mods[i];
+
+                    let latest_version = mod.versions[0];
+
+                    if (latest_version == null) continue;
+
                     resArr.push({
                         id: mod.id,
-                        name: mod.name
+                        name: mod.name,
+                        latest_version: latest_version.version
                     })
                 }
                 resolve(resArr);
