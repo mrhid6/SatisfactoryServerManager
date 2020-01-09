@@ -40,9 +40,9 @@ Configuration of SSM can be done in the settings page or by editing the Json fil
 * Fetch git submodule `git submodule update --init`
 * Install Dependencies:
 ```
-bash ./tool/build_app.sh -i -u
+bash ./tools/build_app.sh -i -u
 ```
-* Run `npm start` to start the webpage
+* Run `yarn start` to start the webpage
     * Open up http://localhost:3000
     * Login with the following credientals: 
     ```
@@ -50,5 +50,5 @@ bash ./tool/build_app.sh -i -u
         Password: ssm
     ```
 
-* Run `npm run watch` to bundle client js files
+* Run `yarn watch` to bundle client js files
 * Run `bash ./tools/clean-css.sh` to minify css files
