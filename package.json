@@ -7,7 +7,6 @@
     "license": "MIT",
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.11.2",
-        "binary-file": "^0.2.1",
         "binary-reader": "^0.1.2",
         "body-parser": "^1.19.0",
         "bootstrap": "^4.3.1",
@@ -25,16 +24,18 @@
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
         "moment": "^2.24.0",
-        "node-windows": "^0.1.14",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
         "simple-node-logger": "^18.12.23",
-        "systeminformation": "^4.16.0"
+        "systeminformation": "^4.16.0",
+        "toastr": "^2.1.4",
+        "github-api": "3.3.0"
     },
     "scripts": {
         "start": "node app.js",
         "watch": "watchify src/app.js -o public/js/bundle.js",
-        "clean-css": "bash tools/clean-css.sh"
+        "clean-css": "bash tools/clean-css.sh",
+        "build": "pwd && cd ./SMLauncherAPI && yarn build"
     },
     "private": true,
     "workspaces": [

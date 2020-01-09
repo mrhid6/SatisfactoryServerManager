@@ -40,9 +40,7 @@ Configuration of SSM can be done in the settings page or by editing the Json fil
 * Fetch git submodule `git submodule update --init`
 * Install Dependencies:
 ```
-npm-workspace install
-npm install
-npm rebuild
+bash ./tool/build_app.sh -i -u
 ```
 * Run `npm start` to start the webpage
     * Open up http://localhost:3000

@@ -44,7 +44,7 @@ class Page_Dashboard {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             const el = $("#server-status");
             if (res.result == "success") {
                 this.ServerState = res.data;
@@ -66,7 +66,7 @@ class Page_Dashboard {
     }
 
     getModCount() {
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const el = $("#mod-count");
             if (res.result == "success") {
                 el.text(res.data.length)
@@ -97,7 +97,7 @@ class Page_Dashboard {
 
     serverAction_Start() {
         if (this.ServerState.status == "stopped") {
-            API_Proxy.post("serveraction", "start").then(res => {
+            API_Proxy.post("serveractions", "start").then(res => {
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
                     this.getServerStatus();
@@ -121,7 +121,7 @@ class Page_Dashboard {
 
     serverAction_Stop(stopAction) {
         if (this.ServerState.status != "stopped") {
-            API_Proxy.post("serveraction", stopAction).then(res => {
+            API_Proxy.post("serveractions", stopAction).then(res => {
 
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {

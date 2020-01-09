@@ -36,7 +36,7 @@ class PageHandler {
     }
 
     getSSMVersion() {
-        API_Proxy.get("ssmversion").then(res => {
+        API_Proxy.get("info", "ssmversion").then(res => {
             const el = $("#ssm-version");
             if (res.result == "success") {
                 el.text(res.data)

@@ -69,6 +69,7 @@ else
 fi
 
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
+    apt-get -qq update -y
     apt-get -qq upgrade -y
     apt-get -qq install curl wget jq -y
 else
@@ -76,14 +77,27 @@ else
     exit 2
 fi
 
+if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
+    check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
+
+    if [ $check_lib -eq 0 ]; then
+        add-apt-repository ppa:ubuntu-toolchain-r/test -y >/dev/null 2>&1
+        apt-get -qq update -y
+        apt-get -qq upgrade -y
+    fi
+
+    check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
+
+    if [ $check_lib -eq 0 ]; then
+        echo "Error: Couldn't install required libraries"
+        exit 1
+    fi
+fi
+
 curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
-curl --silent "https://api.github.com/repos/mircearoata/SatisfactoryModLauncherCLI/releases/latest" >${TEMP_DIR}/SMLauncherCLI_releases.json
 
 SSM_VER=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".tag_name")
-SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | sort | head -1)
-
-SMLauncher_VER=$(cat ${TEMP_DIR}/SMLauncherCLI_releases.json | jq -r ".tag_name")
-SMLauncher_URL=$(cat ${TEMP_DIR}/SMLauncherCLI_releases.json | jq -r ".assets[].browser_download_url" | sort | head -1)
+SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | grep -i "Linux" | sort | head -1)
 
 if [ -d "${INSTALL_DIR}" ]; then
     if [[ ${UPDATE} -eq 0 ]] && [[ ${FORCE} -eq 0 ]]; then
@@ -119,10 +133,6 @@ tar xzf "${INSTALL_DIR}/SSM.tar.gz" -C "${INSTALL_DIR}"
 rm "${INSTALL_DIR}/SSM.tar.gz" >/dev/null 2>&1
 rm "${INSTALL_DIR}/build.log" >/dev/null 2>&1
 echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
-
-echo "* Downloading SMLauncher"
-wget -q "${SMLauncher_URL}" -O "${INSTALL_DIR}/SMLauncher/SatisfactoryModLauncherCLI.exe"
-echo ${SMLauncher_VER} >"${INSTALL_DIR}/SMLauncher/version.txt"
 
 chmod -R +x ${INSTALL_DIR}
 

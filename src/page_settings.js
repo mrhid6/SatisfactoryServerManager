@@ -144,7 +144,7 @@ class Page_Settings {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             if (res.result == "success") {
                 this.ServerState = res.data;
             }
@@ -197,7 +197,7 @@ class Page_Settings {
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
         const sfConfig = this.Config.satisfactory;
 
-        API_Proxy.get("saves").then(res => {
+        API_Proxy.get("info", "saves").then(res => {
             $("#refresh-saves").prop("disabled", false);
             $("#refresh-saves").find("i").removeClass("fa-spin");
 

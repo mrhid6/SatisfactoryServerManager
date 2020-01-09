@@ -849,7 +849,7 @@ class Page_Dashboard {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             const el = $("#server-status");
             if (res.result == "success") {
                 this.ServerState = res.data;
@@ -871,7 +871,7 @@ class Page_Dashboard {
     }
 
     getModCount() {
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const el = $("#mod-count");
             if (res.result == "success") {
                 el.text(res.data.length)
@@ -902,7 +902,7 @@ class Page_Dashboard {
 
     serverAction_Start() {
         if (this.ServerState.status == "stopped") {
-            API_Proxy.post("serveraction", "start").then(res => {
+            API_Proxy.post("serveractions", "start").then(res => {
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
                     this.getServerStatus();
@@ -926,7 +926,7 @@ class Page_Dashboard {
 
     serverAction_Stop(stopAction) {
         if (this.ServerState.status != "stopped") {
-            API_Proxy.post("serveraction", stopAction).then(res => {
+            API_Proxy.post("serveractions", stopAction).then(res => {
 
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
@@ -1000,7 +1000,7 @@ class PageHandler {
     }
 
     getSSMVersion() {
-        API_Proxy.get("ssmversion").then(res => {
+        API_Proxy.get("info", "ssmversion").then(res => {
             const el = $("#ssm-version");
             if (res.result == "success") {
                 el.text(res.data)
@@ -1071,18 +1071,45 @@ class Page_Mods {
     constructor() {
         this.Mods_State = {};
         this.ServerState = {};
+
+        this.FicsitModList = [];
+
+        this.loaded = {
+            ficsit_modlist: false
+        }
     }
 
     init() {
         this.setupJqueryListeners();
         this.getServerStatus();
-        this.getSMLVersion();
+        this.getSMLInfo();
         this.getModCount();
-        this.displayModsTable();
         this.getFicsitSMLVersion();
         this.getFicsitModList();
 
         this.startPageInfoRefresh();
+
+        this.waitTilLoaded().then(() => {
+            this.displayModsTable();
+        })
+    }
+
+    isLoaded() {
+        if (this.loaded.ficsit_modlist == true) {
+            return true;
+        }
+        return false;
+    }
+
+    waitTilLoaded() {
+        return new Promise((resolve, reject) => {
+            const interval = setInterval(() => {
+                if (this.isLoaded() == true) {
+                    clearInterval(interval);
+                    resolve()
+                }
+            }, 20)
+        })
     }
 
     setupJqueryListeners() {
@@ -1096,7 +1123,18 @@ class Page_Mods {
             } else {
                 this.unlockInstallModBtn();
             }
-        })
+        }).on("click", ".btn-uninstall-mod", e => {
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
+            const $self = $(e.currentTarget);
+            this.uninstallMod($self)
+        });
 
         $("#btn-install-sml").click(e => {
 
@@ -1129,7 +1167,7 @@ class Page_Mods {
 
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             if (res.result == "success") {
                 this.ServerState = res.data;
             }
@@ -1140,15 +1178,38 @@ class Page_Mods {
 
         const isDataTable = $.fn.dataTable.isDataTable("#mods-table")
 
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const tableData = [];
             if (res.result == "success") {
                 for (let i = 0; i < res.data.length; i++) {
                     const mod = res.data[i];
+
+                    const ficsitMod = this.FicsitModList.find(el => el.id == mod.id);
+
+                    if (ficsitMod == null) continue;
+
+                    const latestVersion = (mod.version == ficsitMod.latest_version)
+
+                    console.log(ficsitMod)
+
+                    const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
+                        .attr("data-modid", mod.id)
+                        .attr("data-toggle", "tooltip")
+                        .attr("data-placement", "bottom")
+                        .attr("title", "Update Mod")
+                        .html("<i class='fas fa-arrow-alt-circle-up'></i>")
+
+                    // Create uninstall btn
+                    const $btn_uninstall = $("<button/>")
+                        .addClass("btn btn-danger btn-block btn-uninstall-mod")
+                        .attr("data-modid", mod.id)
+                        .html("<i class='fas fa-trash'></i> Uninstall");
+
+                    const versionStr = mod.version + " " + ((latestVersion == false) ? $btn_update.prop("outerHTML") : "")
                     tableData.push([
                         mod.name,
-                        mod.id,
-                        mod.version
+                        versionStr,
+                        $btn_uninstall.prop('outerHTML')
                     ])
                 }
             }
@@ -1161,6 +1222,10 @@ class Page_Mods {
                     order: [
                         [0, "asc"]
                     ],
+                    columnDefs: [{
+                        "targets": 2,
+                        "orderable": false
+                    }],
                     data: tableData
                 })
             } else {
@@ -1169,11 +1234,13 @@ class Page_Mods {
                 datatable.rows.add(tableData);
                 datatable.draw();
             }
+
+            $('[data-toggle="tooltip"]').tooltip()
         })
     }
 
-    getSMLVersion() {
-        API_Proxy.get("smlversion").then(res => {
+    getSMLInfo() {
+        API_Proxy.get("mods", "smlinfo").then(res => {
             const el = $(".sml-status");
             const el2 = $(".sml-version");
             if (res.result == "success") {
@@ -1193,7 +1260,7 @@ class Page_Mods {
     }
 
     getModCount() {
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const el = $("#mod-count");
             if (res.result == "success") {
                 el.text(res.data.length)
@@ -1204,22 +1271,24 @@ class Page_Mods {
     }
 
     getFicsitSMLVersion() {
-        API_Proxy.get("ficsit", "smlversions").then(res => {
+        API_Proxy.get("ficsitinfo", "smlversions").then(res => {
             const el1 = $("#sel-install-sml-ver");
             const el2 = $(".sml-latest-version");
             if (res.result == "success") {
                 el2.text(res.data[0].version);
                 res.data.forEach(sml => {
-                    el1.append("<option value='" + sml.id + "'>" + sml.version + "</option");
+                    el1.append("<option value='" + sml.version + "'>" + sml.version + "</option");
                 })
             }
         });
     }
 
     getFicsitModList() {
-        API_Proxy.get("ficsit", "modslist").then(res => {
+        API_Proxy.get("ficsitinfo", "modslist").then(res => {
             const el = $("#sel-add-mod-name");
             if (res.result == "success") {
+                this.FicsitModList = res.data;
+                this.loaded.ficsit_modlist = true;
                 res.data.forEach(mod => {
                     el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
                 })
@@ -1233,7 +1302,7 @@ class Page_Mods {
         if (modid == "-1") {
             this.hideNewModInfo();
         } else {
-            API_Proxy.get("ficsit", "modinfo", modid).then(res => {
+            API_Proxy.get("ficsitinfo", "modinfo", modid).then(res => {
                 this.showNewModInfo(res.data);
             });
         }
@@ -1259,7 +1328,7 @@ class Page_Mods {
         sel_el.find('option').not(':first').remove();
         console.log(data);
         data.versions.forEach(mod_version => {
-            sel_el.append("<option value='" + mod_version.id + "'>" + mod_version.version + "</option");
+            sel_el.append("<option value='" + mod_version.version + "'>" + mod_version.version + "</option");
         })
     }
 
@@ -1296,7 +1365,7 @@ class Page_Mods {
             version
         }
 
-        API_Proxy.postData("/installsml", postData).then(res => {
+        API_Proxy.postData("/mods/installsml", postData).then(res => {
             console.log(res);
 
             $btn.prop("disabled", false);
@@ -1308,7 +1377,7 @@ class Page_Mods {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("SML has been installed!")
-                    this.getSMLVersion();
+                    this.getSMLInfo();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
@@ -1343,7 +1412,7 @@ class Page_Mods {
             versionid: $selVersionEl.val()
         }
 
-        API_Proxy.postData("/installmod", postData).then(res => {
+        API_Proxy.postData("/mods/installmod", postData).then(res => {
             console.log(res);
 
             $btn.prop("disabled", false);
@@ -1367,6 +1436,33 @@ class Page_Mods {
 
         });
     }
+
+    uninstallMod($btn) {
+        const modid = $btn.attr("data-modid");
+
+        const postData = {
+            modid: modid
+        }
+
+        console.log(postData);
+
+        API_Proxy.postData("/mods/uninstallmod", postData).then(res => {
+            if (res.result == "success") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Mod has been uninstalled!")
+                    this.displayModsTable();
+                    this.getModCount();
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        })
+    }
+
 
     startPageInfoRefresh() {
         setInterval(() => {
@@ -1525,7 +1621,7 @@ class Page_Settings {
     }
 
     getServerStatus() {
-        API_Proxy.get("serverstatus").then(res => {
+        API_Proxy.get("info", "serverstatus").then(res => {
             if (res.result == "success") {
                 this.ServerState = res.data;
             }
@@ -1578,7 +1674,7 @@ class Page_Settings {
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
         const sfConfig = this.Config.satisfactory;
 
-        API_Proxy.get("saves").then(res => {
+        API_Proxy.get("info", "saves").then(res => {
             $("#refresh-saves").prop("disabled", false);
             $("#refresh-saves").find("i").removeClass("fa-spin");
 

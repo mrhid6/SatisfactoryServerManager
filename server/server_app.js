@@ -18,6 +18,7 @@ class SSM_Server_App {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
         this.setupEventHandlers();
         SFS_Handler.init();
+        SSM_Mod_Handler.init();
         SSM_Log_Handler.init();
     }
 
@@ -34,6 +35,37 @@ class SSM_Server_App {
             next();
         } else {
             req.isLoggedin = false;
+            next();
+        }
+    }
+
+    checkLoggedInAPIMiddleWare(req, res, next) {
+        if (req.session.loggedin == true) {
+            req.isLoggedin = true;
+            req.session.touch();
+        } else {
+            req.isLoggedin = false;
+        }
+
+        if (req.isLoggedin != true) {
+            res.json({
+                result: "error",
+                error: "not logged in to ssm!"
+            });
+            return;
+        } else {
+            next();
+        }
+    }
+
+    checkModsEnabledAPIMiddleWare(req, res, next) {
+        if (Config.get("mods.enabled") == false) {
+            res.json({
+                result: "error",
+                error: "Mods not enabled!"
+            });
+
+        } else {
             next();
         }
     }

@@ -7,3 +7,5 @@ release-builds
 tools/TOKEN.txt
 tools/app_config.txt
 *.log
+
+tools/app_config.txt
