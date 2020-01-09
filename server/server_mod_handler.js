@@ -26,28 +26,6 @@ class SSM_Mod_Handler {
         this.SML_API = new SatisfactoryInstall(Config.get("mods.location"))
     }
 
-    execSMLCLI(command) {
-
-        const SMLCLIExe = path.join(Config.get("mods.SMLauncher_location"), "SatisfactoryModLauncherCLI.exe");
-
-        return new Promise((resolve, reject) => {
-            const fullCommand = '"' + SMLCLIExe + "\" " + command;
-            exec(fullCommand, (error, stdout, stderr) => {
-                if (error) {
-                    reject(error)
-                    return;
-                }
-
-                if (stderr) {
-                    reject(stderr);
-                    return;
-                }
-
-                resolve(stdout);
-            })
-        });
-    }
-
     getSMLInfo() {
         return new Promise((resolve, reject) => {
 
