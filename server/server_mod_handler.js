@@ -119,6 +119,13 @@ class SSM_Mod_Handler {
         })
     }
 
+    // TODO: Placeholder for SMLAPI updateMod Function
+    updateMod(modid) {
+        return new Promise((resolve, reject) => {
+            reject("Function not implemented yet!");
+        })
+    }
+
     installSMLVersion(req_version) {
         return new Promise((resolve, reject) => {
             getAvailableSMLVersions().then(versions => {

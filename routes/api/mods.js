@@ -63,6 +63,11 @@ router.post('/installmod', middleWare, function (req, res, next) {
             result: "success",
             data: result
         });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
     })
 });
 
@@ -75,7 +80,31 @@ router.post('/uninstallmod', middleWare, function (req, res, next) {
             result: "success",
             data: result
         });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
     })
 });
+
+router.post('/updatemod', middleWare, function (req, res, next) {
+    const post = req.body
+    const modid = post.modid;
+
+    SSM_Mod_Handler.updateMod(modid).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+
 
 module.exports = router;
