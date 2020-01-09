@@ -8,6 +8,8 @@ const SSM_Log_Handler = require("../server/server_log_handler");
 const SSM_Ficsit_Handler = require("../server/server_ficsit_handler");
 const Config = require("../server/server_config");
 
+var logger = require("../server/server_logger");
+
 const middleWare = [
     ServerApp.checkLoggedInMiddleWare
 ]
@@ -216,6 +218,31 @@ router.post('/config/sfsettings', middleWare, function (req, res, next) {
 
     const post = req.body
     SFS_Handler.updateSFSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/config/newsession', middleWare, function (req, res, next) {
+    if (req.isLoggedin != true) {
+        res.json({
+            result: "error",
+            error: "not logged in to ssm!"
+        });
+        return;
+    }
+
+    const body = req.body;
+    const sessionName = body.sessionName;
+
+    SFS_Handler.updateNewSession(sessionName).then(result => {
         res.json({
             result: "success",
             data: result
