@@ -49,6 +49,7 @@ class ServerConfig extends iConfig {
         super.get("satisfactory.password", "")
         super.get("satisfactory.save.location", "")
         super.get("satisfactory.save.file", "");
+        super.get("satisfactory.save.session", "");
 
         super.get("mods.enabled", false);
         super.get("mods.SMLauncher_location", "")

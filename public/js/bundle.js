@@ -1471,6 +1471,30 @@ class Page_Settings {
             this.submitModsSettings();
         })
 
+        $("#new-session-name").click(e => {
+          e.preventDefault();
+          Tools.openModal("server-session-new", (modal_el) => {
+            modal_el.find("#confirm-action").attr("data-action", "new-session")
+          });
+        })
+
+        $("body").on("click", "#cancel-action", (e) => {
+            $("#server-session-new .close").trigger("click");
+            Tools.modal_opened = false;
+        })
+
+        $("body").on("click", "#confirm-action", (e) => {
+          const $btnel = $(e.currentTarget);
+          const action = $btnel.attr("data-action");
+
+          if (action == "new-session") {
+              this.serverAction_NewSession($("#inp_new_session_name").val());
+
+              $("#server-session-new .close").trigger("click");
+              Tools.modal_opened = false;
+          }
+        })
+
         $("body").on("click", ".select-save-btn", (e) => {
             const $self = $(e.currentTarget);
             const savename = $self.attr("data-save");
@@ -1737,6 +1761,27 @@ class Page_Settings {
             this.getServerStatus();
         }, 5 * 1000);
     }
+
+    serverAction_NewSession(sessionName) {
+      const postData = {
+        sessionName
+      } 
+
+      API_Proxy.postData("/config/newsession", postData).then(res => {
+          if (res.result == "success") {
+              this.getConfig();
+              if (Tools.modal_opened == true) return;
+              Tools.openModal("server-settings-success", (modal_el) => {
+                  modal_el.find("#success-msg").text("Settings have been saved!")
+              });
+          } else {
+              if (Tools.modal_opened == true) return;
+              Tools.openModal("server-settings-error", (modal_el) => {
+                  modal_el.find("#error-msg").text(res.error)
+              });
+          }
+      });
+  }
 }
 
 function saveDate(dateStr) {
