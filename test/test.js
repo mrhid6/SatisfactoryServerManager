@@ -1,14 +1,9 @@
-const {
-    SatisfactoryInstall
-} = require("../SMLauncherAPI/lib/satisfactoryInstall")
+const GitHub = require("github-api");
 
-const {
-    getAvailableSMLVersions,
-    getModVersions
-} = require("../SMLauncherAPI/lib/ficsitApp")
+const gh = new GitHub();
 
-const sml_api = new SatisfactoryInstall("C:\\tmp\\SSM_Temp");
+const repo = gh.getRepo("mrhid6", "satisfactoryservermanager");
 
-getModVersions("oapk7n37fGskj").then(res => {
-    console.log(res)
+repo.listReleases((err, releases) => {
+    console.log(releases[0].tag_name)
 })

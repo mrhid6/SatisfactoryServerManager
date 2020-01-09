@@ -66,7 +66,7 @@ class Page_Dashboard {
     }
 
     getModCount() {
-        API_Proxy.get("modsinstalled").then(res => {
+        API_Proxy.get("mods", "modsinstalled").then(res => {
             const el = $("#mod-count");
             if (res.result == "success") {
                 el.text(res.data.length)

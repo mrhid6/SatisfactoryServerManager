@@ -27,7 +27,9 @@
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
         "simple-node-logger": "^18.12.23",
-        "systeminformation": "^4.16.0"
+        "systeminformation": "^4.16.0",
+        "toastr": "^2.1.4",
+        "github-api": "3.3.0"
     },
     "scripts": {
         "start": "node app.js",

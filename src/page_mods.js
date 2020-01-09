@@ -57,7 +57,18 @@ class Page_Mods {
             } else {
                 this.unlockInstallModBtn();
             }
-        })
+        }).on("click", ".btn-uninstall-mod", e => {
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
+            const $self = $(e.currentTarget);
+            this.uninstallMod($self)
+        });
 
         $("#btn-install-sml").click(e => {
 
@@ -358,6 +369,33 @@ class Page_Mods {
 
         });
     }
+
+    uninstallMod($btn) {
+        const modid = $btn.attr("data-modid");
+
+        const postData = {
+            modid: modid
+        }
+
+        console.log(postData);
+
+        API_Proxy.postData("/mods/uninstallmod", postData).then(res => {
+            if (res.result == "success") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Mod has been uninstalled!")
+                    this.displayModsTable();
+                    this.getModCount();
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        })
+    }
+
 
     startPageInfoRefresh() {
         setInterval(() => {

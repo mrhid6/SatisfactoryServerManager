@@ -66,4 +66,16 @@ router.post('/installmod', middleWare, function (req, res, next) {
     })
 });
 
+router.post('/uninstallmod', middleWare, function (req, res, next) {
+    const post = req.body
+    const modid = post.modid;
+
+    SSM_Mod_Handler.uninstallMod(modid).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    })
+});
+
 module.exports = router;

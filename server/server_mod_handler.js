@@ -104,7 +104,9 @@ class SSM_Mod_Handler {
                 }
                 return;
             }).then(() => {
-                logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalled Mod: " + currentMod.id + " (" + currentMod.version + ")");
+                if (currentMod != null) {
+                    logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalled Mod: " + currentMod.id + " (" + currentMod.version + ")");
+                }
 
                 logger.info("[MOD_HANDLER] [INSTALL] - Installing Mod: " + modid + " (" + version + ")");
                 return this.SML_API.installMod(modid, version);
@@ -116,6 +118,27 @@ class SSM_Mod_Handler {
                 reject(err);
             })
         });
+    }
+
+    uninstallMod(modid) {
+        return new Promise((resolve, reject) => {
+            let currentMod = null;
+            this.getModsInstalled().then(mods => {
+                currentMod = mods.find(el => el.id == modid);
+
+                if (currentMod != null) {
+                    logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalling Mod: " + currentMod.id + " (" + currentMod.version + ")");
+                    return this.SML_API.uninstallMod(modid);
+                }
+                return;
+            }).then(() => {
+                logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalled Mod: " + currentMod.id + " (" + currentMod.version + ")");
+                resolve();
+            }).catch(err => {
+                logger.error("[MOD_HANDLER] [UNINSTALL] - Uninstalling Mod Failed!");
+                reject(err);
+            })
+        })
     }
 
     installSMLVersion(req_version) {
