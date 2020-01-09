@@ -18,15 +18,36 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+if [ -f /etc/os-release ]; then
+    # freedesktop.org and systemd
+    . /etc/os-release
+    OS=$NAME
+    VER=$VERSION_ID
+elif type lsb_release >/dev/null 2>&1; then
+    # linuxbase.org
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+    VER=$DISTRIB_RELEASE
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+    VER=$(cat /etc/debian_version)
+fi
+
 cd ${BASEDIR}
 error=0
-
-if [ $(which -a n | wc -l) -eq 0 ]; then
-    if [ $INSTALL -eq 1 ]; then
-        curl -L https://git.io/n-install | bash -s -- -y -q
-    else
-        echo "Error: N needs to be installed!"
-        error=1
+if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
+    if [ $(which -a n | wc -l) -eq 0 ]; then
+        if [ $INSTALL -eq 1 ]; then
+            curl -L https://git.io/n-install | bash -s -- -y -q
+        else
+            echo "Error: N needs to be installed!"
+            error=1
+        fi
     fi
 fi
 
@@ -70,8 +91,25 @@ if [ $UPDATE -eq 1 ]; then
     npm i -g pkg release-it yarn
 fi
 
-git submodule update --init
+if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
+    check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
 
+    if [ $check_lib -eq 0 ]; then
+        add-apt-repository ppa:ubuntu-toolchain-r/test -y >/dev/null 2>&1
+        apt-get -qq update -y
+        apt-get -qq upgrade -y
+    fi
+
+    check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
+
+    if [ $check_lib -eq 0 ]; then
+        echo "Error: Couldn't install required libraries"
+        exit 1
+    fi
+fi
+
+git submodule update --init
 yarn
+yarn build
 
 exit $?

@@ -34,7 +34,8 @@
     "scripts": {
         "start": "node app.js",
         "watch": "watchify src/app.js -o public/js/bundle.js",
-        "clean-css": "bash tools/clean-css.sh"
+        "clean-css": "bash tools/clean-css.sh",
+        "build": "pwd && cd ./SMLauncherAPI && yarn build"
     },
     "private": true,
     "workspaces": [
