@@ -67,20 +67,20 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const fullCommand = "\"" + SFSExe + "\" " + command;
             console.log(fullCommand)
-            var process = childProcess.spawn( fullCommand, {
+            var process = childProcess.spawn(fullCommand, {
                 shell: true,
                 detached: true,
                 stdio: 'ignore'
-            } );
-        
+            });
+
             // @todo: We get the close after this function has ended, I don't know how to capture return code properly here
             process.on('error', (err) => {
-                logger.debug(`[SFS_Handler] [SERVER_ACTION] - Child process with error ${error}`);
+                logger.debug(`[SFS_Handler] [SERVER_ACTION] - Child process with error ${err}`);
             });
             process.on('close', (code) => {
                 logger.debug(`[SFS_Handler] [SERVER_ACTION] - Child process on close ${code}`);
             });
-            
+
             process.unref();
             resolve();
         });
@@ -93,16 +93,16 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
                 var saveFileName = Config.get("satisfactory.save.file");
                 var loadGameString = ""
-                if (saveFileName && saveFileName.length) {
+                if (saveFileName != null && saveFileName != "") {
                     loadGameString = "?loadgame=" + saveFileName;
                 }
                 var sessionName = Config.get("satisfactory.save.session");
                 var sessionString = "";
-                if (sessionName && sessionName.length) {
+                if (sessionName != null && sessionName != "") {
                     sessionString = "?sessionName=" + sessionName
                 }
                 if (server_status.pid == -1) {
-                    return this.execSFSCmd( "Persistent_Level?listen?bUseIpSockets" + loadGameString + sessionString + " -NoEpicPortal -unattended" );
+                    return this.execSFSCmd("Persistent_Level?listen?bUseIpSockets" + loadGameString + sessionString + " -NoEpicPortal -unattended");
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
@@ -376,6 +376,10 @@ class SF_Server_Handler {
                     return;
                 }
 
+                const saveBody = saveFile.savebody;
+                const sessionName = (saveBody.split("?")[2]).split("=")[1];
+
+                Config.set("satisfactory.save.session", sessionName);
                 Config.set("satisfactory.save.file", saveFile.savename);
                 resolve();
             })
@@ -465,16 +469,15 @@ class SF_Server_Handler {
     }
 
     validSessionName(sessionName) {
-        logger.info("[SFS_Handler] [validSessionName] - sessionName = " + sessionName ); 
+        logger.info("[SFS_Handler] [validSessionName] - sessionName = " + sessionName);
         return sessionName.length > 3;
     }
 
     updateNewSession(sessionName) {
         return new Promise((resolve, reject) => {
-            if( this.validSessionName( sessionName ) ) {
+            if (this.validSessionName(sessionName)) {
                 Config.set("satisfactory.save.file", "");
                 Config.set("satisfactory.save.session", sessionName);
-                Config.set("satisfactory.save.game")
                 resolve();
                 return;
             }
