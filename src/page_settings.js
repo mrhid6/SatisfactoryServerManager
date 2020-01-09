@@ -104,6 +104,29 @@ class Page_Settings {
 
             this.selectSave(savename);
         })
+
+        $("#server-action-start").click((e) => {
+            this.serverAction_Start();
+        })
+
+        $("#server-action-stop").click((e) => {
+            this.serverAction_Confirm("stop");
+        })
+
+        $("#server-action-kill").click((e) => {
+            this.serverAction_Confirm("kill");
+        })
+
+        $("body").on("click", "#confirm-action", (e) => {
+            const $btnel = $(e.currentTarget);
+            const action = $btnel.attr("data-action");
+
+            if (action == "stop" || action == "kill") {
+                $("#server-action-confirm .close").trigger("click");
+                Tools.modal_opened = false;
+                this.serverAction_Stop(action);
+            }
+        })
     }
 
     getConfig() {

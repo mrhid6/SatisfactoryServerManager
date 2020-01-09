@@ -1,4 +1,4 @@
-const exec = require("child_process").exec
+const childProcess = require("child_process")
 const path = require("path");
 
 const si = require("systeminformation")
@@ -37,7 +37,7 @@ class SF_Server_Handler {
 
     execOSCmd(command) {
         return new Promise((resolve, reject) => {
-            exec(command, (error, stdout, stderr) => {
+            childProcess.exec(command, (error, stdout, stderr) => {
                 if (error) {
                     reject(error)
                     return;
@@ -67,19 +67,22 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const fullCommand = "\"" + SFSExe + "\" " + command;
             console.log(fullCommand)
-            exec(fullCommand, (error, stdout, stderr) => {
-                if (error) {
-                    reject(error)
-                    return;
-                }
-
-                if (stderr) {
-                    reject(stderr);
-                    return;
-                }
-
-                resolve(stdout);
-            })
+            var process = childProcess.spawn( fullCommand, {
+                shell: true,
+                detached: true,
+                stdio: 'ignore'
+            } );
+        
+            // @todo: We get the close after this function has ended, I don't know how to capture return code properly here
+            process.on('error', (err) => {
+                logger.debug(`[SFS_Handler] [SERVER_ACTION] - Child process with error ${error}`);
+            });
+            process.on('close', (code) => {
+                logger.debug(`[SFS_Handler] [SERVER_ACTION] - Child process on close ${code}`);
+            });
+            
+            process.unref();
+            resolve();
         });
     }
 
@@ -88,9 +91,18 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
             this.getServerStatus().then(server_status => {
-
+                var saveFileName = Config.get("satisfactory.save.file");
+                var loadGameString = ""
+                if (saveFileName && saveFileName.length) {
+                    loadGameString = "?loadgame=" + saveFileName;
+                }
+                var sessionName = Config.get("satisfactory.save.session");
+                var sessionString = "";
+                if (sessionName && sessionName.length) {
+                    sessionString = "?sessionName=" + sessionName
+                }
                 if (server_status.pid == -1) {
-                    return this.execSFSCmd("Persistent_Level?loadgame=" + Config.get("satisfactory.save.file") + " -NoEpicPortal &");
+                    return this.execSFSCmd( "Persistent_Level?listen?bUseIpSockets" + loadGameString + sessionString + " -NoEpicPortal -unattended" );
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
@@ -449,6 +461,24 @@ class SF_Server_Handler {
             Config.set("mods.location", mods_location);
             resolve();
 
+        });
+    }
+
+    validSessionName(sessionName) {
+        logger.info("[SFS_Handler] [validSessionName] - sessionName = " + sessionName ); 
+        return sessionName.length > 3;
+    }
+
+    updateNewSession(sessionName) {
+        return new Promise((resolve, reject) => {
+            if( this.validSessionName( sessionName ) ) {
+                Config.set("satisfactory.save.file", "");
+                Config.set("satisfactory.save.session", sessionName);
+                Config.set("satisfactory.save.game")
+                resolve();
+                return;
+            }
+            reject("Invalid session name");
         });
     }
 }
