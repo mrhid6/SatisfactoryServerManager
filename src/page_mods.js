@@ -42,7 +42,7 @@ class Page_Mods {
                     clearInterval(interval);
                     resolve()
                 }
-            }, 100)
+            }, 20)
         })
     }
 
@@ -123,7 +123,8 @@ class Page_Mods {
                     if (ficsitMod == null) continue;
 
                     const latestVersion = (mod.version == ficsitMod.latest_version)
-                    const latestStr = (latestVersion) ? "Latest" : "Old Version";
+
+                    console.log(ficsitMod)
 
                     const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
                         .attr("data-modid", mod.id)

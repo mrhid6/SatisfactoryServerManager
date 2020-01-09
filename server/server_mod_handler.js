@@ -205,24 +205,6 @@ class SSM_Mod_Handler {
         })
     }
 
-    getFicsitModList() {
-        return new Promise((resolve, reject) => {
-            getAvailableMods().then(mods => {
-                const resArr = [];
-
-                for (let i = 0; i < mods.length; i++) {
-                    const mod = mods[i];
-                    resArr.push({
-                        id: mod.id,
-                        name: mod.name
-                    })
-                }
-                resolve(resArr);
-            }).catch(err => {
-                reject(err);
-            })
-        })
-    }
     getFicsitModInfo(modid) {
         return new Promise((resolve, reject) => {
             const ModInfo = {
