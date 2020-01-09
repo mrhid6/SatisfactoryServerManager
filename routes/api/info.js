@@ -21,10 +21,19 @@ router.get('/serverstatus', middleWare, function (req, res, next) {
 });
 
 router.get('/ssmversion', middleWare, function (req, res, next) {
-    res.json({
-        result: "success",
-        data: Config.get("ssm.version")
-    });
+
+    Config.getSSMVersion().then(data => {
+        res.json({
+            result: "success",
+            data: data
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+
 });
 
 router.get('/saves', middleWare, function (req, res, next) {

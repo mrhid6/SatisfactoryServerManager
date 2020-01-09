@@ -3,6 +3,7 @@ global.__basedir = __dirname;
 
 const express = require('express');
 const session = require('express-session');
+const FileStore = require('connect-fs2')(session);
 const exphbs = require('express-handlebars');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -10,6 +11,7 @@ const methodOverride = require('method-override');
 const app = express();
 const http = require('http').Server(app);
 const path = require('path');
+const fs = require('fs');
 
 var logger = require("./server/server_logger");
 var Cleanup = require("./server/server_cleanup");
@@ -20,6 +22,7 @@ const SSM_Server_App = require("./server/server_app");
 
 class AppServer {
     constructor() {
+        this.fixFileStoreSessionDelete()
         this.init();
     }
 
@@ -34,8 +37,14 @@ class AppServer {
 
         logger.info("[APP] [EXPRESS] - Starting Express..");
 
+        const fileStoreOptions = {
+            dir: Config.getSessionStorePath(),
+            reapInterval: 10000
+        };
+
         const expsess = session({
             secret: 'SSM',
+            store: new FileStore(fileStoreOptions),
             resave: false,
             saveUninitialized: true,
             cookie: {
@@ -108,6 +117,35 @@ class AppServer {
 
     startAppServer() {
         SSM_Server_App.init();
+    }
+
+    fixFileStoreSessionDelete() {
+        FileStore.prototype.reap = function () {
+            var now = new Date().getTime();
+            var self = this;
+            //console.log("deleting old sessions");
+            var checkExpiration = function (filePath) {
+                fs.readFile(filePath, function (err, data) {
+                    if (!err) {
+                        data = JSON.parse(data);
+                        if (data.expired && data.expired < now) {
+                            //console.log("deleted file " + filePath);
+                            fs.unlinkSync(filePath);
+                        }
+                    }
+                });
+            };
+            fs.readdir(self.dir, function (err, files) {
+                if (err || files.length <= 0) {
+                    return;
+                }
+                files.forEach(function (file, i) {
+                    if (/\.json$/.test(files[i])) {
+                        checkExpiration(path.join(self.dir, files[i]));
+                    }
+                });
+            });
+        };
     }
 
 }

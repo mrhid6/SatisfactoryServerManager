@@ -32,6 +32,7 @@ class SSM_Server_App {
         if (req.session.loggedin == true) {
             req.isLoggedin = true;
             req.session.touch();
+            req.session.save();
             next();
         } else {
             req.isLoggedin = false;

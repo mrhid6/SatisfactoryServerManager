@@ -233,6 +233,74 @@ body {
     font-weight: bold;
 }
 
+/* Toasts */
+#toast-container>.toast {
+    opacity: 1;
+}
+
+#toast-container>.toast-info:before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f129";
+    font-size: 25px;
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#toast-container>.toast-info {
+    background: #008cba !important;
+}
+
+#toast-container>.toast-error:before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f12a";
+    font-size: 25px;
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#toast-container>.toast-error {
+    background: #F04124 !important;
+}
+
+#toast-container>.toast-success:before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f00c";
+    font-size: 25px;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#toast-container>.toast-success {
+    background: #43ac6a !important;
+}
+
+#toast-container>.toast-warning:before {
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    content: "\f071";
+    font-size: 25px;
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+#toast-container>.toast-warning {
+    background: #E99002 !important;
+}
+
+#toast-container .toast-message {
+    font-size: 12px;
+}
 
 @media(max-width:991px) {
     .status-info-card {

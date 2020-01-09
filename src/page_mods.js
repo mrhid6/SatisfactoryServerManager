@@ -124,8 +124,6 @@ class Page_Mods {
 
                     const latestVersion = (mod.version == ficsitMod.latest_version)
 
-                    console.log(ficsitMod)
-
                     const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
                         .attr("data-modid", mod.id)
                         .attr("data-toggle", "tooltip")
