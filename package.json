@@ -30,7 +30,8 @@
         "simple-node-logger": "^18.12.23",
         "systeminformation": "^4.16.0",
         "toastr": "^2.1.4",
-        "uglifyify": "^5.0.2"
+        "uglifyify": "^5.0.2",
+        "platform-folders": "0.4.1"
     },
     "scripts": {
         "start": "node app.js",

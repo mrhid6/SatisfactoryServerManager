@@ -33,7 +33,8 @@ if (fs.pathExistsSync(sessionStorePath) == false) {
 class ServerConfig extends iConfig {
     constructor() {
         super({
-            configFileName: userDataPath + "/SSM.json"
+            configPath: userDataPath,
+            filename: "SSM.json"
         });
     }
 

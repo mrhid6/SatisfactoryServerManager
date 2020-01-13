@@ -1,5 +1,5 @@
+const SF_Config = require("../server/server_sf_config");
 
+SF_Config.load();
 
-repo.listReleases((err, releases) => {
-    console.log(releases[0].tag_name)
-})
+console.log(SF_Config.getConfigData())
