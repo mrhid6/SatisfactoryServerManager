@@ -76,6 +76,7 @@ class Page_Dashboard {
         })
     }
 
+
     ToggleServerActionButtons() {
         if (this.ServerState.status == "stopped") {
             $("#server-action-start").prop("disabled", false);

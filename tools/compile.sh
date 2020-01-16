@@ -124,7 +124,7 @@ rm ${release_dir_win64}/exe.list
 
 echo -en "\e[32m✔\e[0m\n"
         cd /nodejs/build; \
-        rm -r SSM; >/dev/null 2>&1\
+        rm -r SSM >/dev/null 2>&1
     "
 
     ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
@@ -132,9 +132,7 @@ echo -en "\e[32m✔\e[0m\n"
 
     printDots "* Cloning SSM Repo" 30
     sshargs="cd /nodejs/build; \
-        git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; \
-        cd SSM; \
-        git checkout -b SML_API origin/SML_API; \
+        git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; 
         exit \$?
     "
     ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1

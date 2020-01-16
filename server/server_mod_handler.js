@@ -71,24 +71,8 @@ class SSM_Mod_Handler {
     installModVersion(modid, version) {
         return new Promise((resolve, reject) => {
 
-            let currentMod = null;
-
-            this.getModsInstalled().then(mods => {
-                currentMod = mods.find(el => el.id == modid);
-
-                if (currentMod != null) {
-                    logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalling Mod: " + currentMod.id + " (" + currentMod.version + ")");
-                    return this.SML_API.uninstallMod(modid);
-                }
-                return;
-            }).then(() => {
-                if (currentMod != null) {
-                    logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalled Mod: " + currentMod.id + " (" + currentMod.version + ")");
-                }
-
-                logger.info("[MOD_HANDLER] [INSTALL] - Installing Mod: " + modid + " (" + version + ")");
-                return this.SML_API.installMod(modid, version);
-            }).then(() => {
+            logger.info("[MOD_HANDLER] [INSTALL] - Installing Mod: " + modid + " (" + version + ")");
+            this.SML_API.installMod(modid, version).then(() => {
                 logger.info("[MOD_HANDLER] [INSTALL] - Installed Mod: " + modid + " (" + version + ")");
                 resolve()
             }).catch(err => {
@@ -122,7 +106,11 @@ class SSM_Mod_Handler {
     // TODO: Placeholder for SMLAPI updateMod Function
     updateMod(modid) {
         return new Promise((resolve, reject) => {
-            reject("Function not implemented yet!");
+            logger.info("[MOD_HANDLER] [INSTALL] - Updating Mod: " + modid);
+            this.SML_API.updateMod(modid).then(() => {
+                logger.info("[MOD_HANDLER] [INSTALL] - Updated Mod: " + modid + "!");
+                resolve();
+            })
         })
     }
 
@@ -137,22 +125,13 @@ class SSM_Mod_Handler {
                     return;
                 }
 
-                this.getSMLInfo().then(smlinfo => {
-                    if (smlinfo.state == "installed") {
-                        logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalling SML " + smlinfo.version);
-                        return this.SML_API.uninstallSML();
-                    }
-                }).then(() => {
-                    logger.info("[MOD_HANDLER] [UNINSTALL] - Uninstalled SML!");
+                logger.info("[MOD_HANDLER] [INSTALL] - Installing SML " + req_version + " ...")
+                this.SML_API.installSML(sml_version.version).then(() => {
+                    logger.info("[MOD_HANDLER] [INSTALL] - Installed SML " + req_version + "!")
+                    resolve()
                 }).catch(err => {
-                    logger.error("[MOD_HANDLER] [INSTALL] - Unistalling SML Failed!");
-                    reject(err)
-                }).finally(() => {
-                    logger.info("[MOD_HANDLER] [INSTALL] - Installing SML " + req_version + " ...")
-                    this.SML_API.installSML(sml_version.version).then(() => {
-                        logger.info("[MOD_HANDLER] [INSTALL] - Installed SML " + req_version + "!")
-                        resolve()
-                    })
+                    logger.error("[MOD_HANDLER] [INSTALL] - Installing SML Failed!");
+                    reject(err);
                 })
 
 
@@ -165,8 +144,7 @@ class SSM_Mod_Handler {
 
     installSMLVersionLatest() {
         return new Promise((resolve, reject) => {
-            getAvailableSMLVersions().then(versions => {
-                const sml_version = versions[0]
+            getLatestSMLVersion().then(sml_version => {
                 return this.installSMLVersion(sml_version.version)
             }).then(res => {
                 resolve(res)
@@ -227,7 +205,7 @@ class SSM_Mod_Handler {
 
                 return getModVersions(modid)
             }).then(Mod_versions => {
-                ModInfo.versions = Mod_versions.versions;
+                ModInfo.versions = Mod_versions;
                 resolve(ModInfo);
             }).catch(err => {
                 reject(err);
