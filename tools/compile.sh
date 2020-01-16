@@ -72,67 +72,6 @@ if [ "${USE_LINUX_SERVER}" == "1" ]; then
     printDots "* Cloning SSM Repo" 30
     sshargs="cd /nodejs/build; \
         git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; \
-        cd SSM; \
-        git checkout -b SML_API origin/SML_API; \
-        exit \$?
-    "
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo -en "\e[31m✘\e[0m\n"
-        exit 1
-    else
-        echo -en "\e[32m✔\e[0m\n"
-    fi
-
-    printDots "* Building App" 30
-    sshargs="PATH+=:/root/n/bin; \
-        cd /nodejs/build/SSM; \
-        bash ./tools/build_app.sh -i -u; \
-        exit \$?
-    "
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
-
-    if [ $? -ne 0 ]; then
-        echo -en "\e[31m✘\e[0m\n"
-        exit 1
-    else
-        echo -en "\e[32m✔\e[0m\n"
-    fi
-
-    sshargs="cd /nodejs/build/SSM; \
-        find /nodejs/build/SSM -name \"*.node\" | grep -v \"obj\"
-    "
-
-    printDots "* Copying Executables" 30
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >${release_dir_linux}/exe.list
-    while read -r line; do
-        ${SCP_CMD} root@${LINUX_SERVER}:${line} ${release_dir_linux}/.
-    done <${release_dir_linux}/exe.list
-
-    rm ${release_dir_linux}/exe.list
-    echo -en "\e[32m✔\e[0m\n"
-fi
-
-printDots "* Copying Win64 Executables" 30
-
-find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_win64}/exe.list
-
-while read -r line; do
-    cp ${line} ${release_dir_win64}/.
-done <${release_dir_win64}/exe.list
-rm ${release_dir_win64}/exe.list
-
-echo -en "\e[32m✔\e[0m\n"
-        cd /nodejs/build; \
-        rm -r SSM >/dev/null 2>&1
-    "
-
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
-    echo -en "\e[32m✔\e[0m\n"
-
-    printDots "* Cloning SSM Repo" 30
-    sshargs="cd /nodejs/build; \
-        git clone https://github.com/mrhid6/SatisfactoryServerManager.git SSM; 
         exit \$?
     "
     ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
