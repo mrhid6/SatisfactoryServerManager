@@ -10,6 +10,7 @@ const {
 
 const {
     getAvailableSMLVersions,
+    getLatestSMLVersion,
     getAvailableMods,
     getMod,
     getModVersions
@@ -24,7 +25,7 @@ class SSM_Mod_Handler {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
         //this.SML_API = new SatisfactoryInstall(null, null, Config.get("satisfactory.server_location"), null)
-        this.SML_API = new SatisfactoryInstall(null, null, Config.get("mods.location"), null)
+        this.SML_API = new SatisfactoryInstall("Satisfactory Early Access", "109075.0.0", Config.get("mods.location"), "FactoryGame.exe")
     }
 
     getSMLInfo() {
@@ -145,6 +146,7 @@ class SSM_Mod_Handler {
 
     installSMLVersionLatest() {
         return new Promise((resolve, reject) => {
+            logger.info("[MOD_HANDLER] [INSTALL] - Installing SML ...")
             getLatestSMLVersion().then(sml_version => {
                 return this.installSMLVersion(sml_version.version)
             }).then(res => {
