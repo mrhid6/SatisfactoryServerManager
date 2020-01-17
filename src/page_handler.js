@@ -2,6 +2,7 @@ const API_Proxy = require("./api_proxy");
 const Page_Dashboard = require("./page_dashboard");
 const Page_Mods = require("./page_mods");
 const Page_Logs = require("./page_logs");
+const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 
 class PageHandler {
@@ -35,6 +36,9 @@ class PageHandler {
                 break;
             case "logs":
                 Page_Logs.init();
+                break;
+            case "saves":
+                Page_Saves.init();
                 break;
             case "settings":
                 Page_Settings.init();

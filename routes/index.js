@@ -145,5 +145,16 @@ router.get('/settings', middleWare, function (req, res, next) {
     }
 });
 
+/* GET settings. */
+router.get('/saves', middleWare, function (req, res, next) {
+    if (req.isLoggedin == true) {
+        res.render('saves.hbs', {
+            layout: "main.hbs"
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 
 module.exports = router;

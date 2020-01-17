@@ -152,7 +152,6 @@ class Page_Settings {
     }
 
     MainDisplayFunction() {
-        this.displaySaveTable();
         this.populateSFSettings();
         this.populateModsSettings();
     }
@@ -170,11 +169,6 @@ class Page_Settings {
         $("#inp_sf_serverloc").val(sfConfig.server_location)
         $("#inp_sf_password").val(sfConfig.password)
         $("#inp_sf_saveloc").val(sfConfig.save.location)
-        if (sfConfig.save.file == "") {
-            $("#current-save").text("No Save File Selected, Server will create a new world on start up.")
-        } else {
-            $("#current-save").text(sfConfig.save.file)
-        }
 
     }
 
@@ -198,67 +192,6 @@ class Page_Settings {
 
         $("#inp_mods_sml").val(modsConfig.SMLauncher_location)
         $("#inp_mods_loc").val(modsConfig.location)
-    }
-
-    displaySaveTable() {
-
-        const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
-        const sfConfig = this.Config.satisfactory;
-
-        API_Proxy.get("info", "saves").then(res => {
-            $("#refresh-saves").prop("disabled", false);
-            $("#refresh-saves").find("i").removeClass("fa-spin");
-
-            const tableData = [];
-            if (res.result == "success") {
-
-                res.data.forEach(save => {
-                    if (save.result == "failed") return;
-
-                    let useSaveEl = $("<button/>")
-                        .addClass("btn btn-primary btn-block select-save-btn")
-                        .text("Select Save")
-                        .attr("data-save", save.savename);
-
-                    if (save.savename == sfConfig.save.file) {
-                        useSaveEl.prop("disabled", true).text("Active Save");
-                    }
-                    const useSaveStr = useSaveEl.prop('outerHTML')
-
-                    const saveOptions = save.savebody.split("?");
-                    const saveSessionName = saveOptions[2].split("=")[1];
-
-                    tableData.push([
-                        saveSessionName.trunc(25),
-                        save.savename.trunc(40),
-                        saveDate(save.last_modified),
-                        useSaveStr
-                    ])
-                })
-
-            }
-
-            if (isDataTable == false) {
-                $("#saves-table").DataTable({
-                    paging: true,
-                    searching: false,
-                    info: false,
-                    order: [
-                        [2, "desc"]
-                    ],
-                    columnDefs: [{
-                        type: 'date-euro',
-                        targets: 2
-                    }],
-                    data: tableData
-                })
-            } else {
-                const datatable = $("#saves-table").DataTable();
-                datatable.clear();
-                datatable.rows.add(tableData);
-                datatable.draw();
-            }
-        })
     }
 
     unlockSFSettings() {
@@ -352,49 +285,6 @@ class Page_Settings {
             console.log(res)
             if (res.result == "success") {
                 this.lockModsSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    selectSave(savename) {
-        const postData = {
-            savename
-        }
-
-        API_Proxy.postData("/config/selectsave", postData).then(res => {
-
-            if (res.result == "success") {
-                this.getConfig();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    serverAction_NewSession(sessionName) {
-        const postData = {
-            sessionName
-        }
-
-        API_Proxy.postData("/config/newsession", postData).then(res => {
-            if (res.result == "success") {
-                this.getConfig();
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")
