@@ -109,12 +109,45 @@ class SF_Server_Handler {
                     return;
                 }
             }).then(res => {
-                logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
-                resolve(res);
+                this.wailTillSFServerStarted().then(() => {
+                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
+                    resolve(res);
+                }).catch(err => {
+                    logger.warn("[SFS_Handler] [SERVER_ACTION] - SF Server Failed To Start");
+                    reject(err);
+                })
+
             }).catch(err => {
                 logger.warn("[SFS_Handler] [SERVER_ACTION] - SF Server Failed To Start");
                 reject(err);
             })
+        });
+    }
+
+    wailTillSFServerStarted() {
+        return new Promise((resolve, reject) => {
+
+
+            let timeoutCounter = 0;
+            let timeoutLimit = 30 * 1000; // 30 Seconds
+
+            const interval = setInterval(() => {
+                this.getServerStatus().then(info => {
+
+                    if (timeoutCounter >= timeoutLimit) {
+                        clearInterval(interval)
+                        reject("Satisfactory server start timed out!")
+                        return;
+                    }
+
+                    if (info.status == "running") {
+                        clearInterval(interval)
+                        resolve();
+                    } else {
+                        timeoutCounter++;
+                    }
+                })
+            }, 1000)
         });
     }
 
