@@ -106,13 +106,17 @@
                 </div>
                 <div class="row settings-row">
                     <div class="col-12 col-md-4">
-                        <b class="settings-prop">SMLauncher Location:</b>
+                        <b class="settings-prop">Auto Update:</b>
                         <span class="settings-info">
-                            Satisfactory Mod Launcher installation location.
+                            Choose whether automatically update all mods to latest version.
                         </span>
                     </div>
                     <div class="col-12 col-md-8">
-                        <input type="text" disabled class="form-control" placeholder="" id="inp_mods_sml">
+                        <div class="checkbox">
+                            <input id="inp_mods_autoupdate" type="checkbox" data-on="Enabled" data-off="Disabled"
+                                data-onstyle="success" data-offstyle="danger" checked data-toggle="toggle"
+                                data-width="100" data-size="small" disabled>
+                        </div>
                     </div>
                 </div>
                 <div class="row settings-row">

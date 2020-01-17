@@ -43,7 +43,6 @@ class SSM_Server_App {
     checkLoggedInAPIMiddleWare(req, res, next) {
         if (req.session.loggedin == true) {
             req.isLoggedin = true;
-            req.session.touch();
         } else {
             req.isLoggedin = false;
         }

@@ -22,8 +22,9 @@ class SSM_Mod_Handler {
 
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
-        //this.SML_API = new SatisfactoryInstall(Config.get("satisfactory.server_location"))
-        this.SML_API = new SatisfactoryInstall(Config.get("mods.location"))
+
+        //this.SML_API = new SatisfactoryInstall(null, null, Config.get("satisfactory.server_location"), null)
+        this.SML_API = new SatisfactoryInstall(null, null, Config.get("mods.location"), null)
     }
 
     getSMLInfo() {

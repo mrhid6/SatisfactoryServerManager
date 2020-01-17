@@ -140,3 +140,5 @@ tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
 cd ${release_dir_win64}
 7z a -tzip ${ZipWin64FileName} ./* -xr!build.log >/dev/null
 echo -en "\e[32m✔\e[0m\n"
+
+exit 0

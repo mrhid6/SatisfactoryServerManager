@@ -51,7 +51,7 @@ class ServerConfig extends iConfig {
 
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", "v1.0.12");
+        super.set("ssm.version", "v1.0.13");
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
@@ -64,7 +64,7 @@ class ServerConfig extends iConfig {
         super.get("satisfactory.save.session", "");
 
         super.get("mods.enabled", false);
-        super.get("mods.SMLauncher_location", "")
+        super.get("mods.autoupdate", false);
         super.get("mods.location", "")
     }
 

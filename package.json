@@ -25,13 +25,13 @@
         "jquery": "^3.4.1",
         "method-override": "^3.0.0",
         "moment": "^2.24.0",
+        "platform-folders": "0.4.1",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
-        "simple-node-logger": "^18.12.23",
+        "simple-node-logger": "^18.12.24",
         "systeminformation": "^4.16.0",
         "toastr": "^2.1.4",
-        "uglifyify": "^5.0.2",
-        "platform-folders": "0.4.1"
+        "uglifyify": "^5.0.2"
     },
     "scripts": {
         "start": "node app.js",
@@ -50,10 +50,11 @@
             "public/**/*",
             "scripts/**/*.sh",
             "assets/**/*",
-            "node_modules/jquery/**/*",
-            "node_modules/@fortawesome/**/*",
-            "node_modules/moment/**/*",
-            "node_modules/toastr/**/*"
+            "node_modules/jquery/dist/**/*",
+            "node_modules/@fortawesome/fontawesome-free/css/**/*",
+            "node_modules/@fortawesome/fontawesome-free/webfonts/**/*",
+            "node_modules/moment/min/**/*",
+            "node_modules/toastr/build/**/*"
         ],
         "targets": [
             "node12"

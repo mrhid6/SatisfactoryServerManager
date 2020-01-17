@@ -434,16 +434,11 @@ class SF_Server_Handler {
     updateModsSettings(data) {
         return new Promise((resolve, reject) => {
             const enabled = (data.enabled == "true");
-            const sml_location = data.sml_location || "";
+            const autoupdate = (data.autoupdate == "true");
             const mods_location = data.mods_location || "";
 
-            if (sml_location == "" || mods_location == "") {
-                reject("Both SMLauncher & Mods folder locations are required!")
-                return;
-            }
-
-            if (fs.pathExistsSync(sml_location) == false) {
-                reject("SMLauncher path doesn't exist!")
+            if (mods_location == "") {
+                reject("Mods folder locations are required!")
                 return;
             }
 
@@ -452,16 +447,8 @@ class SF_Server_Handler {
                 return;
             }
 
-            let SMLExeName = "SatisfactoryModLauncherCLI.exe"
-
-            const SMLExe = path.join(sml_location, SMLExeName);
-            if (fs.existsSync(SMLExe) == false) {
-                reject("Cant find SMLauncher executable (" + SMLExeName + ")")
-                return;
-            }
-
             Config.set("mods.enabled", enabled);
-            Config.set("mods.SMLauncher_location", sml_location);
+            Config.set("mods.autoupdate", autoupdate);
             Config.set("mods.location", mods_location);
             resolve();
 

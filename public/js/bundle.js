@@ -1751,6 +1751,14 @@ class Page_Settings {
         }
         $('#inp_mods_enabled').bootstrapToggle('disable')
 
+        $('#inp_mods_autoupdate').bootstrapToggle('enable')
+        if (modsConfig.autoupdate == true) {
+            $('#inp_mods_autoupdate').bootstrapToggle('on')
+        } else {
+            $('#inp_mods_autoupdate').bootstrapToggle('off')
+        }
+        $('#inp_mods_autoupdate').bootstrapToggle('disable')
+
         $("#inp_mods_sml").val(modsConfig.SMLauncher_location)
         $("#inp_mods_loc").val(modsConfig.location)
     }
@@ -1848,7 +1856,7 @@ class Page_Settings {
         $("#save-mods-settings").prop("disabled", false);
         $("#cancel-mods-settings").prop("disabled", false);
         $('#inp_mods_enabled').bootstrapToggle('enable');
-        $("#inp_mods_sml").prop("disabled", false);
+        $('#inp_mods_autoupdate').bootstrapToggle('enable')
         $("#inp_mods_loc").prop("disabled", false);
     }
 
@@ -1858,7 +1866,7 @@ class Page_Settings {
         $("#save-mods-settings").prop("disabled", true);
         $("#cancel-mods-settings").prop("disabled", true);
         $('#inp_mods_enabled').bootstrapToggle('disable');
-        $("#inp_mods_sml").prop("disabled", true);
+        $('#inp_mods_autoupdate').bootstrapToggle('disable')
         $("#inp_mods_loc").prop("disabled", true);
     }
 
@@ -1893,11 +1901,11 @@ class Page_Settings {
 
     submitModsSettings() {
         const enabled = $('#inp_mods_enabled').is(":checked")
-        const sml_location = $("#inp_mods_sml").val();
+        const autoupdate = $('#inp_mods_autoupdate').is(":checked")
         const mods_location = $("#inp_mods_loc").val();
         const postData = {
             enabled,
-            sml_location,
+            autoupdate,
             mods_location
         }
 

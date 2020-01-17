@@ -3,7 +3,7 @@ global.__basedir = __dirname;
 
 const express = require('express');
 const session = require('express-session');
-const FileStore = require('connect-fs2')(session);
+const FSStore = require('connect-fs2')(session);
 const exphbs = require('express-handlebars');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -44,7 +44,7 @@ class AppServer {
 
         const expsess = session({
             secret: 'SSM',
-            store: new FileStore(fileStoreOptions),
+            store: new FSStore(fileStoreOptions),
             resave: false,
             saveUninitialized: true,
             cookie: {
@@ -65,6 +65,7 @@ class AppServer {
 
         var corsOptions = {
             origin: '*',
+            credentials: true,
             optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
         }
         app.use(cors(corsOptions));
@@ -120,7 +121,7 @@ class AppServer {
     }
 
     fixFileStoreSessionDelete() {
-        FileStore.prototype.reap = function () {
+        FSStore.prototype.reap = function () {
             var now = new Date().getTime();
             var self = this;
             //console.log("deleting old sessions");
@@ -145,6 +146,10 @@ class AppServer {
                     }
                 });
             });
+        };
+
+        FSStore.prototype.destroy = function (sid) {
+            fs.unlinkSync(path.join(this.dir, sid + '.json'));
         };
     }
 
