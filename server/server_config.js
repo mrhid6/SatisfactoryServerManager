@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const CryptoJS = require("crypto-js");
 
-const GitHub = require("github-api");
+const SSMCloud = require("./server_cloud");
 const semver = require("semver");
 
 const Mrhid6Utils = require("../Mrhid6Utils");
@@ -41,9 +41,6 @@ class ServerConfig extends iConfig {
     load() {
         super.load();
         this.setDefaults();
-
-        const gh = new GitHub();
-        this.GitHubRepo = gh.getRepo("mrhid6", "satisfactoryservermanager");
     }
 
     setDefaults() {
@@ -106,14 +103,10 @@ class ServerConfig extends iConfig {
 
     getGitHubReleaseVersion() {
         return new Promise((resolve, reject) => {
-            this.GitHubRepo.listReleases((err, releases) => {
-                if (err) {
-                    reject(err);
-                    return;
-                }
-
-                const ver = releases[0].tag_name;
-                resolve(ver)
+            SSMCloud.getGithubLatestRelease(release => {
+                resolve(release.tag_name)
+            }).catch(err => {
+                reject(err);
             })
         })
 

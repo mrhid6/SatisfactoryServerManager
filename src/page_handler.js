@@ -5,6 +5,8 @@ const Page_Logs = require("./page_logs");
 const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 
+const Logger = require("./logger");
+
 class PageHandler {
     constructor() {
         this.page = "";
@@ -24,6 +26,7 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
+        this.startLoggedInCheck()
 
         this.page = $(".page-container").attr("data-page");
 
@@ -44,6 +47,8 @@ class PageHandler {
                 Page_Settings.init();
                 break;
         }
+
+
     }
 
     setupJqueryHandler() {
@@ -78,6 +83,30 @@ class PageHandler {
 
             setCookie(ToastId, true, 30);
         }
+    }
+
+    startLoggedInCheck() {
+        const interval = setInterval(() => {
+            Logger.info("Checking Logged In!");
+            this.checkLoggedIn().then(loggedin => {
+                if (loggedin != true) {
+                    clearInterval(interval)
+                    window.location.replace("/logout");
+                }
+            })
+        }, 10000)
+    }
+
+    checkLoggedIn() {
+        return new Promise((resolve, reject) => {
+            API_Proxy.get("info", "loggedin").then(res => {
+                if (res.result == "success") {
+                    resolve(true)
+                } else {
+                    resolve(false)
+                }
+            })
+        })
     }
 }
 

@@ -7,6 +7,7 @@
     "license": "MIT",
     "dependencies": {
         "@fortawesome/fontawesome-free": "^5.11.2",
+        "axios": "^0.19.1",
         "binary-reader": "^0.1.2",
         "body-parser": "^1.19.0",
         "bootstrap": "^4.3.1",
@@ -31,7 +32,8 @@
         "simple-node-logger": "^18.12.24",
         "systeminformation": "^4.16.0",
         "toastr": "^2.1.4",
-        "uglifyify": "^5.0.2"
+        "uglifyify": "^5.0.2",
+        "universal-analytics": "^0.4.20"
     },
     "scripts": {
         "start": "node app.js",

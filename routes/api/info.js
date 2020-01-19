@@ -30,9 +30,18 @@ router.get('/ssmversion', middleWare, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
+
+});
+
+router.get('/loggedin', middleWare, function (req, res, next) {
+
+    res.json({
+        result: "success",
+        data: ""
+    });
 
 });
 
