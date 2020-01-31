@@ -110,6 +110,5 @@ fi
 
 git submodule update --init
 yarn
-yarn build
 
 exit $?

@@ -22,7 +22,9 @@ class SSMCloud {
             url += this._options.github.repo + "/"
             url += "releases/latest"
 
-            axios.get(url).then(res => {
+            axios.get(url, {
+                timeout: 5000
+            }).then(res => {
                 if (res.data == null || typeof res.data == 'undefined') {
                     reject("Cant find latest release data!")
                     return;

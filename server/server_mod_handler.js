@@ -5,16 +5,13 @@ const Config = require("./server_config");
 const logger = require("./server_logger");
 
 const {
-    SatisfactoryInstall
-} = require("../SMLauncherAPI/lib/satisfactoryInstall")
-
-const {
+    SatisfactoryInstall,
     getAvailableSMLVersions,
     getLatestSMLVersion,
     getAvailableMods,
     getMod,
     getModVersions
-} = require("../SMLauncherAPI/lib/ficsitApp")
+} = require("satisfactory-mod-launcher-api")
 
 class SSM_Mod_Handler {
     constructor() {
@@ -31,7 +28,7 @@ class SSM_Mod_Handler {
     getSMLInfo() {
         return new Promise((resolve, reject) => {
 
-            this.SML_API.getSMLVersion().then(res => {
+            this.SML_API._getInstalledSMLVersion().then(res => {
                 const infoObject = {
                     state: "not_installed",
                     version: ""
@@ -50,7 +47,7 @@ class SSM_Mod_Handler {
     getModsInstalled() {
         return new Promise((resolve, reject) => {
 
-            this.SML_API.getInstalledMods().then(res => {
+            this.SML_API._getInstalledMods().then(res => {
                 const resArr = [];
 
                 for (let i = 0; i < res.length; i++) {
@@ -87,7 +84,7 @@ class SSM_Mod_Handler {
     uninstallMod(modid) {
         return new Promise((resolve, reject) => {
             let currentMod = null;
-            this.getModsInstalled().then(mods => {
+            this._getModsInstalled().then(mods => {
                 currentMod = mods.find(el => el.id == modid);
 
                 if (currentMod != null) {

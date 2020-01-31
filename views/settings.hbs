@@ -2,7 +2,7 @@
     <h2 class="mb-3">Settings</h2>
     <div class="card border-secondary mb-3">
         <div class="card-header">
-            <h5>Satisfactory Settings</h5>
+            <h5>SSM Settings</h5>
         </div>
         <div class="card-body">
             <form action="" method="" class="form-horizontal">
@@ -34,6 +34,38 @@
                 </div>
                 <div class="row settings-row">
                     <div class="col-12 col-md-4">
+                        <b class="settings-prop">Saves Location:</b>
+                        <span class="settings-info">
+                            Satisfactory server saves location.
+                        </span>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" disabled class="form-control" placeholder="" id="inp_sf_saveloc">
+                    </div>
+                </div>
+            </form>
+            <div class="row">
+                <div class="col-12">
+                    <button class="btn btn-warning float-left" id="edit-ssm-settings"><i class="fas fa-edit"></i>
+                        Edit</button>
+                    <button disabled class="btn btn-success float-right" id="save-ssm-settings"><i
+                            class="fas fa-save"></i>
+                        Save</button>
+                    <button disabled class="btn btn-danger float-right mr-3" id="cancel-ssm-settings"><i
+                            class="fas fa-times"></i>
+                        Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Satisfactory Settings</h5>
+        </div>
+        <div class="card-body">
+            <form action="" method="" class="form-horizontal">
+                <div class="row settings-row">
+                    <div class="col-12 col-md-4">
                         <b class="settings-prop">Server Password:</b>
                         <span class="settings-info">
                             Satisfactory server password.
@@ -50,22 +82,6 @@
                             </div>
                         </div>
 
-                    </div>
-                </div>
-                <div class="row settings-row">
-                    <div class="col-12 col-md-4">
-                        <b class="settings-prop">Saves Location:</b>
-                        <span class="settings-info">
-                            Satisfactory server saves location.
-                        </span>
-                    </div>
-                    <div class="col-12 col-md-6">
-                        <input type="text" disabled class="form-control" placeholder="" id="inp_sf_saveloc">
-                    </div>
-                    <div class="col-12 col-md-2">
-                        <button id="refresh-saves" class="btn btn-primary btn-block"><i class="fas fa-sync-alt"></i>
-                            Update
-                            Saves</button>
                     </div>
                 </div>
             </form>
@@ -123,7 +139,7 @@
                     <div class="col-12 col-md-4">
                         <b class="settings-prop">Mods Location:</b>
                         <span class="settings-info">
-                            Mods folder location.
+                            Mods folder location. (Used for mod testing!)
                         </span>
                     </div>
                     <div class="col-12 col-md-8">

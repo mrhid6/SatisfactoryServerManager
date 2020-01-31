@@ -3,6 +3,7 @@ const CryptoJS = require("crypto-js");
 const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
+const SFConfig = require("./server_sf_config");
 
 const SFS_Handler = require("../server/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/server_mod_handler");

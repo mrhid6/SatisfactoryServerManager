@@ -40,6 +40,31 @@ class Page_Settings {
             }
         })
 
+        $("#edit-ssm-settings").click(e => {
+            e.preventDefault();
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
+            this.unlockSSMSettings();
+        })
+
+        $("#save-ssm-settings").click(e => {
+            e.preventDefault();
+            this.submitSSMSettings();
+        })
+
+        $("#cancel-ssm-settings").click(e => {
+            e.preventDefault();
+            this.lockSSMSettings();
+            this.getConfig();
+        })
+
         $("#edit-sf-settings").click(e => {
             e.preventDefault();
 
@@ -152,23 +177,31 @@ class Page_Settings {
     }
 
     MainDisplayFunction() {
+        this.populateSSMSettings();
         this.populateSFSettings();
         this.populateModsSettings();
     }
 
-    populateSFSettings() {
-        const sfConfig = this.Config.satisfactory;
+    populateSSMSettings() {
+        const ssmConfig = this.Config.satisfactory;
         $('#inp_sf_testmode').bootstrapToggle('enable')
-        if (sfConfig.testmode == true) {
+        if (ssmConfig.testmode == true) {
             $('#inp_sf_testmode').bootstrapToggle('on')
         } else {
             $('#inp_sf_testmode').bootstrapToggle('off')
         }
         $('#inp_sf_testmode').bootstrapToggle('disable')
 
-        $("#inp_sf_serverloc").val(sfConfig.server_location)
+        $("#inp_sf_serverloc").val(ssmConfig.server_location)
+        $("#inp_sf_saveloc").val(ssmConfig.save.location)
+
+    }
+
+    populateSFSettings() {
+        return;
+        // TODO: Work out settings SF server will use..
+        const sfConfig = this.Config.sf_server;
         $("#inp_sf_password").val(sfConfig.password)
-        $("#inp_sf_saveloc").val(sfConfig.save.location)
 
     }
 
@@ -194,29 +227,42 @@ class Page_Settings {
         $("#inp_mods_loc").val(modsConfig.location)
     }
 
+    unlockSSMSettings() {
+
+        $("#edit-ssm-settings").prop("disabled", true);
+
+        $("#save-ssm-settings").prop("disabled", false);
+        $("#cancel-ssm-settings").prop("disabled", false);
+        $('#inp_sf_testmode').bootstrapToggle('enable');
+        $("#inp_sf_serverloc").prop("disabled", false);
+        $("#inp_sf_saveloc").prop("disabled", false);
+    }
+
+    lockSSMSettings() {
+        $("#edit-ssm-settings").prop("disabled", false);
+
+        $("#save-ssm-settings").prop("disabled", true);
+        $("#cancel-ssm-settings").prop("disabled", true);
+        $('#inp_sf_testmode').bootstrapToggle('disable');
+        $("#inp_sf_serverloc").prop("disabled", true);
+        $("#inp_sf_saveloc").prop("disabled", true);
+    }
+
     unlockSFSettings() {
 
         $("#edit-sf-settings").prop("disabled", true);
-        $("#refresh-saves").prop("disabled", true);
 
         $("#save-sf-settings").prop("disabled", false);
         $("#cancel-sf-settings").prop("disabled", false);
-        $('#inp_sf_testmode').bootstrapToggle('enable');
-        $("#inp_sf_serverloc").prop("disabled", false);
         $("#inp_sf_password").prop("disabled", false);
-        $("#inp_sf_saveloc").prop("disabled", false);
     }
 
     lockSFSettings() {
         $("#edit-sf-settings").prop("disabled", false);
-        $("#refresh-saves").prop("disabled", false);
 
         $("#save-sf-settings").prop("disabled", true);
         $("#cancel-sf-settings").prop("disabled", true);
-        $('#inp_sf_testmode').bootstrapToggle('disable');
-        $("#inp_sf_serverloc").prop("disabled", true);
         $("#inp_sf_password").prop("disabled", true);
-        $("#inp_sf_saveloc").prop("disabled", true);
     }
 
     unlockModsSettings() {
@@ -241,21 +287,42 @@ class Page_Settings {
     }
 
     submitSFSettings() {
-        const testmode = $('#inp_sf_testmode').is(":checked")
-        const server_location = $("#inp_sf_serverloc").val();
         const server_password = $("#inp_sf_password").val();
-        const save_location = $("#inp_sf_saveloc").val();
         const postData = {
-            testmode,
-            server_location,
-            server_password,
-            save_location
+            server_password
         }
 
         API_Proxy.postData("/config/sfsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSFSettings();
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Settings have been saved!")
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        });
+    }
+
+    submitSSMSettings() {
+        const testmode = $('#inp_sf_testmode').is(":checked")
+        const server_location = $("#inp_sf_serverloc").val();
+        const save_location = $("#inp_sf_saveloc").val();
+        const postData = {
+            testmode,
+            server_location,
+            save_location
+        }
+
+        API_Proxy.postData("/config/ssmsettings", postData).then(res => {
+
+            if (res.result == "success") {
+                this.lockSSMSettings();
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")

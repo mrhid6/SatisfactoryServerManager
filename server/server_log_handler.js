@@ -7,6 +7,10 @@ const recursive = require("recursive-readdir");
 const Config = require("./server_config");
 const logger = require("./server_logger");
 
+const {
+    getLogFilePath
+} = require("satisfactory-mod-launcher-api")
+
 class SSM_Log_Handler {
     constructor() {
 
@@ -55,6 +59,27 @@ class SSM_Log_Handler {
                 return;
             })
         })
+    }
+
+    getSMLauncherLog() {
+        return new Promise((resolve, reject) => {
+            const logfile = getLogFilePath();
+
+            if (fs.existsSync(logfile) == false) {
+                reject("Can't find log file");
+                return;
+            }
+
+            fs.readFile(logfile, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const dataStr = data.toString().replace(/\r\n/g, '\n');
+                const dataArr = (dataStr.split("\n")).reverse().filter(el => el != "");
+                resolve(dataArr)
+            })
+        });
     }
 
     getLogFiles(directory) {

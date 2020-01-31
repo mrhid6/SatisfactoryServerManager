@@ -16,6 +16,7 @@ const fs = require('fs');
 var logger = require("./server/server_logger");
 var Cleanup = require("./server/server_cleanup");
 const Config = require("./server/server_config");
+const SFConfig = require("./server/server_sf_config");
 
 const SSM_Server_App = require("./server/server_app");
 
@@ -27,7 +28,9 @@ class AppServer {
     }
 
     init() {
+        logger.info("[APP] [PREINIT] - Loading Configs..");
         Config.load();
+        SFConfig.load();
         logger.info("[APP] [PREINIT] - Starting SSM..");
         this.startExpress()
     }

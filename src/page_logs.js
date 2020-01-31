@@ -11,6 +11,7 @@ class Page_Logs {
 
         this.setupJqueryListeners();
         this.getSSMLog()
+        this.getSMLauncherLog();
 
 
         this.startPageInfoRefresh();
@@ -24,6 +25,20 @@ class Page_Logs {
     getSSMLog() {
         API_Proxy.get("logs", "ssmlog").then(res => {
             const el = $("#ssm-log-viewer samp");
+            el.empty();
+            if (res.result == "success") {
+                res.data.forEach((logline) => {
+                    el.append("<p>" + logline + "</p>")
+                })
+            } else {
+                el.text(res.error)
+            }
+        })
+    }
+
+    getSMLauncherLog() {
+        API_Proxy.get("logs", "smlauncherlog").then(res => {
+            const el = $("#smlauncher-log-viewer samp");
             el.empty();
             if (res.result == "success") {
                 res.data.forEach((logline) => {

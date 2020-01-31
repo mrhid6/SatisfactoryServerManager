@@ -4,22 +4,28 @@ var router = express.Router();
 const ServerApp = require("../../server/server_app");
 const SFS_Handler = require("../../server/server_sfs_handler");
 const Config = require("../../server/server_config");
+const SFConfig = require("../../server/server_sf_config");
 
 const middleWare = [
     ServerApp.checkLoggedInAPIMiddleWare
 ]
 
 router.get('/', middleWare, function (req, res, next) {
-    const sfConfig = Config.get("satisfactory");
+    const ssmConfig = Config.get("satisfactory");
+    const sfConfig = SFConfig.getConfigData()
+
     const modsConfig = Config.get("mods");
 
+    const ssmConfig_clone = Object.assign(Object.create(Object.getPrototypeOf(ssmConfig)), ssmConfig)
     const sfConfig_clone = Object.assign(Object.create(Object.getPrototypeOf(sfConfig)), sfConfig)
-    sfConfig_clone.password = null;
+
+    ssmConfig_clone.password = null;
 
     res.json({
         result: "success",
         data: {
-            satisfactory: sfConfig_clone,
+            satisfactory: ssmConfig_clone,
+            sf_server: sfConfig_clone,
             mods: modsConfig
         }
     });
@@ -46,6 +52,22 @@ router.post('/newsession', middleWare, function (req, res, next) {
     const sessionName = body.sessionName;
 
     SFS_Handler.updateNewSession(sessionName).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/ssmsettings', middleWare, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateSSMSettings(post).then(result => {
         res.json({
             result: "success",
             data: result

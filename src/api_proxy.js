@@ -1,8 +1,11 @@
+const Logger = require("./logger");
+
 class API_Proxy {
     constructor() {}
 
     get(...args) {
         const url = "/api/" + (args.join("/"));
+        Logger.debug("API Proxy [GET] " + url);
         return new Promise((resolve, reject) => {
             $.get(url, result => {
                 resolve(result)
@@ -12,6 +15,7 @@ class API_Proxy {
 
     post(...args) {
         const url = "/api/" + (args.join("/"));
+        Logger.debug("API Proxy [POST] " + url);
         return new Promise((resolve, reject) => {
             $.post(url, result => {
                 resolve(result)
@@ -21,6 +25,7 @@ class API_Proxy {
 
     postData(posturl, data) {
         const url = "/api/" + posturl
+        Logger.debug("API Proxy [POST] " + url);
         return new Promise((resolve, reject) => {
             $.post(url, data, result => {
                 resolve(result)

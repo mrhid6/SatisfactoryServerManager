@@ -638,11 +638,14 @@ exports.declarePersistable = lib.declarePersistable;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
 },{"assert":14,"buffer":22,"object-assign":2,"zlib":21}],5:[function(require,module,exports){
+const Logger = require("./logger");
+
 class API_Proxy {
     constructor() {}
 
     get(...args) {
         const url = "/api/" + (args.join("/"));
+        Logger.debug("API Proxy [GET] " + url);
         return new Promise((resolve, reject) => {
             $.get(url, result => {
                 resolve(result)
@@ -652,6 +655,7 @@ class API_Proxy {
 
     post(...args) {
         const url = "/api/" + (args.join("/"));
+        Logger.debug("API Proxy [POST] " + url);
         return new Promise((resolve, reject) => {
             $.post(url, result => {
                 resolve(result)
@@ -661,6 +665,7 @@ class API_Proxy {
 
     postData(posturl, data) {
         const url = "/api/" + posturl
+        Logger.debug("API Proxy [POST] " + url);
         return new Promise((resolve, reject) => {
             $.post(url, data, result => {
                 resolve(result)
@@ -671,7 +676,7 @@ class API_Proxy {
 
 const api_proxy = new API_Proxy();
 module.exports = api_proxy;
-},{}],6:[function(require,module,exports){
+},{"./logger":7}],6:[function(require,module,exports){
 const PageHandler = require("./page_handler");
 const Logger = require("./logger")
 
@@ -719,6 +724,8 @@ Logger.TYPES = {
     DEBUG: 5,
     RESET: 6
 }
+
+Logger.LEVEL = Logger.TYPES.DEBUG;
 
 Logger.STYLES = [
     "padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;",
@@ -770,6 +777,9 @@ Logger.getLoggerTypeString = (LoggerType) => {
 
 Logger.toLog = (LoggerType, Message) => {
     if (LoggerType == null) return;
+
+    if (LoggerType > Logger.LEVEL) return;
+
     const style = Logger.STYLES[LoggerType];
     const resetStyle = Logger.STYLES[Logger.TYPES.RESET];
     const typeString = Logger.getLoggerTypeString(LoggerType);
@@ -905,7 +915,6 @@ class Page_Dashboard {
         if (this.ServerState.status == "stopped") {
             API_Proxy.post("serveractions", "start").then(res => {
                 if (Tools.modal_opened == true) return;
-                console.log(res)
                 if (res.result == "success") {
                     this.getServerStatus();
                     Tools.openModal("server-action-success", (modal_el) => {
@@ -1118,6 +1127,7 @@ class Page_Logs {
 
         this.setupJqueryListeners();
         this.getSSMLog()
+        this.getSMLauncherLog();
 
 
         this.startPageInfoRefresh();
@@ -1131,6 +1141,20 @@ class Page_Logs {
     getSSMLog() {
         API_Proxy.get("logs", "ssmlog").then(res => {
             const el = $("#ssm-log-viewer samp");
+            el.empty();
+            if (res.result == "success") {
+                res.data.forEach((logline) => {
+                    el.append("<p>" + logline + "</p>")
+                })
+            } else {
+                el.text(res.error)
+            }
+        })
+    }
+
+    getSMLauncherLog() {
+        API_Proxy.get("logs", "smlauncherlog").then(res => {
+            const el = $("#smlauncher-log-viewer samp");
             el.empty();
             if (res.result == "success") {
                 res.data.forEach((logline) => {
@@ -1860,6 +1884,31 @@ class Page_Settings {
             }
         })
 
+        $("#edit-ssm-settings").click(e => {
+            e.preventDefault();
+
+            if (this.ServerState.status != "stopped") {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
+                });
+                return;
+            }
+
+            this.unlockSSMSettings();
+        })
+
+        $("#save-ssm-settings").click(e => {
+            e.preventDefault();
+            this.submitSSMSettings();
+        })
+
+        $("#cancel-ssm-settings").click(e => {
+            e.preventDefault();
+            this.lockSSMSettings();
+            this.getConfig();
+        })
+
         $("#edit-sf-settings").click(e => {
             e.preventDefault();
 
@@ -1972,23 +2021,31 @@ class Page_Settings {
     }
 
     MainDisplayFunction() {
+        this.populateSSMSettings();
         this.populateSFSettings();
         this.populateModsSettings();
     }
 
-    populateSFSettings() {
-        const sfConfig = this.Config.satisfactory;
+    populateSSMSettings() {
+        const ssmConfig = this.Config.satisfactory;
         $('#inp_sf_testmode').bootstrapToggle('enable')
-        if (sfConfig.testmode == true) {
+        if (ssmConfig.testmode == true) {
             $('#inp_sf_testmode').bootstrapToggle('on')
         } else {
             $('#inp_sf_testmode').bootstrapToggle('off')
         }
         $('#inp_sf_testmode').bootstrapToggle('disable')
 
-        $("#inp_sf_serverloc").val(sfConfig.server_location)
+        $("#inp_sf_serverloc").val(ssmConfig.server_location)
+        $("#inp_sf_saveloc").val(ssmConfig.save.location)
+
+    }
+
+    populateSFSettings() {
+        return;
+        // TODO: Work out settings SF server will use..
+        const sfConfig = this.Config.sf_server;
         $("#inp_sf_password").val(sfConfig.password)
-        $("#inp_sf_saveloc").val(sfConfig.save.location)
 
     }
 
@@ -2014,29 +2071,42 @@ class Page_Settings {
         $("#inp_mods_loc").val(modsConfig.location)
     }
 
+    unlockSSMSettings() {
+
+        $("#edit-ssm-settings").prop("disabled", true);
+
+        $("#save-ssm-settings").prop("disabled", false);
+        $("#cancel-ssm-settings").prop("disabled", false);
+        $('#inp_sf_testmode').bootstrapToggle('enable');
+        $("#inp_sf_serverloc").prop("disabled", false);
+        $("#inp_sf_saveloc").prop("disabled", false);
+    }
+
+    lockSSMSettings() {
+        $("#edit-ssm-settings").prop("disabled", false);
+
+        $("#save-ssm-settings").prop("disabled", true);
+        $("#cancel-ssm-settings").prop("disabled", true);
+        $('#inp_sf_testmode').bootstrapToggle('disable');
+        $("#inp_sf_serverloc").prop("disabled", true);
+        $("#inp_sf_saveloc").prop("disabled", true);
+    }
+
     unlockSFSettings() {
 
         $("#edit-sf-settings").prop("disabled", true);
-        $("#refresh-saves").prop("disabled", true);
 
         $("#save-sf-settings").prop("disabled", false);
         $("#cancel-sf-settings").prop("disabled", false);
-        $('#inp_sf_testmode').bootstrapToggle('enable');
-        $("#inp_sf_serverloc").prop("disabled", false);
         $("#inp_sf_password").prop("disabled", false);
-        $("#inp_sf_saveloc").prop("disabled", false);
     }
 
     lockSFSettings() {
         $("#edit-sf-settings").prop("disabled", false);
-        $("#refresh-saves").prop("disabled", false);
 
         $("#save-sf-settings").prop("disabled", true);
         $("#cancel-sf-settings").prop("disabled", true);
-        $('#inp_sf_testmode').bootstrapToggle('disable');
-        $("#inp_sf_serverloc").prop("disabled", true);
         $("#inp_sf_password").prop("disabled", true);
-        $("#inp_sf_saveloc").prop("disabled", true);
     }
 
     unlockModsSettings() {
@@ -2061,21 +2131,42 @@ class Page_Settings {
     }
 
     submitSFSettings() {
-        const testmode = $('#inp_sf_testmode').is(":checked")
-        const server_location = $("#inp_sf_serverloc").val();
         const server_password = $("#inp_sf_password").val();
-        const save_location = $("#inp_sf_saveloc").val();
         const postData = {
-            testmode,
-            server_location,
-            server_password,
-            save_location
+            server_password
         }
 
         API_Proxy.postData("/config/sfsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSFSettings();
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-success", (modal_el) => {
+                    modal_el.find("#success-msg").text("Settings have been saved!")
+                });
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("server-settings-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error)
+                });
+            }
+        });
+    }
+
+    submitSSMSettings() {
+        const testmode = $('#inp_sf_testmode').is(":checked")
+        const server_location = $("#inp_sf_serverloc").val();
+        const save_location = $("#inp_sf_saveloc").val();
+        const postData = {
+            testmode,
+            server_location,
+            save_location
+        }
+
+        API_Proxy.postData("/config/ssmsettings", postData).then(res => {
+
+            if (res.result == "success") {
+                this.lockSSMSettings();
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")

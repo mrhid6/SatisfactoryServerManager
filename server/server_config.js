@@ -93,7 +93,6 @@ class ServerConfig extends iConfig {
                     github_version: github_version,
                     version_diff: ver_diff
                 }
-
                 resolve(resData)
             }).catch(err => {
                 reject(err);
@@ -103,7 +102,7 @@ class ServerConfig extends iConfig {
 
     getGitHubReleaseVersion() {
         return new Promise((resolve, reject) => {
-            SSMCloud.getGithubLatestRelease(release => {
+            SSMCloud.getGithubLatestRelease().then(release => {
                 resolve(release.tag_name)
             }).catch(err => {
                 reject(err);

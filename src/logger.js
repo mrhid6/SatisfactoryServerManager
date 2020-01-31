@@ -10,6 +10,8 @@ Logger.TYPES = {
     RESET: 6
 }
 
+Logger.LEVEL = Logger.TYPES.DEBUG;
+
 Logger.STYLES = [
     "padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;",
     "padding: 2px 8px; margin-right:8px; background:#008cba; color:#fff; font-weight:bold; border:1px solid #000;",
@@ -60,6 +62,9 @@ Logger.getLoggerTypeString = (LoggerType) => {
 
 Logger.toLog = (LoggerType, Message) => {
     if (LoggerType == null) return;
+
+    if (LoggerType > Logger.LEVEL) return;
+
     const style = Logger.STYLES[LoggerType];
     const resetStyle = Logger.STYLES[Logger.TYPES.RESET];
     const typeString = Logger.getLoggerTypeString(LoggerType);

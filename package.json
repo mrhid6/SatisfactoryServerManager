@@ -29,6 +29,7 @@
         "platform-folders": "0.4.1",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
+        "satisfactory-mod-launcher-api": "1.0.0-3",
         "simple-node-logger": "^18.12.24",
         "systeminformation": "^4.16.0",
         "toastr": "^2.1.4",
@@ -39,8 +40,7 @@
         "start": "node app.js",
         "watch": "watchify src/app.js -o public/js/bundle.js",
         "bundle": "browserify -t uglifyify src/app.js -o public/js/bundle.js",
-        "clean-css": "bash tools/clean-css.sh",
-        "build": "pwd && cd ./SMLauncherAPI && yarn build"
+        "clean-css": "bash tools/clean-css.sh"
     },
     "private": true,
     "workspaces": [
