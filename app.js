@@ -91,7 +91,6 @@ class AppServer {
         logger.info("[APP] [EXPRESS] - Setup Express Static Routes..");
         app.use("/libraries", express.static(__dirname + '/node_modules'));
         app.use("/public", express.static(__dirname + '/public'));
-        app.use("/docs", express.static(__dirname + '/docs'));
         logger.info("[APP] [EXPRESS] - Finished");
 
         app.use(cookieParser());

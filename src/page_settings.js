@@ -198,9 +198,14 @@ class Page_Settings {
     }
 
     populateSFSettings() {
-        return;
+
         // TODO: Work out settings SF server will use..
+
         const sfConfig = this.Config.sf_server;
+        $("#inp_sf_maxplayers").val(sfConfig["/Script/Engine"].GameSession.MaxPlayers)
+
+        return;
+
         $("#inp_sf_password").val(sfConfig.password)
 
     }
@@ -255,6 +260,7 @@ class Page_Settings {
         $("#save-sf-settings").prop("disabled", false);
         $("#cancel-sf-settings").prop("disabled", false);
         $("#inp_sf_password").prop("disabled", false);
+        $("#inp_sf_maxplayers").prop("disabled", false);
     }
 
     lockSFSettings() {
@@ -263,6 +269,7 @@ class Page_Settings {
         $("#save-sf-settings").prop("disabled", true);
         $("#cancel-sf-settings").prop("disabled", true);
         $("#inp_sf_password").prop("disabled", true);
+        $("#inp_sf_maxplayers").prop("disabled", true);
     }
 
     unlockModsSettings() {
@@ -288,8 +295,10 @@ class Page_Settings {
 
     submitSFSettings() {
         const server_password = $("#inp_sf_password").val();
+        const server_maxPlayers = $("#inp_sf_maxplayers").val();
         const postData = {
-            server_password
+            server_password,
+            server_maxPlayers
         }
 
         API_Proxy.postData("/config/sfsettings", postData).then(res => {

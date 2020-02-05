@@ -12,6 +12,7 @@ const br = require('binary-reader');
 const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
+const SFConfig = require("./server_sf_config");
 
 class SF_Server_Handler {
 
@@ -465,8 +466,11 @@ class SF_Server_Handler {
     updateSFSettings(data) {
         return new Promise((resolve, reject) => {
             const server_password = data.server_password || "";
+            const server_maxPlayers = data.server_maxPlayers || "4";
 
             Config.set("satisfactory.password", server_password);
+            SFConfig.set("/Script/Engine.GameSession.MaxPlayers", server_maxPlayers)
+
             resolve();
 
         });
