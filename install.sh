@@ -35,6 +35,11 @@ while [[ $# -gt 0 ]]; do
         NOSERVICE=1
         shift
         ;;
+    --installdir)
+        INSTALL_DIR=$2
+        shift
+        shift
+        ;;
     esac
 done
 

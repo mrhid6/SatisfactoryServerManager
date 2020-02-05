@@ -2,8 +2,16 @@
 param(
     [bool]$update=$false,
     [bool]$force=$false,
-	[bool]$noservice=$false
+	[bool]$noservice=$false,
+    [string]$installDir="C:\Program Files\SSM"
 )
+
+$currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+$isAdmin = $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+
+if($isAdmin -eq $false){
+    $noservice = $true;
+}
 
 echo "#-----------------------------#"
 echo "#      _____ _____ __  __     #"
@@ -16,10 +24,15 @@ echo "#-----------------------------#"
 echo "# Satisfactory Server Manager #"
 echo "#-----------------------------#"
 
-$installDir = "C:\Program Files\SSM"
+write-host "# Script Options:"
+write-host "# Update: `t`t$($update)"
+write-host "# Force: `t`t$($force)"
+write-host "# Install Service: `t$($noservice -eq $false)"
+write-host "# Install Directory: `t$($installDir)"
+
+write-host ""
 
 $SSM_releases = "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest"
-$SMLauncher_releases = "https://api.github.com/repos/mircearoata/SatisfactoryModLauncherCLI/releases/latest"
 
 $SSM_release = (Invoke-WebRequest $SSM_releases -UseBasicParsing| ConvertFrom-Json)[0]
 $SSM_VER = $SSM_release[0].tag_name
@@ -42,14 +55,13 @@ if((Test-Path $installDir) -eq $true){
 $SSM_Service = Get-Service -Name "SSM" -ErrorAction SilentlyContinue
 
 
-if($SSM_Service -ne $null){
+if($SSM_Service -ne $null -and $isAdmin -eq $true){
 	write-host "Stopping SSM Service"
-	$SSM_Service | Stop-Service | out-null
+	$SSM_Service | Stop-Service -ErrorAction SilentlyContinue | out-null
 }
 
 write-host "* Downloading SSM"
 Remove-Item -Path "$($installDir)\*" -Recurse | out-null
-New-Item -ItemType Directory -Path "$($installDir)\SMLauncher" -Force | out-null
 
 Invoke-WebRequest $SSM_URL -Out "$($installDir)\SSM.zip" -UseBasicParsing
 Expand-Archive "$($installDir)\SSM.zip" -DestinationPath "$($installDir)" -Force
@@ -58,7 +70,7 @@ write-host "* Cleanup"
 Remove-Item -Path "$($installDir)\SSM.zip"
 Set-Content -Path "$($installDir)\version.txt" -Value "$($SSM_VER)"
 
-if($noservice -eq $false){
+if($noservice -eq $false -and $isAdmin -eq $true){
 	write-host "Creating SSM Service"
 	write-host "* Downloading NSSM"
 	
@@ -88,8 +100,8 @@ if($noservice -eq $false){
 }else{
     write-host "SSM Service Skipped"
     $SSM_Service = Get-Service -Name "SSM" -ErrorAction SilentlyContinue
-    if($SSM_Service -ne $null){
+    if($SSM_Service -ne $null -and $isAdmin -eq $true){
         write-host "* Start SSM Service"
-        $SSM_Service | Start-Service | out-null
+        $SSM_Service | Start-Service  | out-null
     }
 }
