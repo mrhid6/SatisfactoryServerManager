@@ -51,6 +51,9 @@ write-host "* Downloading SSM"
 Remove-Item -Path "$($installDir)\*" -Recurse | out-null
 New-Item -ItemType Directory -Path "$($installDir)\SMLauncher" -Force | out-null
 
+Invoke-WebRequest $SSM_URL -Out "$($installDir)\SSM.zip" -UseBasicParsing
+Expand-Archive "$($installDir)\SSM.zip" -DestinationPath "$($installDir)" -Force
+
 write-host "* Cleanup"
 Remove-Item -Path "$($installDir)\SSM.zip"
 Set-Content -Path "$($installDir)\version.txt" -Value "$($SSM_VER)"
