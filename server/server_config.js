@@ -53,6 +53,10 @@ class ServerConfig extends iConfig {
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
 
+        super.get("ssm.metrics.enabled", false)
+        super.get("ssm.metrics.initalshow", false)
+        super.get("ssm.metrics.clientid", "")
+
         super.get("satisfactory.testmode", true)
         super.get("satisfactory.server_location", "")
         super.get("satisfactory.password", "")

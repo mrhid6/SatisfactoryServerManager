@@ -5,9 +5,11 @@ const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 const SFConfig = require("./server_sf_config");
 
-const SFS_Handler = require("../server/server_sfs_handler");
-const SSM_Mod_Handler = require("../server/server_mod_handler");
-const SSM_Log_Handler = require("../server/server_log_handler");
+const SFS_Handler = require("./server_sfs_handler");
+const SSM_Mod_Handler = require("./server_mod_handler");
+const SSM_Log_Handler = require("./server_log_handler");
+
+const Metrics = require("./server_metrics");
 
 class SSM_Server_App {
 
@@ -21,11 +23,15 @@ class SSM_Server_App {
         SFS_Handler.init();
         SSM_Mod_Handler.init();
         SSM_Log_Handler.init();
+        Metrics.init();
+
+        Metrics.sendServerStartEvent();
     }
 
     setupEventHandlers() {
         Cleanup.addEventHandler(() => {
             logger.info("[SERVER_APP] [CLEANUP] - Closing Server App...");
+            Metrics.sendServerStopEvent();
         })
     }
 
