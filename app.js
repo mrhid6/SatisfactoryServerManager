@@ -58,6 +58,8 @@ class AppServer {
 
         app.use(expsess);
 
+        app.set('trust proxy', '127.0.0.1');
+
         // View Engine
         app.set('views', path.join(__dirname + '/views'));
         app.engine('.hbs', exphbs({

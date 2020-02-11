@@ -86,7 +86,7 @@ class SSM_Server_App {
         const UserAccount = users.find(el => el.username == user);
         const UserId = users.findIndex(el => el.username == user);
 
-        var clientip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
         if (UserAccount == null || typeof UserAccount === 'undifined') {
             req.loginresult = "error";
@@ -160,7 +160,7 @@ class SSM_Server_App {
 
         const defaultpasshash = CryptoJS.MD5("ssm").toString();
 
-        var clientip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
         if (pass1hash != pass2hash) {
             req.passchangeresult = "error";
@@ -224,7 +224,7 @@ class SSM_Server_App {
         }
 
         const UserAccount = Config.get("ssm.users." + req.session.userid)
-        var clientip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
         logger.debug("[SERVER_APP] [LOGIN] - Successful Logged Out from " + clientip + " User:" + UserAccount.username)
         req.session.destroy();
