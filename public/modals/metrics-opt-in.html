@@ -1,0 +1,52 @@
+<div class="modal ssm-modal" id="metrics-opt-in" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">SSM Metrics</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <p>
+                            Welcome to Satisfactory Server Manager (SSM), This is most likely the first time you have
+                            opened SSM, and we want to tell you about SSM Metrics!
+                        </p>
+                        <p>
+                            Application metrics are used to better enhance this application (SSM) and give the user
+                            (You) a reliable experence. Information is sent
+                            to
+                            a secure Metrics and Analytics server.<br /><br />
+                            The following information would be sent:
+                        </p>
+                        <ul>
+                            <li>IP Address</li>
+                            <li>IP GeoLocation</li>
+                            <li>Application Starts</li>
+                            <li>Application Stops</li>
+                            <li>Error Messages</li>
+                        </ul>
+                        <p>
+                            You may choose to accept or reject the capture of Satisfactory Server Manager Metrics using
+                            the
+                            buttons below.
+                        </p>
+                        <p>
+                            If you accept and later decide to reject the metrics and request to remove all information
+                            about you, please contact <a href="mailto:metrics@hostxtra.co.uk">metrics@hostxtra.co.uk</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button class="btn btn-danger float-left" data-action="reject-metrics"
+                            id="cancel-action">Reject</button>
+                        <button class="btn btn-success float-right" data-action="accept-metrics"
+                            id="confirm-action">Accept</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

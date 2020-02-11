@@ -980,6 +980,8 @@ const Page_Logs = require("./page_logs");
 const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 
+const Tools = require("../Mrhid6Utils/lib/tools");
+
 const Logger = require("./logger");
 
 class PageHandler {
@@ -1001,6 +1003,7 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
+        this.getMetricsInfo();
         this.startLoggedInCheck()
 
         this.page = $(".page-container").attr("data-page");
@@ -1022,12 +1025,23 @@ class PageHandler {
                 Page_Settings.init();
                 break;
         }
-
-
     }
 
     setupJqueryHandler() {
         $('[data-toggle="tooltip"]').tooltip()
+
+        $("body").on("click", "#metrics-opt-in #cancel-action", (e) => {
+            $("#metrics-opt-in .close").trigger("click");
+            Tools.modal_opened = false;
+            this.sendRejectMetrics()
+        })
+
+        $("body").on("click", "#metrics-opt-in #confirm-action", (e) => {
+            const $btnel = $(e.currentTarget);
+            $("#metrics-opt-in .close").trigger("click");
+            Tools.modal_opened = false;
+            this.sendAcceptMetrics();
+        })
     }
 
     getSSMVersion() {
@@ -1083,6 +1097,28 @@ class PageHandler {
             })
         })
     }
+
+    getMetricsInfo() {
+        API_Proxy.get("config", "metrics").then(res => {
+            if (res.data.metrics.initalshow == false) {
+                Tools.openModal("metrics-opt-in", model_el => {
+
+                })
+            }
+        })
+    }
+
+    sendRejectMetrics() {
+        API_Proxy.post("config", "metrics", "reject").then(res => {
+            console.log(res)
+        })
+    }
+
+    sendAcceptMetrics() {
+        API_Proxy.post("config", "metrics", "accept").then(res => {
+            console.log(res)
+        })
+    }
 }
 
 function setCookie(name, value, days) {
@@ -1113,7 +1149,7 @@ function eraseCookie(name) {
 const pagehandler = new PageHandler();
 
 module.exports = pagehandler;
-},{"./api_proxy":5,"./logger":7,"./page_dashboard":8,"./page_logs":10,"./page_mods":11,"./page_saves":12,"./page_settings":13}],10:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5,"./logger":7,"./page_dashboard":8,"./page_logs":10,"./page_mods":11,"./page_saves":12,"./page_settings":13}],10:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");

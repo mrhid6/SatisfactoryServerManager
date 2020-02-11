@@ -61,6 +61,24 @@ class Metrics extends iMetrics {
             })
         }
     }
+
+    setRejectMetrics() {
+        return new Promise((resolve, reject) => {
+            Config.set("ssm.metrics.enabled", false)
+            Config.set("ssm.metrics.initalshow", true)
+
+            resolve();
+        });
+    }
+
+    setAcceptMetrics() {
+        return new Promise((resolve, reject) => {
+            Config.set("ssm.metrics.enabled", true)
+            Config.set("ssm.metrics.initalshow", true)
+            this.sendServerStartEvent()
+            resolve();
+        });
+    }
 }
 
 const metrics = new Metrics;

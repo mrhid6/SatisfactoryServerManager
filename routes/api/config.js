@@ -3,6 +3,7 @@ var router = express.Router();
 
 const ServerApp = require("../../server/server_app");
 const SFS_Handler = require("../../server/server_sfs_handler");
+const Metrics = require("../../server/server_metrics");
 const Config = require("../../server/server_config");
 const SFConfig = require("../../server/server_sf_config");
 
@@ -29,6 +30,35 @@ router.get('/', middleWare, function (req, res, next) {
             mods: modsConfig
         }
     });
+});
+
+router.get('/metrics', middleWare, function (req, res, next) {
+    const metricsConfig = Config.get("ssm.metrics");
+
+    res.json({
+        result: "success",
+        data: {
+            metrics: metricsConfig
+        }
+    });
+});
+
+router.post('/metrics/reject', middleWare, function (req, res, next) {
+
+    Metrics.setRejectMetrics().then(() => {
+        res.json({
+            result: "success"
+        });
+    })
+});
+
+router.post('/metrics/accept', middleWare, function (req, res, next) {
+
+    Metrics.setAcceptMetrics().then(() => {
+        res.json({
+            result: "success"
+        });
+    })
 });
 
 router.post('/selectsave', middleWare, function (req, res, next) {

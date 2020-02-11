@@ -5,6 +5,8 @@ const Page_Logs = require("./page_logs");
 const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 
+const Tools = require("../Mrhid6Utils/lib/tools");
+
 const Logger = require("./logger");
 
 class PageHandler {
@@ -26,6 +28,7 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
+        this.getMetricsInfo();
         this.startLoggedInCheck()
 
         this.page = $(".page-container").attr("data-page");
@@ -47,12 +50,23 @@ class PageHandler {
                 Page_Settings.init();
                 break;
         }
-
-
     }
 
     setupJqueryHandler() {
         $('[data-toggle="tooltip"]').tooltip()
+
+        $("body").on("click", "#metrics-opt-in #cancel-action", (e) => {
+            $("#metrics-opt-in .close").trigger("click");
+            Tools.modal_opened = false;
+            this.sendRejectMetrics()
+        })
+
+        $("body").on("click", "#metrics-opt-in #confirm-action", (e) => {
+            const $btnel = $(e.currentTarget);
+            $("#metrics-opt-in .close").trigger("click");
+            Tools.modal_opened = false;
+            this.sendAcceptMetrics();
+        })
     }
 
     getSSMVersion() {
@@ -106,6 +120,28 @@ class PageHandler {
                     resolve(false)
                 }
             })
+        })
+    }
+
+    getMetricsInfo() {
+        API_Proxy.get("config", "metrics").then(res => {
+            if (res.data.metrics.initalshow == false) {
+                Tools.openModal("metrics-opt-in", model_el => {
+
+                })
+            }
+        })
+    }
+
+    sendRejectMetrics() {
+        API_Proxy.post("config", "metrics", "reject").then(res => {
+            console.log(res)
+        })
+    }
+
+    sendAcceptMetrics() {
+        API_Proxy.post("config", "metrics", "accept").then(res => {
+            console.log(res)
         })
     }
 }
