@@ -22,7 +22,7 @@ class SSM_Mod_Handler {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
         //this.SML_API = new SatisfactoryInstall(null, null, Config.get("satisfactory.server_location"), null)
-        this.SML_API = new SatisfactoryInstall("Satisfactory Early Access", "109075.0.0", Config.get("mods.location"), "FactoryGame.exe")
+        this.SML_API = new SatisfactoryInstall("Satisfactory Early Access", "109075.0.0", Config.get("satisfactory.server_location"), "FactoryGame.exe")
     }
 
     getSMLInfo() {

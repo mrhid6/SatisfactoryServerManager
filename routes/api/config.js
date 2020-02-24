@@ -61,6 +61,13 @@ router.post('/metrics/accept', middleWare, function (req, res, next) {
     })
 });
 
+router.get('/ssm/setup', middleWare, function (req, res, next) {
+    res.json({
+        result: "success",
+        data: Config.get("ssm.setup")
+    });
+});
+
 router.post('/selectsave', middleWare, function (req, res, next) {
     const body = req.body;
     const savename = body.savename;

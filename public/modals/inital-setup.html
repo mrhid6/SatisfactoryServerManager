@@ -1,0 +1,146 @@
+<div class="modal ssm-modal" id="inital-setup" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">SSM Setup Wizard</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <form id="initial-setup-wizard" class="form-horizontal" action="#">
+                            <h3>Welcome</h3>
+                            <fieldset>
+                                <legend class="pt-2">Welcome</legend>
+                                <p>
+                                    Welcome to Satisfactory Server Manager (SSM)<br>SSM is designed to help manage and
+                                    control your satisfactory dedicated server.
+                                </p>
+                                <p>
+                                    This is most likely the first time you have opened SSM.<br><br>
+
+                                    Its now time to setup SSM!
+                                </p>
+                            </fieldset>
+
+                            <h3>SSM</h3>
+                            <fieldset>
+                                <legend class="pt-2">Satisfactory Server Manager</legend>
+
+                                <div class="row settings-row">
+                                    <div class="col-12 col-md-5">
+                                        <b class="settings-prop">Test Mode:</b>
+                                        <span class="settings-info">
+                                            Test mode will place SSM into test mode and will use the desktop version of
+                                            satisfactory.
+                                        </span>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <input id="inp_setup_testmode" type="checkbox" data-on="Enabled"
+                                            data-off="Disabled" data-onstyle="success" data-offstyle="danger" checked
+                                            data-toggle="toggle" data-width="100" data-size="small">
+                                    </div>
+                                </div>
+                                <div class="row settings-row">
+                                    <div class="col-12 col-md-5">
+                                        <b class="settings-prop">Find Satisfactory Installs:</b>
+                                        <span class="settings-info">
+                                            Press the button to find all installed versions of Satisfactory.
+                                        </span>
+                                    </div>
+                                    <div class="col-12 col-md-7">
+                                        <button class="btn btn-primary" id="btn_setup_findinstall">Find
+                                            Installs <i class="fas fa-search fa-nonmodal"></i></button>
+                                    </div>
+                                </div>
+                                <div id="found-sf-installs" class="d-none">
+                                    <div class="row settings-row">
+                                        <div class="col-12 col-md-5">
+                                            <b class="settings-prop">Satisfactory Installs:</b>
+                                            <span class="settings-info">
+                                                Select the correct version of Satisfactory we found.
+                                            </span>
+                                        </div>
+                                        <div class="col-12 col-md-7">
+                                            <select id="sel_setup_sf_install" class="form-control"></select>
+                                        </div>
+                                    </div>
+                                    <div class="row settings-row">
+                                        <div class="col-12">
+                                            <p>
+                                                <b>Install Name: </b><span id="setup_sf_installname"></span><br>
+                                                <b>Install Location: </b><span id="setup_sf_installloc"></span><br>
+                                                <b>Install Version: </b><span id="setup_sf_installver"></span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="nofound-sf-installs" class="d-none">
+                                    <div class="row settings-row">
+                                        <div class="col-12">
+                                            <b class="settings-prop">Error: No Satisfactory Installs</b>
+                                            <span class="settings-info">
+                                                We couldn't find any versions of Satisfactory. Please make sure you have
+                                                correctly installed Satisfactory befor continuing.
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </fieldset>
+
+                            <h3>Metrics</h3>
+                            <fieldset>
+                                <legend class="pt-2">SSM Metrics</legend>
+
+                                <p>
+                                    Application metrics are used to better enhance this application (SSM) and give the
+                                    user
+                                    (You) a reliable experence. Information is sent
+                                    to
+                                    a secure Metrics and Analytics server.<br /><br />
+                                    The following information would be sent:
+                                </p>
+                                <ul class="ul-nowizard">
+                                    <li>IP Address</li>
+                                    <li>IP GeoLocation</li>
+                                    <li>Application Starts</li>
+                                    <li>Application Stops</li>
+                                    <li>Error Messages</li>
+                                </ul>
+                                <p>
+                                    You may choose to accept or reject the capture of Satisfactory Server Manager
+                                    Metrics using
+                                    the
+                                    buttons below.
+                                </p>
+                                <p>
+                                    If you accept and later decide to reject the metrics and request to remove all
+                                    information
+                                    about you, please contact <a
+                                        href="mailto:metrics@hostxtra.co.uk">metrics@hostxtra.co.uk</a>
+                                </p>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <input id="inp_setup_metrics" type="checkbox" data-on="Opt-In"
+                                            data-off="Opt-Out" data-onstyle="success" data-offstyle="danger" checked
+                                            data-toggle="toggle" data-width="100" data-size="small">
+                                    </div>
+                                </div>
+                            </fieldset>
+                            <h3>Finish</h3>
+                            <fieldset>
+                                <legend>Terms and Conditions</legend>
+
+                                <input id="acceptTerms-2" name="acceptTerms" type="checkbox" class="required"> <label
+                                    for="acceptTerms-2">I agree with the Terms and Conditions.</label>
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>

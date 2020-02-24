@@ -987,6 +987,9 @@ const Logger = require("./logger");
 class PageHandler {
     constructor() {
         this.page = "";
+        this.SETUP_CACHE = {
+            sfinstalls: []
+        }
     }
 
     init() {
@@ -1003,6 +1006,7 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
+        this.checkInitalSetup();
         this.getMetricsInfo();
         this.startLoggedInCheck()
 
@@ -1041,6 +1045,20 @@ class PageHandler {
             $("#metrics-opt-in .close").trigger("click");
             Tools.modal_opened = false;
             this.sendAcceptMetrics();
+        }).on("click", "#btn_setup_findinstall", e => {
+            this.getSetupSFInstalls(e)
+        }).on("change", "#sel_setup_sf_install", e => {
+            const $selel = $(e.currentTarget);
+
+            if ($selel.val() == -1) {
+                return;
+            }
+
+            const info = this.SETUP_CACHE.sfinstalls[$selel.val()]
+
+            $("#setup_sf_installname").text(info.name)
+            $("#setup_sf_installloc").text(info.installLocation)
+            $("#setup_sf_installver").text(info.version)
         })
     }
 
@@ -1095,6 +1113,62 @@ class PageHandler {
                     resolve(false)
                 }
             })
+        })
+    }
+
+    checkInitalSetup() {
+        API_Proxy.get("config", "ssm", "setup").then(res => {
+            if (res.result == "success") {
+                const resdata = res.data;
+
+                if (resdata == false) {
+                    Tools.openModal("inital-setup", () => {
+
+                        const form = $("#initial-setup-wizard")
+                        form.steps({
+                            headerTag: "h3",
+                            bodyTag: "fieldset",
+                            transitionEffect: "slideLeft"
+                        });
+                        $("#inp_setup_testmode").bootstrapToggle();
+                        $("#inp_setup_metrics").bootstrapToggle();
+                    })
+                }
+            }
+        });
+    }
+
+    getSetupSFInstalls(btn) {
+        btn.preventDefault();
+        const $btnel = $(btn.currentTarget);
+        const $parent = $btnel.parent().parent().parent();
+        $btnel.find("i").removeClass("fa-search").addClass("fa-spin fa-sync")
+
+        API_Proxy.get("info", "sf_installs").then(res => {
+            $btnel.find("i").addClass("fa-search").removeClass("fa-spin fa-sync")
+            if (res.result == "success") {
+                const resdata = res.data;
+
+                if (resdata.length == 0) {
+                    $parent.find("#nofound-sf-installs").removeClass("d-none")
+                    return;
+                }
+
+                this.SETUP_CACHE.sfinstalls = resdata;
+
+                $parent.find("#found-sf-installs").removeClass("d-none")
+
+                const $selSFInstall = $parent.find("#sel_setup_sf_install");
+                $selSFInstall.empty();
+
+                $selSFInstall.append("<option value='-1'>-- SELECT --</option>")
+                for (let i = 0; i < resdata.length; i++) {
+                    const sfinstall = resdata[i];
+                    $selSFInstall.append("<option value='" + i + "'>" + sfinstall.name + "</option>")
+                }
+            } else {
+                $parent.find("#nofound-sf-installs").removeClass("d-none")
+            }
         })
     }
 

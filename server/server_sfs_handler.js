@@ -14,6 +14,10 @@ const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 const SFConfig = require("./server_sf_config");
 
+const {
+    getInstalls
+} = require("satisfactory-mod-launcher-api")
+
 class SF_Server_Handler {
 
     constructor() {
@@ -515,6 +519,16 @@ class SF_Server_Handler {
             }
             reject("Invalid session name");
         });
+    }
+
+    getSFInstalls() {
+        return new Promise((resolve, reject) => {
+            getInstalls().then(data => {
+                resolve(data)
+            }).catch(err => {
+                reject(err)
+            })
+        })
     }
 }
 

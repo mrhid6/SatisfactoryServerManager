@@ -212,6 +212,7 @@ body {
 .btn.toggle,
 .btn.toggle label {
     cursor: pointer;
+    margin-bottom: 0 !important;
 }
 
 .toggle-handle {
@@ -225,6 +226,15 @@ body {
 
 .ssm-modal i {
     font-size: 50px;
+}
+
+.ssm-modal i.fa-nonmodal {
+    font-size: 14px;
+}
+
+.ssm-modal .ul-nowizard {
+    padding-left: 20px;
+    margin-bottom: 10px;
 }
 
 
