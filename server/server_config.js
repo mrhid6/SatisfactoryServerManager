@@ -49,7 +49,7 @@ class ServerConfig extends iConfig {
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", "v1.0.14");
+        super.set("ssm.version", "v1.0.15");
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
