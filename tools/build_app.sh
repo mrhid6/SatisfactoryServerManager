@@ -110,5 +110,7 @@ fi
 
 git submodule update --init
 yarn
+yarn clean-css
+yarn bundle
 
 exit $?
