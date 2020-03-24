@@ -110,7 +110,9 @@ fi
 
 git submodule update --init
 yarn
+resCode = $?
+
 yarn clean-css
 yarn bundle
 
-exit $?
+exit $resCode
