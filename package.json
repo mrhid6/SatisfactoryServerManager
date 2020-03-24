@@ -55,6 +55,7 @@
             "scripts/**/*.sh",
             "assets/**/*",
             "node_modules/jquery/dist/**/*",
+            "node_modules/jquery-steps/build/**/*",
             "node_modules/@fortawesome/fontawesome-free/css/**/*",
             "node_modules/@fortawesome/fontawesome-free/webfonts/**/*",
             "node_modules/moment/min/**/*",
