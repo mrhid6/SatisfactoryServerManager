@@ -13,7 +13,8 @@ class PageHandler {
     constructor() {
         this.page = "";
         this.SETUP_CACHE = {
-            sfinstalls: []
+            sfinstalls: [],
+            selected_sfinstall: null
         }
     }
 
@@ -32,7 +33,6 @@ class PageHandler {
         this.setupJqueryHandler();
         this.getSSMVersion();
         this.checkInitalSetup();
-        this.getMetricsInfo();
         this.startLoggedInCheck()
 
         this.page = $(".page-container").attr("data-page");
@@ -76,11 +76,15 @@ class PageHandler {
             const $selel = $(e.currentTarget);
 
             if ($selel.val() == -1) {
+                this.SETUP_CACHE.selected_sfinstall = null;
+                $("#setup_sf_installname").text("")
+                $("#setup_sf_installloc").text("")
+                $("#setup_sf_installver").text("")
                 return;
             }
 
             const info = this.SETUP_CACHE.sfinstalls[$selel.val()]
-
+            this.SETUP_CACHE.selected_sfinstall = info;
             $("#setup_sf_installname").text(info.name)
             $("#setup_sf_installloc").text(info.installLocation)
             $("#setup_sf_installver").text(info.version)
@@ -153,7 +157,36 @@ class PageHandler {
                         form.steps({
                             headerTag: "h3",
                             bodyTag: "fieldset",
-                            transitionEffect: "slideLeft"
+                            transitionEffect: "slideLeft",
+                            onStepChanging: (event, currentIndex, newIndex) => {
+                                if (currentIndex > newIndex) {
+                                    return true;
+                                }
+
+                                if (newIndex == 2 && this.SETUP_CACHE.selected_sfinstall == null) {
+                                    return false;
+                                }
+
+                                return true;
+                            },
+                            onFinishing: (event, currentIndex) => {
+                                const terms = ($("#acceptTerms-2:checked").length > 0)
+                                return terms;
+                            },
+                            onFinished: (event, currentIndex) => {
+                                const postData = {
+                                    sfInstall: this.SETUP_CACHE.selected_sfinstall,
+                                    testmode: ($("#inp_setup_testmode:checked").length > 0),
+                                    metrics: ($("#inp_setup_metrics:checked").length > 0)
+                                }
+
+                                console.log(postData);
+
+                                API_Proxy.postData("config/ssm/setup", postData).then(res => {
+
+                                })
+                                alert("Submitted!");
+                            }
                         });
                         $("#inp_setup_testmode").bootstrapToggle();
                         $("#inp_setup_metrics").bootstrapToggle();
@@ -194,28 +227,6 @@ class PageHandler {
             } else {
                 $parent.find("#nofound-sf-installs").removeClass("d-none")
             }
-        })
-    }
-
-    getMetricsInfo() {
-        API_Proxy.get("config", "metrics").then(res => {
-            if (res.data.metrics.initalshow == false) {
-                Tools.openModal("metrics-opt-in", model_el => {
-
-                })
-            }
-        })
-    }
-
-    sendRejectMetrics() {
-        API_Proxy.post("config", "metrics", "reject").then(res => {
-            console.log(res)
-        })
-    }
-
-    sendAcceptMetrics() {
-        API_Proxy.post("config", "metrics", "accept").then(res => {
-            console.log(res)
         })
     }
 }

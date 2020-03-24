@@ -55,7 +55,6 @@ class ServerConfig extends iConfig {
         super.get("ssm.users.0.password", defaultpasshash)
 
         super.get("ssm.metrics.enabled", false)
-        super.get("ssm.metrics.initalshow", false)
         super.get("ssm.metrics.clientid", "")
 
         super.get("satisfactory.testmode", true)
@@ -114,6 +113,20 @@ class ServerConfig extends iConfig {
             })
         })
 
+    }
+
+    setSSMSetupConfig(data) {
+        return new Promise((resolve, reject) => {
+            super.set("ssm.setup", true)
+            super.set("ssm.metrics.enabled", (data.metrics == "true"))
+            super.set("satisfactory.testmode", (data.testmode == "true"))
+            super.set("satisfactory.server_location", data.sfInstall.installLocation)
+
+            require("./server_mod_handler").init();
+            require("./server_metrics").sendServerStartEvent();
+
+            resolve();
+        });
     }
 }
 

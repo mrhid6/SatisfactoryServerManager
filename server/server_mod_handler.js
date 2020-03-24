@@ -1,17 +1,19 @@
 const exec = require("child_process").exec
 const path = require("path");
+const schedule = require('node-schedule');
 
 const Config = require("./server_config");
 const logger = require("./server_logger");
 
 const {
+    getInstalls,
     SatisfactoryInstall,
     getAvailableSMLVersions,
     getLatestSMLVersion,
     getAvailableMods,
     getMod,
     getModVersions
-} = require("satisfactory-mod-launcher-api")
+} = require("satisfactory-mod-manager-api")
 
 class SSM_Mod_Handler {
     constructor() {
@@ -21,8 +23,23 @@ class SSM_Mod_Handler {
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
-        //this.SML_API = new SatisfactoryInstall(null, null, Config.get("satisfactory.server_location"), null)
-        this.SML_API = new SatisfactoryInstall("Satisfactory Early Access", "109075.0.0", Config.get("satisfactory.server_location"), "FactoryGame.exe")
+        getInstalls().then(sf_installs => {
+            const foundInstall = sf_installs.find(el => el.installLocation = Config.get("satisfactory.server_location"))
+
+            if (foundInstall != null) {
+                this.SML_API = foundInstall;
+            }
+        })
+
+        this.startScheduledJobs();
+    }
+
+    startScheduledJobs() {
+        schedule.scheduleJob('30 * * * *', () => {
+            if (Config.get("mods.enabled") && Config.get("mods.autoupdate")) {
+                this.autoUpdateAllMods();
+            }
+        });
     }
 
     getSMLInfo() {
@@ -211,6 +228,20 @@ class SSM_Mod_Handler {
                 reject(err);
             })
         });
+    }
+
+    autoUpdateAllMods() {
+        this.getModsInstalled().then(mods => {
+
+            logger.info("[Mod_Handler] [AUTOUPDATE] - Updating " + mods.length + " mods");
+
+            for (let i = 0; i < mods.length; i++) {
+                const mod = mods[i];
+                this.updateMod(mod.id)
+            }
+
+            logger.info("[Mod_Handler] [AUTOUPDATE] - Updated all mods!");
+        })
     }
 }
 const ssm_mod_handler = new SSM_Mod_Handler();

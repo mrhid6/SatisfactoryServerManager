@@ -9,7 +9,7 @@ const logger = require("./server_logger");
 
 const {
     getLogFilePath
-} = require("satisfactory-mod-launcher-api")
+} = require("satisfactory-mod-manager-api")
 
 class SSM_Log_Handler {
     constructor() {

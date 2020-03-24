@@ -16,7 +16,7 @@ const SFConfig = require("./server_sf_config");
 
 const {
     getInstalls
-} = require("satisfactory-mod-launcher-api")
+} = require("satisfactory-mod-manager-api")
 
 class SF_Server_Handler {
 
@@ -484,21 +484,9 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const enabled = (data.enabled == "true");
             const autoupdate = (data.autoupdate == "true");
-            const mods_location = data.mods_location || "";
-
-            if (mods_location == "") {
-                reject("Mods folder locations are required!")
-                return;
-            }
-
-            if (fs.pathExistsSync(mods_location) == false) {
-                reject("Mods path doesn't exist!")
-                return;
-            }
 
             Config.set("mods.enabled", enabled);
             Config.set("mods.autoupdate", autoupdate);
-            Config.set("mods.location", mods_location);
             resolve();
 
         });

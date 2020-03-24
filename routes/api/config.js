@@ -32,41 +32,24 @@ router.get('/', middleWare, function (req, res, next) {
     });
 });
 
-router.get('/metrics', middleWare, function (req, res, next) {
-    const metricsConfig = Config.get("ssm.metrics");
-
-    res.json({
-        result: "success",
-        data: {
-            metrics: metricsConfig
-        }
-    });
-});
-
-router.post('/metrics/reject', middleWare, function (req, res, next) {
-
-    Metrics.setRejectMetrics().then(() => {
-        res.json({
-            result: "success"
-        });
-    })
-});
-
-router.post('/metrics/accept', middleWare, function (req, res, next) {
-
-    Metrics.setAcceptMetrics().then(() => {
-        res.json({
-            result: "success"
-        });
-    })
-});
-
 router.get('/ssm/setup', middleWare, function (req, res, next) {
     res.json({
         result: "success",
         data: Config.get("ssm.setup")
     });
 });
+
+router.post('/ssm/setup', middleWare, function (req, res, next) {
+    const body = req.body;
+
+    Config.setSSMSetupConfig(body).then(() => {
+        res.json({
+            result: "success"
+        });
+    })
+
+});
+
 
 router.post('/selectsave', middleWare, function (req, res, next) {
     const body = req.body;

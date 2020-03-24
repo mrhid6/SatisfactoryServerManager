@@ -228,8 +228,6 @@ class Page_Settings {
         }
         $('#inp_mods_autoupdate').bootstrapToggle('disable')
 
-        $("#inp_mods_sml").val(modsConfig.SMLauncher_location)
-        $("#inp_mods_loc").val(modsConfig.location)
     }
 
     unlockSSMSettings() {
@@ -280,7 +278,6 @@ class Page_Settings {
         $("#cancel-mods-settings").prop("disabled", false);
         $('#inp_mods_enabled').bootstrapToggle('enable');
         $('#inp_mods_autoupdate').bootstrapToggle('enable')
-        $("#inp_mods_loc").prop("disabled", false);
     }
 
     lockModsSettings() {
@@ -290,7 +287,6 @@ class Page_Settings {
         $("#cancel-mods-settings").prop("disabled", true);
         $('#inp_mods_enabled').bootstrapToggle('disable');
         $('#inp_mods_autoupdate').bootstrapToggle('disable')
-        $("#inp_mods_loc").prop("disabled", true);
     }
 
     submitSFSettings() {
@@ -348,17 +344,12 @@ class Page_Settings {
     submitModsSettings() {
         const enabled = $('#inp_mods_enabled').is(":checked")
         const autoupdate = $('#inp_mods_autoupdate').is(":checked")
-        const mods_location = $("#inp_mods_loc").val();
         const postData = {
             enabled,
-            autoupdate,
-            mods_location
+            autoupdate
         }
 
-        console.log(postData)
-
         API_Proxy.postData("/config/modssettings", postData).then(res => {
-            console.log(res)
             if (res.result == "success") {
                 this.lockModsSettings();
                 if (Tools.modal_opened == true) return;
