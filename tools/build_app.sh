@@ -83,12 +83,21 @@ if [ $(which -a yarn | wc -l) -eq 0 ]; then
     fi
 fi
 
+if [ $(which -a browserify | wc -l) -eq 0 ]; then
+    if [ $INSTALL -eq 1 ]; then
+        npm i -g browserify uglifyify
+    else
+        echo "Error: browserify needs to be installed!"
+        error=1
+    fi
+fi
+
 if [ $error -eq 1 ]; then
     exit 1
 fi
 
 if [ $UPDATE -eq 1 ]; then
-    npm i -g pkg release-it yarn
+    npm i -g pkg release-it yarn browserify uglifyify
 fi
 
 if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
