@@ -1,110 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
-const serialize = require("serialijse");
+const serialize=require("serialijse");Tools={},Tools.modal_opened=!1,Tools.declareSerializedClasses=function(...e){for(let o=0;o<e.length;o++)serialize.declarePersistable(e[o])},Tools.serialize=function(e){return serialize.serialize(e)},Tools.deserialize=function(e){return serialize.deserialize(e)},Tools.generateRandomString=function(e){for(var o="",l="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",a=0;a<e;a++)o+=l.charAt(Math.floor(Math.random()*l.length));return o},Tools.generateRandomInt=function(e){for(var o="",l=0;l<e;l++)o+="0123456789".charAt(Math.floor(Math.random()*"0123456789".length));return o},Tools.generateUUID=function(e){for(var o=e.split("-"),l="",a=0;a<o.length;a++){var n=o[a];a>0?l=l+"-"+Tools.generateRandomString(n.length):l+=Tools.generateRandomString(n.length)}return o=void 0,l},Tools.openModal=function(e,o,l){let a={allowBackdropRemoval:!0},n=null;2==arguments.length?n=o:3==arguments.length&&(a=o,n=l),$("body").hasClass("modal-open")||$.ajax({url:"/public/modals/"+e+".html",success:function(o){$("body").append(o);var l=$("#"+e);l.find("button.close").click(function(e){e.preventDefault(),l.trigger("hidden.bs.modal"),$("body").removeClass("modal-open").attr("style",null)}),l.on("hidden.bs.modal",function(){$(this).remove(),$('[name^="__privateStripe"]').remove(),Tools.modal_opened=!1,1==a.allowBackdropRemoval&&$(".modal-backdrop").remove()}),l.modal("show"),n&&n(l)},dataType:"html"})},module.exports=Tools;
 
-Tools = {};
-Tools.modal_opened = false;
-
-Tools.declareSerializedClasses = function (...Classes) {
-    for (let i = 0; i < Classes.length; i++) {
-        serialize.declarePersistable(Classes[i]);
-    }
-}
-
-Tools.serialize = function (obj) {
-    return serialize.serialize(obj);
-}
-
-Tools.deserialize = function (obj) {
-    return serialize.deserialize(obj);
-}
-
-Tools.generateRandomString = function (length) {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (var i = 0; i < length; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-};
-
-Tools.generateRandomInt = function (length) {
-    var text = "";
-    var possible = "0123456789";
-
-    for (var i = 0; i < length; i++)
-        text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    return text;
-};
-
-Tools.generateUUID = function (format) {
-    var formatdata = format.split("-");
-
-    var ret_str = "";
-
-    for (var i = 0; i < formatdata.length; i++) {
-        var d = formatdata[i];
-        if (i > 0) {
-            ret_str = ret_str + "-" + Tools.generateRandomString(d.length);
-        } else {
-            ret_str = ret_str + Tools.generateRandomString(d.length);
-        }
-    }
-
-    formatdata = undefined;
-    return ret_str;
-}
-
-Tools.openModal = function (modal_name, var1, var2) {
-
-    let options = {
-        allowBackdropRemoval: true
-    };
-
-    let callback = null;
-
-    if (arguments.length == 2) {
-        callback = var1;
-    } else if (arguments.length == 3) {
-        options = var1;
-        callback = var2;
-    }
-
-    if ($("body").hasClass("modal-open")) {
-        return;
-    }
-
-    $.ajax({
-        url: "/public/modals/" + modal_name + ".html",
-        success: function (data) {
-
-            $('body').append(data);
-
-            var modalEl = $("#" + modal_name);
-
-            modalEl.find("button.close").click(function (e) {
-                e.preventDefault();
-                modalEl.trigger("hidden.bs.modal");
-                $("body").removeClass("modal-open").attr("style", null);
-            })
-
-            modalEl.on('hidden.bs.modal', function () {
-                $(this).remove();
-                $('[name^="__privateStripe"]').remove();
-                Tools.modal_opened = false;
-                if (options.allowBackdropRemoval == true)
-                    $('.modal-backdrop').remove();
-            });
-            modalEl.modal('show');
-            if (callback)
-                callback(modalEl);
-        },
-        dataType: 'html'
-    });
-};
-
-module.exports = Tools;
 },{"serialijse":3}],2:[function(require,module,exports){
 /*
 object-assign
@@ -638,1724 +534,37 @@ exports.declarePersistable = lib.declarePersistable;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
 },{"assert":14,"buffer":22,"object-assign":2,"zlib":21}],5:[function(require,module,exports){
-const Logger = require("./logger");
+const Logger=require("./logger");class API_Proxy{constructor(){}get(...o){const r="/api/"+o.join("/");return Logger.debug("API Proxy [GET] "+r),new Promise((o,e)=>{$.get(r,r=>{o(r)})})}post(...o){const r="/api/"+o.join("/");return Logger.debug("API Proxy [POST] "+r),new Promise((o,e)=>{$.post(r,r=>{o(r)})})}postData(o,r){const e="/api/"+o;return Logger.debug("API Proxy [POST] "+e),new Promise((o,t)=>{$.post(e,r,r=>{o(r)})})}}const api_proxy=new API_Proxy;module.exports=api_proxy;
 
-class API_Proxy {
-    constructor() {}
-
-    get(...args) {
-        const url = "/api/" + (args.join("/"));
-        Logger.debug("API Proxy [GET] " + url);
-        return new Promise((resolve, reject) => {
-            $.get(url, result => {
-                resolve(result)
-            })
-        })
-    }
-
-    post(...args) {
-        const url = "/api/" + (args.join("/"));
-        Logger.debug("API Proxy [POST] " + url);
-        return new Promise((resolve, reject) => {
-            $.post(url, result => {
-                resolve(result)
-            })
-        })
-    }
-
-    postData(posturl, data) {
-        const url = "/api/" + posturl
-        Logger.debug("API Proxy [POST] " + url);
-        return new Promise((resolve, reject) => {
-            $.post(url, data, result => {
-                resolve(result)
-            })
-        })
-    }
-}
-
-const api_proxy = new API_Proxy();
-module.exports = api_proxy;
 },{"./logger":7}],6:[function(require,module,exports){
-const PageHandler = require("./page_handler");
-const Logger = require("./logger")
+const PageHandler=require("./page_handler"),Logger=require("./logger");function main(){Logger.displayBanner(),PageHandler.init()}Date.prototype.getMonthName=function(){return["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][this.getMonth()]},Number.prototype.pad=function(t,e){let n=this;return e=e||"0",(n+="").length>=t?n:new Array(t-n.length+1).join(e)+n},Number.prototype.toDecimal=function(){return this.toFixed(2)},String.prototype.trunc=String.prototype.trunc||function(t){return this.length>t?this.substr(0,t-1)+"&hellip;":this},$(document).ready(()=>{main()});
 
-Date.prototype.getMonthName = function () {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    return monthNames[this.getMonth()];
-}
-
-Number.prototype.pad = function (width, z) {
-    let n = this;
-    z = z || '0';
-    n = n + '';
-    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-}
-
-Number.prototype.toDecimal = function () {
-    return this.toFixed(2);
-}
-
-String.prototype.trunc = String.prototype.trunc ||
-    function (n) {
-        return (this.length > n) ? this.substr(0, n - 1) + '&hellip;' : this;
-    };
-
-
-function main() {
-    Logger.displayBanner();
-    PageHandler.init();
-}
-
-$(document).ready(() => {
-    main();
-});
 },{"./logger":7,"./page_handler":9}],7:[function(require,module,exports){
-const Logger = {};
+const Logger={TYPES:{LOG:0,INFO:1,SUCCESS:2,WARNING:3,ERROR:4,DEBUG:5,RESET:6}};Logger.LEVEL=Logger.TYPES.DEBUG,Logger.STYLES=["padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#008cba; color:#fff; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#43ac6a; color:#fff; font-weight:bold; border:1px solid #3c9a5f;","padding: 2px 8px; margin-right:8px; background:#E99002; color:#fff; font-weight:bold; border:1px solid #d08002;","padding: 2px 8px; margin-right:8px; background:#F04124; color:#fff; font-weight:bold; border:1px solid #ea2f10;","padding: 2px 8px; margin-right:8px; background:#003aba; color:#fff; font-weight:bold; border:1px solid #000;",""],Logger.init=(()=>{Logger.displayBanner()}),Logger.displayBanner=(()=>{Logger.BannerMessage="\n%c #-----------------------------# \n #      _____ _____ __  __     # \n #     / ____/ ____|  \\/  |    # \n #    | (___| (___ | \\  / |    # \n #     \\___ \\\\___ \\| |\\/| |    # \n #     ____) |___) | |  | |    # \n #    |_____/_____/|_|  |_|    # \n #-----------------------------# \n # Satisfactory Server Manager # \n #-----------------------------# \n",console.log(Logger.BannerMessage,"background:#008cba;color:#fff;font-weight:bold")}),Logger.getLoggerTypeString=(g=>{switch(g){case 0:return"LOG";case 1:return"INFO";case 2:return"SUCCESS";case 3:return"WARN";case 4:return"ERROR";case 5:return"DEBUG"}}),Logger.toLog=((g,o)=>{if(null==g)return;if(g>Logger.LEVEL)return;const r=Logger.STYLES[g],e=Logger.STYLES[Logger.TYPES.RESET],n=Logger.getLoggerTypeString(g);console.log("%c"+n+"%c"+o,r,e)}),Logger.log=(g=>{Logger.toLog(Logger.TYPES.LOG,g)}),Logger.info=(g=>{Logger.toLog(Logger.TYPES.INFO,g)}),Logger.success=(g=>{Logger.toLog(Logger.TYPES.SUCCESS,g)}),Logger.warning=(g=>{Logger.toLog(Logger.TYPES.WARNING,g)}),Logger.error=(g=>{Logger.toLog(Logger.TYPES.ERROR,g)}),Logger.debug=(g=>{Logger.toLog(Logger.TYPES.DEBUG,g)}),module.exports=Logger;
 
-Logger.TYPES = {
-    LOG: 0,
-    INFO: 1,
-    SUCCESS: 2,
-    WARNING: 3,
-    ERROR: 4,
-    DEBUG: 5,
-    RESET: 6
-}
-
-Logger.LEVEL = Logger.TYPES.DEBUG;
-
-Logger.STYLES = [
-    "padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;",
-    "padding: 2px 8px; margin-right:8px; background:#008cba; color:#fff; font-weight:bold; border:1px solid #000;",
-    "padding: 2px 8px; margin-right:8px; background:#43ac6a; color:#fff; font-weight:bold; border:1px solid #3c9a5f;",
-    "padding: 2px 8px; margin-right:8px; background:#E99002; color:#fff; font-weight:bold; border:1px solid #d08002;",
-    "padding: 2px 8px; margin-right:8px; background:#F04124; color:#fff; font-weight:bold; border:1px solid #ea2f10;",
-    "padding: 2px 8px; margin-right:8px; background:#003aba; color:#fff; font-weight:bold; border:1px solid #000;",
-    ""
-]
-
-Logger.init = () => {
-    Logger.displayBanner();
-}
-
-Logger.displayBanner = () => {
-    Logger.BannerMessage = `
-%c #-----------------------------# 
- #      _____ _____ __  __     # 
- #     / ____/ ____|  \\/  |    # 
- #    | (___| (___ | \\  / |    # 
- #     \\___ \\\\___ \\| |\\/| |    # 
- #     ____) |___) | |  | |    # 
- #    |_____/_____/|_|  |_|    # 
- #-----------------------------# 
- # Satisfactory Server Manager # 
- #-----------------------------# 
-`
-
-    console.log(Logger.BannerMessage, "background:#008cba;color:#fff;font-weight:bold");
-}
-
-Logger.getLoggerTypeString = (LoggerType) => {
-    switch (LoggerType) {
-        case 0:
-            return "LOG"
-        case 1:
-            return "INFO"
-        case 2:
-            return "SUCCESS"
-        case 3:
-            return "WARN"
-        case 4:
-            return "ERROR"
-        case 5:
-            return "DEBUG"
-    }
-}
-
-Logger.toLog = (LoggerType, Message) => {
-    if (LoggerType == null) return;
-
-    if (LoggerType > Logger.LEVEL) return;
-
-    const style = Logger.STYLES[LoggerType];
-    const resetStyle = Logger.STYLES[Logger.TYPES.RESET];
-    const typeString = Logger.getLoggerTypeString(LoggerType);
-
-    console.log("%c" + typeString + "%c" + Message, style, resetStyle);
-}
-
-Logger.log = (Message) => {
-    Logger.toLog(Logger.TYPES.LOG, Message);
-}
-
-Logger.info = (Message) => {
-    Logger.toLog(Logger.TYPES.INFO, Message);
-}
-
-Logger.success = (Message) => {
-    Logger.toLog(Logger.TYPES.SUCCESS, Message);
-}
-
-Logger.warning = (Message) => {
-    Logger.toLog(Logger.TYPES.WARNING, Message);
-}
-
-Logger.error = (Message) => {
-    Logger.toLog(Logger.TYPES.ERROR, Message);
-}
-
-Logger.debug = (Message) => {
-    Logger.toLog(Logger.TYPES.DEBUG, Message);
-}
-
-module.exports = Logger;
 },{}],8:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Dashboard{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getModCount(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#server-action-start").click(e=>{this.serverAction_Start()}),$("#server-action-stop").click(e=>{this.serverAction_Confirm("stop")}),$("#server-action-kill").click(e=>{this.serverAction_Confirm("kill")}),$("body").on("click","#confirm-action",e=>{const t=$(e.currentTarget).attr("data-action");"stop"!=t&&"kill"!=t||($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(t))})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{const t=$("#server-status");"success"==e.result?(this.ServerState=e.data,this.ToggleServerActionButtons(),"stopped"==e.data.status?t.text("Not Running"):t.text("Running"),$("#cpu-usage div").width(e.data.pcpu.toDecimal()+"%"),$("#ram-usage div").width(e.data.pmem.toDecimal()+"%")):t.text("Server Error!")})}getModCount(){API_Proxy.get("mods","modsinstalled").then(e=>{const t=$("#mod-count");"success"==e.result?t.text(e.data.length):t.text(e.error)})}ToggleServerActionButtons(){"stopped"==this.ServerState.status?($("#server-action-start").prop("disabled",!1),$("#server-action-stop").prop("disabled",!0),$("#server-action-kill").prop("disabled",!0)):($("#server-action-start").prop("disabled",!0),$("#server-action-stop").prop("disabled",!1),$("#server-action-kill").prop("disabled",!1))}serverAction_Confirm(e){1!=Tools.modal_opened&&Tools.openModal("server-action-confirm",t=>{t.find("#confirm-action").attr("data-action",e)})}serverAction_Start(){if("stopped"==this.ServerState.status)API_Proxy.post("serveractions","start").then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("server-action-success",e=>{e.find("#success-msg").text("Server has been started!")})):Tools.openModal("server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("server-action-error",e=>{e.find("#error-msg").text("Error: The server is already started!")})}}serverAction_Stop(e){if("stopped"!=this.ServerState.status)API_Proxy.post("serveractions",e).then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("server-action-success",e=>{e.find("#success-msg").text("Server has been stopped!")})):Tools.openModal("server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("server-action-error",e=>{e.find("#error-msg").text("Error: The server is already stopped!")})}}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus(),this.getModCount()},5e3)}}const page=new Page_Dashboard;module.exports=page;
 
-const Tools = require("../Mrhid6Utils/lib/tools");
-
-class Page_Dashboard {
-    constructor() {
-        this.ServerState = {}
-    }
-
-    init() {
-
-        this.setupJqueryListeners();
-        this.getServerStatus()
-        this.getModCount();
-
-
-        this.startPageInfoRefresh();
-
-    }
-
-    setupJqueryListeners() {
-        $("#server-action-start").click((e) => {
-            this.serverAction_Start();
-        })
-
-        $("#server-action-stop").click((e) => {
-            this.serverAction_Confirm("stop");
-        })
-
-        $("#server-action-kill").click((e) => {
-            this.serverAction_Confirm("kill");
-        })
-
-        $("body").on("click", "#confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            const action = $btnel.attr("data-action");
-
-            if (action == "stop" || action == "kill") {
-                $("#server-action-confirm .close").trigger("click");
-                Tools.modal_opened = false;
-                this.serverAction_Stop(action);
-            }
-        })
-    }
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            const el = $("#server-status");
-            if (res.result == "success") {
-                this.ServerState = res.data;
-                this.ToggleServerActionButtons();
-
-                if (res.data.status == "stopped") {
-                    el.text("Not Running")
-                } else {
-                    el.text("Running")
-                }
-
-                $("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
-                $("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
-
-            } else {
-                el.text("Server Error!")
-            }
-        })
-    }
-
-    getModCount() {
-        API_Proxy.get("mods", "modsinstalled").then(res => {
-            const el = $("#mod-count");
-            if (res.result == "success") {
-                el.text(res.data.length)
-            } else {
-                el.text(res.error)
-            }
-        })
-    }
-
-
-    ToggleServerActionButtons() {
-        if (this.ServerState.status == "stopped") {
-            $("#server-action-start").prop("disabled", false);
-            $("#server-action-stop").prop("disabled", true);
-            $("#server-action-kill").prop("disabled", true);
-        } else {
-            $("#server-action-start").prop("disabled", true);
-            $("#server-action-stop").prop("disabled", false);
-            $("#server-action-kill").prop("disabled", false);
-        }
-    }
-
-    serverAction_Confirm(action) {
-        if (Tools.modal_opened == true) return;
-        Tools.openModal("server-action-confirm", (modal_el) => {
-            modal_el.find("#confirm-action").attr("data-action", action)
-        });
-    }
-
-    serverAction_Start() {
-        if (this.ServerState.status == "stopped") {
-            API_Proxy.post("serveractions", "start").then(res => {
-                if (Tools.modal_opened == true) return;
-                if (res.result == "success") {
-                    this.getServerStatus();
-                    Tools.openModal("server-action-success", (modal_el) => {
-                        modal_el.find("#success-msg").text("Server has been started!")
-                    });
-                } else {
-                    Tools.openModal("server-action-error", (modal_el) => {
-                        modal_el.find("#error-msg").text(res.error)
-                    });
-                }
-            })
-        } else {
-
-            if (Tools.modal_opened == true) return;
-            Tools.openModal("server-action-error", (modal_el) => {
-                modal_el.find("#error-msg").text("Error: The server is already started!")
-            });
-        }
-    }
-
-    serverAction_Stop(stopAction) {
-        if (this.ServerState.status != "stopped") {
-            API_Proxy.post("serveractions", stopAction).then(res => {
-
-                if (Tools.modal_opened == true) return;
-                if (res.result == "success") {
-                    this.getServerStatus();
-                    Tools.openModal("server-action-success", (modal_el) => {
-                        modal_el.find("#success-msg").text("Server has been stopped!")
-                    });
-
-                } else {
-                    Tools.openModal("server-action-error", (modal_el) => {
-                        modal_el.find("#error-msg").text(res.error)
-                    });
-                }
-            })
-        } else {
-
-            if (Tools.modal_opened == true) return;
-            Tools.openModal("server-action-error", (modal_el) => {
-                modal_el.find("#error-msg").text("Error: The server is already stopped!")
-            });
-        }
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-            this.getModCount();
-        }, 5 * 1000);
-    }
-}
-
-const page = new Page_Dashboard();
-
-module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],9:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
-const Page_Dashboard = require("./page_dashboard");
-const Page_Mods = require("./page_mods");
-const Page_Logs = require("./page_logs");
-const Page_Saves = require("./page_saves");
-const Page_Settings = require("./page_settings");
+const API_Proxy=require("./api_proxy"),Page_Dashboard=require("./page_dashboard"),Page_Mods=require("./page_mods"),Page_Logs=require("./page_logs"),Page_Saves=require("./page_saves"),Page_Settings=require("./page_settings"),Tools=require("../Mrhid6Utils/lib/tools"),Logger=require("./logger");class PageHandler{constructor(){this.page="",this.SETUP_CACHE={sfinstalls:[],selected_sfinstall:null}}init(){switch(toastr.options.closeButton=!0,toastr.options.closeMethod="fadeOut",toastr.options.closeDuration=300,toastr.options.closeEasing="swing",toastr.options.showEasing="swing",toastr.options.timeOut=3e4,toastr.options.extendedTimeOut=1e4,toastr.options.progressBar=!0,toastr.options.positionClass="toast-bottom-right",this.setupJqueryHandler(),this.getSSMVersion(),this.checkInitalSetup(),this.startLoggedInCheck(),this.page=$(".page-container").attr("data-page"),this.page){case"dashboard":Page_Dashboard.init();break;case"mods":Page_Mods.init();break;case"logs":Page_Logs.init();break;case"saves":Page_Saves.init();break;case"settings":Page_Settings.init()}}setupJqueryHandler(){$('[data-toggle="tooltip"]').tooltip(),$("body").on("click","#metrics-opt-in #cancel-action",e=>{$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendRejectMetrics()}),$("body").on("click","#metrics-opt-in #confirm-action",e=>{$(e.currentTarget);$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendAcceptMetrics()}).on("click","#btn_setup_findinstall",e=>{this.getSetupSFInstalls(e)}).on("change","#sel_setup_sf_install",e=>{const t=$(e.currentTarget);if(-1==t.val())return this.SETUP_CACHE.selected_sfinstall=null,$("#setup_sf_installname").text(""),$("#setup_sf_installloc").text(""),void $("#setup_sf_installver").text("");const s=this.SETUP_CACHE.sfinstalls[t.val()];this.SETUP_CACHE.selected_sfinstall=s,$("#setup_sf_installname").text(s.name),$("#setup_sf_installloc").text(s.installLocation),$("#setup_sf_installver").text(s.version)})}getSSMVersion(){API_Proxy.get("info","ssmversion").then(e=>{const t=$("#ssm-version");"success"==e.result?(this.checkSSMVersion(e.data),t.text(e.data.current_version)):t.text("Server Error!")})}checkSSMVersion(e){const t="toast_"+e.current_version+"_"+e.github_version+"_"+e.version_diff;null==getCookie(t)&&("gt"==e.version_diff?toastr.warning("You are currently using a Development version of SSM"):"lt"==e.version_diff&&toastr.warning("SSM requires updating. Please update now"),setCookie(t,!0,30))}startLoggedInCheck(){const e=setInterval(()=>{Logger.info("Checking Logged In!"),this.checkLoggedIn().then(t=>{1!=t&&(clearInterval(e),window.location.replace("/logout"))})},1e4)}checkLoggedIn(){return new Promise((e,t)=>{API_Proxy.get("info","loggedin").then(t=>{"success"==t.result?e(!0):e(!1)})})}checkInitalSetup(){API_Proxy.get("config","ssm","setup").then(e=>{if("success"==e.result){0==e.data&&Tools.openModal("inital-setup",()=>{$("#initial-setup-wizard").steps({headerTag:"h3",bodyTag:"fieldset",transitionEffect:"slideLeft",onStepChanging:(e,t,s)=>t>s||(2!=s||null!=this.SETUP_CACHE.selected_sfinstall),onFinishing:(e,t)=>{return $("#acceptTerms-2:checked").length>0},onFinished:(e,t)=>{const s={sfInstall:this.SETUP_CACHE.selected_sfinstall,testmode:$("#inp_setup_testmode:checked").length>0,metrics:$("#inp_setup_metrics:checked").length>0};console.log(s),API_Proxy.postData("config/ssm/setup",s).then(e=>{}),alert("Submitted!")}}),$("#inp_setup_testmode").bootstrapToggle(),$("#inp_setup_metrics").bootstrapToggle()})}})}getSetupSFInstalls(e){e.preventDefault();const t=$(e.currentTarget),s=t.parent().parent().parent();t.find("i").removeClass("fa-search").addClass("fa-spin fa-sync"),API_Proxy.get("info","sf_installs").then(e=>{if(t.find("i").addClass("fa-search").removeClass("fa-spin fa-sync"),"success"==e.result){const t=e.data;if(0==t.length)return void s.find("#nofound-sf-installs").removeClass("d-none");this.SETUP_CACHE.sfinstalls=t,s.find("#found-sf-installs").removeClass("d-none");const n=s.find("#sel_setup_sf_install");n.empty(),n.append("<option value='-1'>-- SELECT --</option>");for(let e=0;e<t.length;e++){const s=t[e];n.append("<option value='"+e+"'>"+s.name+"</option>")}}else s.find("#nofound-sf-installs").removeClass("d-none")})}}function setCookie(e,t,s){var n="";if(s){var o=new Date;o.setTime(o.getTime()+24*s*60*60*1e3),n="; expires="+o.toUTCString()}document.cookie=e+"="+(t||"")+n+"; path=/"}function getCookie(e){for(var t=e+"=",s=document.cookie.split(";"),n=0;n<s.length;n++){for(var o=s[n];" "==o.charAt(0);)o=o.substring(1,o.length);if(0==o.indexOf(t))return o.substring(t.length,o.length)}return null}function eraseCookie(e){document.cookie=e+"=; Max-Age=-99999999;"}const pagehandler=new PageHandler;module.exports=pagehandler;
 
-const Tools = require("../Mrhid6Utils/lib/tools");
-
-const Logger = require("./logger");
-
-class PageHandler {
-    constructor() {
-        this.page = "";
-        this.SETUP_CACHE = {
-            sfinstalls: [],
-            selected_sfinstall: null
-        }
-    }
-
-    init() {
-
-        toastr.options.closeButton = true;
-        toastr.options.closeMethod = 'fadeOut';
-        toastr.options.closeDuration = 300;
-        toastr.options.closeEasing = 'swing';
-        toastr.options.showEasing = 'swing';
-        toastr.options.timeOut = 30000;
-        toastr.options.extendedTimeOut = 10000;
-        toastr.options.progressBar = true;
-        toastr.options.positionClass = "toast-bottom-right";
-
-        this.setupJqueryHandler();
-        this.getSSMVersion();
-        this.checkInitalSetup();
-        this.startLoggedInCheck()
-
-        this.page = $(".page-container").attr("data-page");
-
-        switch (this.page) {
-            case "dashboard":
-                Page_Dashboard.init();
-                break;
-            case "mods":
-                Page_Mods.init();
-                break;
-            case "logs":
-                Page_Logs.init();
-                break;
-            case "saves":
-                Page_Saves.init();
-                break;
-            case "settings":
-                Page_Settings.init();
-                break;
-        }
-    }
-
-    setupJqueryHandler() {
-        $('[data-toggle="tooltip"]').tooltip()
-
-        $("body").on("click", "#metrics-opt-in #cancel-action", (e) => {
-            $("#metrics-opt-in .close").trigger("click");
-            Tools.modal_opened = false;
-            this.sendRejectMetrics()
-        })
-
-        $("body").on("click", "#metrics-opt-in #confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            $("#metrics-opt-in .close").trigger("click");
-            Tools.modal_opened = false;
-            this.sendAcceptMetrics();
-        }).on("click", "#btn_setup_findinstall", e => {
-            this.getSetupSFInstalls(e)
-        }).on("change", "#sel_setup_sf_install", e => {
-            const $selel = $(e.currentTarget);
-
-            if ($selel.val() == -1) {
-                this.SETUP_CACHE.selected_sfinstall = null;
-                $("#setup_sf_installname").text("")
-                $("#setup_sf_installloc").text("")
-                $("#setup_sf_installver").text("")
-                return;
-            }
-
-            const info = this.SETUP_CACHE.sfinstalls[$selel.val()]
-            this.SETUP_CACHE.selected_sfinstall = info;
-            $("#setup_sf_installname").text(info.name)
-            $("#setup_sf_installloc").text(info.installLocation)
-            $("#setup_sf_installver").text(info.version)
-        })
-    }
-
-    getSSMVersion() {
-        API_Proxy.get("info", "ssmversion").then(res => {
-            const el = $("#ssm-version");
-            if (res.result == "success") {
-                this.checkSSMVersion(res.data)
-                el.text(res.data.current_version)
-
-            } else {
-                el.text("Server Error!")
-            }
-        })
-    }
-
-    checkSSMVersion(version_data) {
-
-        const ToastId = "toast_" + version_data.current_version + "_" + version_data.github_version + "_" + version_data.version_diff
-        const ToastDisplayed = getCookie(ToastId)
-
-        if (ToastDisplayed == null) {
-
-            if (version_data.version_diff == "gt") {
-                toastr.warning("You are currently using a Development version of SSM")
-            } else if (version_data.version_diff == "lt") {
-                toastr.warning("SSM requires updating. Please update now")
-            }
-
-            setCookie(ToastId, true, 30);
-        }
-    }
-
-    startLoggedInCheck() {
-        const interval = setInterval(() => {
-            Logger.info("Checking Logged In!");
-            this.checkLoggedIn().then(loggedin => {
-                if (loggedin != true) {
-                    clearInterval(interval)
-                    window.location.replace("/logout");
-                }
-            })
-        }, 10000)
-    }
-
-    checkLoggedIn() {
-        return new Promise((resolve, reject) => {
-            API_Proxy.get("info", "loggedin").then(res => {
-                if (res.result == "success") {
-                    resolve(true)
-                } else {
-                    resolve(false)
-                }
-            })
-        })
-    }
-
-    checkInitalSetup() {
-        API_Proxy.get("config", "ssm", "setup").then(res => {
-            if (res.result == "success") {
-                const resdata = res.data;
-
-                if (resdata == false) {
-                    Tools.openModal("inital-setup", () => {
-
-                        const form = $("#initial-setup-wizard")
-                        form.steps({
-                            headerTag: "h3",
-                            bodyTag: "fieldset",
-                            transitionEffect: "slideLeft",
-                            onStepChanging: (event, currentIndex, newIndex) => {
-                                if (currentIndex > newIndex) {
-                                    return true;
-                                }
-
-                                if (newIndex == 2 && this.SETUP_CACHE.selected_sfinstall == null) {
-                                    return false;
-                                }
-
-                                return true;
-                            },
-                            onFinishing: (event, currentIndex) => {
-                                const terms = ($("#acceptTerms-2:checked").length > 0)
-                                return terms;
-                            },
-                            onFinished: (event, currentIndex) => {
-                                const postData = {
-                                    sfInstall: this.SETUP_CACHE.selected_sfinstall,
-                                    testmode: ($("#inp_setup_testmode:checked").length > 0),
-                                    metrics: ($("#inp_setup_metrics:checked").length > 0)
-                                }
-
-                                console.log(postData);
-
-                                API_Proxy.postData("config/ssm/setup", postData).then(res => {
-
-                                })
-                                alert("Submitted!");
-                            }
-                        });
-                        $("#inp_setup_testmode").bootstrapToggle();
-                        $("#inp_setup_metrics").bootstrapToggle();
-                    })
-                }
-            }
-        });
-    }
-
-    getSetupSFInstalls(btn) {
-        btn.preventDefault();
-        const $btnel = $(btn.currentTarget);
-        const $parent = $btnel.parent().parent().parent();
-        $btnel.find("i").removeClass("fa-search").addClass("fa-spin fa-sync")
-
-        API_Proxy.get("info", "sf_installs").then(res => {
-            $btnel.find("i").addClass("fa-search").removeClass("fa-spin fa-sync")
-            if (res.result == "success") {
-                const resdata = res.data;
-
-                if (resdata.length == 0) {
-                    $parent.find("#nofound-sf-installs").removeClass("d-none")
-                    return;
-                }
-
-                this.SETUP_CACHE.sfinstalls = resdata;
-
-                $parent.find("#found-sf-installs").removeClass("d-none")
-
-                const $selSFInstall = $parent.find("#sel_setup_sf_install");
-                $selSFInstall.empty();
-
-                $selSFInstall.append("<option value='-1'>-- SELECT --</option>")
-                for (let i = 0; i < resdata.length; i++) {
-                    const sfinstall = resdata[i];
-                    $selSFInstall.append("<option value='" + i + "'>" + sfinstall.name + "</option>")
-                }
-            } else {
-                $parent.find("#nofound-sf-installs").removeClass("d-none")
-            }
-        })
-    }
-}
-
-function setCookie(name, value, days) {
-    var expires = "";
-    if (days) {
-        var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-        expires = "; expires=" + date.toUTCString();
-    }
-    document.cookie = name + "=" + (value || "") + expires + "; path=/";
-}
-
-function getCookie(name) {
-    var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
-    for (var i = 0; i < ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-    }
-    return null;
-}
-
-function eraseCookie(name) {
-    document.cookie = name + '=; Max-Age=-99999999;';
-}
-
-const pagehandler = new PageHandler();
-
-module.exports = pagehandler;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5,"./logger":7,"./page_dashboard":8,"./page_logs":10,"./page_mods":11,"./page_saves":12,"./page_settings":13}],10:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Logs{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getSSMLog(),this.getSMLauncherLog(),this.startPageInfoRefresh()}setupJqueryListeners(){}getSSMLog(){API_Proxy.get("logs","ssmlog").then(e=>{const s=$("#ssm-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}getSMLauncherLog(){API_Proxy.get("logs","smlauncherlog").then(e=>{const s=$("#smlauncher-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}startPageInfoRefresh(){setInterval(()=>{this.getSSMLog()},3e4)}}const page=new Page_Logs;module.exports=page;
 
-const Tools = require("../Mrhid6Utils/lib/tools");
-
-class Page_Logs {
-    constructor() {
-        this.ServerState = {}
-    }
-
-    init() {
-
-        this.setupJqueryListeners();
-        this.getSSMLog()
-        this.getSMLauncherLog();
-
-
-        this.startPageInfoRefresh();
-
-    }
-
-    setupJqueryListeners() {
-
-    }
-
-    getSSMLog() {
-        API_Proxy.get("logs", "ssmlog").then(res => {
-            const el = $("#ssm-log-viewer samp");
-            el.empty();
-            if (res.result == "success") {
-                res.data.forEach((logline) => {
-                    el.append("<p>" + logline + "</p>")
-                })
-            } else {
-                el.text(res.error)
-            }
-        })
-    }
-
-    getSMLauncherLog() {
-        API_Proxy.get("logs", "smlauncherlog").then(res => {
-            const el = $("#smlauncher-log-viewer samp");
-            el.empty();
-            if (res.result == "success") {
-                res.data.forEach((logline) => {
-                    el.append("<p>" + logline + "</p>")
-                })
-            } else {
-                el.text(res.error)
-            }
-        })
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getSSMLog();
-        }, 30 * 1000);
-    }
-}
-
-const page = new Page_Logs();
-
-module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],11:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Mods{constructor(){this.Mods_State={},this.ServerState={},this.FicsitModList=[],this.loaded={ficsit_modlist:!1}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getSMLInfo(),this.getModCount(),this.getFicsitSMLVersion(),this.getFicsitModList(),this.startPageInfoRefresh(),this.waitTilLoaded().then(()=>{this.displayModsTable()})}isLoaded(){return 1==this.loaded.ficsit_modlist}waitTilLoaded(){return new Promise((e,s)=>{const o=setInterval(()=>{1==this.isLoaded()&&(clearInterval(o),e())},20)})}setupJqueryListeners(){$("body").on("change","#sel-add-mod-name",e=>{this.getFicsitModInfo()}).on("change","#sel-add-mod-version",e=>{-1==$(e.currentTarget).val()?this.lockInstallModBtn():this.unlockInstallModBtn()}).on("click",".btn-uninstall-mod",e=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}const s=$(e.currentTarget);this.uninstallMod(s)}).on("click",".btn-update-mod",e=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}const s=$(e.currentTarget);this.updateModToLatest(s)}),$("#btn-install-sml").click(e=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}const s=$(e.currentTarget);this.installSMLVersion(s)}),$("#btn-install-mod").click(e=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}const s=$(e.currentTarget);this.installModVersion(s)})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}displayModsTable(){const e=$.fn.dataTable.isDataTable("#mods-table");API_Proxy.get("mods","modsinstalled").then(s=>{const o=[];if("success"==s.result)for(let e=0;e<s.data.length;e++){const t=s.data[e],d=this.FicsitModList.find(e=>e.id==t.id);if(null==d)continue;const a=t.version==d.latest_version,r=$("<button/>").addClass("btn btn-secondary btn-update-mod float-right").attr("data-modid",t.id).attr("data-toggle","tooltip").attr("data-placement","bottom").attr("title","Update Mod").html("<i class='fas fa-arrow-alt-circle-up'></i>"),n=$("<button/>").addClass("btn btn-danger btn-block btn-uninstall-mod").attr("data-modid",t.id).html("<i class='fas fa-trash'></i> Uninstall"),i=t.version+" "+(0==a?r.prop("outerHTML"):"");o.push([t.name,i,n.prop("outerHTML")])}if(0==e)$("#mods-table").DataTable({paging:!0,searching:!1,info:!1,order:[[0,"asc"]],columnDefs:[{targets:2,orderable:!1}],data:o});else{const e=$("#mods-table").DataTable();e.clear(),e.rows.add(o),e.draw()}$('[data-toggle="tooltip"]').tooltip()})}getSMLInfo(){API_Proxy.get("mods","smlinfo").then(e=>{const s=$(".sml-status"),o=$(".sml-version");"success"==e.result?(this.Mods_State=e.data,"not_installed"==e.data.state?(s.text("Not Installed"),o.text("Not Installed")):(s.text("Installed"),o.text(e.data.version))):(s.text(e.error),o.text("N/A"))})}getModCount(){API_Proxy.get("mods","modsinstalled").then(e=>{const s=$("#mod-count");"success"==e.result?s.text(e.data.length):s.text(e.error)})}getFicsitSMLVersion(){API_Proxy.get("ficsitinfo","smlversions").then(e=>{const s=$("#sel-install-sml-ver"),o=$(".sml-latest-version");"success"==e.result&&(o.text(e.data[0].version),e.data.forEach(e=>{s.append("<option value='"+e.version+"'>"+e.version+"</option")}))})}getFicsitModList(){API_Proxy.get("ficsitinfo","modslist").then(e=>{const s=$("#sel-add-mod-name");"success"==e.result&&(this.FicsitModList=e.data,this.loaded.ficsit_modlist=!0,e.data.forEach(e=>{s.append("<option value='"+e.id+"'>"+e.name+"</option")}))})}getFicsitModInfo(){const e=$("#sel-add-mod-name").val();"-1"==e?this.hideNewModInfo():API_Proxy.get("ficsitinfo","modinfo",e).then(e=>{this.showNewModInfo(e.data)})}hideNewModInfo(){$("#add-mod-logo").attr("src","/public/images/ssm_logo128_outline.png"),$("#sel-add-mod-version").prop("disabled",!0),$("#sel-add-mod-version").find("option").not(":first").remove(),this.lockInstallModBtn()}showNewModInfo(e){""==e.logo?$("#add-mod-logo").attr("src","https://ficsit.app/static/assets/images/no_image.png"):$("#add-mod-logo").attr("src",e.logo);const s=$("#sel-add-mod-version");s.prop("disabled",!1),s.find("option").not(":first").remove(),console.log(e),e.versions.forEach(e=>{s.append("<option value='"+e.version+"'>"+e.version+"</option")})}installSMLVersion(e){e.prop("disabled",!0),e.find("i").removeClass("fa-download").addClass("fa-sync fa-spin"),$("input[name='radio-install-sml']").prop("disabled",!0);const s=$("input[name='radio-install-sml']:checked").val(),o=$("#sel-install-sml-ver");o.prop("disabled",!0);let t="latest";if(1==s){if(-1==o.val()){if(Tools.openModal("server-mods-error"),1==Tools.modal_opened)return;return void Tools.openModal("server-mods-error",s=>{e.prop("disabled",!1),e.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),s.find("#error-msg").text("Please select SML Version!")})}t=o.val()}const d={version:t};API_Proxy.postData("/mods/installsml",d).then(s=>{if(console.log(s),e.prop("disabled",!1),e.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),"success"==s.result){if(1==Tools.modal_opened)return;Tools.openModal("server-mods-success",e=>{e.find("#success-msg").text("SML has been installed!"),this.getSMLInfo()})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text(s.error)})}})}unlockInstallModBtn(){$("#btn-install-mod").prop("disabled",!1)}lockInstallModBtn(){$("#btn-install-mod").prop("disabled",!0)}installModVersion(e){e.prop("disabled",!0),e.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");const s=$("#sel-add-mod-name"),o=$("#sel-add-mod-version");s.prop("disabled",!0),o.prop("disabled",!0);const t={modid:s.val(),versionid:o.val()};API_Proxy.postData("/mods/installmod",t).then(t=>{if(console.log(t),e.prop("disabled",!1),e.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),s.prop("disabled",!1),o.prop("disabled",!1),"success"==t.result){if(1==Tools.modal_opened)return;Tools.openModal("server-mods-success",e=>{e.find("#success-msg").text("Mod has been installed!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-mods-error",e=>{e.find("#error-msg").text(t.error)})}})}uninstallMod(e){const s={modid:e.attr("data-modid")};API_Proxy.postData("/mods/uninstallmod",s).then(e=>{if("success"==e.result){if(1==Tools.modal_opened)return;Tools.openModal("server-mods-success",e=>{e.find("#success-msg").text("Mod has been uninstalled!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-mods-error",s=>{s.find("#error-msg").text(e.error)})}})}updateModToLatest(e){const s={modid:e.attr("data-modid")};API_Proxy.postData("/mods/updatemod",s).then(e=>{if("success"==e.result){if(1==Tools.modal_opened)return;Tools.openModal("server-mods-success",e=>{e.find("#success-msg").text("Mod has been updated to the latest version!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-mods-error",s=>{s.find("#error-msg").text(e.error)})}})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}const page=new Page_Mods;module.exports=page;
 
-class Page_Mods {
-    constructor() {
-        this.Mods_State = {};
-        this.ServerState = {};
-
-        this.FicsitModList = [];
-
-        this.loaded = {
-            ficsit_modlist: false
-        }
-    }
-
-    init() {
-        this.setupJqueryListeners();
-        this.getServerStatus();
-        this.getSMLInfo();
-        this.getModCount();
-        this.getFicsitSMLVersion();
-        this.getFicsitModList();
-
-        this.startPageInfoRefresh();
-
-        this.waitTilLoaded().then(() => {
-            this.displayModsTable();
-        })
-    }
-
-    isLoaded() {
-        if (this.loaded.ficsit_modlist == true) {
-            return true;
-        }
-        return false;
-    }
-
-    waitTilLoaded() {
-        return new Promise((resolve, reject) => {
-            const interval = setInterval(() => {
-                if (this.isLoaded() == true) {
-                    clearInterval(interval);
-                    resolve()
-                }
-            }, 20)
-        })
-    }
-
-    setupJqueryListeners() {
-        $("body").on("change", "#sel-add-mod-name", (e) => {
-            this.getFicsitModInfo();
-        }).on("change", "#sel-add-mod-version", (e) => {
-            const $self = $(e.currentTarget);
-
-            if ($self.val() == -1) {
-                this.lockInstallModBtn();
-            } else {
-                this.unlockInstallModBtn();
-            }
-        }).on("click", ".btn-uninstall-mod", e => {
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            const $self = $(e.currentTarget);
-            this.uninstallMod($self)
-        }).on("click", ".btn-update-mod", e => {
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            const $self = $(e.currentTarget);
-            this.updateModToLatest($self)
-        });
-
-        $("#btn-install-sml").click(e => {
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            const $self = $(e.currentTarget);
-            this.installSMLVersion($self);
-        })
-
-        $("#btn-install-mod").click(e => {
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            const $self = $(e.currentTarget);
-            this.installModVersion($self);
-        })
-    }
-
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
-        })
-    }
-
-    displayModsTable() {
-
-        const isDataTable = $.fn.dataTable.isDataTable("#mods-table")
-
-        API_Proxy.get("mods", "modsinstalled").then(res => {
-            const tableData = [];
-            if (res.result == "success") {
-                for (let i = 0; i < res.data.length; i++) {
-                    const mod = res.data[i];
-
-                    const ficsitMod = this.FicsitModList.find(el => el.id == mod.id);
-
-                    if (ficsitMod == null) continue;
-
-                    const latestVersion = (mod.version == ficsitMod.latest_version)
-
-                    const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
-                        .attr("data-modid", mod.id)
-                        .attr("data-toggle", "tooltip")
-                        .attr("data-placement", "bottom")
-                        .attr("title", "Update Mod")
-                        .html("<i class='fas fa-arrow-alt-circle-up'></i>")
-
-                    // Create uninstall btn
-                    const $btn_uninstall = $("<button/>")
-                        .addClass("btn btn-danger btn-block btn-uninstall-mod")
-                        .attr("data-modid", mod.id)
-                        .html("<i class='fas fa-trash'></i> Uninstall");
-
-                    const versionStr = mod.version + " " + ((latestVersion == false) ? $btn_update.prop("outerHTML") : "")
-                    tableData.push([
-                        mod.name,
-                        versionStr,
-                        $btn_uninstall.prop('outerHTML')
-                    ])
-                }
-            }
-
-            if (isDataTable == false) {
-                $("#mods-table").DataTable({
-                    paging: true,
-                    searching: false,
-                    info: false,
-                    order: [
-                        [0, "asc"]
-                    ],
-                    columnDefs: [{
-                        "targets": 2,
-                        "orderable": false
-                    }],
-                    data: tableData
-                })
-            } else {
-                const datatable = $("#mods-table").DataTable();
-                datatable.clear();
-                datatable.rows.add(tableData);
-                datatable.draw();
-            }
-
-            $('[data-toggle="tooltip"]').tooltip()
-        })
-    }
-
-    getSMLInfo() {
-        API_Proxy.get("mods", "smlinfo").then(res => {
-            const el = $(".sml-status");
-            const el2 = $(".sml-version");
-            if (res.result == "success") {
-                this.Mods_State = res.data;
-                if (res.data.state == "not_installed") {
-                    el.text("Not Installed")
-                    el2.text("Not Installed")
-                } else {
-                    el.text("Installed")
-                    el2.text(res.data.version)
-                }
-            } else {
-                el.text(res.error)
-                el2.text("N/A")
-            }
-        });
-    }
-
-    getModCount() {
-        API_Proxy.get("mods", "modsinstalled").then(res => {
-            const el = $("#mod-count");
-            if (res.result == "success") {
-                el.text(res.data.length)
-            } else {
-                el.text(res.error)
-            }
-        })
-    }
-
-    getFicsitSMLVersion() {
-        API_Proxy.get("ficsitinfo", "smlversions").then(res => {
-            const el1 = $("#sel-install-sml-ver");
-            const el2 = $(".sml-latest-version");
-            if (res.result == "success") {
-                el2.text(res.data[0].version);
-                res.data.forEach(sml => {
-                    el1.append("<option value='" + sml.version + "'>" + sml.version + "</option");
-                })
-            }
-        });
-    }
-
-    getFicsitModList() {
-        API_Proxy.get("ficsitinfo", "modslist").then(res => {
-            const el = $("#sel-add-mod-name");
-            if (res.result == "success") {
-                this.FicsitModList = res.data;
-                this.loaded.ficsit_modlist = true;
-                res.data.forEach(mod => {
-                    el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
-                })
-            }
-        });
-    }
-
-    getFicsitModInfo() {
-        const modid = $("#sel-add-mod-name").val();
-
-        if (modid == "-1") {
-            this.hideNewModInfo();
-        } else {
-            API_Proxy.get("ficsitinfo", "modinfo", modid).then(res => {
-                this.showNewModInfo(res.data);
-            });
-        }
-    }
-
-    hideNewModInfo() {
-        $("#add-mod-logo").attr("src", "/public/images/ssm_logo128_outline.png");
-        $("#sel-add-mod-version").prop("disabled", true);
-        $("#sel-add-mod-version").find('option').not(':first').remove();
-        this.lockInstallModBtn()
-    }
-
-    showNewModInfo(data) {
-
-        if (data.logo == "") {
-            $("#add-mod-logo").attr("src", "https://ficsit.app/static/assets/images/no_image.png");
-        } else {
-            $("#add-mod-logo").attr("src", data.logo);
-        }
-
-        const sel_el = $("#sel-add-mod-version");
-        sel_el.prop("disabled", false);
-        sel_el.find('option').not(':first').remove();
-        console.log(data);
-        data.versions.forEach(mod_version => {
-            sel_el.append("<option value='" + mod_version.version + "'>" + mod_version.version + "</option");
-        })
-    }
-
-    installSMLVersion($btn) {
-        $btn.prop("disabled", true);
-        $btn.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");
-        $("input[name='radio-install-sml']").prop("disabled", true);
-
-        const radioVal = $("input[name='radio-install-sml']:checked").val();
-        const $selEl = $("#sel-install-sml-ver");
-        $selEl.prop("disabled", true);
-
-        let version = "latest";
-
-        if (radioVal == 1) {
-            if ($selEl.val() == -1) {
-                Tools.openModal("server-mods-error")
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    $btn.prop("disabled", false);
-                    $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
-                    $selEl.prop("disabled", false);
-                    $("input[name='radio-install-sml']").prop("disabled", false);
-
-                    modal_el.find("#error-msg").text("Please select SML Version!")
-                });
-                return;
-            } else {
-                version = $selEl.val()
-            }
-        }
-
-        const postData = {
-            version
-        }
-
-        API_Proxy.postData("/mods/installsml", postData).then(res => {
-            console.log(res);
-
-            $btn.prop("disabled", false);
-            $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
-            $selEl.prop("disabled", false);
-            $("input[name='radio-install-sml']").prop("disabled", false);
-
-            if (res.result == "success") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("SML has been installed!")
-                    this.getSMLInfo();
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-
-        })
-    }
-
-    unlockInstallModBtn() {
-        $("#btn-install-mod").prop("disabled", false);
-    }
-
-    lockInstallModBtn() {
-        $("#btn-install-mod").prop("disabled", true);
-    }
-
-    installModVersion($btn) {
-        $btn.prop("disabled", true);
-        $btn.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");
-
-        const $selModEl = $("#sel-add-mod-name");
-        const $selVersionEl = $("#sel-add-mod-version");
-
-        $selModEl.prop("disabled", true);
-        $selVersionEl.prop("disabled", true);
-
-        const postData = {
-            modid: $selModEl.val(),
-            versionid: $selVersionEl.val()
-        }
-
-        API_Proxy.postData("/mods/installmod", postData).then(res => {
-            console.log(res);
-
-            $btn.prop("disabled", false);
-            $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
-            $selModEl.prop("disabled", false);
-            $selVersionEl.prop("disabled", false);
-
-            if (res.result == "success") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Mod has been installed!")
-                    this.displayModsTable();
-                    this.getModCount();
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-
-        });
-    }
-
-    uninstallMod($btn) {
-        const modid = $btn.attr("data-modid");
-
-        const postData = {
-            modid: modid
-        }
-
-        API_Proxy.postData("/mods/uninstallmod", postData).then(res => {
-            if (res.result == "success") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Mod has been uninstalled!")
-                    this.displayModsTable();
-                    this.getModCount();
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        })
-    }
-
-    updateModToLatest($btn) {
-        const modid = $btn.attr("data-modid");
-
-        const postData = {
-            modid: modid
-        }
-
-        API_Proxy.postData("/mods/updatemod", postData).then(res => {
-            if (res.result == "success") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Mod has been updated to the latest version!")
-                    this.displayModsTable();
-                    this.getModCount();
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        })
-    }
-
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
-    }
-}
-
-const page = new Page_Mods();
-
-module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],12:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("body").on("click",".select-save-btn",e=>{const s=$(e.currentTarget).attr("data-save");if("stopped"==this.ServerState.status)this.selectSave(s);else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#new-session-name").click(e=>{e.preventDefault(),Tools.openModal("server-session-new",e=>{e.find("#confirm-action").attr("data-action","new-session")})}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{"new-session"==$(e.currentTarget).attr("data-action")&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.displaySaveTable()}displaySaveTable(){const e=$.fn.dataTable.isDataTable("#saves-table"),s=this.Config.satisfactory;""==s.save.file?$("#current-save").text("No Save File Selected, Server will create a new world on start up."):$("#current-save").text(s.save.file),API_Proxy.get("info","saves").then(t=>{$("#refresh-saves").prop("disabled",!1),$("#refresh-saves").find("i").removeClass("fa-spin");const a=[];if("success"==t.result&&t.data.forEach(e=>{if("failed"==e.result)return;let t=$("<button/>").addClass("btn btn-primary btn-block select-save-btn").text("Select Save").attr("data-save",e.savename);e.savename==s.save.file&&t.prop("disabled",!0).text("Active Save");const r=t.prop("outerHTML"),o=e.savebody.split("?")[2].split("=")[1];a.push([o.trunc(25),e.savename.trunc(40),saveDate(e.last_modified),r])}),0==e)$("#saves-table").DataTable({paging:!0,searching:!1,info:!1,order:[[2,"desc"]],columnDefs:[{type:"date-euro",targets:2}],data:a});else{const e=$("#saves-table").DataTable();e.clear(),e.rows.add(a),e.draw()}})}selectSave(e){const s={savename:e};API_Proxy.postData("/config/selectsave",s).then(e=>{if("success"==e.result){if(this.getConfig(),1==Tools.modal_opened)return;Tools.openModal("server-settings-success",e=>{e.find("#success-msg").text("Settings have been saved!")})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}serverAction_NewSession(e){const s={sessionName:e};API_Proxy.postData("/config/newsession",s).then(e=>{if("success"==e.result){if(this.getConfig(),1==Tools.modal_opened)return;Tools.openModal("server-settings-success",e=>{e.find("#success-msg").text("Settings have been saved!")})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
 
-class Page_Settings {
-    constructor() {
-        this.Config = {};
-        this.ServerState = {};
-    }
-
-    init() {
-        this.setupJqueryListeners();
-        this.getConfig();
-        this.getServerStatus();
-
-        this.startPageInfoRefresh();
-    }
-
-    setupJqueryListeners() {
-        $("#refresh-saves").click(e => {
-            e.preventDefault();
-
-            const $self = $(e.currentTarget);
-
-            $self.prop("disabled", true);
-            $self.find("i").addClass("fa-spin");
-
-            this.displaySaveTable();
-        })
-
-        $("body").on("click", ".select-save-btn", (e) => {
-            const $self = $(e.currentTarget);
-            const savename = $self.attr("data-save");
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.selectSave(savename);
-        })
-
-        $("#new-session-name").click(e => {
-            e.preventDefault();
-            Tools.openModal("server-session-new", (modal_el) => {
-                modal_el.find("#confirm-action").attr("data-action", "new-session")
-            });
-        })
-
-        $("body").on("click", "#cancel-action", (e) => {
-            $("#server-session-new .close").trigger("click");
-            Tools.modal_opened = false;
-        })
-
-        $("body").on("click", "#confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            const action = $btnel.attr("data-action");
-            if (action == "new-session") {
-                this.serverAction_NewSession($("#inp_new_session_name").val());
-
-                $("#server-session-new .close").trigger("click");
-                Tools.modal_opened = false;
-            }
-        })
-    }
-
-    getConfig() {
-        API_Proxy.get("config").then(res => {
-            if (res.result == "success") {
-                this.Config = res.data;
-                this.MainDisplayFunction();
-            }
-        });
-    }
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
-        })
-    }
-
-    MainDisplayFunction() {
-        this.displaySaveTable();
-    }
-
-    displaySaveTable() {
-
-        const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
-        const sfConfig = this.Config.satisfactory;
-
-        if (sfConfig.save.file == "") {
-            $("#current-save").text("No Save File Selected, Server will create a new world on start up.")
-        } else {
-            $("#current-save").text(sfConfig.save.file)
-        }
-
-        API_Proxy.get("info", "saves").then(res => {
-            $("#refresh-saves").prop("disabled", false);
-            $("#refresh-saves").find("i").removeClass("fa-spin");
-
-            const tableData = [];
-            if (res.result == "success") {
-
-                res.data.forEach(save => {
-                    if (save.result == "failed") return;
-
-                    let useSaveEl = $("<button/>")
-                        .addClass("btn btn-primary btn-block select-save-btn")
-                        .text("Select Save")
-                        .attr("data-save", save.savename);
-
-                    if (save.savename == sfConfig.save.file) {
-                        useSaveEl.prop("disabled", true).text("Active Save");
-                    }
-                    const useSaveStr = useSaveEl.prop('outerHTML')
-
-                    const saveOptions = save.savebody.split("?");
-                    const saveSessionName = saveOptions[2].split("=")[1];
-
-                    tableData.push([
-                        saveSessionName.trunc(25),
-                        save.savename.trunc(40),
-                        saveDate(save.last_modified),
-                        useSaveStr
-                    ])
-                })
-
-            }
-
-            if (isDataTable == false) {
-                $("#saves-table").DataTable({
-                    paging: true,
-                    searching: false,
-                    info: false,
-                    order: [
-                        [2, "desc"]
-                    ],
-                    columnDefs: [{
-                        type: 'date-euro',
-                        targets: 2
-                    }],
-                    data: tableData
-                })
-            } else {
-                const datatable = $("#saves-table").DataTable();
-                datatable.clear();
-                datatable.rows.add(tableData);
-                datatable.draw();
-            }
-        })
-    }
-
-    selectSave(savename) {
-        const postData = {
-            savename
-        }
-
-        API_Proxy.postData("/config/selectsave", postData).then(res => {
-
-            if (res.result == "success") {
-                this.getConfig();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    serverAction_NewSession(sessionName) {
-        const postData = {
-            sessionName
-        }
-
-        API_Proxy.postData("/config/newsession", postData).then(res => {
-            if (res.result == "success") {
-                this.getConfig();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
-    }
-}
-
-function saveDate(dateStr) {
-    const date = new Date(dateStr)
-    const day = date.getDate().pad(2);
-    const month = (date.getMonth() + 1).pad(2);
-    const year = date.getFullYear();
-
-    const hour = date.getHours().pad(2);
-    const min = date.getMinutes().pad(2);
-    const sec = date.getSeconds().pad(2);
-
-    return day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-}
-
-const page = new Page_Settings();
-
-module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],13:[function(require,module,exports){
-const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("#show-sf-password").click(e=>{const s=$(e.currentTarget);s.hasClass("fa-eye")?($("#inp_sf_password").attr("type","text"),s.attr("data-original-title","Hide Password"),s.removeClass("fa-eye").addClass("fa-eye-slash")):($("#inp_sf_password").attr("type","password"),s.attr("data-original-title","Show Password"),s.removeClass("fa-eye-slash").addClass("fa-eye"))}),$("#edit-ssm-settings").click(e=>{if(e.preventDefault(),"stopped"==this.ServerState.status)this.unlockSSMSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#save-ssm-settings").click(e=>{e.preventDefault(),this.submitSSMSettings()}),$("#cancel-ssm-settings").click(e=>{e.preventDefault(),this.lockSSMSettings(),this.getConfig()}),$("#edit-sf-settings").click(e=>{if(e.preventDefault(),"stopped"==this.ServerState.status)this.unlockSFSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#save-sf-settings").click(e=>{e.preventDefault(),this.submitSFSettings()}),$("#cancel-sf-settings").click(e=>{e.preventDefault(),this.lockSFSettings(),this.getConfig()}),$("#edit-mods-settings").click(e=>{if(e.preventDefault(),"stopped"==this.ServerState.status)this.unlockModsSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#cancel-mods-settings").click(e=>{e.preventDefault(),this.lockModsSettings(),this.getConfig()}),$("#save-mods-settings").click(e=>{e.preventDefault(),this.submitModsSettings()}),$("body").on("click",".select-save-btn",e=>{const s=$(e.currentTarget).attr("data-save");if("stopped"==this.ServerState.status)this.selectSave(s);else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#new-session-name").click(e=>{e.preventDefault(),Tools.openModal("server-session-new",e=>{e.find("#confirm-action").attr("data-action","new-session")})}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{const s=$(e.currentTarget).attr("data-action");"stop"==s||"kill"==s?($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(s)):"new-session"==s&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.populateSSMSettings(),this.populateSFSettings(),this.populateModsSettings()}populateSSMSettings(){const e=this.Config.satisfactory;$("#inp_sf_testmode").bootstrapToggle("enable"),1==e.testmode?$("#inp_sf_testmode").bootstrapToggle("on"):$("#inp_sf_testmode").bootstrapToggle("off"),$("#inp_sf_testmode").bootstrapToggle("disable"),$("#inp_sf_serverloc").val(e.server_location),$("#inp_sf_saveloc").val(e.save.location)}populateSFSettings(){const e=this.Config.sf_server;$("#inp_sf_maxplayers").val(e["/Script/Engine"].GameSession.MaxPlayers)}populateModsSettings(){const e=this.Config.mods;$("#inp_mods_enabled").bootstrapToggle("enable"),1==e.enabled?$("#inp_mods_enabled").bootstrapToggle("on"):$("#inp_mods_enabled").bootstrapToggle("off"),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("enable"),1==e.autoupdate?$("#inp_mods_autoupdate").bootstrapToggle("on"):$("#inp_mods_autoupdate").bootstrapToggle("off"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}unlockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!0),$("#save-ssm-settings").prop("disabled",!1),$("#cancel-ssm-settings").prop("disabled",!1),$("#inp_sf_testmode").bootstrapToggle("enable"),$("#inp_sf_serverloc").prop("disabled",!1),$("#inp_sf_saveloc").prop("disabled",!1)}lockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!1),$("#save-ssm-settings").prop("disabled",!0),$("#cancel-ssm-settings").prop("disabled",!0),$("#inp_sf_testmode").bootstrapToggle("disable"),$("#inp_sf_serverloc").prop("disabled",!0),$("#inp_sf_saveloc").prop("disabled",!0)}unlockSFSettings(){$("#edit-sf-settings").prop("disabled",!0),$("#save-sf-settings").prop("disabled",!1),$("#cancel-sf-settings").prop("disabled",!1),$("#inp_sf_password").prop("disabled",!1),$("#inp_sf_maxplayers").prop("disabled",!1)}lockSFSettings(){$("#edit-sf-settings").prop("disabled",!1),$("#save-sf-settings").prop("disabled",!0),$("#cancel-sf-settings").prop("disabled",!0),$("#inp_sf_password").prop("disabled",!0),$("#inp_sf_maxplayers").prop("disabled",!0)}unlockModsSettings(){$("#edit-mods-settings").prop("disabled",!0),$("#save-mods-settings").prop("disabled",!1),$("#cancel-mods-settings").prop("disabled",!1),$("#inp_mods_enabled").bootstrapToggle("enable"),$("#inp_mods_autoupdate").bootstrapToggle("enable")}lockModsSettings(){$("#edit-mods-settings").prop("disabled",!1),$("#save-mods-settings").prop("disabled",!0),$("#cancel-mods-settings").prop("disabled",!0),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}submitSFSettings(){const e={server_password:$("#inp_sf_password").val(),server_maxPlayers:$("#inp_sf_maxplayers").val()};API_Proxy.postData("/config/sfsettings",e).then(e=>{if("success"==e.result){if(this.lockSFSettings(),1==Tools.modal_opened)return;Tools.openModal("server-settings-success",e=>{e.find("#success-msg").text("Settings have been saved!")})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}submitSSMSettings(){const e={testmode:$("#inp_sf_testmode").is(":checked"),server_location:$("#inp_sf_serverloc").val(),save_location:$("#inp_sf_saveloc").val()};API_Proxy.postData("/config/ssmsettings",e).then(e=>{if("success"==e.result){if(this.lockSSMSettings(),1==Tools.modal_opened)return;Tools.openModal("server-settings-success",e=>{e.find("#success-msg").text("Settings have been saved!")})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}submitModsSettings(){const e={enabled:$("#inp_mods_enabled").is(":checked"),autoupdate:$("#inp_mods_autoupdate").is(":checked")};API_Proxy.postData("/config/modssettings",e).then(e=>{if("success"==e.result){if(this.lockModsSettings(),1==Tools.modal_opened)return;Tools.openModal("server-settings-success",e=>{e.find("#success-msg").text("Settings have been saved!")})}else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
 
-class Page_Settings {
-    constructor() {
-        this.Config = {};
-        this.ServerState = {};
-    }
-
-    init() {
-        this.setupJqueryListeners();
-        this.getConfig();
-        this.getServerStatus();
-
-        this.startPageInfoRefresh();
-    }
-
-    setupJqueryListeners() {
-        $("#refresh-saves").click(e => {
-            e.preventDefault();
-
-            const $self = $(e.currentTarget);
-
-            $self.prop("disabled", true);
-            $self.find("i").addClass("fa-spin");
-
-            this.displaySaveTable();
-        });
-
-        $("#show-sf-password").click(e => {
-            const $this = $(e.currentTarget);
-            if ($this.hasClass("fa-eye")) {
-                $("#inp_sf_password").attr("type", "text")
-                $this.attr("data-original-title", "Hide Password")
-                $this.removeClass("fa-eye").addClass("fa-eye-slash")
-            } else {
-                $("#inp_sf_password").attr("type", "password")
-                $this.attr("data-original-title", "Show Password")
-                $this.removeClass("fa-eye-slash").addClass("fa-eye");
-            }
-        })
-
-        $("#edit-ssm-settings").click(e => {
-            e.preventDefault();
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockSSMSettings();
-        })
-
-        $("#save-ssm-settings").click(e => {
-            e.preventDefault();
-            this.submitSSMSettings();
-        })
-
-        $("#cancel-ssm-settings").click(e => {
-            e.preventDefault();
-            this.lockSSMSettings();
-            this.getConfig();
-        })
-
-        $("#edit-sf-settings").click(e => {
-            e.preventDefault();
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockSFSettings();
-        })
-
-        $("#save-sf-settings").click(e => {
-            e.preventDefault();
-            this.submitSFSettings();
-        })
-
-        $("#cancel-sf-settings").click(e => {
-            e.preventDefault();
-            this.lockSFSettings();
-            this.getConfig();
-        })
-
-        $("#edit-mods-settings").click(e => {
-            e.preventDefault();
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockModsSettings();
-        })
-
-        $("#cancel-mods-settings").click(e => {
-            e.preventDefault();
-            this.lockModsSettings();
-            this.getConfig();
-        })
-
-        $("#save-mods-settings").click(e => {
-            e.preventDefault();
-            this.submitModsSettings();
-        })
-
-        $("body").on("click", ".select-save-btn", (e) => {
-            const $self = $(e.currentTarget);
-            const savename = $self.attr("data-save");
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.selectSave(savename);
-        })
-
-        $("#new-session-name").click(e => {
-            e.preventDefault();
-            Tools.openModal("server-session-new", (modal_el) => {
-                modal_el.find("#confirm-action").attr("data-action", "new-session")
-            });
-        })
-
-        $("body").on("click", "#cancel-action", (e) => {
-            $("#server-session-new .close").trigger("click");
-            Tools.modal_opened = false;
-        })
-
-        $("body").on("click", "#confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            const action = $btnel.attr("data-action");
-
-            if (action == "stop" || action == "kill") {
-                $("#server-action-confirm .close").trigger("click");
-                Tools.modal_opened = false;
-                this.serverAction_Stop(action);
-            } else if (action == "new-session") {
-                this.serverAction_NewSession($("#inp_new_session_name").val());
-
-                $("#server-session-new .close").trigger("click");
-                Tools.modal_opened = false;
-            }
-        })
-    }
-
-    getConfig() {
-        API_Proxy.get("config").then(res => {
-            if (res.result == "success") {
-                this.Config = res.data;
-                this.MainDisplayFunction();
-            }
-        });
-    }
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
-        })
-    }
-
-    MainDisplayFunction() {
-        this.populateSSMSettings();
-        this.populateSFSettings();
-        this.populateModsSettings();
-    }
-
-    populateSSMSettings() {
-        const ssmConfig = this.Config.satisfactory;
-        $('#inp_sf_testmode').bootstrapToggle('enable')
-        if (ssmConfig.testmode == true) {
-            $('#inp_sf_testmode').bootstrapToggle('on')
-        } else {
-            $('#inp_sf_testmode').bootstrapToggle('off')
-        }
-        $('#inp_sf_testmode').bootstrapToggle('disable')
-
-        $("#inp_sf_serverloc").val(ssmConfig.server_location)
-        $("#inp_sf_saveloc").val(ssmConfig.save.location)
-
-    }
-
-    populateSFSettings() {
-
-        // TODO: Work out settings SF server will use..
-
-        const sfConfig = this.Config.sf_server;
-        $("#inp_sf_maxplayers").val(sfConfig["/Script/Engine"].GameSession.MaxPlayers)
-
-        return;
-
-        $("#inp_sf_password").val(sfConfig.password)
-
-    }
-
-    populateModsSettings() {
-        const modsConfig = this.Config.mods;
-        $('#inp_mods_enabled').bootstrapToggle('enable')
-        if (modsConfig.enabled == true) {
-            $('#inp_mods_enabled').bootstrapToggle('on')
-        } else {
-            $('#inp_mods_enabled').bootstrapToggle('off')
-        }
-        $('#inp_mods_enabled').bootstrapToggle('disable')
-
-        $('#inp_mods_autoupdate').bootstrapToggle('enable')
-        if (modsConfig.autoupdate == true) {
-            $('#inp_mods_autoupdate').bootstrapToggle('on')
-        } else {
-            $('#inp_mods_autoupdate').bootstrapToggle('off')
-        }
-        $('#inp_mods_autoupdate').bootstrapToggle('disable')
-
-    }
-
-    unlockSSMSettings() {
-
-        $("#edit-ssm-settings").prop("disabled", true);
-
-        $("#save-ssm-settings").prop("disabled", false);
-        $("#cancel-ssm-settings").prop("disabled", false);
-        $('#inp_sf_testmode').bootstrapToggle('enable');
-        $("#inp_sf_serverloc").prop("disabled", false);
-        $("#inp_sf_saveloc").prop("disabled", false);
-    }
-
-    lockSSMSettings() {
-        $("#edit-ssm-settings").prop("disabled", false);
-
-        $("#save-ssm-settings").prop("disabled", true);
-        $("#cancel-ssm-settings").prop("disabled", true);
-        $('#inp_sf_testmode').bootstrapToggle('disable');
-        $("#inp_sf_serverloc").prop("disabled", true);
-        $("#inp_sf_saveloc").prop("disabled", true);
-    }
-
-    unlockSFSettings() {
-
-        $("#edit-sf-settings").prop("disabled", true);
-
-        $("#save-sf-settings").prop("disabled", false);
-        $("#cancel-sf-settings").prop("disabled", false);
-        $("#inp_sf_password").prop("disabled", false);
-        $("#inp_sf_maxplayers").prop("disabled", false);
-    }
-
-    lockSFSettings() {
-        $("#edit-sf-settings").prop("disabled", false);
-
-        $("#save-sf-settings").prop("disabled", true);
-        $("#cancel-sf-settings").prop("disabled", true);
-        $("#inp_sf_password").prop("disabled", true);
-        $("#inp_sf_maxplayers").prop("disabled", true);
-    }
-
-    unlockModsSettings() {
-
-        $("#edit-mods-settings").prop("disabled", true);
-
-        $("#save-mods-settings").prop("disabled", false);
-        $("#cancel-mods-settings").prop("disabled", false);
-        $('#inp_mods_enabled').bootstrapToggle('enable');
-        $('#inp_mods_autoupdate').bootstrapToggle('enable')
-    }
-
-    lockModsSettings() {
-        $("#edit-mods-settings").prop("disabled", false);
-
-        $("#save-mods-settings").prop("disabled", true);
-        $("#cancel-mods-settings").prop("disabled", true);
-        $('#inp_mods_enabled').bootstrapToggle('disable');
-        $('#inp_mods_autoupdate').bootstrapToggle('disable')
-    }
-
-    submitSFSettings() {
-        const server_password = $("#inp_sf_password").val();
-        const server_maxPlayers = $("#inp_sf_maxplayers").val();
-        const postData = {
-            server_password,
-            server_maxPlayers
-        }
-
-        API_Proxy.postData("/config/sfsettings", postData).then(res => {
-
-            if (res.result == "success") {
-                this.lockSFSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    submitSSMSettings() {
-        const testmode = $('#inp_sf_testmode').is(":checked")
-        const server_location = $("#inp_sf_serverloc").val();
-        const save_location = $("#inp_sf_saveloc").val();
-        const postData = {
-            testmode,
-            server_location,
-            save_location
-        }
-
-        API_Proxy.postData("/config/ssmsettings", postData).then(res => {
-
-            if (res.result == "success") {
-                this.lockSSMSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    submitModsSettings() {
-        const enabled = $('#inp_mods_enabled').is(":checked")
-        const autoupdate = $('#inp_mods_autoupdate').is(":checked")
-        const postData = {
-            enabled,
-            autoupdate
-        }
-
-        API_Proxy.postData("/config/modssettings", postData).then(res => {
-            if (res.result == "success") {
-                this.lockModsSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
-    }
-}
-
-function saveDate(dateStr) {
-    const date = new Date(dateStr)
-    const day = date.getDate().pad(2);
-    const month = (date.getMonth() + 1).pad(2);
-    const year = date.getFullYear();
-
-    const hour = date.getHours().pad(2);
-    const min = date.getMinutes().pad(2);
-    const sec = date.getSeconds().pad(2);
-
-    return day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
-}
-
-const page = new Page_Settings();
-
-module.exports = page;
 },{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],14:[function(require,module,exports){
 (function (global){
 'use strict';
+
+var objectAssign = require('object-assign');
 
 // compare and isBuffer taken from https://github.com/feross/buffer/blob/680e9e5e488f22aac27599a57dc844a6315928dd/index.js
 // original notice:
@@ -2398,6 +607,8 @@ function isBuffer(b) {
 }
 
 // based on node assert, original notice:
+// NB: The URL to the CommonJS spec is kept just for tradition.
+//     node-assert has evolved a lot since then, both in API and behavior.
 
 // http://wiki.commonjs.org/wiki/Unit_Testing/1.0
 //
@@ -2838,6 +1049,18 @@ assert.doesNotThrow = function(block, /*optional*/error, /*optional*/message) {
 
 assert.ifError = function(err) { if (err) throw err; };
 
+// Expose a strict only variant of assert
+function strict(value, message) {
+  if (!value) fail(value, true, message, '==', strict);
+}
+assert.strict = objectAssign(strict, assert, {
+  equal: assert.strictEqual,
+  deepEqual: assert.deepStrictEqual,
+  notEqual: assert.notStrictEqual,
+  notDeepEqual: assert.notDeepStrictEqual
+});
+assert.strict.strict = assert.strict;
+
 var objectKeys = Object.keys || function (obj) {
   var keys = [];
   for (var key in obj) {
@@ -2847,7 +1070,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"util/":17}],15:[function(require,module,exports){
+},{"object-assign":29,"util/":17}],15:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -3469,7 +1692,7 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":16,"_process":41,"inherits":15}],18:[function(require,module,exports){
+},{"./support/isBuffer":16,"_process":42,"inherits":15}],18:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -3537,7 +1760,8 @@ function toByteArray (b64) {
     ? validLen - 4
     : validLen
 
-  for (var i = 0; i < len; i += 4) {
+  var i
+  for (i = 0; i < len; i += 4) {
     tmp =
       (revLookup[b64.charCodeAt(i)] << 18) |
       (revLookup[b64.charCodeAt(i + 1)] << 12) |
@@ -4036,7 +2260,7 @@ Zlib.prototype._reset = function () {
 
 exports.Zlib = Zlib;
 }).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":41,"assert":14,"buffer":22,"pako/lib/zlib/constants":31,"pako/lib/zlib/deflate.js":33,"pako/lib/zlib/inflate.js":35,"pako/lib/zlib/zstream":39}],21:[function(require,module,exports){
+},{"_process":42,"assert":14,"buffer":22,"pako/lib/zlib/constants":32,"pako/lib/zlib/deflate.js":34,"pako/lib/zlib/inflate.js":36,"pako/lib/zlib/zstream":40}],21:[function(require,module,exports){
 (function (process){
 'use strict';
 
@@ -4648,7 +2872,8 @@ util.inherits(DeflateRaw, Zlib);
 util.inherits(InflateRaw, Zlib);
 util.inherits(Unzip, Zlib);
 }).call(this,require('_process'))
-},{"./binding":20,"_process":41,"assert":14,"buffer":22,"stream":57,"util":61}],22:[function(require,module,exports){
+},{"./binding":20,"_process":42,"assert":14,"buffer":22,"stream":58,"util":63}],22:[function(require,module,exports){
+(function (Buffer){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -4661,6 +2886,10 @@ util.inherits(Unzip, Zlib);
 
 var base64 = require('base64-js')
 var ieee754 = require('ieee754')
+var customInspectSymbol =
+  (typeof Symbol === 'function' && typeof Symbol.for === 'function')
+    ? Symbol.for('nodejs.util.inspect.custom')
+    : null
 
 exports.Buffer = Buffer
 exports.SlowBuffer = SlowBuffer
@@ -4697,7 +2926,9 @@ function typedArraySupport () {
   // Can typed array instances can be augmented?
   try {
     var arr = new Uint8Array(1)
-    arr.__proto__ = { __proto__: Uint8Array.prototype, foo: function () { return 42 } }
+    var proto = { foo: function () { return 42 } }
+    Object.setPrototypeOf(proto, Uint8Array.prototype)
+    Object.setPrototypeOf(arr, proto)
     return arr.foo() === 42
   } catch (e) {
     return false
@@ -4726,7 +2957,7 @@ function createBuffer (length) {
   }
   // Return an augmented `Uint8Array` instance
   var buf = new Uint8Array(length)
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
   return buf
 }
 
@@ -4776,7 +3007,7 @@ function from (value, encodingOrOffset, length) {
   }
 
   if (value == null) {
-    throw TypeError(
+    throw new TypeError(
       'The first argument must be one of type string, Buffer, ArrayBuffer, Array, ' +
       'or Array-like Object. Received type ' + (typeof value)
     )
@@ -4784,6 +3015,12 @@ function from (value, encodingOrOffset, length) {
 
   if (isInstance(value, ArrayBuffer) ||
       (value && isInstance(value.buffer, ArrayBuffer))) {
+    return fromArrayBuffer(value, encodingOrOffset, length)
+  }
+
+  if (typeof SharedArrayBuffer !== 'undefined' &&
+      (isInstance(value, SharedArrayBuffer) ||
+      (value && isInstance(value.buffer, SharedArrayBuffer)))) {
     return fromArrayBuffer(value, encodingOrOffset, length)
   }
 
@@ -4828,8 +3065,8 @@ Buffer.from = function (value, encodingOrOffset, length) {
 
 // Note: Change prototype *after* Buffer.from is defined to workaround Chrome bug:
 // https://github.com/feross/buffer/pull/148
-Buffer.prototype.__proto__ = Uint8Array.prototype
-Buffer.__proto__ = Uint8Array
+Object.setPrototypeOf(Buffer.prototype, Uint8Array.prototype)
+Object.setPrototypeOf(Buffer, Uint8Array)
 
 function assertSize (size) {
   if (typeof size !== 'number') {
@@ -4933,7 +3170,8 @@ function fromArrayBuffer (array, byteOffset, length) {
   }
 
   // Return an augmented `Uint8Array` instance
-  buf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(buf, Buffer.prototype)
+
   return buf
 }
 
@@ -5255,6 +3493,9 @@ Buffer.prototype.inspect = function inspect () {
   if (this.length > max) str += ' ... '
   return '<Buffer ' + str + '>'
 }
+if (customInspectSymbol) {
+  Buffer.prototype[customInspectSymbol] = Buffer.prototype.inspect
+}
 
 Buffer.prototype.compare = function compare (target, start, end, thisStart, thisEnd) {
   if (isInstance(target, Uint8Array)) {
@@ -5380,7 +3621,7 @@ function bidirectionalIndexOf (buffer, val, byteOffset, encoding, dir) {
         return Uint8Array.prototype.lastIndexOf.call(buffer, val, byteOffset)
       }
     }
-    return arrayIndexOf(buffer, [ val ], byteOffset, encoding, dir)
+    return arrayIndexOf(buffer, [val], byteOffset, encoding, dir)
   }
 
   throw new TypeError('val must be string, number or Buffer')
@@ -5709,7 +3950,7 @@ function hexSlice (buf, start, end) {
 
   var out = ''
   for (var i = start; i < end; ++i) {
-    out += toHex(buf[i])
+    out += hexSliceLookupTable[buf[i]]
   }
   return out
 }
@@ -5746,7 +3987,8 @@ Buffer.prototype.slice = function slice (start, end) {
 
   var newBuf = this.subarray(start, end)
   // Return an augmented `Uint8Array` instance
-  newBuf.__proto__ = Buffer.prototype
+  Object.setPrototypeOf(newBuf, Buffer.prototype)
+
   return newBuf
 }
 
@@ -6235,6 +4477,8 @@ Buffer.prototype.fill = function fill (val, start, end, encoding) {
     }
   } else if (typeof val === 'number') {
     val = val & 255
+  } else if (typeof val === 'boolean') {
+    val = Number(val)
   }
 
   // Invalid ranges are not set to a default, so can range check early.
@@ -6290,11 +4534,6 @@ function base64clean (str) {
     str = str + '='
   }
   return str
-}
-
-function toHex (n) {
-  if (n < 16) return '0' + n.toString(16)
-  return n.toString(16)
 }
 
 function utf8ToBytes (string, units) {
@@ -6427,7 +4666,22 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":18,"ieee754":25}],23:[function(require,module,exports){
+// Create lookup table for `toString('hex')`
+// See: https://github.com/feross/buffer/issues/219
+var hexSliceLookupTable = (function () {
+  var alphabet = '0123456789abcdef'
+  var table = new Array(256)
+  for (var i = 0; i < 16; ++i) {
+    var i16 = i * 16
+    for (var j = 0; j < 16; ++j) {
+      table[i16 + j] = alphabet[i] + alphabet[j]
+    }
+  }
+  return table
+})()
+
+}).call(this,require("buffer").Buffer)
+},{"base64-js":18,"buffer":22,"ieee754":25}],23:[function(require,module,exports){
 (function (Buffer){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -7150,8 +5404,35 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
 }
 
 },{}],26:[function(require,module,exports){
-arguments[4][15][0].apply(exports,arguments)
-},{"dup":15}],27:[function(require,module,exports){
+if (typeof Object.create === 'function') {
+  // implementation from standard node.js 'util' module
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      ctor.prototype = Object.create(superCtor.prototype, {
+        constructor: {
+          value: ctor,
+          enumerable: false,
+          writable: true,
+          configurable: true
+        }
+      })
+    }
+  };
+} else {
+  // old school shim for old browsers
+  module.exports = function inherits(ctor, superCtor) {
+    if (superCtor) {
+      ctor.super_ = superCtor
+      var TempCtor = function () {}
+      TempCtor.prototype = superCtor.prototype
+      ctor.prototype = new TempCtor()
+      ctor.prototype.constructor = ctor
+    }
+  }
+}
+
+},{}],27:[function(require,module,exports){
 /*!
  * Determine if an object is a Buffer
  *
@@ -7182,6 +5463,8 @@ module.exports = Array.isArray || function (arr) {
 };
 
 },{}],29:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2}],30:[function(require,module,exports){
 'use strict';
 
 
@@ -7288,7 +5571,7 @@ exports.setTyped = function (on) {
 
 exports.setTyped(TYPED_OK);
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -7341,7 +5624,7 @@ function adler32(adler, buf, len, pos) {
 
 module.exports = adler32;
 
-},{}],31:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -7411,7 +5694,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 
-},{}],32:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 'use strict';
 
 // Note: we can't get significant speed boost here.
@@ -7472,7 +5755,7 @@ function crc32(crc, buf, len, pos) {
 
 module.exports = crc32;
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9348,7 +7631,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 
-},{"../utils/common":29,"./adler32":30,"./crc32":32,"./messages":37,"./trees":38}],34:[function(require,module,exports){
+},{"../utils/common":30,"./adler32":31,"./crc32":33,"./messages":38,"./trees":39}],35:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9695,7 +7978,7 @@ module.exports = function inflate_fast(strm, start) {
   return;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11253,7 +9536,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 
-},{"../utils/common":29,"./adler32":30,"./crc32":32,"./inffast":34,"./inftrees":36}],36:[function(require,module,exports){
+},{"../utils/common":30,"./adler32":31,"./crc32":33,"./inffast":35,"./inftrees":37}],37:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11598,7 +9881,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   return 0;
 };
 
-},{"../utils/common":29}],37:[function(require,module,exports){
+},{"../utils/common":30}],38:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11632,7 +9915,7 @@ module.exports = {
   '-6':   'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 
-},{}],38:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -12856,7 +11139,7 @@ exports._tr_flush_block  = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
-},{"../utils/common":29}],39:[function(require,module,exports){
+},{"../utils/common":30}],40:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -12905,11 +11188,12 @@ function ZStream() {
 
 module.exports = ZStream;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 (function (process){
 'use strict';
 
-if (!process.version ||
+if (typeof process === 'undefined' ||
+    !process.version ||
     process.version.indexOf('v0.') === 0 ||
     process.version.indexOf('v1.') === 0 && process.version.indexOf('v1.8.') !== 0) {
   module.exports = { nextTick: nextTick };
@@ -12953,7 +11237,7 @@ function nextTick(fn, arg1, arg2, arg3) {
 
 
 }).call(this,require('_process'))
-},{"_process":41}],41:[function(require,module,exports){
+},{"_process":42}],42:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -13139,10 +11423,10 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],42:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 module.exports = require('./lib/_stream_duplex.js');
 
-},{"./lib/_stream_duplex.js":43}],43:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":44}],44:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -13188,7 +11472,7 @@ var objectKeys = Object.keys || function (obj) {
 module.exports = Duplex;
 
 /*<replacement>*/
-var util = require('core-util-is');
+var util = Object.create(require('core-util-is'));
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -13274,7 +11558,7 @@ Duplex.prototype._destroy = function (err, cb) {
 
   pna.nextTick(cb, err);
 };
-},{"./_stream_readable":45,"./_stream_writable":47,"core-util-is":23,"inherits":26,"process-nextick-args":40}],44:[function(require,module,exports){
+},{"./_stream_readable":46,"./_stream_writable":48,"core-util-is":23,"inherits":26,"process-nextick-args":41}],45:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -13307,7 +11591,7 @@ module.exports = PassThrough;
 var Transform = require('./_stream_transform');
 
 /*<replacement>*/
-var util = require('core-util-is');
+var util = Object.create(require('core-util-is'));
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -13322,7 +11606,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":46,"core-util-is":23,"inherits":26}],45:[function(require,module,exports){
+},{"./_stream_transform":47,"core-util-is":23,"inherits":26}],46:[function(require,module,exports){
 (function (process,global){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13390,7 +11674,7 @@ function _isUint8Array(obj) {
 /*</replacement>*/
 
 /*<replacement>*/
-var util = require('core-util-is');
+var util = Object.create(require('core-util-is'));
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -14344,7 +12628,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./_stream_duplex":43,"./internal/streams/BufferList":48,"./internal/streams/destroy":49,"./internal/streams/stream":50,"_process":41,"core-util-is":23,"events":24,"inherits":26,"isarray":28,"process-nextick-args":40,"safe-buffer":56,"string_decoder/":51,"util":19}],46:[function(require,module,exports){
+},{"./_stream_duplex":44,"./internal/streams/BufferList":49,"./internal/streams/destroy":50,"./internal/streams/stream":51,"_process":42,"core-util-is":23,"events":24,"inherits":26,"isarray":28,"process-nextick-args":41,"safe-buffer":52,"string_decoder/":53,"util":19}],47:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -14415,7 +12699,7 @@ module.exports = Transform;
 var Duplex = require('./_stream_duplex');
 
 /*<replacement>*/
-var util = require('core-util-is');
+var util = Object.create(require('core-util-is'));
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -14559,7 +12843,7 @@ function done(stream, er, data) {
 
   return stream.push(null);
 }
-},{"./_stream_duplex":43,"core-util-is":23,"inherits":26}],47:[function(require,module,exports){
+},{"./_stream_duplex":44,"core-util-is":23,"inherits":26}],48:[function(require,module,exports){
 (function (process,global,setImmediate){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -14627,7 +12911,7 @@ var Duplex;
 Writable.WritableState = WritableState;
 
 /*<replacement>*/
-var util = require('core-util-is');
+var util = Object.create(require('core-util-is'));
 util.inherits = require('inherits');
 /*</replacement>*/
 
@@ -15249,7 +13533,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("timers").setImmediate)
-},{"./_stream_duplex":43,"./internal/streams/destroy":49,"./internal/streams/stream":50,"_process":41,"core-util-is":23,"inherits":26,"process-nextick-args":40,"safe-buffer":56,"timers":58,"util-deprecate":59}],48:[function(require,module,exports){
+},{"./_stream_duplex":44,"./internal/streams/destroy":50,"./internal/streams/stream":51,"_process":42,"core-util-is":23,"inherits":26,"process-nextick-args":41,"safe-buffer":52,"timers":59,"util-deprecate":60}],49:[function(require,module,exports){
 'use strict';
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -15329,7 +13613,7 @@ if (util && util.inspect && util.inspect.custom) {
     return this.constructor.name + ' ' + obj;
   };
 }
-},{"safe-buffer":56,"util":19}],49:[function(require,module,exports){
+},{"safe-buffer":52,"util":19}],50:[function(require,module,exports){
 'use strict';
 
 /*<replacement>*/
@@ -15404,10 +13688,74 @@ module.exports = {
   destroy: destroy,
   undestroy: undestroy
 };
-},{"process-nextick-args":40}],50:[function(require,module,exports){
+},{"process-nextick-args":41}],51:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":24}],51:[function(require,module,exports){
+},{"events":24}],52:[function(require,module,exports){
+/* eslint-disable node/no-deprecated-api */
+var buffer = require('buffer')
+var Buffer = buffer.Buffer
+
+// alternative to using Object.keys for old browsers
+function copyProps (src, dst) {
+  for (var key in src) {
+    dst[key] = src[key]
+  }
+}
+if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
+  module.exports = buffer
+} else {
+  // Copy properties from require('buffer')
+  copyProps(buffer, exports)
+  exports.Buffer = SafeBuffer
+}
+
+function SafeBuffer (arg, encodingOrOffset, length) {
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+// Copy static methods from Buffer
+copyProps(Buffer, SafeBuffer)
+
+SafeBuffer.from = function (arg, encodingOrOffset, length) {
+  if (typeof arg === 'number') {
+    throw new TypeError('Argument must not be a number')
+  }
+  return Buffer(arg, encodingOrOffset, length)
+}
+
+SafeBuffer.alloc = function (size, fill, encoding) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  var buf = Buffer(size)
+  if (fill !== undefined) {
+    if (typeof encoding === 'string') {
+      buf.fill(fill, encoding)
+    } else {
+      buf.fill(fill)
+    }
+  } else {
+    buf.fill(0)
+  }
+  return buf
+}
+
+SafeBuffer.allocUnsafe = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return Buffer(size)
+}
+
+SafeBuffer.allocUnsafeSlow = function (size) {
+  if (typeof size !== 'number') {
+    throw new TypeError('Argument must be a number')
+  }
+  return buffer.SlowBuffer(size)
+}
+
+},{"buffer":22}],53:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -15704,10 +14052,10 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":56}],52:[function(require,module,exports){
+},{"safe-buffer":52}],54:[function(require,module,exports){
 module.exports = require('./readable').PassThrough
 
-},{"./readable":53}],53:[function(require,module,exports){
+},{"./readable":55}],55:[function(require,module,exports){
 exports = module.exports = require('./lib/_stream_readable.js');
 exports.Stream = exports;
 exports.Readable = exports;
@@ -15716,77 +14064,13 @@ exports.Duplex = require('./lib/_stream_duplex.js');
 exports.Transform = require('./lib/_stream_transform.js');
 exports.PassThrough = require('./lib/_stream_passthrough.js');
 
-},{"./lib/_stream_duplex.js":43,"./lib/_stream_passthrough.js":44,"./lib/_stream_readable.js":45,"./lib/_stream_transform.js":46,"./lib/_stream_writable.js":47}],54:[function(require,module,exports){
+},{"./lib/_stream_duplex.js":44,"./lib/_stream_passthrough.js":45,"./lib/_stream_readable.js":46,"./lib/_stream_transform.js":47,"./lib/_stream_writable.js":48}],56:[function(require,module,exports){
 module.exports = require('./readable').Transform
 
-},{"./readable":53}],55:[function(require,module,exports){
+},{"./readable":55}],57:[function(require,module,exports){
 module.exports = require('./lib/_stream_writable.js');
 
-},{"./lib/_stream_writable.js":47}],56:[function(require,module,exports){
-/* eslint-disable node/no-deprecated-api */
-var buffer = require('buffer')
-var Buffer = buffer.Buffer
-
-// alternative to using Object.keys for old browsers
-function copyProps (src, dst) {
-  for (var key in src) {
-    dst[key] = src[key]
-  }
-}
-if (Buffer.from && Buffer.alloc && Buffer.allocUnsafe && Buffer.allocUnsafeSlow) {
-  module.exports = buffer
-} else {
-  // Copy properties from require('buffer')
-  copyProps(buffer, exports)
-  exports.Buffer = SafeBuffer
-}
-
-function SafeBuffer (arg, encodingOrOffset, length) {
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-// Copy static methods from Buffer
-copyProps(Buffer, SafeBuffer)
-
-SafeBuffer.from = function (arg, encodingOrOffset, length) {
-  if (typeof arg === 'number') {
-    throw new TypeError('Argument must not be a number')
-  }
-  return Buffer(arg, encodingOrOffset, length)
-}
-
-SafeBuffer.alloc = function (size, fill, encoding) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  var buf = Buffer(size)
-  if (fill !== undefined) {
-    if (typeof encoding === 'string') {
-      buf.fill(fill, encoding)
-    } else {
-      buf.fill(fill)
-    }
-  } else {
-    buf.fill(0)
-  }
-  return buf
-}
-
-SafeBuffer.allocUnsafe = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return Buffer(size)
-}
-
-SafeBuffer.allocUnsafeSlow = function (size) {
-  if (typeof size !== 'number') {
-    throw new TypeError('Argument must be a number')
-  }
-  return buffer.SlowBuffer(size)
-}
-
-},{"buffer":22}],57:[function(require,module,exports){
+},{"./lib/_stream_writable.js":48}],58:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -15915,7 +14199,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":24,"inherits":26,"readable-stream/duplex.js":42,"readable-stream/passthrough.js":52,"readable-stream/readable.js":53,"readable-stream/transform.js":54,"readable-stream/writable.js":55}],58:[function(require,module,exports){
+},{"events":24,"inherits":26,"readable-stream/duplex.js":43,"readable-stream/passthrough.js":54,"readable-stream/readable.js":55,"readable-stream/transform.js":56,"readable-stream/writable.js":57}],59:[function(require,module,exports){
 (function (setImmediate,clearImmediate){
 var nextTick = require('process/browser.js').nextTick;
 var apply = Function.prototype.apply;
@@ -15994,7 +14278,7 @@ exports.clearImmediate = typeof clearImmediate === "function" ? clearImmediate :
   delete immediateIds[id];
 };
 }).call(this,require("timers").setImmediate,require("timers").clearImmediate)
-},{"process/browser.js":41,"timers":58}],59:[function(require,module,exports){
+},{"process/browser.js":42,"timers":59}],60:[function(require,module,exports){
 (function (global){
 
 /**
@@ -16065,8 +14349,10 @@ function config (name) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],60:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
+arguments[4][15][0].apply(exports,arguments)
+},{"dup":15}],62:[function(require,module,exports){
 arguments[4][16][0].apply(exports,arguments)
-},{"dup":16}],61:[function(require,module,exports){
+},{"dup":16}],63:[function(require,module,exports){
 arguments[4][17][0].apply(exports,arguments)
-},{"./support/isBuffer":60,"_process":41,"dup":17,"inherits":26}]},{},[6]);
+},{"./support/isBuffer":62,"_process":42,"dup":17,"inherits":61}]},{},[6]);
