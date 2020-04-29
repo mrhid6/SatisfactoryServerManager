@@ -33,7 +33,7 @@
         "recursive-readdir": "^2.2.2",
         "satisfactory-mod-manager-api": "^1.2.0",
         "simple-node-logger": "^18.12.24",
-        "systeminformation": "^4.23.5",
+        "systeminformation": "^4.23.8",
         "toastr": "^2.1.4",
         "uglifyify": "^5.0.2",
         "universal-analytics": "^0.4.20"
