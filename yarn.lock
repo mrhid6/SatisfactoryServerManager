@@ -1665,10 +1665,10 @@ symbol-observable@^1.0.2:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-1.2.0.tgz#c22688aed4eab3cdc2dfeacbb561660560a00804"
   integrity sha512-e900nM8RRtGhlV36KGEU9k65K3mPb1WV70OdjfxlG2EAuM1noi/E/BaW/uMhL7bPEssK8QV57vN3esixjUvcXQ==
 
-systeminformation@^4.24.1:
-  version "4.24.1"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.24.1.tgz#687a511808ca0cde01def337ecdc21d7a2c4d315"
-  integrity sha512-LRksOe2mBvtbD0Y1hZMsaICHpIglhjz758K5XKUiHKcTBc6BV4O7ozbExZc+5BcCYrniMI9ka7piXFeCaymRRQ==
+systeminformation@^4.25.0:
+  version "4.25.0"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-4.25.0.tgz#ea20a9ec6580fe01e94a92139511790f0837c837"
+  integrity sha512-ceBPQp1zzpZdy0TWJ3iG/ZML/vqb2KV0jgViQArk2xLZlaG4EDCMmNNUu1jHNEaGPYcOMGD61yaE3mdp1DxCQw==
 
 terser@^3.7.5:
   version "3.17.0"
