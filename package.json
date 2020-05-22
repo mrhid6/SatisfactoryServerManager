@@ -16,7 +16,7 @@
         "cookie-parser": "^1.4.4",
         "cors": "^2.8.5",
         "crypto-js": "^4.0.0",
-        "datatables.net-bs4": "^1.10.20",
+        "datatables.net-bs4": "^1.10.21",
         "datatables.net-responsive-bs4": "^2.2.3",
         "express": "^4.17.1",
         "express-handlebars": "^4.0.4",
