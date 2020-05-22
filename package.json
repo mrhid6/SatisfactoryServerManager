@@ -17,7 +17,7 @@
         "cors": "^2.8.5",
         "crypto-js": "^4.0.0",
         "datatables.net-bs4": "^1.10.21",
-        "datatables.net-responsive-bs4": "^2.2.3",
+        "datatables.net-responsive-bs4": "^2.2.5",
         "express": "^4.17.1",
         "express-handlebars": "^4.0.4",
         "express-session": "^1.17.1",
