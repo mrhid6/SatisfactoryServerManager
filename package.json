@@ -36,7 +36,7 @@
         "systeminformation": "^4.26.9",
         "toastr": "^2.1.4",
         "uglifyify": "^5.0.2",
-        "universal-analytics": "^0.4.20"
+        "universal-analytics": "^0.4.23"
     },
     "scripts": {
         "start": "node app.js",
