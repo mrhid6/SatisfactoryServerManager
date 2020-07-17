@@ -19,7 +19,7 @@
         "datatables.net-bs4": "^1.10.21",
         "datatables.net-responsive-bs4": "^2.2.5",
         "express": "^4.17.1",
-        "express-handlebars": "^5.0.0",
+        "express-handlebars": "^5.1.0",
         "express-session": "^1.17.0",
         "fs-extra": "^9.0.0",
         "github-api": "3.3.0",
