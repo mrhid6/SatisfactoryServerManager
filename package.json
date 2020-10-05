@@ -31,7 +31,7 @@
         "platform-folders": "0.5.1",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
-        "satisfactory-mod-manager-api": "^2.0.3",
+        "satisfactory-mod-manager-api": "^2.1.1",
         "simple-node-logger": "^18.12.24",
         "systeminformation": "^4.26.9",
         "toastr": "^2.1.4",
