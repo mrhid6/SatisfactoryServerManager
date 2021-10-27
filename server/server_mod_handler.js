@@ -232,6 +232,7 @@ class SSM_Mod_Handler {
                                 name: mod.name,
                                 latest_version: latest_version.version
                             })
+
                         }
                     }
 
