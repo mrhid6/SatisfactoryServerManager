@@ -30,7 +30,7 @@ class SFConfig extends iConfig {
     }
 
     load() {
-        super.load();
+        return super.load();
     }
 }
 

@@ -7,6 +7,7 @@ const fs = require("fs-extra");
 const recursive = require("recursive-readdir");
 
 const br = require('binary-reader');
+const SteamCmd = require("steamcmd");
 
 
 const logger = require("./server_logger");
@@ -27,6 +28,19 @@ class SF_Server_Handler {
     init() {
         logger.info("[SFS_Handler] [INIT] - SFS Handler Initialized");
         this.setupEventHandlers();
+
+        SteamCmd.download({
+            binDir: Config.get("ssm.steamcmd")
+        }).then(() => {
+            return SteamCmd.prep({
+                binDir: Config.get("ssm.steamcmd")
+            })
+        }).then(() => {
+            logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
+            this.InstallSFServer();
+        }).catch(err => {
+            console.log(err)
+        })
     }
 
     setupEventHandlers() {
@@ -38,6 +52,22 @@ class SF_Server_Handler {
 
     CleanupSFSHandler() {
         this.stopServer().catch(err => {})
+    }
+
+    InstallSFServer() {
+        return new Promise((resolve, reject) => {
+            Config.set("satisfactory.installed", false);
+            SteamCmd.updateApp(1690800, path.resolve(Config.get("satisfactory.server_location")), {
+                binDir: Config.get("ssm.steamcmd")
+            }).then(result => {
+                logger.info("[SFS_Handler] - Installed SF Dedicated Server");
+                Config.set("satisfactory.installed", true);
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+        });
+
     }
 
     execOSCmd(command) {
@@ -60,12 +90,7 @@ class SF_Server_Handler {
 
     execSFSCmd(command) {
 
-        let SFSExeName = ""
-        if (Config.get("satisfactory.testmode") == true) {
-            SFSExeName = "FactoryGame.exe"
-        } else {
-            SFSExeName = "FactoryServer.exe"
-        }
+        let SFSExeName = Config.get("satisfactory.server_exe")
 
         const SFSExe = path.join(Config.get("satisfactory.server_location"), SFSExeName);
 
@@ -340,14 +365,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function (error) {
+                .on("error", function(error) {
                     reject(error);
                 })
-                .on("close", function () {
+                .on("close", function() {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function (bytesRead, buffer) {
+                .read(length, function(bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();

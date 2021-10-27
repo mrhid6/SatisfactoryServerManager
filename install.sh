@@ -77,6 +77,10 @@ if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq update -y
     apt-get -qq upgrade -y
     apt-get -qq install curl wget jq -y
+    add-apt-repository multiverse
+    dpkg --add-architecture i386
+    apt -qq update -y
+    apt -qq install lib32gcc1 -y
 else
     echo "Error: This version of Linux is not supported for SSM"
     exit 2
@@ -129,6 +133,8 @@ if [ ${SSM_SERVICE} -eq 0 ]; then
     systemctl stop ${SSM_SERVICENAME}
 fi
 
+useradd -m ssm -s /bin/bash 2>&1 >/dev/null
+
 echo "* Downloading SSM"
 rm -r ${INSTALL_DIR}/* 2>&1 >/dev/null
 mkdir -p "${INSTALL_DIR}/SMLauncher"
@@ -140,6 +146,7 @@ rm "${INSTALL_DIR}/build.log" >/dev/null 2>&1
 echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
 
 chmod -R +x ${INSTALL_DIR}
+chown -R ssm:ssm ${INSTALL_DIR}
 
 echo "* Cleanup"
 rm -r ${TEMP_DIR}
@@ -168,8 +175,8 @@ Description=SatisfactoryServerManager Daemon
 After=network.target
 
 [Service]
-User=root
-Group=root
+User=ssm
+Group=ssm
 
 Type=simple
 WorkingDirectory=/opt/SSM

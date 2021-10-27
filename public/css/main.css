@@ -53,7 +53,6 @@ body {
     color: #fff;
 }
 
-
 .form-control {
     font-size: 13px;
 }
@@ -65,6 +64,7 @@ body {
 .btn i {
     font-size: 14px;
 }
+
 
 /* Dashboard Page*/
 
@@ -110,7 +110,6 @@ body {
 .status-info-card .status-info-card-secondary {
     font-size: 20px;
     font-weight: 700;
-
 }
 
 .status-info-card .status-info-card-icon {
@@ -152,11 +151,13 @@ body {
     max-width: calc(100% - 80px)
 }
 
+
 /* Mods Page*/
 
 #sml-install {
     padding: 0 8px;
 }
+
 
 /* Logs Page */
 
@@ -171,6 +172,7 @@ body {
 
 
 /* Settings Page */
+
 .settings-row {
     margin-bottom: 15px;
 }
@@ -207,6 +209,7 @@ body {
     padding: 5px 12px;
 }
 
+
 /* Bootstrap Toggles*/
 
 .btn.toggle,
@@ -219,7 +222,6 @@ body {
     background-color: white;
     border: thin rgba(0, 0, 0, .25) solid;
 }
-
 
 
 /* Modals */
@@ -237,13 +239,14 @@ body {
     margin-bottom: 10px;
 }
 
-
 .ssm-modal .ssm-modal-msg {
     font-size: 13px;
     font-weight: bold;
 }
 
+
 /* Toasts */
+
 #toast-container>.toast {
     opacity: 1;
 }
@@ -312,24 +315,24 @@ body {
     font-size: 12px;
 }
 
+.wizard>.steps>ul>li {
+    width: 20%;
+}
+
 @media(max-width:991px) {
     .status-info-card {
         height: 70px;
     }
-
     .status-info-card .status-info-card-main {
         margin-top: 2px;
         font-size: 13px;
     }
-
     .status-info-card .status-info-card-secondary {
         font-size: 15px;
     }
-
     .status-info-card .status-info-card-icon {
         font-size: 35px;
     }
-
     .server-action-btn {
         font-size: 13px;
     }

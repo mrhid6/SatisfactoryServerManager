@@ -34,13 +34,21 @@ class ServerConfig extends iConfig {
     constructor() {
         super({
             configPath: userDataPath,
-            filename: "SSM.json"
+            filename: "SSM.json",
+            createConfig: true
         });
     }
 
     load() {
-        super.load();
-        this.setDefaults();
+        return new Promise((resolve, reject) => {
+            super.load().then(() => {
+                this.setDefaults();
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+
+        });
     }
 
     setDefaults() {
@@ -49,16 +57,23 @@ class ServerConfig extends iConfig {
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", "v1.0.15");
+        super.set("ssm.version", "v1.0.17");
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
 
         super.get("ssm.metrics.enabled", false)
         super.get("ssm.metrics.clientid", "")
+        super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
-        super.get("satisfactory.testmode", true)
-        super.get("satisfactory.server_location", "")
+        super.get("satisfactory.installed", false)
+        super.get("satisfactory.server_location", "/opt/SF")
+
+        if (platform == "win32") {
+            super.get("satisfactory.server_exe", "FactoryServer.exe")
+        } else {
+            super.get("satisfactory.server_exe", "FactoryServer.sh")
+        }
         super.get("satisfactory.password", "")
         super.get("satisfactory.save.location", "")
         super.get("satisfactory.save.file", "");
@@ -120,12 +135,16 @@ class ServerConfig extends iConfig {
             super.set("ssm.setup", true)
             super.set("ssm.metrics.enabled", (data.metrics == "true"))
             super.set("satisfactory.testmode", (data.testmode == "true"))
-            super.set("satisfactory.server_location", data.sfInstall.installLocation)
+            super.set("satisfactory.server_location", data.serverlocation)
 
-            require("./server_mod_handler").init();
-            require("./server_metrics").sendServerStartEvent();
+            require("./server_sfs_handler").InstallSFServer().then(() => {
+                require("./server_mod_handler").init();
+                require("./server_metrics").sendServerStartEvent();
 
-            resolve();
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
         });
     }
 }

@@ -48,12 +48,12 @@ release_dir_win64="${release_dir}/win64"
 
 cd ${BASEDIR}
 
-bash ${BASEDIR}/tools/update_SSM_exe.sh --version "${VERSION}"
+#bash ${BASEDIR}/tools/update_SSM_exe.sh --version "${VERSION}"
 
-if [ $? -ne 0 ]; then
-    echo "Error: failed to update SSM.exe version numbers"
-    exit 1
-fi
+#if [ $? -ne 0 ]; then
+#    echo "Error: failed to update SSM.exe version numbers"
+#    exit 1
+#fi
 
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
 
@@ -123,11 +123,11 @@ rm ${release_dir_win64}/exe.list
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Linux" 30
-pkg app.js -c package.json -t node12-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
+pkg app.js -c package.json -b -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win64" 30
-pkg app.js -c package.json -t node12-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
+pkg app.js -c package.json -b -t node16-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"

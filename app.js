@@ -1,5 +1,6 @@
 global.__basedir = __dirname;
 
+require("isomorphic-fetch");
 
 const express = require('express');
 const session = require('express-session');
@@ -29,10 +30,14 @@ class AppServer {
 
     init() {
         logger.info("[APP] [PREINIT] - Loading Configs..");
-        Config.load();
-        SFConfig.load();
-        logger.info("[APP] [PREINIT] - Starting SSM..");
-        this.startExpress()
+        Config.load().then(() => {
+            //SFConfig.load();
+            logger.info("[APP] [PREINIT] - Starting SSM..");
+            this.startExpress()
+        }).catch(err => {
+            console.log(err);
+        })
+
     }
 
     startExpress() {
@@ -75,7 +80,7 @@ class AppServer {
         }
         app.use(cors(corsOptions));
 
-        app.use(function (req, res, next) {
+        app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
@@ -125,12 +130,12 @@ class AppServer {
     }
 
     fixFileStoreSessionDelete() {
-        FSStore.prototype.reap = function () {
+        FSStore.prototype.reap = function() {
             var now = new Date().getTime();
             var self = this;
             //console.log("deleting old sessions");
-            var checkExpiration = function (filePath) {
-                fs.readFile(filePath, function (err, data) {
+            var checkExpiration = function(filePath) {
+                fs.readFile(filePath, function(err, data) {
                     if (!err) {
                         data = JSON.parse(data);
                         if (data.expired && data.expired < now) {
@@ -140,11 +145,11 @@ class AppServer {
                     }
                 });
             };
-            fs.readdir(self.dir, function (err, files) {
+            fs.readdir(self.dir, function(err, files) {
                 if (err || files.length <= 0) {
                     return;
                 }
-                files.forEach(function (file, i) {
+                files.forEach(function(file, i) {
                     if (/\.json$/.test(files[i])) {
                         checkExpiration(path.join(self.dir, files[i]));
                     }
@@ -152,7 +157,7 @@ class AppServer {
             });
         };
 
-        FSStore.prototype.destroy = function (sid) {
+        FSStore.prototype.destroy = function(sid) {
             fs.unlinkSync(path.join(this.dir, sid + '.json'));
         };
     }

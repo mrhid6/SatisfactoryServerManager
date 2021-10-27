@@ -23,13 +23,7 @@ class SSM_Mod_Handler {
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
-        getInstalls().then(sf_installs => {
-            const foundInstall = sf_installs.find(el => el.installLocation = Config.get("satisfactory.server_location"))
-
-            if (foundInstall != null) {
-                this.SML_API = foundInstall;
-            }
-        })
+        this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", "", "", Config.get("satisfactory.server_location"),"","")
 
         this.startScheduledJobs();
     }

@@ -151,7 +151,7 @@ class PageHandler {
                 const resdata = res.data;
 
                 if (resdata == false) {
-                    Tools.openModal("inital-setup", () => {
+                    Tools.openModal("/public/modals", "inital-setup", (modal) => {
 
                         const form = $("#initial-setup-wizard")
                         form.steps({
@@ -163,7 +163,7 @@ class PageHandler {
                                     return true;
                                 }
 
-                                if (newIndex == 2 && this.SETUP_CACHE.selected_sfinstall == null) {
+                                if (newIndex == 2 && $("#inp_sf_install_location").val() == "") {
                                     return false;
                                 }
 
@@ -175,17 +175,14 @@ class PageHandler {
                             },
                             onFinished: (event, currentIndex) => {
                                 const postData = {
-                                    sfInstall: this.SETUP_CACHE.selected_sfinstall,
+                                    serverlocation: $("#inp_sf_install_location").val(),
                                     testmode: ($("#inp_setup_testmode:checked").length > 0),
                                     metrics: ($("#inp_setup_metrics:checked").length > 0)
                                 }
 
-                                console.log(postData);
-
                                 API_Proxy.postData("config/ssm/setup", postData).then(res => {
-
+                                    modal.modal("hide");
                                 })
-                                alert("Submitted!");
                             }
                         });
                         $("#inp_setup_testmode").bootstrapToggle();
@@ -194,40 +191,6 @@ class PageHandler {
                 }
             }
         });
-    }
-
-    getSetupSFInstalls(btn) {
-        btn.preventDefault();
-        const $btnel = $(btn.currentTarget);
-        const $parent = $btnel.parent().parent().parent();
-        $btnel.find("i").removeClass("fa-search").addClass("fa-spin fa-sync")
-
-        API_Proxy.get("info", "sf_installs").then(res => {
-            $btnel.find("i").addClass("fa-search").removeClass("fa-spin fa-sync")
-            if (res.result == "success") {
-                const resdata = res.data;
-
-                if (resdata.length == 0) {
-                    $parent.find("#nofound-sf-installs").removeClass("d-none")
-                    return;
-                }
-
-                this.SETUP_CACHE.sfinstalls = resdata;
-
-                $parent.find("#found-sf-installs").removeClass("d-none")
-
-                const $selSFInstall = $parent.find("#sel_setup_sf_install");
-                $selSFInstall.empty();
-
-                $selSFInstall.append("<option value='-1'>-- SELECT --</option>")
-                for (let i = 0; i < resdata.length; i++) {
-                    const sfinstall = resdata[i];
-                    $selSFInstall.append("<option value='" + i + "'>" + sfinstall.name + "</option>")
-                }
-            } else {
-                $parent.find("#nofound-sf-installs").removeClass("d-none")
-            }
-        })
     }
 }
 
