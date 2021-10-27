@@ -13,7 +13,6 @@ const SteamCmd = require("steamcmd");
 const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
-const SFConfig = require("./server_sf_config");
 
 class SF_Server_Handler {
 
@@ -34,7 +33,7 @@ class SF_Server_Handler {
         }).then(() => {
             logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
 
-            if (Config.get("ssm.setup") == true) {
+            if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
                 return this.InstallSFServer();
             }
         }).catch(err => {
@@ -452,9 +451,9 @@ class SF_Server_Handler {
 
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
-            const testmode = (data.testmode == "true");
             const server_location = data.server_location || "";
             const save_location = data.save_location || "";
+            const updatesfonstart = data.updatesfonstart;
 
             if (server_location == "" || save_location == "") {
                 reject("Both server location & save locations are required!")
@@ -473,10 +472,10 @@ class SF_Server_Handler {
 
             let SFSExeName = ""
 
-            if (testmode == true) {
-                SFSExeName = "FactoryGame.exe"
+            if (platform == "win32") {
+                SFSExeName = "FactoryServer.exe";
             } else {
-                SFSExeName = "FactoryServer.exe"
+                SFSExeName = "FactoryServer.sh";
             }
 
             const SFSExe = path.join(server_location, SFSExeName);
@@ -485,22 +484,8 @@ class SF_Server_Handler {
                 return;
             }
 
-            Config.set("satisfactory.testmode", testmode);
             Config.set("satisfactory.server_location", server_location);
-            Config.set("satisfactory.save.location", save_location);
-            resolve();
-
-        });
-    }
-
-    updateSFSettings(data) {
-        return new Promise((resolve, reject) => {
-            const server_password = data.server_password || "";
-            const server_maxPlayers = data.server_maxPlayers || "4";
-
-            Config.set("satisfactory.password", server_password);
-            SFConfig.set("/Script/Engine.GameSession.MaxPlayers", server_maxPlayers)
-
+            Config.set("satisfactory.updateonstart", updatesfonstart)
             resolve();
 
         });
@@ -533,16 +518,6 @@ class SF_Server_Handler {
             }
             reject("Invalid session name");
         });
-    }
-
-    getSFInstalls() {
-        return new Promise((resolve, reject) => {
-            getInstalls().then(data => {
-                resolve(data)
-            }).catch(err => {
-                reject(err)
-            })
-        })
     }
 }
 

@@ -60,7 +60,7 @@ class Page_Mods {
         }).on("click", ".btn-uninstall-mod", e => {
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -71,7 +71,7 @@ class Page_Mods {
         }).on("click", ".btn-update-mod", e => {
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -85,7 +85,7 @@ class Page_Mods {
 
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -99,7 +99,7 @@ class Page_Mods {
 
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -290,9 +290,8 @@ class Page_Mods {
 
         if (radioVal == 1) {
             if ($selEl.val() == -1) {
-                Tools.openModal("server-mods-error")
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     $btn.prop("disabled", false);
                     $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
                     $selEl.prop("disabled", false);
@@ -320,13 +319,13 @@ class Page_Mods {
 
             if (res.result == "success") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("SML has been installed!")
                     this.getSMLInfo();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text(res.error)
                 });
             }
@@ -367,14 +366,14 @@ class Page_Mods {
 
             if (res.result == "success") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Mod has been installed!")
                     this.displayModsTable();
                     this.getModCount();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text(res.error)
                 });
             }
@@ -392,16 +391,17 @@ class Page_Mods {
         API_Proxy.postData("/mods/uninstallmod", postData).then(res => {
             if (res.result == "success") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Mod has been uninstalled!")
                     this.displayModsTable();
                     this.getModCount();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
+                    modal_el.find("#error-msg").text(res.error.message != "" ? res.error.message : res.error)
                 });
+                console.log(res)
             }
         })
     }
@@ -416,14 +416,14 @@ class Page_Mods {
         API_Proxy.postData("/mods/updatemod", postData).then(res => {
             if (res.result == "success") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-success", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Mod has been updated to the latest version!")
                     this.displayModsTable();
                     this.getModCount();
                 });
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-mods-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
                     modal_el.find("#error-msg").text(res.error)
                 });
             }

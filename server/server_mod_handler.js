@@ -9,9 +9,7 @@ const {
     SatisfactoryInstall,
     getAvailableSMLVersions,
     getLatestSMLVersion,
-    getAvailableMods,
     getMod,
-    getModsCount,
     getModVersions,
 } = require("satisfactory-mod-manager-api")
 
@@ -108,7 +106,7 @@ class SSM_Mod_Handler {
     uninstallMod(modid) {
         return new Promise((resolve, reject) => {
             let currentMod = null;
-            this._getModsInstalled().then(mods => {
+            this.getModsInstalled().then(mods => {
                 currentMod = mods.find(el => el.id == modid);
 
                 if (currentMod != null) {
@@ -189,18 +187,31 @@ class SSM_Mod_Handler {
         });
     }
 
+    getModCount() {
+        return new Promise((resolve, reject) => {
+            const query = `{
+                getMods(filter: {hidden:true}){
+                  count
+                }
+              }`
+            request(this.FicsitApiURL, query).then(res => {
+                resolve(res.getMods.count)
+            })
+        })
+    }
+
     getFicsitModList() {
         return new Promise((resolve, reject) => {
             const resArr = [];
 
-            getModsCount().then(count => {
-                console.log(count);
+            this.getModCount().then(count => {
                 const promises = [];
                 for (let i = 0; i < (count / 100); i++) {
                     const query = `{
                         getMods(filter: {
                             limit:100,
-                            offset: ${i*100}
+                            offset: ${i*100},
+                            hidden: true
                         }) {
                             mods{
                               id,
@@ -236,33 +247,20 @@ class SSM_Mod_Handler {
                         }
                     }
 
-                    console.log(resArr);
+                    function compare(a, b) {
+                        if (a.name < b.name) {
+                            return -1;
+                        }
+                        if (a.name > b.name) {
+                            return 1;
+                        }
+                        return 0;
+                    }
+
+                    resArr.sort(compare);
                     resolve(resArr);
                 })
             })
-
-            /*.then(data => {
-                 const mods = data.getMods.mods;
-                 console.log(data)
-                 const resArr = [];
-
-                 for (let i = 0; i < mods.length; i++) {
-                     const mod = mods[i];
-
-                     let latest_version = mod.versions[0];
-
-                     if (latest_version == null) continue;
-
-                     resArr.push({
-                         id: mod.id,
-                         name: mod.name,
-                         latest_version: latest_version.version
-                     })
-                 }
-                 resolve(resArr);
-             }).catch(err => {
-                 reject(err);
-             })*/
         })
     }
 

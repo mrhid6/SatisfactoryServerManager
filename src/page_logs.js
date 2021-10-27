@@ -12,6 +12,7 @@ class Page_Logs {
         this.setupJqueryListeners();
         this.getSSMLog()
         this.getSMLauncherLog();
+        this.getSFServerLog();
 
 
         this.startPageInfoRefresh();
@@ -39,6 +40,20 @@ class Page_Logs {
     getSMLauncherLog() {
         API_Proxy.get("logs", "smlauncherlog").then(res => {
             const el = $("#smlauncher-log-viewer samp");
+            el.empty();
+            if (res.result == "success") {
+                res.data.forEach((logline) => {
+                    el.append("<p>" + logline + "</p>")
+                })
+            } else {
+                el.text(res.error)
+            }
+        })
+    }
+
+    getSFServerLog() {
+        API_Proxy.get("logs", "sfserverlog").then(res => {
+            const el = $("#sf-log-viewer samp");
             el.empty();
             if (res.result == "success") {
                 res.data.forEach((logline) => {

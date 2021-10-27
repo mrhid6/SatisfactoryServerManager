@@ -40,4 +40,19 @@ router.get('/smlauncherlog', middleWare, function (req, res, next) {
     })
 });
 
+router.get('/sfserverlog', middleWare, function (req, res, next) {
+
+    SSM_Log_Handler.getSFServerLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
 module.exports = router;

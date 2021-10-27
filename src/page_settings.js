@@ -41,23 +41,23 @@ class Page_Settings {
             this.unlockSSMSettings();
         })
 
-        $("#save-ssm-settings").click(e => {
+        $("#save-ssm-settings").on("click", e => {
             e.preventDefault();
             this.submitSSMSettings();
         })
 
-        $("#cancel-ssm-settings").click(e => {
+        $("#cancel-ssm-settings").on("click", e => {
             e.preventDefault();
             this.lockSSMSettings();
             this.getConfig();
         })
 
-        $("#edit-mods-settings").click(e => {
+        $("#edit-mods-settings").on("click", e => {
             e.preventDefault();
 
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -66,13 +66,13 @@ class Page_Settings {
             this.unlockModsSettings();
         })
 
-        $("#cancel-mods-settings").click(e => {
+        $("#cancel-mods-settings").on("click", e => {
             e.preventDefault();
             this.lockModsSettings();
             this.getConfig();
         })
 
-        $("#save-mods-settings").click(e => {
+        $("#save-mods-settings").on("click", e => {
             e.preventDefault();
             this.submitModsSettings();
         })
@@ -83,7 +83,7 @@ class Page_Settings {
 
             if (this.ServerState.status != "stopped") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -92,9 +92,9 @@ class Page_Settings {
             this.selectSave(savename);
         })
 
-        $("#new-session-name").click(e => {
+        $("#new-session-name").on("click", e => {
             e.preventDefault();
-            Tools.openModal("server-session-new", (modal_el) => {
+            Tools.openModal("/public/modals", "server-session-new", (modal_el) => {
                 modal_el.find("#confirm-action").attr("data-action", "new-session")
             });
         })
@@ -148,6 +148,15 @@ class Page_Settings {
         $("#inp_sf_serverloc").val(ssmConfig.server_location)
         $("#inp_sf_saveloc").val(ssmConfig.save.location)
         $("#inp_sf_logloc").val(ssmConfig.log.location)
+        $("#inp_sf_logloc").val(ssmConfig.log.location)
+
+        $('#inp_updatesfonstart').bootstrapToggle('enable')
+        if (ssmConfig.updateonstart == true) {
+            $('#inp_updatesfonstart').bootstrapToggle('on')
+        } else {
+            $('#inp_updatesfonstart').bootstrapToggle('off')
+        }
+        $('#inp_updatesfonstart').bootstrapToggle('disable')
 
     }
 
@@ -177,7 +186,7 @@ class Page_Settings {
 
         $("#save-ssm-settings").prop("disabled", false);
         $("#cancel-ssm-settings").prop("disabled", false);
-        $('#inp_sf_testmode').bootstrapToggle('enable');
+        $('#inp_updatesfonstart').bootstrapToggle('enable');
         $("#inp_sf_serverloc").prop("disabled", false);
         $("#inp_sf_saveloc").prop("disabled", false);
     }
@@ -187,7 +196,7 @@ class Page_Settings {
 
         $("#save-ssm-settings").prop("disabled", true);
         $("#cancel-ssm-settings").prop("disabled", true);
-        $('#inp_sf_testmode').bootstrapToggle('disable');
+        $('#inp_updatesfonstart').bootstrapToggle('disable');
         $("#inp_sf_serverloc").prop("disabled", true);
         $("#inp_sf_saveloc").prop("disabled", true);
     }
@@ -212,11 +221,11 @@ class Page_Settings {
     }
 
     submitSSMSettings() {
-        const testmode = $('#inp_sf_testmode').is(":checked")
+        const updatesfonstart = $('#inp_updatesfonstart').is(":checked")
         const server_location = $("#inp_sf_serverloc").val();
         const save_location = $("#inp_sf_saveloc").val();
         const postData = {
-            testmode: false,
+            updatesfonstart,
             server_location,
             save_location
         }
@@ -226,12 +235,12 @@ class Page_Settings {
             if (res.result == "success") {
                 this.lockSSMSettings();
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-success", (modal_el) => {
                     modal_el.find("#success-msg").text("Settings have been saved!")
                 });
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text(res.error)
                 });
             }

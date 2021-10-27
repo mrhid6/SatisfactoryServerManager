@@ -73,6 +73,7 @@ class ServerConfig extends iConfig {
         super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
         super.get("satisfactory.installed", false)
+        super.get("satisfactory.updateonstart", false)
         super.get("satisfactory.server_location", path.join(userDataPath, "SFServer"))
 
         if (platform == "win32") {

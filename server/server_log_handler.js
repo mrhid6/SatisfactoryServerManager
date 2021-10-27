@@ -61,6 +61,28 @@ class SSM_Log_Handler {
         })
     }
 
+    getSFServerLog() {
+        return new Promise((resolve, reject) => {
+
+            const logfile = path.join(Config.get("satisfactory.log.location"), "FactoryGame.log");
+
+            if (fs.existsSync(logfile) == false) {
+                reject("Can't find log file");
+                return;
+            }
+
+            fs.readFile(logfile, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const dataStr = data.toString().replace(/\r\n/g, '\n');
+                const dataArr = (dataStr.split("\n")).reverse().filter(el => el != "");
+                resolve(dataArr)
+            })
+        });
+    }
+
     getSMLauncherLog() {
         return new Promise((resolve, reject) => {
             const logfile = getLogFilePath();
