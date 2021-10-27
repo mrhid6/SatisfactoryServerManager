@@ -6,6 +6,6 @@ BASEDIR=$(readlink -f "$CURDIR/..")
 
 cd ${BASEDIR}
 
-bash ${CURDIR}/build_app.sh -i -u
+#bash ${CURDIR}/build_app.sh -i -u
 
 release-it --ci -VV
