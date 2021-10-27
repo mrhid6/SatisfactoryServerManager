@@ -6,24 +6,37 @@ const Config = require("./server_config");
 const logger = require("./server_logger");
 
 const {
-    getInstalls,
     SatisfactoryInstall,
     getAvailableSMLVersions,
     getLatestSMLVersion,
     getAvailableMods,
     getMod,
-    getModVersions
+    getModsCount,
+    getModVersions,
 } = require("satisfactory-mod-manager-api")
+
+const {
+    request
+} = require("graphql-request");
+
+
+const SteamCmd = require("steamcmd");
 
 class SSM_Mod_Handler {
     constructor() {
-
+        this.FicsitApiURL = "https://api.ficsit.app/v2/query";
     }
 
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
-        this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", "", "", Config.get("satisfactory.server_location"),"","")
+
+        SteamCmd.getAppInfo(1690800, {
+            binDir: Config.get("ssm.steamcmd")
+        }).then((data) => {
+            const ServerVersion = data.depots.branches.public.buildid;
+            this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", ServerVersion, "public", Config.get("satisfactory.server_location"), "", "")
+        });
 
         this.startScheduledJobs();
     }
@@ -178,26 +191,77 @@ class SSM_Mod_Handler {
 
     getFicsitModList() {
         return new Promise((resolve, reject) => {
-            getAvailableMods().then(mods => {
-                const resArr = [];
+            const resArr = [];
 
-                for (let i = 0; i < mods.length; i++) {
-                    const mod = mods[i];
-
-                    let latest_version = mod.versions[0];
-
-                    if (latest_version == null) continue;
-
-                    resArr.push({
-                        id: mod.id,
-                        name: mod.name,
-                        latest_version: latest_version.version
-                    })
+            getModsCount().then(count => {
+                console.log(count);
+                const promises = [];
+                for (let i = 0; i < (count / 100); i++) {
+                    const query = `{
+                        getMods(filter: {
+                            limit:100,
+                            offset: ${i*100}
+                        }) {
+                            mods{
+                              id,
+                              name,
+                              mod_reference,
+                              versions
+                              {
+                                version
+                              }
+                            }
+                          }
+                        }`
+                    promises.push(request(this.FicsitApiURL, query));
                 }
-                resolve(resArr);
-            }).catch(err => {
-                reject(err);
+                Promise.all(promises).then(values => {
+                    for (let i = 0; i < values.length; i++) {
+                        const value = values[i];
+
+                        const mods = value.getMods.mods;
+                        for (let i = 0; i < mods.length; i++) {
+                            const mod = mods[i];
+
+                            let latest_version = mod.versions[0];
+
+                            if (latest_version == null) continue;
+
+                            resArr.push({
+                                id: mod.mod_reference,
+                                name: mod.name,
+                                latest_version: latest_version.version
+                            })
+                        }
+                    }
+
+                    console.log(resArr);
+                    resolve(resArr);
+                })
             })
+
+            /*.then(data => {
+                 const mods = data.getMods.mods;
+                 console.log(data)
+                 const resArr = [];
+
+                 for (let i = 0; i < mods.length; i++) {
+                     const mod = mods[i];
+
+                     let latest_version = mod.versions[0];
+
+                     if (latest_version == null) continue;
+
+                     resArr.push({
+                         id: mod.id,
+                         name: mod.name,
+                         latest_version: latest_version.version
+                     })
+                 }
+                 resolve(resArr);
+             }).catch(err => {
+                 reject(err);
+             })*/
         })
     }
 

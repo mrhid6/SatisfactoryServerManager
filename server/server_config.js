@@ -9,6 +9,10 @@ const Mrhid6Utils = require("../Mrhid6Utils");
 const iConfig = Mrhid6Utils.Config;
 const platform = process.platform;
 
+const {
+    getDataHome
+} = require("platform-folders")
+
 let userDataPath = null;
 
 switch (platform) {
@@ -29,6 +33,8 @@ const sessionStorePath = path.join(userDataPath, "sessions");
 if (fs.pathExistsSync(sessionStorePath) == false) {
     fs.mkdirSync(sessionStorePath);
 }
+
+
 
 class ServerConfig extends iConfig {
     constructor() {
@@ -67,17 +73,31 @@ class ServerConfig extends iConfig {
         super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
         super.get("satisfactory.installed", false)
-        super.get("satisfactory.server_location", "/opt/SF")
+        super.get("satisfactory.server_location", path.join(userDataPath, "SFServer"))
 
         if (platform == "win32") {
-            super.get("satisfactory.server_exe", "FactoryServer.exe")
+            super.set("satisfactory.server_exe", "FactoryServer.exe")
         } else {
-            super.get("satisfactory.server_exe", "FactoryServer.sh")
+            super.set("satisfactory.server_exe", "FactoryServer.sh")
         }
-        super.get("satisfactory.password", "")
-        super.get("satisfactory.save.location", "")
-        super.get("satisfactory.save.file", "");
-        super.get("satisfactory.save.session", "");
+
+        if (platform == "win32") {
+            super.set("satisfactory.server_sub_exe", "UE4Server-Win64-Shipping.exe")
+        } else {
+            super.set("satisfactory.server_sub_exe", "UE4Server-Linux-Shipping")
+        }
+
+        let localAppdata = "";
+        if (platform == "win32") {
+            localAppdata = path.resolve(getDataHome() + "/../local/FactoryGame")
+        } else {
+            localAppdata = path.resolve("~.config/Epic/FactoryGame")
+        }
+        const SaveFolder = path.join(localAppdata, "Saved", "SaveGames", "server")
+        const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
+
+        super.set("satisfactory.save.location", SaveFolder)
+        super.set("satisfactory.log.location", LogFolder)
 
         super.get("mods.enabled", false);
         super.get("mods.autoupdate", false);

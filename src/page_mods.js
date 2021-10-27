@@ -235,6 +235,8 @@ class Page_Mods {
                 res.data.forEach(mod => {
                     el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
                 })
+            } else {
+                console.log(res)
             }
         });
     }

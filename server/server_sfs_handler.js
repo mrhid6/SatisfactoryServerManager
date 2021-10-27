@@ -15,10 +15,6 @@ const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 const SFConfig = require("./server_sf_config");
 
-const {
-    getInstalls
-} = require("satisfactory-mod-manager-api")
-
 class SF_Server_Handler {
 
     constructor() {
@@ -37,7 +33,10 @@ class SF_Server_Handler {
             })
         }).then(() => {
             logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
-            this.InstallSFServer();
+
+            if (Config.get("ssm.setup") == true) {
+                return this.InstallSFServer();
+            }
         }).catch(err => {
             console.log(err)
         })
@@ -57,7 +56,17 @@ class SF_Server_Handler {
     InstallSFServer() {
         return new Promise((resolve, reject) => {
             Config.set("satisfactory.installed", false);
-            SteamCmd.updateApp(1690800, path.resolve(Config.get("satisfactory.server_location")), {
+            logger.info("[SFS_Handler] - Installing SF Dedicated Server");
+
+            const installPath = `${path.resolve(Config.get("satisfactory.server_location"))}`
+
+            if (installPath.indexOf(" ") > -1) {
+                logger.error("[SFS_Handler] - Install path must not contain spaces!")
+                reject(new Error("Install Path Contains Spaces!"));
+                return;
+            }
+
+            SteamCmd.updateApp(1690800, installPath, {
                 binDir: Config.get("ssm.steamcmd")
             }).then(result => {
                 logger.info("[SFS_Handler] - Installed SF Dedicated Server");
@@ -99,6 +108,7 @@ class SF_Server_Handler {
             console.log(fullCommand)
             var process = childProcess.spawn(fullCommand, {
                 shell: true,
+                cwd: Config.get("satisfactory.server_location"),
                 detached: true,
                 stdio: 'ignore'
             });
@@ -121,18 +131,9 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
             this.getServerStatus().then(server_status => {
-                var saveFileName = Config.get("satisfactory.save.file");
-                var loadGameString = ""
-                if (saveFileName != null && saveFileName != "") {
-                    loadGameString = "?loadgame=" + saveFileName;
-                }
-                var sessionName = Config.get("satisfactory.save.session");
-                var sessionString = "";
-                if (sessionName != null && sessionName != "") {
-                    sessionString = "?sessionName=" + sessionName
-                }
                 if (server_status.pid == -1) {
-                    return this.execSFSCmd("Persistent_Level?listen?bUseIpSockets" + loadGameString + sessionString + " -NoEpicPortal -unattended");
+                    const LogFile = path.join(Config.get("satisfactory.log.location"), "FactoryServer.Log")
+                    return this.execSFSCmd(`-unattended`);
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
@@ -227,7 +228,8 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
 
             si.processes().then(data => {
-                const process = data.list.find(el => el.name == "FactoryGame-Win64-Shipping.exe")
+                let process = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
+                let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
 
                 const state = {
                     pid: -1,
@@ -236,15 +238,14 @@ class SF_Server_Handler {
                     pmem: 0
                 }
 
-                if (process == null) {
+                if (process == null && process2 == null) {
                     state.status = "stopped"
-                } else {
-                    state.pid = process.pid
+                } else if (process2 != null) {
+                    state.pid = process2.pid
                     state.status = "running"
-                    state.pcpu = process.pcpu;
-                    state.pmem = process.pmem;
+                    state.pcpu = process2.cpu;
+                    state.pmem = process2.mem;
                 }
-
 
                 resolve(state)
                 return
@@ -365,14 +366,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function(error) {
+                .on("error", function (error) {
                     reject(error);
                 })
-                .on("close", function() {
+                .on("close", function () {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function(bytesRead, buffer) {
+                .read(length, function (bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();

@@ -38,7 +38,9 @@
         "systeminformation": "^5.9.8",
         "toastr": "^2.1.4",
         "uglifyify": "^5.0.2",
-        "universal-analytics": "^0.4.20"
+        "universal-analytics": "^0.4.20",
+        "graphql": "^15.5.1",
+        "graphql-request": "^3.5.0"
     },
     "scripts": {
         "start": "node app.js",
@@ -61,7 +63,9 @@
             "node_modules/@fortawesome/fontawesome-free/css/**/*",
             "node_modules/@fortawesome/fontawesome-free/webfonts/**/*",
             "node_modules/moment/min/**/*",
-            "node_modules/toastr/build/**/*"
+            "node_modules/toastr/build/**/*",
+            "node_modules/ts-invariant/**/*",
+            "node_modules/exiftool-vendored.exe/**/*"
         ],
         "targets": [
             "node12"

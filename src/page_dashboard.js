@@ -19,15 +19,15 @@ class Page_Dashboard {
     }
 
     setupJqueryListeners() {
-        $("#server-action-start").click((e) => {
+        $("#server-action-start").on("click", (e) => {
             this.serverAction_Start();
         })
 
-        $("#server-action-stop").click((e) => {
+        $("#server-action-stop").on("click", (e) => {
             this.serverAction_Confirm("stop");
         })
 
-        $("#server-action-kill").click((e) => {
+        $("#server-action-kill").on("click", (e) => {
             this.serverAction_Confirm("kill");
         })
 
@@ -55,6 +55,8 @@ class Page_Dashboard {
                 } else {
                     el.text("Running")
                 }
+
+                console.log(res.data)
 
                 $("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
                 $("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
@@ -91,7 +93,7 @@ class Page_Dashboard {
 
     serverAction_Confirm(action) {
         if (Tools.modal_opened == true) return;
-        Tools.openModal("server-action-confirm", (modal_el) => {
+        Tools.openModal("/public/modals", "server-action-confirm", (modal_el) => {
             modal_el.find("#confirm-action").attr("data-action", action)
         });
     }
@@ -102,11 +104,11 @@ class Page_Dashboard {
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
                     this.getServerStatus();
-                    Tools.openModal("server-action-success", (modal_el) => {
+                    Tools.openModal("/public/modals", "server-action-success", (modal_el) => {
                         modal_el.find("#success-msg").text("Server has been started!")
                     });
                 } else {
-                    Tools.openModal("server-action-error", (modal_el) => {
+                    Tools.openModal("/public/modals", "server-action-error", (modal_el) => {
                         modal_el.find("#error-msg").text(res.error)
                     });
                 }
@@ -114,7 +116,7 @@ class Page_Dashboard {
         } else {
 
             if (Tools.modal_opened == true) return;
-            Tools.openModal("server-action-error", (modal_el) => {
+            Tools.openModal("/public/modals", "server-action-error", (modal_el) => {
                 modal_el.find("#error-msg").text("Error: The server is already started!")
             });
         }
@@ -127,7 +129,7 @@ class Page_Dashboard {
                 if (Tools.modal_opened == true) return;
                 if (res.result == "success") {
                     this.getServerStatus();
-                    Tools.openModal("server-action-success", (modal_el) => {
+                    Tools.openModal("/public/modals", "server-action-success", (modal_el) => {
                         modal_el.find("#success-msg").text("Server has been stopped!")
                     });
 
@@ -140,7 +142,7 @@ class Page_Dashboard {
         } else {
 
             if (Tools.modal_opened == true) return;
-            Tools.openModal("server-action-error", (modal_el) => {
+            Tools.openModal("/public/modals", "server-action-error", (modal_el) => {
                 modal_el.find("#error-msg").text("Error: The server is already stopped!")
             });
         }

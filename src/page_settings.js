@@ -27,19 +27,6 @@ class Page_Settings {
             this.displaySaveTable();
         });
 
-        $("#show-sf-password").click(e => {
-            const $this = $(e.currentTarget);
-            if ($this.hasClass("fa-eye")) {
-                $("#inp_sf_password").attr("type", "text")
-                $this.attr("data-original-title", "Hide Password")
-                $this.removeClass("fa-eye").addClass("fa-eye-slash")
-            } else {
-                $("#inp_sf_password").attr("type", "password")
-                $this.attr("data-original-title", "Show Password")
-                $this.removeClass("fa-eye-slash").addClass("fa-eye");
-            }
-        })
-
         $("#edit-ssm-settings").click(e => {
             e.preventDefault();
 
@@ -62,31 +49,6 @@ class Page_Settings {
         $("#cancel-ssm-settings").click(e => {
             e.preventDefault();
             this.lockSSMSettings();
-            this.getConfig();
-        })
-
-        $("#edit-sf-settings").click(e => {
-            e.preventDefault();
-
-            if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockSFSettings();
-        })
-
-        $("#save-sf-settings").click(e => {
-            e.preventDefault();
-            this.submitSFSettings();
-        })
-
-        $("#cancel-sf-settings").click(e => {
-            e.preventDefault();
-            this.lockSFSettings();
             this.getConfig();
         })
 
@@ -178,35 +140,14 @@ class Page_Settings {
 
     MainDisplayFunction() {
         this.populateSSMSettings();
-        this.populateSFSettings();
         this.populateModsSettings();
     }
 
     populateSSMSettings() {
         const ssmConfig = this.Config.satisfactory;
-        $('#inp_sf_testmode').bootstrapToggle('enable')
-        if (ssmConfig.testmode == true) {
-            $('#inp_sf_testmode').bootstrapToggle('on')
-        } else {
-            $('#inp_sf_testmode').bootstrapToggle('off')
-        }
-        $('#inp_sf_testmode').bootstrapToggle('disable')
-
         $("#inp_sf_serverloc").val(ssmConfig.server_location)
         $("#inp_sf_saveloc").val(ssmConfig.save.location)
-
-    }
-
-    populateSFSettings() {
-
-        // TODO: Work out settings SF server will use..
-
-        const sfConfig = this.Config.sf_server;
-        $("#inp_sf_maxplayers").val(sfConfig["/Script/Engine"].GameSession.MaxPlayers)
-
-        return;
-
-        $("#inp_sf_password").val(sfConfig.password)
+        $("#inp_sf_logloc").val(ssmConfig.log.location)
 
     }
 
@@ -251,25 +192,6 @@ class Page_Settings {
         $("#inp_sf_saveloc").prop("disabled", true);
     }
 
-    unlockSFSettings() {
-
-        $("#edit-sf-settings").prop("disabled", true);
-
-        $("#save-sf-settings").prop("disabled", false);
-        $("#cancel-sf-settings").prop("disabled", false);
-        $("#inp_sf_password").prop("disabled", false);
-        $("#inp_sf_maxplayers").prop("disabled", false);
-    }
-
-    lockSFSettings() {
-        $("#edit-sf-settings").prop("disabled", false);
-
-        $("#save-sf-settings").prop("disabled", true);
-        $("#cancel-sf-settings").prop("disabled", true);
-        $("#inp_sf_password").prop("disabled", true);
-        $("#inp_sf_maxplayers").prop("disabled", true);
-    }
-
     unlockModsSettings() {
 
         $("#edit-mods-settings").prop("disabled", true);
@@ -289,37 +211,12 @@ class Page_Settings {
         $('#inp_mods_autoupdate').bootstrapToggle('disable')
     }
 
-    submitSFSettings() {
-        const server_password = $("#inp_sf_password").val();
-        const server_maxPlayers = $("#inp_sf_maxplayers").val();
-        const postData = {
-            server_password,
-            server_maxPlayers
-        }
-
-        API_Proxy.postData("/config/sfsettings", postData).then(res => {
-
-            if (res.result == "success") {
-                this.lockSFSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
-
     submitSSMSettings() {
         const testmode = $('#inp_sf_testmode').is(":checked")
         const server_location = $("#inp_sf_serverloc").val();
         const save_location = $("#inp_sf_saveloc").val();
         const postData = {
-            testmode,
+            testmode: false,
             server_location,
             save_location
         }

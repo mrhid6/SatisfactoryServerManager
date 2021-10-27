@@ -8,21 +8,6 @@
             <form action="" method="" class="form-horizontal">
                 <div class="row settings-row">
                     <div class="col-12 col-md-4">
-                        <b class="settings-prop">Test Mode:</b>
-                        <span class="settings-info">
-                            Test mode will place SSM into test mode and will use the desktop version of satisfactory.
-                        </span>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <div class="checkbox">
-                            <input id="inp_sf_testmode" type="checkbox" data-on="Enabled" data-off="Disabled"
-                                data-onstyle="success" data-offstyle="danger" checked data-toggle="toggle"
-                                data-width="100" data-size="small" disabled>
-                        </div>
-                    </div>
-                </div>
-                <div class="row settings-row">
-                    <div class="col-12 col-md-4">
                         <b class="settings-prop">Server Location:</b>
                         <span class="settings-info">
                             Satisfactory server installation location.
@@ -43,6 +28,17 @@
                         <input type="text" disabled class="form-control" placeholder="" id="inp_sf_saveloc">
                     </div>
                 </div>
+                 <div class="row settings-row">
+                    <div class="col-12 col-md-4">
+                        <b class="settings-prop">Logs Location:</b>
+                        <span class="settings-info">
+                            Satisfactory server log location.
+                        </span>
+                    </div>
+                    <div class="col-12 col-md-8">
+                        <input type="text" readonly class="form-control" placeholder="" id="inp_sf_logloc">
+                    </div>
+                </div>
             </form>
             <div class="row">
                 <div class="col-12">
@@ -52,58 +48,6 @@
                             class="fas fa-save"></i>
                         Save</button>
                     <button disabled class="btn btn-danger float-right mr-3" id="cancel-ssm-settings"><i
-                            class="fas fa-times"></i>
-                        Cancel</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card border-secondary mb-3">
-        <div class="card-header">
-            <h5>Satisfactory Settings</h5>
-        </div>
-        <div class="card-body">
-            <form action="" method="" class="form-horizontal">
-                <div class="row settings-row">
-                    <div class="col-12 col-md-4">
-                        <b class="settings-prop">Max Players:</b>
-                        <span class="settings-info">
-                            Maximum number of players allowed in the server.
-                        </span>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <input type="text" disabled class="form-control" placeholder="" id="inp_sf_maxplayers">
-                    </div>
-                </div>
-                <div class="row settings-row">
-                    <div class="col-12 col-md-4">
-                        <b class="settings-prop">Server Password:</b>
-                        <span class="settings-info">
-                            Satisfactory server password.
-                        </span>
-                    </div>
-                    <div class="col-12 col-md-8">
-                        <div class="input-group mb-3">
-                            <input type="password" disabled class="form-control" placeholder="" id="inp_sf_password">
-                            <div class="input-group-append">
-                                <span class="input-group-text">
-                                    <i id="show-sf-password" class="fas fa-eye" data-toggle="tooltip"
-                                        data-placement="bottom" title="" data-original-title="Show Password"></i>
-                                </span>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </form>
-            <div class="row">
-                <div class="col-12">
-                    <button class="btn btn-warning float-left" id="edit-sf-settings"><i class="fas fa-edit"></i>
-                        Edit</button>
-                    <button disabled class="btn btn-success float-right" id="save-sf-settings"><i
-                            class="fas fa-save"></i>
-                        Save</button>
-                    <button disabled class="btn btn-danger float-right mr-3" id="cancel-sf-settings"><i
                             class="fas fa-times"></i>
                         Cancel</button>
                 </div>
