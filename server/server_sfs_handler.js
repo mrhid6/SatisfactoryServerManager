@@ -53,28 +53,11 @@ class SF_Server_Handler {
             SteamCmd.download({
                 binDir: Config.get("ssm.steamcmd")
             }).then(() => {
-
-                let steamcmdexe = ""
-                if (platform == "linux") {
-                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
-
-                    if (fs.existsSync(steamcmdexe)) {
-                        chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
-                            if (err) {
-                                console.log('Failed to execute chmod', err);
-                            } else {
-                                return SteamCmd.prep({
-                                    binDir: Config.get("ssm.steamcmd")
-                                })
-                            }
-                        });
-                    }
-                } else {
-                    return SteamCmd.prep({
-                        binDir: Config.get("ssm.steamcmd")
-                    })
-                }
-
+                return this.FixSteamCmdPerms();
+            }).then(() => {
+                return SteamCmd.prep({
+                    binDir: Config.get("ssm.steamcmd")
+                })
             }).then(() => {
                 logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
                 resolve()
@@ -82,6 +65,26 @@ class SF_Server_Handler {
                 reject(err);
             })
         });
+    }
+
+    FixSteamCmdPerms() {
+        return new Promise((resolve, reject) => {
+            if (platform == "linux") {
+                const steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
+
+                if (fs.existsSync(steamcmdexe)) {
+                    chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
+                        if (err) {
+                            reject(err);
+                        } else {
+                            resolve();
+                        }
+                    });
+                }
+            } else {
+                resolve();
+            }
+        })
     }
 
     InstallSFServer() {
