@@ -73,9 +73,9 @@ class ServerConfig extends iConfig {
         super.get("ssm.metrics.clientid", "")
 
         if (platform == "win32") {
-            super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
+            super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
         } else {
-            super.get("ssm.steamcmd", path.join("/opt", "steamcmd"));
+            super.set("ssm.steamcmd", path.join("/opt", "steamcmd"));
         }
 
         super.get("satisfactory.installed", false)
