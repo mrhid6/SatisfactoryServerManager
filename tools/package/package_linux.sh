@@ -27,6 +27,15 @@ done
 
 echo -en "\nPackaging Linux (Version: \e[34m${VERSION}\e[0m)\n"
 
+release_dir="${BASEDIR}/release-builds"
+release_dir_linux="${release_dir}/linux"
+
+rm -rf ${release_dir_linux} 2>&1 >/dev/null
+
+if [ ! -d "${release_dir_linux}" ]; then
+    mkdir -p "${release_dir_linux}"
+fi
+
 if [ ${COMPILEONLY} -eq 0 ]; then
 
     echo "* Building Linux Executables: "
@@ -68,19 +77,6 @@ if [ ${COMPILEONLY} -eq 0 ]; then
         echo -en "\e[32m✔\e[0m\n"
     fi
 
-    sshargs="cd /nodejs/build/SSM; \
-        find /nodejs/build/SSM -name \"*.node\" | grep -v \"obj\"
-    "
-
-    printDots "* Copying Executables" 30
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >${release_dir_linux}/exe.list
-    while read -r line; do
-        ${SCP_CMD} root@${LINUX_SERVER}:${line} ${release_dir_linux}/.
-    done <${release_dir_linux}/exe.list
-
-    rm ${release_dir_linux}/exe.list
-    echo -en "\e[32m✔\e[0m\n"
-
     sshargs="PATH+=:/root/n/bin; \
         cd /nodejs/build/SSM; \
         bash ./tools/package/package_linux.sh --version ${VERSION} --compile; \
@@ -88,17 +84,27 @@ if [ ${COMPILEONLY} -eq 0 ]; then
     "
     ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
 
+    ${SCP_CMD} root@${LINUX_SERVER}:/nodejs/build/SSM/release-builds/linux/* ${release_dir_linux}/.
+
 else
     release_dir="${BASEDIR}/release-builds"
     release_dir_linux="${release_dir}/linux"
-    release_dir_win64="${release_dir}/win64"
 
     rm -rf ${release_dir} 2>&1 >/dev/null
 
     if [ ! -d "${release_dir}" ]; then
         mkdir -p "${release_dir_linux}"
-        mkdir -p "${release_dir_win64}"
     fi
+
+    printDots "* Copying Linux Executables" 30
+
+    find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_linux}/exe.list
+
+    while read -r line; do
+        cp ${line} ${release_dir_linux}/.
+    done <${release_dir_linux}/exe.list
+    rm ${release_dir_linux}/exe.list
+
     printDots "* Compiling Linux" 30
 
     pkg app.js -c package.json -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
