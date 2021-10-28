@@ -6,6 +6,8 @@ const Config = require("./server_config");
 const logger = require("./server_logger");
 const fs = require("fs-extra");
 
+const platform = process.platform;
+
 const {
     SatisfactoryInstall,
     getAvailableSMLVersions,
