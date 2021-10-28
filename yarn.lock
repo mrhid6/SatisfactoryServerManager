@@ -434,6 +434,19 @@ child_process@^1.0.2:
   resolved "https://registry.yarnpkg.com/child_process/-/child_process-1.0.2.tgz#b1f7e7fc73d25e7fd1d455adc94e143830182b5a"
   integrity sha1-sffn/HPSXn/R1FWtyU4UODAYK1o=
 
+chmod@^0.2.1:
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/chmod/-/chmod-0.2.1.tgz#dee71c420fc00bf523d572b14922f55d919f9d0a"
+  integrity sha1-3uccQg/AC/Uj1XKxSSL1XZGfnQo=
+  dependencies:
+    deep-extend "^0.2.8"
+    stat-mode "~0.1.0"
+
+chmodr@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/chmodr/-/chmodr-1.2.0.tgz#720e96caa09b7f1cdbb01529b7d0ab6bc5e118b9"
+  integrity sha512-Y5uI7Iq/Az6HgJEL6pdw7THVd7jbVOTPwsmcPOBjQL8e3N+pz872kzK5QxYGEy21iRys+iHWV0UZQXDFJo1hyA==
+
 clone-response@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/clone-response/-/clone-response-1.0.2.tgz#d1dc973920314df67fbeb94223b4ee350239e96b"
@@ -664,6 +677,11 @@ decompress-response@^6.0.0:
   integrity sha512-aW35yZM6Bb/4oJlZncMH2LCoZtJXTRxES17vE3hoRiowU2kWHaJKFkSBDnDR+cm9J+9QhXmREyIfv0pji9ejCQ==
   dependencies:
     mimic-response "^3.1.0"
+
+deep-extend@^0.2.8:
+  version "0.2.11"
+  resolved "https://registry.yarnpkg.com/deep-extend/-/deep-extend-0.2.11.tgz#7a16ba69729132340506170494bc83f7076fe08f"
+  integrity sha1-eha6aXKRMjQFBhcElLyD9wdv4I8=
 
 defaults@^1.0.0:
   version "1.0.3"
@@ -2586,6 +2604,11 @@ sshpk@^1.7.0:
     jsbn "~0.1.0"
     safer-buffer "^2.0.2"
     tweetnacl "~0.14.0"
+
+stat-mode@~0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/stat-mode/-/stat-mode-0.1.0.tgz#0cfbec3af29e6059122d2f7efc3e96a8203556a9"
+  integrity sha1-DPvsOvKeYFkSLS9+/D6WqCA1Vqk=
 
 "statuses@>= 1.5.0 < 2", statuses@~1.5.0:
   version "1.5.0"

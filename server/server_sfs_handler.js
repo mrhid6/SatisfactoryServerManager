@@ -14,6 +14,9 @@ const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 
+const platform = process.platform;
+const chmodr = require("chmodr");
+
 class SF_Server_Handler {
 
     constructor() {
@@ -50,9 +53,23 @@ class SF_Server_Handler {
             SteamCmd.download({
                 binDir: Config.get("ssm.steamcmd")
             }).then(() => {
-                return SteamCmd.prep({
-                    binDir: Config.get("ssm.steamcmd")
-                })
+                if (platform == "linux") {
+                    if (fs.existsSync(steamcmdexe)) {
+                        chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
+                            if (err) {
+                                console.log('Failed to execute chmod', err);
+                            } else {
+                                return SteamCmd.prep({
+                                    binDir: Config.get("ssm.steamcmd")
+                                })
+                            }
+                        });
+                    }
+                } else {
+                    return SteamCmd.prep({
+                        binDir: Config.get("ssm.steamcmd")
+                    })
+                }
             }).then(() => {
                 logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
                 resolve()
