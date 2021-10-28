@@ -3,15 +3,10 @@
 CURDIR=$(dirname "$(readlink -f "$0")")
 BASEDIR=$(readlink -f "$CURDIR/..")
 
-if [ ! -f "${BASEDIR}/tools/app_config.txt" ]; then
-    echo "No config file was found please run configure_app.sh first"
-    exit 1
-fi
-
-. ${BASEDIR}/tools/variables.sh
-. ${BASEDIR}/tools/app_config.txt
-
 VERSION=""
+LINUX=0
+WINDOWS=0
+FORCE=0
 
 while [[ $# -gt 0 ]]; do
     key="$1"
@@ -22,9 +17,29 @@ while [[ $# -gt 0 ]]; do
         shift # past value
         shift # past value
         ;;
+    --linux)
+        LINUX=1
+        shift # past value
+        ;;
+    --windows)
+        WINDOWS=1
+        shift # past value
+        ;;
+    --force)
+        FORCE=1
+        shift # past value
+        ;;
 
     esac
 done
+
+if [[ ! -f "${BASEDIR}/tools/app_config.txt" ]] && [[ $FORCE -eq 0 ]]; then
+    echo "No config file was found please run configure_app.sh first"
+    exit 1
+fi
+
+. ${BASEDIR}/tools/variables.sh
+. ${BASEDIR}/tools/app_config.txt
 
 echo -en "\nCompiling Application (Version: \e[34m${VERSION}\e[0m)\n"
 
@@ -111,6 +126,13 @@ if [ "${USE_LINUX_SERVER}" == "1" ]; then
 
     rm ${release_dir_linux}/exe.list
     echo -en "\e[32m✔\e[0m\n"
+
+    printDots "* Compiling Linux" 30
+    sshargs="cd /nodejs/build/SSM; \
+        find /nodejs/build/SSM -name \"*.node\" | grep -v \"obj\"
+    "
+    pkg app.js -c package.json -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
+    echo -en "\e[32m✔\e[0m\n"
 fi
 
 printDots "* Copying Win64 Executables" 30
@@ -122,10 +144,6 @@ while read -r line; do
 done <${release_dir_win64}/exe.list
 rm ${release_dir_win64}/exe.list
 
-echo -en "\e[32m✔\e[0m\n"
-
-printDots "* Compiling Linux" 30
-pkg app.js -c package.json -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win64" 30
