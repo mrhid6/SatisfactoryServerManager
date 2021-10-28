@@ -17,6 +17,10 @@ const Config = require("./server_config");
 const platform = process.platform;
 const chmodr = require("chmodr");
 
+const {
+    SteamCMDNotInstalled
+} = require("../objects/errors/error_steamcmd");
+
 class SF_Server_Handler {
 
     constructor() {
@@ -81,13 +85,15 @@ class SF_Server_Handler {
                 const steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
 
                 if (fs.existsSync(steamcmdexe)) {
-                    chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
+                    chmodr(Config.get("ssm.steamcmd"), 777, (err) => {
                         if (err) {
                             reject(err);
                         } else {
                             resolve();
                         }
                     });
+                } else {
+                    reject(new SteamCMDNotInstalled())
                 }
             } else {
                 resolve();
