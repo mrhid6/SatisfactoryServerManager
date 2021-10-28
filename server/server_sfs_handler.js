@@ -53,7 +53,11 @@ class SF_Server_Handler {
             SteamCmd.download({
                 binDir: Config.get("ssm.steamcmd")
             }).then(() => {
+
+                let steamcmdexe = ""
                 if (platform == "linux") {
+                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
+
                     if (fs.existsSync(steamcmdexe)) {
                         chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
                             if (err) {
@@ -70,6 +74,7 @@ class SF_Server_Handler {
                         binDir: Config.get("ssm.steamcmd")
                     })
                 }
+
             }).then(() => {
                 logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
                 resolve()
