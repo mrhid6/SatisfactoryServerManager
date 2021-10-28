@@ -65,10 +65,12 @@
             "node_modules/moment/min/**/*",
             "node_modules/toastr/build/**/*",
             "node_modules/ts-invariant/**/*",
-            "node_modules/exiftool-vendored.exe/**/*"
+            "node_modules/exiftool-vendored.exe/**/*",
+            "node_modules/exiftool-vendored/**/*",
+            "node_modules/exiftool-vendored.pl/**/*"
         ],
         "targets": [
-            "node12"
+            "node16"
         ]
     }
 }

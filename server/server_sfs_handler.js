@@ -365,14 +365,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function (error) {
+                .on("error", function(error) {
                     reject(error);
                 })
-                .on("close", function () {
+                .on("close", function() {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function (bytesRead, buffer) {
+                .read(length, function(bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();
@@ -467,20 +467,6 @@ class SF_Server_Handler {
 
             if (fs.pathExistsSync(save_location) == false) {
                 reject("Save location path doesn't exist!")
-                return;
-            }
-
-            let SFSExeName = ""
-
-            if (platform == "win32") {
-                SFSExeName = "FactoryServer.exe";
-            } else {
-                SFSExeName = "FactoryServer.sh";
-            }
-
-            const SFSExe = path.join(server_location, SFSExeName);
-            if (fs.existsSync(SFSExe) == false) {
-                reject("Cant find server executable (" + SFSExeName + ")")
                 return;
             }
 

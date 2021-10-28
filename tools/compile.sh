@@ -48,7 +48,7 @@ release_dir_win64="${release_dir}/win64"
 
 cd ${BASEDIR}
 
-bash ${BASEDIR}/tools/update_SSM_exe.sh --version "${VERSION}"
+#bash ${BASEDIR}/tools/update_SSM_exe.sh --version "${VERSION}"
 
 if [ $? -ne 0 ]; then
     echo "Error: failed to update SSM.exe version numbers"
@@ -113,7 +113,7 @@ fi
 
 printDots "* Copying Win64 Executables" 30
 
-find ${BASEDIR} -name "*.node|*.exe" | grep -v "release-builds" >${release_dir_win64}/exe.list
+find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_win64}/exe.list
 
 while read -r line; do
     cp ${line} ${release_dir_win64}/.

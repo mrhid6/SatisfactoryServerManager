@@ -10,7 +10,8 @@ const iConfig = Mrhid6Utils.Config;
 const platform = process.platform;
 
 const {
-    getDataHome
+    getDataHome,
+    getHomeFolder
 } = require("platform-folders")
 
 let userDataPath = null;
@@ -92,7 +93,7 @@ class ServerConfig extends iConfig {
         if (platform == "win32") {
             localAppdata = path.resolve(getDataHome() + "/../local/FactoryGame")
         } else {
-            localAppdata = path.resolve("~.config/Epic/FactoryGame")
+            localAppdata = path.resolve(getHomeFolder() + "/.config/Epic/FactoryGame")
         }
         const SaveFolder = path.join(localAppdata, "Saved", "SaveGames", "server")
         const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")

@@ -230,7 +230,7 @@ class Page_Settings {
             save_location
         }
 
-        API_Proxy.postData("/config/ssmsettings", postData).then(res => {
+        API_Proxy.postData("config/ssmsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSSMSettings();
@@ -241,7 +241,8 @@ class Page_Settings {
             } else {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
+                    console.log(JSON.stringify(res.error));
+                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
                 });
             }
         });

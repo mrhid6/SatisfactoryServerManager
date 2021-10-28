@@ -1,5 +1,9 @@
 global.__basedir = __dirname;
 
+process.on('uncaughtException', function(err) {
+    fs.writeFileSync('log.txt', err.message);
+});
+
 require("isomorphic-fetch");
 
 const express = require('express');
@@ -19,7 +23,6 @@ var Cleanup = require("./server/server_cleanup");
 const Config = require("./server/server_config");
 
 const SSM_Server_App = require("./server/server_app");
-
 
 class AppServer {
     constructor() {
@@ -79,7 +82,7 @@ class AppServer {
         }
         app.use(cors(corsOptions));
 
-        app.use(function (req, res, next) {
+        app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
@@ -129,12 +132,12 @@ class AppServer {
     }
 
     fixFileStoreSessionDelete() {
-        FSStore.prototype.reap = function () {
+        FSStore.prototype.reap = function() {
             var now = new Date().getTime();
             var self = this;
             //console.log("deleting old sessions");
-            var checkExpiration = function (filePath) {
-                fs.readFile(filePath, function (err, data) {
+            var checkExpiration = function(filePath) {
+                fs.readFile(filePath, function(err, data) {
                     if (!err) {
                         data = JSON.parse(data);
                         if (data.expired && data.expired < now) {
@@ -144,11 +147,11 @@ class AppServer {
                     }
                 });
             };
-            fs.readdir(self.dir, function (err, files) {
+            fs.readdir(self.dir, function(err, files) {
                 if (err || files.length <= 0) {
                     return;
                 }
-                files.forEach(function (file, i) {
+                files.forEach(function(file, i) {
                     if (/\.json$/.test(files[i])) {
                         checkExpiration(path.join(self.dir, files[i]));
                     }
@@ -156,7 +159,7 @@ class AppServer {
             });
         };
 
-        FSStore.prototype.destroy = function (sid) {
+        FSStore.prototype.destroy = function(sid) {
             fs.unlinkSync(path.join(this.dir, sid + '.json'));
         };
     }
