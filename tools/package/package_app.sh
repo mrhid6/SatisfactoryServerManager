@@ -3,7 +3,7 @@
 #!/bin/bash
 
 CURDIR=$(dirname "$(readlink -f "$0")")
-BASEDIR=$(readlink -f "$CURDIR/..")
+BASEDIR=$(readlink -f "$CURDIR/../..")
 
 VERSION=""
 LINUX=0
@@ -71,24 +71,26 @@ fi
 
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
 
-if [ "${USE_LINUX_SERVER}" == "1" ]; then
-    
+if [ ${LINUX} -eq 1 ]; then
+    bash ${CURDIR}/package_linux.sh --version ${VERSION}
 fi
 
-printDots "* Copying Win64 Executables" 30
+if [ ${WINDOWS} -eq 1 ]; then
+    printDots "* Copying Win64 Executables" 30
 
-find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_win64}/exe.list
+    find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_win64}/exe.list
 
-while read -r line; do
-    cp ${line} ${release_dir_win64}/.
-done <${release_dir_win64}/exe.list
-rm ${release_dir_win64}/exe.list
+    while read -r line; do
+        cp ${line} ${release_dir_win64}/.
+    done <${release_dir_win64}/exe.list
+    rm ${release_dir_win64}/exe.list
 
-echo -en "\e[32m✔\e[0m\n"
+    echo -en "\e[32m✔\e[0m\n"
 
-printDots "* Compiling Win64" 30
-pkg app.js -c package.json -t node16-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
-echo -en "\e[32m✔\e[0m\n"
+    printDots "* Compiling Win64" 30
+    pkg app.js -c package.json -t node16-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
+    echo -en "\e[32m✔\e[0m\n"
+fi
 
 ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
 ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"

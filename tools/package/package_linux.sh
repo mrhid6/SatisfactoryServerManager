@@ -1,7 +1,7 @@
 #!/bin/bash
 
 CURDIR=$(dirname "$(readlink -f "$0")")
-BASEDIR=$(readlink -f "$CURDIR/..")
+BASEDIR=$(readlink -f "$CURDIR/../..")
 
 VERSION=""
 COMPILEONLY=0
