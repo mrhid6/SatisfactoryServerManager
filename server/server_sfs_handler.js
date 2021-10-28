@@ -85,7 +85,7 @@ class SF_Server_Handler {
                 const steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
 
                 if (fs.existsSync(steamcmdexe)) {
-                    chmodr(Config.get("ssm.steamcmd"), 777, (err) => {
+                    chmodr(Config.get("ssm.steamcmd"), 0o777, (err) => {
                         if (err) {
                             reject(err);
                         } else {
