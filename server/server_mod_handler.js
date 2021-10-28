@@ -4,6 +4,7 @@ const schedule = require('node-schedule');
 
 const Config = require("./server_config");
 const logger = require("./server_logger");
+const fs = require("fs-extra");
 
 const {
     SatisfactoryInstall,
@@ -17,6 +18,10 @@ const {
     request
 } = require("graphql-request");
 
+const {
+    SMLAPINotReady
+} = require("../objects/errors/error_sml");
+
 
 const SteamCmd = require("steamcmd");
 
@@ -28,27 +33,56 @@ class SSM_Mod_Handler {
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
+        waitForSteamCmdInstall().then(() => {
+            SteamCmd.getAppInfo(1690800, {
+                binDir: Config.get("ssm.steamcmd")
+            }).then((data) => {
+                const ServerVersion = data.depots.branches.public.buildid;
+                this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", ServerVersion, "public", Config.get("satisfactory.server_location"), "", "")
+            });
 
-        SteamCmd.getAppInfo(1690800, {
-            binDir: Config.get("ssm.steamcmd")
-        }).then((data) => {
-            const ServerVersion = data.depots.branches.public.buildid;
-            this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", ServerVersion, "public", Config.get("satisfactory.server_location"), "", "")
+            this.startScheduledJobs();
+        })
+
+    }
+
+    waitForSteamCmdInstall() {
+        return new Promise((resolve, reject) => {
+            let interval = setInterval(() => {
+                logger.debug("[Mod_Handler] - Waiting for SteamCMD Install..")
+                let steamcmdexe = ""
+                if (platform == "win32") {
+                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.exe")
+                } else {
+                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
+                }
+                if (fs.existsSync(steamcmdexe)) {
+                    logger.debug("[Mod_Handler] - SteamCMD Install Completed!")
+                    resolve();
+                    clearInterval(interval);
+                    return;
+                }
+            })
         });
-
-        this.startScheduledJobs();
     }
 
     startScheduledJobs() {
         schedule.scheduleJob('30 * * * *', () => {
             if (Config.get("mods.enabled") && Config.get("mods.autoupdate")) {
-                this.autoUpdateAllMods();
+                this.autoUpdateAllMods().catch(err => {
+                    console.log(err)
+                })
             }
         });
     }
 
     getSMLInfo() {
         return new Promise((resolve, reject) => {
+
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
 
             this.SML_API._getInstalledSMLVersion().then(res => {
                 const infoObject = {
@@ -68,6 +102,10 @@ class SSM_Mod_Handler {
 
     getModsInstalled() {
         return new Promise((resolve, reject) => {
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
 
             this.SML_API._getInstalledMods().then(res => {
                 const resArr = [];
@@ -91,7 +129,10 @@ class SSM_Mod_Handler {
 
     installModVersion(modid, version) {
         return new Promise((resolve, reject) => {
-
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
             logger.info("[MOD_HANDLER] [INSTALL] - Installing Mod: " + modid + " (" + version + ")");
             this.SML_API.installMod(modid, version).then(() => {
                 logger.info("[MOD_HANDLER] [INSTALL] - Installed Mod: " + modid + " (" + version + ")");
@@ -105,6 +146,12 @@ class SSM_Mod_Handler {
 
     uninstallMod(modid) {
         return new Promise((resolve, reject) => {
+
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
+
             let currentMod = null;
             this.getModsInstalled().then(mods => {
                 currentMod = mods.find(el => el.id == modid);
@@ -127,6 +174,12 @@ class SSM_Mod_Handler {
     // TODO: Placeholder for SMLAPI updateMod Function
     updateMod(modid) {
         return new Promise((resolve, reject) => {
+
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
+
             logger.info("[MOD_HANDLER] [INSTALL] - Updating Mod: " + modid);
             this.SML_API.updateMod(modid).then(() => {
                 logger.info("[MOD_HANDLER] [INSTALL] - Updated Mod: " + modid + "!");
@@ -137,6 +190,12 @@ class SSM_Mod_Handler {
 
     installSMLVersion(req_version) {
         return new Promise((resolve, reject) => {
+
+            if (this.SML_API == null) {
+                reject(new SMLAPINotReady());
+                return;
+            }
+
             getAvailableSMLVersions().then(versions => {
                 const sml_version = versions.find(el => el.version == req_version)
 
@@ -165,6 +224,7 @@ class SSM_Mod_Handler {
 
     installSMLVersionLatest() {
         return new Promise((resolve, reject) => {
+
             logger.info("[MOD_HANDLER] [INSTALL] - Installing SML ...")
             getLatestSMLVersion().then(sml_version => {
                 return this.installSMLVersion(sml_version.version)
@@ -179,6 +239,7 @@ class SSM_Mod_Handler {
 
     getFicsitSMLVersions() {
         return new Promise((resolve, reject) => {
+
             getAvailableSMLVersions().then(versions => {
                 resolve(versions)
             }).catch(err => {
@@ -288,17 +349,23 @@ class SSM_Mod_Handler {
     }
 
     autoUpdateAllMods() {
-        this.getModsInstalled().then(mods => {
+        return new Promise((resolve, reject) => {
+            this.getModsInstalled().then(mods => {
 
-            logger.info("[Mod_Handler] [AUTOUPDATE] - Updating " + mods.length + " mods");
+                logger.info("[Mod_Handler] [AUTOUPDATE] - Updating " + mods.length + " mods");
 
-            for (let i = 0; i < mods.length; i++) {
-                const mod = mods[i];
-                this.updateMod(mod.id)
-            }
+                for (let i = 0; i < mods.length; i++) {
+                    const mod = mods[i];
+                    this.updateMod(mod.id)
+                }
 
-            logger.info("[Mod_Handler] [AUTOUPDATE] - Updated all mods!");
-        })
+                logger.info("[Mod_Handler] [AUTOUPDATE] - Updated all mods!");
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+
+        });
     }
 }
 const ssm_mod_handler = new SSM_Mod_Handler();

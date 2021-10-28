@@ -24,20 +24,12 @@ class SF_Server_Handler {
         logger.info("[SFS_Handler] [INIT] - SFS Handler Initialized");
         this.setupEventHandlers();
 
-        SteamCmd.download({
-            binDir: Config.get("ssm.steamcmd")
-        }).then(() => {
-            return SteamCmd.prep({
-                binDir: Config.get("ssm.steamcmd")
-            })
-        }).then(() => {
-            logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
-
+        this.InstallSteamCmd().then(() => {
             if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
                 return this.InstallSFServer();
             }
         }).catch(err => {
-            console.log(err)
+            console.log(err);
         })
     }
 
@@ -50,6 +42,24 @@ class SF_Server_Handler {
 
     CleanupSFSHandler() {
         this.stopServer().catch(err => {})
+    }
+
+    InstallSteamCmd() {
+        return new Promise((resolve, reject) => {
+            logger.info("[SFS_Handler] - Checking SteamCmd binaries ..")
+            SteamCmd.download({
+                binDir: Config.get("ssm.steamcmd")
+            }).then(() => {
+                return SteamCmd.prep({
+                    binDir: Config.get("ssm.steamcmd")
+                })
+            }).then(() => {
+                logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
+                resolve()
+            }).catch(err => {
+                reject(err);
+            })
+        });
     }
 
     InstallSFServer() {
@@ -365,14 +375,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function(error) {
+                .on("error", function (error) {
                     reject(error);
                 })
-                .on("close", function() {
+                .on("close", function () {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function(bytesRead, buffer) {
+                .read(length, function (bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();
