@@ -33,7 +33,7 @@ class SSM_Mod_Handler {
     init() {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
-        waitForSteamCmdInstall().then(() => {
+        this.waitForSteamCmdInstall().then(() => {
             SteamCmd.getAppInfo(1690800, {
                 binDir: Config.get("ssm.steamcmd")
             }).then((data) => {
