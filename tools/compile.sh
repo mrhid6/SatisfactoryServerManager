@@ -39,8 +39,6 @@ if [ ! -d "${BASEDIR}/release-builds" ]; then
     mkdir -p "${BASEDIR}/release-builds/win64"
 fi
 
-version=$1
-
 release_dir="${BASEDIR}/release-builds"
 
 release_dir_linux="${release_dir}/linux"
