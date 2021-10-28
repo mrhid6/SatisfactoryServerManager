@@ -64,18 +64,28 @@ class ServerConfig extends iConfig {
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", "v1.0.19");
+        super.set("ssm.version", "v1.0.20");
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
 
         super.get("ssm.metrics.enabled", false)
         super.get("ssm.metrics.clientid", "")
-        super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
+
+        if (platform == "win32") {
+            super.get("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
+        } else {
+            super.get("ssm.steamcmd", path.join("/opt", "steamcmd"));
+        }
 
         super.get("satisfactory.installed", false)
         super.get("satisfactory.updateonstart", false)
-        super.get("satisfactory.server_location", path.join(userDataPath, "SFServer"))
+
+        if (platform == "win32") {
+            super.get("satisfactory.server_location", path.join(getHomeFolder(), "SFServer"));
+        } else {
+            super.get("satisfactory.server_location", path.join("/opt", "SFServer"));
+        }
 
         if (platform == "win32") {
             super.set("satisfactory.server_exe", "FactoryServer.exe")
