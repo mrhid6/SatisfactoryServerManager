@@ -64,7 +64,7 @@ class SSM_Mod_Handler {
                     clearInterval(interval);
                     return;
                 }
-            })
+            }, 1000)
         });
     }
 
