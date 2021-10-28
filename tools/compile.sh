@@ -55,6 +55,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
+if [ ! -d "${BASEDIR}/assets" ]; then
+    mkdir "${BASEDIR}/assets"
+fi
+
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
 
 if [ "${USE_LINUX_SERVER}" == "1" ]; then
