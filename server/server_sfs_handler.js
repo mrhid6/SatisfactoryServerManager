@@ -24,15 +24,23 @@ class SF_Server_Handler {
     }
 
     init() {
-        logger.info("[SFS_Handler] [INIT] - SFS Handler Initialized");
-        this.setupEventHandlers();
+        return new Promise((resolve, reject) => {
+            logger.info("[SFS_Handler] [INIT] - SFS Handler Initialized");
+            this.setupEventHandlers();
 
-        this.InstallSteamCmd().then(() => {
-            if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
-                return this.InstallSFServer();
-            }
-        }).catch(err => {
-            console.log(err);
+            this.InstallSteamCmd().then(() => {
+                if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
+                    this.InstallSFServer().then(() => {
+                        resolve()
+                    }).catch(err => {
+                        reject(err);
+                    })
+                } else {
+                    resolve()
+                }
+            }).catch(err => {
+                reject(err)
+            })
         })
     }
 

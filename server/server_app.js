@@ -19,12 +19,16 @@ class SSM_Server_App {
     init() {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
         this.setupEventHandlers();
-        SFS_Handler.init();
-        SSM_Mod_Handler.init();
-        SSM_Log_Handler.init();
-        Metrics.init();
+        SFS_Handler.init().then(() => {
+            SSM_Mod_Handler.init();
+            SSM_Log_Handler.init();
+            Metrics.init();
 
-        Metrics.sendServerStartEvent();
+            Metrics.sendServerStartEvent();
+        }).catch(err => {
+            console.log(err);
+        })
+
     }
 
     setupEventHandlers() {
