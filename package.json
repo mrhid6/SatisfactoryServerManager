@@ -1,6 +1,6 @@
 {
     "name": "SatisfactoryServerManager",
-    "version": "1.0.23",
+    "version": "1.0.24",
     "main": "app.js",
     "repository": "git@github.com:mrhid6/SatisfactoryServerManager.git",
     "author": "Mrhid6 <mrhid6@gmail.com>",
