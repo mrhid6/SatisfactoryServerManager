@@ -622,7 +622,7 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const server_location = data.server_location || "";
             const save_location = data.save_location || "";
-            const updatesfonstart = data.updatesfonstart;
+            const updatesfonstart = data.updatesfonstart == "true";
 
             if (server_location == "" || save_location == "") {
                 reject("Both server location & save locations are required!")
