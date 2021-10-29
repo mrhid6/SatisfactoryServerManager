@@ -72,22 +72,6 @@ class PageHandler {
             this.sendAcceptMetrics();
         }).on("click", "#btn_setup_findinstall", e => {
             this.getSetupSFInstalls(e)
-        }).on("change", "#sel_setup_sf_install", e => {
-            const $selel = $(e.currentTarget);
-
-            if ($selel.val() == -1) {
-                this.SETUP_CACHE.selected_sfinstall = null;
-                $("#setup_sf_installname").text("")
-                $("#setup_sf_installloc").text("")
-                $("#setup_sf_installver").text("")
-                return;
-            }
-
-            const info = this.SETUP_CACHE.sfinstalls[$selel.val()]
-            this.SETUP_CACHE.selected_sfinstall = info;
-            $("#setup_sf_installname").text(info.name)
-            $("#setup_sf_installloc").text(info.installLocation)
-            $("#setup_sf_installver").text(info.version)
         })
     }
 
@@ -154,6 +138,8 @@ class PageHandler {
                     Tools.openModal("/public/modals", "inital-setup", (modal) => {
 
                         const form = $("#initial-setup-wizard")
+
+
                         form.steps({
                             headerTag: "h3",
                             bodyTag: "fieldset",
@@ -167,11 +153,18 @@ class PageHandler {
                                     return false;
                                 }
 
+                                if (newIndex == 4) {
+
+                                    $("#setup_summary_sfinstallloc").text($("#inp_sf_install_location").val())
+
+                                    const terms = ($("#acceptTerms-2:checked").length > 0)
+                                    return terms;
+                                }
+
                                 return true;
                             },
                             onFinishing: (event, currentIndex) => {
-                                const terms = ($("#acceptTerms-2:checked").length > 0)
-                                return terms;
+                                return true;
                             },
                             onFinished: (event, currentIndex) => {
                                 const postData = {
@@ -185,7 +178,21 @@ class PageHandler {
                                 })
                             }
                         });
-                        $("#inp_setup_testmode").bootstrapToggle();
+
+                        API_Proxy.get("config").then(res => {
+                            const SSMConfig = res.data.ssm;
+                            const SFConfig = res.data.satisfactory;
+                            const ModsConfig = res.data.mods;
+
+                            $("#inp_sf_install_location").val(SFConfig.server_location);
+                            $('#inp_updatesfonstart').bootstrapToggle()
+                            if (SFConfig.updateonstart == true) {
+                                $('#inp_updatesfonstart').bootstrapToggle('on')
+                            } else {
+                                $('#inp_updatesfonstart').bootstrapToggle('off')
+                            }
+                        })
+
                         $("#inp_setup_metrics").bootstrapToggle();
                     })
                 }

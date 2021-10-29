@@ -5,18 +5,6 @@ BASEDIR=$(readlink -f "$CURDIR/..")
 
 . ${BASEDIR}/tools/variables.sh
 
-VERSION="v0.0.0"
-
-printDots "Compiling App" 30
-bash ${BASEDIR}/tools/compile.sh --version ${VERSION} >/dev/null 2>&1
-
-if [ $? -ne 0 ]; then
-    echo -en "\e[31m✘\e[0m\n"
-    exit 1
-else
-    echo -en "\e[32m✔\e[0m\n"
-fi
-
 if [ ! -f "${BASEDIR}/release-builds/linux/SatisfactoryServerManager" ]; then
     echo "Error: SSM Linux didn't compile correctly!"
     exit 1
@@ -69,6 +57,20 @@ while true; do
     *)
         kill $SSM_PID
         echo "Error: SSM version is not set correctly in server_config.js!"
+        exit 1
+        ;;
+    esac
+done
+
+while true; do
+    read -p "Mods List populated? [Y/n]: " yn
+    case $yn in
+   [Yy]*)
+        break
+        ;;
+    *)
+        kill $SSM_PID
+        echo "Error: Debug Mods List!"
         exit 1
         ;;
     esac

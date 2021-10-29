@@ -13,7 +13,8 @@
     "hooks": {
         "before:release": [
             "bash ./tools/package/package_app.sh --version v${version} --windows --linux",
-            "bash ./tools/prerelease-checks.sh --version v${version}"
+            "bash ./tools/prerelease-checks.sh --version v${version}",
+            "bash ./tools/interactive_test.sh"
         ]
     }
 }
