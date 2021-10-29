@@ -169,12 +169,28 @@ class PageHandler {
                             onFinished: (event, currentIndex) => {
                                 const postData = {
                                     serverlocation: $("#inp_sf_install_location").val(),
-                                    testmode: ($("#inp_setup_testmode:checked").length > 0),
+                                    updateonstart: ($("#inp_updatesfonstart:checked").length > 0),
                                     metrics: ($("#inp_setup_metrics:checked").length > 0)
                                 }
 
+                                modal.find(".close").trigger("click");
+
                                 API_Proxy.postData("config/ssm/setup", postData).then(res => {
-                                    modal.modal("hide");
+
+                                    Tools.openModal("/public/modals", "server-action-installsf", () => {
+                                        API_Proxy.post("serveractions", "installsf").then(res => {
+                                            if (res.result == "success") {
+                                                toastr.success("Server has been installed!")
+                                                $("#server-action-installsf .close").trigger("click");
+                                            } else {
+                                                $("#server-action-installsf").remove();
+
+                                                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
+                                                    modal_el.find("#error-msg").text(res.error.message)
+                                                });
+                                            }
+                                        })
+                                    });
                                 })
                             }
                         });

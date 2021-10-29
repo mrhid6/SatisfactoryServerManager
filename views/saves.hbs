@@ -5,10 +5,29 @@
             <h5>Satisfactory Saves</h5>
         </div>
         <div class="card-body">
-            <div class="alert alert-primary mb-4">
-                <h4 class="alert-heading">Current Save:</h4>
-                <span id="current-save"></span>
-            </div>
+            <form id="save-upload-form" enctype="multipart/form-data">
+                <fieldset>
+
+                    <div class="row settings-row">
+                        <div class="col-12 col-md-4">
+                            <b class="settings-prop">Save File:</b>
+                            <span class="settings-info">
+                                The save file (.sav) to upload to the server
+                            </span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="form-group">
+                                <input class="form-control" type="file" name="savefile" id="inp-save-file"
+                                    accept=".sav">
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-2">
+                            <button class="btn btn-success btn-block" id="btn-save-upload"><i class="fas fa-upload"></i>
+                                Upload</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
             <table class="table table-bordered" id="saves-table">
                 <thead>
                     <tr>
@@ -19,14 +38,6 @@
                     </tr>
                 </thead>
             </table>
-            <div class="row">
-                <div class="col-12">
-                    <button class="btn btn-success float-left" id="new-session-name">
-                        <i class="fas fa-plus"></i>
-                        New Session
-                    </button>
-                </div>
-            </div>
         </div>
     </div>
 </div>

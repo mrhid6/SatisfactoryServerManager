@@ -32,6 +32,23 @@ class API_Proxy {
             })
         })
     }
+
+    upload(uploadurl, formdata) {
+        const url = "/api/" + uploadurl
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: formdata, // The form with the file inputs.
+                processData: false,
+                contentType: false // Using FormData, no need to process data.
+            }).done(data => {
+                resolve(data)
+            }).fail(err => {
+                reject(err);
+            });
+        });
+    }
 }
 
 const api_proxy = new API_Proxy();

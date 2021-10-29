@@ -60,12 +60,10 @@ class ServerConfig extends iConfig {
 
     setDefaults() {
 
-        const packageJson = require("../package.json");
-
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
         super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v${packageJson.version}`);
+        super.set("ssm.version", `v1.0.23`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
@@ -157,17 +155,13 @@ class ServerConfig extends iConfig {
         return new Promise((resolve, reject) => {
             super.set("ssm.setup", true)
             super.set("ssm.metrics.enabled", (data.metrics == "true"))
-            super.set("satisfactory.testmode", (data.testmode == "true"))
             super.set("satisfactory.server_location", data.serverlocation)
+            super.set("satisfactory.updateonstart", (data.updateonstart == "true"))
 
-            require("./server_sfs_handler").InstallSFServer().then(() => {
-                require("./server_mod_handler").init();
-                require("./server_metrics").sendServerStartEvent();
+            require("./server_mod_handler").init();
+            require("./server_metrics").sendServerStartEvent();
 
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
+            resolve();
         });
     }
 }

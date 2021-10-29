@@ -258,6 +258,7 @@ class SF_Server_Handler {
                     return;
                 }
             }).then(res => {
+                this._getServerState();
                 this.wailTillSFServerStarted().then(() => {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Started");
                     resolve(res);
@@ -281,7 +282,7 @@ class SF_Server_Handler {
             let timeoutLimit = 30 * 1000; // 30 Seconds
 
             const interval = setInterval(() => {
-                this.getServerStatus().then(info => {
+                this._getServerState().then(info => {
 
                     if (timeoutCounter >= timeoutLimit) {
                         clearInterval(interval)
@@ -309,9 +310,11 @@ class SF_Server_Handler {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
                     Cleanup.decreaseCounter(1);
                     process.kill(server_status.pid, 'SIGINT');
+                    this._getServerState();
                     resolve();
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
+                    this._getServerState();
                     Cleanup.decreaseCounter(1);
                     reject("Server is already stopped!")
                     return;
@@ -326,14 +329,14 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
-
-
                     process.kill(server_status.pid, 'SIGKILL');
+                    this._getServerState();
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
                     Cleanup.decreaseCounter(1);
                     resolve();
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
+                    this._getServerState();
                     Cleanup.decreaseCounter(1);
                     reject("Server is already stopped!")
                     return;
@@ -574,7 +577,7 @@ class SF_Server_Handler {
 
     getSaveBodyLength(savefile) {
         return new Promise((resolve, reject) => {
-            this.readSaveFileOffset(savefile, 33, 4).then(buffer => {
+            this.readSaveFileOffset(savefile, 0, 4).then(buffer => {
                 resolve(buffer.readUInt8());
             }).catch(err => {
                 reject(err);
@@ -585,7 +588,7 @@ class SF_Server_Handler {
     getSaveBodyString(savefile, length) {
         return new Promise((resolve, reject) => {
 
-            this.readSaveFileOffset(savefile, 37, length).then(buffer => {
+            this.readSaveFileOffset(savefile, 15, 100).then(buffer => {
                 resolve(buffer.toString("utf-8").replace(/\0/g, ''))
             }).catch(err => {
                 reject(err);

@@ -18,5 +18,6 @@ router.use("/config", require("./config"))
 router.use("/serveractions", require("./serveractions"))
 router.use("/mods", require("./mods"))
 router.use("/ficsitinfo", require("./ficsitinfo"))
+router.use("/gamesaves", require("./gamesaves"))
 
 module.exports = router;

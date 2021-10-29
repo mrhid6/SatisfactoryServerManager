@@ -45,20 +45,6 @@ router.get('/loggedin', middleWare, function (req, res, next) {
 
 });
 
-router.get('/saves', middleWare, function (req, res, next) {
-    SFS_Handler.getSaves().then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err
-        });
-    })
-});
-
 router.get('/sf_installs', middleWare, function (req, res, next) {
     SFS_Handler.getSFInstalls().then(result => {
         res.json({

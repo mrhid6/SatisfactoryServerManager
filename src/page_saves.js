@@ -64,6 +64,11 @@ class Page_Settings {
                 Tools.modal_opened = false;
             }
         })
+
+        $("#btn-save-upload").on("click", e => {
+            e.preventDefault();
+            this.uploadSaveFile();
+        })
     }
 
     getConfig() {
@@ -98,7 +103,8 @@ class Page_Settings {
             $("#current-save").text(sfConfig.save.file)
         }
 
-        API_Proxy.get("info", "saves").then(res => {
+        API_Proxy.get("gamesaves").then(res => {
+            console.log(res)
             $("#refresh-saves").prop("disabled", false);
             $("#refresh-saves").find("i").removeClass("fa-spin");
 
@@ -108,9 +114,13 @@ class Page_Settings {
                 res.data.forEach(save => {
                     if (save.result == "failed") return;
 
+                    const $btn_info = $("<button/>")
+                        .addClass("btn btn-light btn-block ")
+                        .html("<i class='fas fa-search'></i>");
+
                     let useSaveEl = $("<button/>")
-                        .addClass("btn btn-primary btn-block select-save-btn")
-                        .text("Select Save")
+                        .addClass("btn btn-danger btn-block remove-save-btn")
+                        .html("<i class='fas fa-trash'></i> Remove Save")
                         .attr("data-save", save.savename);
 
                     if (save.savename == sfConfig.save.file) {
@@ -119,7 +129,16 @@ class Page_Settings {
                     const useSaveStr = useSaveEl.prop('outerHTML')
 
                     const saveOptions = save.savebody.split("?");
-                    const saveSessionName = saveOptions[2].split("=")[1];
+                    let saveSessionName = "Unknown";
+
+                    for (let i = 0; i < saveOptions.length; i++) {
+                        const option = saveOptions[i];
+                        const optionData = option.split("=");
+
+                        if (optionData[0] == "sessionName") {
+                            saveSessionName = optionData[1];
+                        }
+                    }
 
                     tableData.push([
                         saveSessionName.trunc(25),
@@ -154,47 +173,26 @@ class Page_Settings {
         })
     }
 
-    selectSave(savename) {
-        const postData = {
-            savename
-        }
+    uploadSaveFile() {
+        $("#btn-save-upload i").removeClass("fa-upload").addClass("fa-sync fa-spin")
+        $("#btn-save-upload").prop("disabled", true);
+        $("#inp-save-file").prop("disabled", true);
 
-        API_Proxy.postData("/config/selectsave", postData).then(res => {
+        const formData = new FormData($("#save-upload-form")[0]);
 
+        API_Proxy.upload("gamesaves/upload", formData).then(res => {
             if (res.result == "success") {
-                this.getConfig();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
+                toastr.success("Save has been uploaded!");
             } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
+                toastr.error("Save couldn't be uploaded!");
             }
-        });
-    }
 
-    serverAction_NewSession(sessionName) {
-        const postData = {
-            sessionName
-        }
+            $("#btn-save-upload i").addClass("fa-upload").removeClass("fa-sync fa-spin")
+            $("#btn-save-upload").prop("disabled", false);
+            $("#inp-save-file").prop("disabled", false);
+        })
 
-        API_Proxy.postData("/config/newsession", postData).then(res => {
-            if (res.result == "success") {
-                this.getConfig();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
+
     }
 
     startPageInfoRefresh() {
