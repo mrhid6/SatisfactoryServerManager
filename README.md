@@ -11,21 +11,21 @@ As a **note** this project has not ben tested with the Satisfactory dedicated se
 Install: `wget -q https://git.io/Je7rx -O - | bash` <br/>
 Update: `wget -q https://git.io/Je7rx -O - | bash /dev/stdin "--update"`
 
-**Windows**
+**Windows:**
 
 Open a PowerShell window as administrator and run the following commands:
-```
-Invoke-WebRequest https://git.io/JedBC -Out install.ps1
-.\install.ps1
 
-```
+Download Install Script: `Invoke-WebRequest https://git.io/JedBC -Out install.ps1`
+Install: `.\install.ps1`
+Update: `.\install.ps1 -update $true`
+
 
 ## Configure:
 Configuration of SSM can be done in the settings page or by editing the Json file.
 
 **Linux:**
 ```
-    vi /opt/SSM/SSM.json
+    vi /home/ssm/.SatisfactoryServerManager/SSM.json
 ```
 
 **Windows:**
