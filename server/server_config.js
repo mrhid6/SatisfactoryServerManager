@@ -71,21 +71,11 @@ class ServerConfig extends iConfig {
 
         super.get("ssm.metrics.enabled", false)
         super.get("ssm.metrics.clientid", "")
-
-        if (platform == "win32") {
-            super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
-        } else {
-            super.set("ssm.steamcmd", path.join("/opt", "steamcmd"));
-        }
+        super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
         super.get("satisfactory.installed", false)
         super.get("satisfactory.updateonstart", false)
-
-        if (platform == "win32") {
-            super.get("satisfactory.server_location", path.join(getHomeFolder(), "SFServer"));
-        } else {
-            super.get("satisfactory.server_location", path.join("/opt", "SFServer"));
-        }
+        super.get("satisfactory.server_location", path.join(userDataPath, "SFServer"));
 
         if (platform == "win32") {
             super.set("satisfactory.server_exe", "FactoryServer.exe")

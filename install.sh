@@ -74,10 +74,10 @@ else
 fi
 
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
-    apt-get -qq update -y
-    apt-get -qq upgrade -y
-    apt-get -qq install curl wget jq -y
-    add-apt-repository multiverse
+    apt-get -qq update -y >/dev/null 2>&1
+    apt-get -qq upgrade -y >/dev/null 2>&1
+    apt-get -qq install curl wget jq software-properties-common -y >/dev/null 2>&1
+    add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386
     apt -qq update -y
     apt -qq install lib32gcc1 -y
