@@ -15,8 +15,8 @@ Update: `wget -q https://git.io/Je7rx -O - | bash /dev/stdin "--update"`
 
 Open a PowerShell window as administrator and run the following commands:
 
-Download Install Script: `Invoke-WebRequest https://git.io/JedBC -Out install.ps1`
-Install: `.\install.ps1`
+Download Install Script: `Invoke-WebRequest https://git.io/JedBC -Out install.ps1`<br/>
+Install: `.\install.ps1`<br/>
 Update: `.\install.ps1 -update $true`
 
 
