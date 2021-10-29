@@ -137,7 +137,6 @@ useradd -m ssm -s /bin/bash 2>&1 >/dev/null
 
 echo "* Downloading SSM"
 rm -r ${INSTALL_DIR}/* 2>&1 >/dev/null
-mkdir -p "${INSTALL_DIR}/SMLauncher"
 
 wget -q "${SSM_URL}" -O "${INSTALL_DIR}/SSM.tar.gz"
 tar xzf "${INSTALL_DIR}/SSM.tar.gz" -C "${INSTALL_DIR}"
@@ -145,7 +144,7 @@ rm "${INSTALL_DIR}/SSM.tar.gz" >/dev/null 2>&1
 rm "${INSTALL_DIR}/build.log" >/dev/null 2>&1
 echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
 
-chmod -R +x ${INSTALL_DIR}
+chmod -R 777 ${INSTALL_DIR}
 chown -R ssm:ssm ${INSTALL_DIR}
 
 echo "* Cleanup"
