@@ -15,6 +15,11 @@ router.get('/smlinfo', middleWare, function (req, res, next) {
             result: "success",
             data: result
         });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
     })
 });
 
@@ -24,6 +29,11 @@ router.get('/modsinstalled', middleWare, function (req, res, next) {
         res.json({
             result: "success",
             data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
         });
     })
 });

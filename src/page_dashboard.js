@@ -52,11 +52,11 @@ class Page_Dashboard {
 
                 if (res.data.status == "stopped") {
                     el.text("Not Running")
-                } else {
+                } else if (res.data.status == "running") {
                     el.text("Running")
+                } else if (res.data.status == "notinstalled") {
+                    el.text("Not Installed")
                 }
-
-                console.log(res.data)
 
                 $("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
                 $("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
@@ -84,10 +84,15 @@ class Page_Dashboard {
             $("#server-action-start").prop("disabled", false);
             $("#server-action-stop").prop("disabled", true);
             $("#server-action-kill").prop("disabled", true);
-        } else {
+        } else if (this.ServerState.status == "running") {
             $("#server-action-start").prop("disabled", true);
             $("#server-action-stop").prop("disabled", false);
             $("#server-action-kill").prop("disabled", false);
+        } else if (this.ServerState.status == "notinstalled") {
+
+            $("#server-action-start").prop("disabled", true);
+            $("#server-action-stop").prop("disabled", true);
+            $("#server-action-kill").prop("disabled", true);
         }
     }
 

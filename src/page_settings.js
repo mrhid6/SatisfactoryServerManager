@@ -119,6 +119,11 @@ class Page_Settings {
                 Tools.modal_opened = false;
             }
         })
+
+        $("#settings-dangerarea-installsf").on("click", e => {
+            e.preventDefault();
+            this.installSFServer();
+        })
     }
 
     getConfig() {
@@ -234,10 +239,7 @@ class Page_Settings {
 
             if (res.result == "success") {
                 this.lockSSMSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
+                toastr.success("Settings have been saved!")
             } else {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
@@ -259,16 +261,33 @@ class Page_Settings {
         API_Proxy.postData("/config/modssettings", postData).then(res => {
             if (res.result == "success") {
                 this.lockModsSettings();
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-success", (modal_el) => {
-                    modal_el.find("#success-msg").text("Settings have been saved!")
-                });
+                toastr.success("Settings have been saved!")
             } else {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text(res.error)
                 });
             }
+        });
+    }
+
+    installSFServer() {
+
+        if (Tools.modal_opened == true) return;
+        Tools.openModal("/public/modals", "server-action-installsf", () => {
+            API_Proxy.post("serveractions", "installsf").then(res => {
+                console.log(res)
+                if (res.result == "success") {
+                    toastr.success("Server has been installed!")
+                    $("#server-action-installsf .close").trigger("click");
+                } else {
+                    $("#server-action-installsf").remove();
+
+                    Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
+                        modal_el.find("#error-msg").text(res.error.message)
+                    });
+                }
+            })
         });
     }
 

@@ -51,4 +51,19 @@ router.post('/kill', middleWare, function (req, res, next) {
     })
 });
 
+
+router.post('/installsf', middleWare, function (req, res, next) {
+    SFS_Handler.InstallSFServer(true).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
 module.exports = router;

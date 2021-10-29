@@ -1,1 +1,1 @@
-listen EADDRINUSE: address already in use :::3000
+EPERM: operation not permitted, unlink 'C:\ProgramData\SatisfactoryServerManager\sessions\OizsrZeDT1ZoQWG3XWoZmbu7fgTHacC2.json'

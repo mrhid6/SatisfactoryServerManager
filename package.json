@@ -35,6 +35,7 @@
         "platform-folders": "0.5.4",
         "popper.js": "^1.16.0",
         "recursive-readdir": "^2.2.2",
+        "rimraf": "^3.0.2",
         "satisfactory-mod-manager-api": "^3.0.0",
         "simple-node-logger": "^21.8.12",
         "steamcmd": "^3.0.0",
@@ -53,6 +54,9 @@
     "workspaces": [
         "./*"
     ],
+    "resolutions": {
+        "graceful-fs": "^4.2.4"
+    },
     "pkg": {
         "assets": [
             "views/**/*",

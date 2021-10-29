@@ -17,8 +17,14 @@ const Config = require("./server_config");
 const platform = process.platform;
 const chmodr = require("chmodr");
 
+const schedule = require('node-schedule');
+
+const rimraf = require("rimraf");
+
 const {
-    SteamCMDNotInstalled
+    SteamCMDNotInstalled,
+    SFFailedInstall,
+    SFActionFailedRunning
 } = require("../objects/errors/error_steamcmd");
 
 class SF_Server_Handler {
@@ -33,6 +39,8 @@ class SF_Server_Handler {
             this.setupEventHandlers();
 
             this.InstallSteamCmd().then(() => {
+                this._getServerState();
+
                 if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
                     this.InstallSFServer().then(() => {
                         resolve()
@@ -53,6 +61,15 @@ class SF_Server_Handler {
             logger.info("[SFS_Handler] [CLEANUP] - Closing SFS Handler ...");
             this.CleanupSFSHandler();
         })
+
+        schedule.scheduleJob('*/1 * * * *', () => {
+
+            this._getServerState().then(state => {
+                this.serverState = state;
+            }).catch(err => {
+                console.log(err)
+            })
+        });
     }
 
     CleanupSFSHandler() {
@@ -101,8 +118,53 @@ class SF_Server_Handler {
         })
     }
 
-    InstallSFServer() {
+    InstallSFServer(forceInstall = false) {
         return new Promise((resolve, reject) => {
+
+            if (forceInstall) {
+                this.isServerRunning().then(running => {
+                    if (running) {
+                        reject(new SFActionFailedRunning());
+                        return;
+                    } else {
+                        this._RemoveSFServer().then(() => {
+                            return this._InstallSFServer()
+                        }).then(() => {
+                            resolve();
+                        }).catch(err => {
+                            reject(err);
+                        })
+                    }
+                })
+            } else {
+                this._InstallSFServer().then(() => {
+                    resolve();
+                }).catch(err => {
+                    reject(err);
+                })
+            }
+
+        });
+    }
+
+    _RemoveSFServer() {
+        return new Promise((resolve, reject) => {
+            logger.info("[SFS_Handler] - Removing SF Dedicated Server");
+            rimraf(Config.get("satisfactory.server_location"), ["unlink"], err => {
+                if (err) {
+                    logger.error("[SFS_Handler] - Remove SF Server Error")
+                    reject(err);
+                    return;
+                }
+                logger.info("[SFS_Handler] - Removed SF Dedicated Server");
+                resolve();
+            })
+        });
+    }
+
+    _InstallSFServer() {
+        return new Promise((resolve, reject) => {
+
             Config.set("satisfactory.installed", false);
             logger.info("[SFS_Handler] - Installing SF Dedicated Server");
 
@@ -116,15 +178,23 @@ class SF_Server_Handler {
 
             SteamCmd.updateApp(1690800, installPath, {
                 binDir: Config.get("ssm.steamcmd")
-            }).then(result => {
-                logger.info("[SFS_Handler] - Installed SF Dedicated Server");
-                Config.set("satisfactory.installed", true);
-                resolve();
+            }).then(() => {
+                this.isGameInstalled().then(installed => {
+                    if (installed) {
+                        this._getServerState();
+                        logger.info("[SFS_Handler] - Installed SF Dedicated Server");
+                        Config.set("satisfactory.installed", true);
+                        resolve(true);
+                    } else {
+                        reject(new SFFailedInstall())
+                    }
+                })
+
+
             }).catch(err => {
                 reject(err);
             })
         });
-
     }
 
     execOSCmd(command) {
@@ -274,17 +344,44 @@ class SF_Server_Handler {
 
     getServerStatus() {
         return new Promise((resolve, reject) => {
+            if (this.serverState == null) {
+                this._getServerState().then((state) => {
+                    this.serverState = state;
+                    resolve(state);
+                })
+            } else {
+                resolve(this.serverState);
+            }
+        });
+    }
 
-            si.processes().then(data => {
+    _getServerState() {
+        return new Promise((resolve, reject) => {
+            logger.debug("[SFS_Handler] - Getting Server State");
+            const state = {
+                pid: -1,
+                status: "",
+                pcpu: 0,
+                pmem: 0
+            }
+
+            this.isGameInstalled().then(installed => {
+                if (installed) {
+                    return si.processes();
+                } else {
+                    state.status = "notinstalled";
+                    logger.debug("[SFS_Handler] - Received Server State");
+                    resolve(state);
+                    return;
+                }
+            }).then(data => {
+
+                if (data == null) {
+                    return;
+                }
+
                 let process = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
                 let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
-
-                const state = {
-                    pid: -1,
-                    status: "",
-                    pcpu: 0,
-                    pmem: 0
-                }
 
                 if (process == null && process2 == null) {
                     state.status = "stopped"
@@ -295,10 +392,30 @@ class SF_Server_Handler {
                     state.pmem = process2.mem;
                 }
 
+                logger.debug("[SFS_Handler] - Received Server State");
                 resolve(state)
                 return
             })
 
+        });
+    }
+
+    isServerRunning() {
+        return new Promise((resolve, reject) => {
+            this.getServerStatus().then(status => {
+                resolve(status.state == "running");
+            })
+        })
+    }
+
+    isGameInstalled() {
+        return new Promise((resolve, reject) => {
+            const SFServerExe = path.join(Config.get("satisfactory.server_location"), Config.get("satisfactory.server_exe"));
+            if (fs.existsSync(SFServerExe)) {
+                resolve(true);
+            } else {
+                resolve(false);
+            }
         });
     }
 

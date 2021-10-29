@@ -6,4 +6,22 @@ class SteamCMDNotInstalled extends Error {
     }
 }
 
+class SFFailedInstall extends Error {
+    constructor() {
+        super("Satisfactory Server Failed To Install")
+        this.name = "SFFailedInstall"
+        this.stack = (new Error()).stack;
+    }
+}
+
+class SFActionFailedRunning extends Error {
+    constructor() {
+        super("Cant fulfill action cause server is running!")
+        this.name = "SFActionFailedRunning"
+        this.stack = (new Error()).stack;
+    }
+}
+
 module.exports.SteamCMDNotInstalled = SteamCMDNotInstalled;
+module.exports.SFFailedInstall = SFFailedInstall;
+module.exports.SFActionFailedRunning = SFActionFailedRunning;
