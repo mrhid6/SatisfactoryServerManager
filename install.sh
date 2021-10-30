@@ -120,17 +120,18 @@ else
     echo "Installing SSM ${SSM_VER} ..."
     mkdir -p ${INSTALL_DIR}
 fi
+if [ ${NOSERVICE} -eq 0 ]; then
+    SSM_SERVICENAME="SSM.service"
+    SSM_SERVICEFILE="/etc/systemd/system/SSM.service"
+    SSM_SERVICE=$(
+        systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}"
+        echo $?
+    )
 
-SSM_SERVICENAME="SSM.service"
-SSM_SERVICEFILE="/etc/systemd/system/SSM.service"
-SSM_SERVICE=$(
-    systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}"
-    echo $?
-)
-
-if [ ${SSM_SERVICE} -eq 0 ]; then
-    echo "Stopping SSM Service"
-    systemctl stop ${SSM_SERVICENAME}
+    if [ ${SSM_SERVICE} -eq 0 ]; then
+        echo "Stopping SSM Service"
+        systemctl stop ${SSM_SERVICENAME}
+    fi
 fi
 
 useradd -m ssm -s /bin/bash 2>&1 >/dev/null
@@ -194,13 +195,4 @@ EOL
 
 else
     echo "SSM Service Skipped"
-    SSM_SERVICE=$(
-        systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}"
-        echo $?
-    )
-
-    if [ ${SSM_SERVICE} -eq 0 ]; then
-        echo "* Start SSM Service"
-        systemctl start ${SSM_SERVICENAME} >/dev/null 2>&1
-    fi
 fi
