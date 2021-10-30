@@ -310,13 +310,18 @@ class SF_Server_Handler {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
                     Cleanup.decreaseCounter(1);
                     process.kill(server_status.pid, 'SIGINT');
-                    this._getServerState();
-                    resolve();
+
+                    this._getServerState().then(() => {
+                        resolve();
+                    })
+
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
-                    this._getServerState();
-                    Cleanup.decreaseCounter(1);
-                    reject("Server is already stopped!")
+                    this._getServerState().then(() => {
+                        Cleanup.decreaseCounter(1);
+                        reject("Server is already stopped!")
+                    })
+
                     return;
                 }
             })
@@ -330,15 +335,18 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
                     process.kill(server_status.pid, 'SIGKILL');
-                    this._getServerState();
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
                     Cleanup.decreaseCounter(1);
-                    resolve();
+                    this._getServerState().then(() => {
+                        resolve();
+                    })
+
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
-                    this._getServerState();
-                    Cleanup.decreaseCounter(1);
-                    reject("Server is already stopped!")
+                    this._getServerState().then(() => {
+                        Cleanup.decreaseCounter(1);
+                        reject("Server is already stopped!")
+                    })
                     return;
                 }
             })
@@ -596,36 +604,14 @@ class SF_Server_Handler {
         })
     }
 
-
-
-    selectSave(savename) {
-        return new Promise((resolve, reject) => {
-            this.getSaves().then(saves => {
-                const saveFile = saves.find(el => el.savename == savename);
-
-                if (saveFile == null) {
-                    reject("Save Doesn't Exist!")
-                    return;
-                }
-
-                const saveBody = saveFile.savebody;
-                const sessionName = (saveBody.split("?")[2]).split("=")[1];
-
-                Config.set("satisfactory.save.session", sessionName);
-                Config.set("satisfactory.save.file", saveFile.savename);
-                resolve();
-            })
-        });
-    }
-
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
             const server_location = data.server_location || "";
             const save_location = data.save_location || "";
             const updatesfonstart = data.updatesfonstart == "true";
 
-            if (server_location == "" || save_location == "") {
-                reject("Both server location & save locations are required!")
+            if (server_location == "") {
+                reject("Both server location is required!")
                 return;
             }
 
@@ -634,12 +620,12 @@ class SF_Server_Handler {
                 return;
             }
 
-            if (fs.pathExistsSync(save_location) == false) {
-                reject("Save location path doesn't exist!")
-                return;
-            }
-
             Config.set("satisfactory.server_location", server_location);
+
+
+            const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
+            super.set("satisfactory.log.location", LogFolder)
+
             Config.set("satisfactory.updateonstart", updatesfonstart)
             resolve();
 
