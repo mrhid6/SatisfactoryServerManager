@@ -5,6 +5,7 @@ const ServerApp = require("../../server/server_app");
 const SFS_Handler = require("../../server/server_sfs_handler");
 const Metrics = require("../../server/server_metrics");
 const Config = require("../../server/server_config");
+const GameConfig = require("../../server/server_gameconfig");
 
 const middleWare = [
     ServerApp.checkLoggedInAPIMiddleWare
@@ -14,6 +15,14 @@ router.get('/', middleWare, function (req, res, next) {
     const ssmConfig = Config.get("ssm");
     const sfConfig = Config.get("satisfactory");
     const modsConfig = Config.get("mods");
+    let gameConfig = {};
+
+    if (GameConfig.getEngineConfig() != null) {
+        gameConfig = {
+            Engine: GameConfig.getEngineConfig().get(),
+            Game: GameConfig.getGameConfig().get(),
+        }
+    }
 
     const ssmConfig_clone = JSON.parse(JSON.stringify(ssmConfig));
     const sfConfig_clone = Object.assign(Object.create(Object.getPrototypeOf(sfConfig)), sfConfig)
@@ -27,7 +36,8 @@ router.get('/', middleWare, function (req, res, next) {
         data: {
             satisfactory: sfConfig_clone,
             smm: ssmConfig_clone,
-            mods: modsConfig
+            mods: modsConfig,
+            game: gameConfig
         }
     });
 });
@@ -65,6 +75,23 @@ router.post('/ssmsettings', middleWare, function (req, res, next) {
             data: result
         });
     }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/sfsettings', middleWare, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateSFSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        console.log(err);
         res.json({
             result: "error",
             error: err

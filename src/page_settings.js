@@ -30,7 +30,7 @@ class Page_Settings {
         $("#edit-ssm-settings").click(e => {
             e.preventDefault();
 
-            if (this.ServerState.status != "stopped") {
+            if (this.ServerState.status == "running") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
@@ -55,7 +55,7 @@ class Page_Settings {
         $("#edit-mods-settings").on("click", e => {
             e.preventDefault();
 
-            if (this.ServerState.status != "stopped") {
+            if (this.ServerState.status == "running") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
@@ -77,11 +77,10 @@ class Page_Settings {
             this.submitModsSettings();
         })
 
-        $("body").on("click", ".select-save-btn", (e) => {
-            const $self = $(e.currentTarget);
-            const savename = $self.attr("data-save");
+        $("#edit-sf-settings").on("click", e => {
+            e.preventDefault();
 
-            if (this.ServerState.status != "stopped") {
+            if (this.ServerState.status == "running") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
@@ -89,14 +88,18 @@ class Page_Settings {
                 return;
             }
 
-            this.selectSave(savename);
+            this.unlockSFSettings();
         })
 
-        $("#new-session-name").on("click", e => {
+        $("#cancel-sf-settings").on("click", e => {
             e.preventDefault();
-            Tools.openModal("/public/modals", "server-session-new", (modal_el) => {
-                modal_el.find("#confirm-action").attr("data-action", "new-session")
-            });
+            this.lockSFSettings();
+            this.getConfig();
+        })
+
+        $("#save-sf-settings").on("click", e => {
+            e.preventDefault();
+            this.submitSFSettings();
         })
 
         $("body").on("click", "#cancel-action", (e) => {
@@ -124,11 +127,17 @@ class Page_Settings {
             e.preventDefault();
             this.installSFServer();
         })
+
+        $("#inp_maxplayers").on("input change", () => {
+            const val = $("#inp_maxplayers").val();
+            $("#max-players-value").text(`${val} / 500`)
+        })
     }
 
     getConfig() {
         API_Proxy.get("config").then(res => {
             if (res.result == "success") {
+                console.log(res.data);
                 this.Config = res.data;
                 this.MainDisplayFunction();
             }
@@ -145,6 +154,7 @@ class Page_Settings {
 
     MainDisplayFunction() {
         this.populateSSMSettings();
+        this.populateSFSettings();
         this.populateModsSettings();
     }
 
@@ -163,6 +173,13 @@ class Page_Settings {
         }
         $('#inp_updatesfonstart').bootstrapToggle('disable')
 
+    }
+
+    populateSFSettings() {
+        const gameConfig = this.Config.game;
+        $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
+        const val = $("#inp_maxplayers").val();
+        $("#max-players-value").text(`${val} / 500`)
     }
 
     populateModsSettings() {
@@ -193,7 +210,6 @@ class Page_Settings {
         $("#cancel-ssm-settings").prop("disabled", false);
         $('#inp_updatesfonstart').bootstrapToggle('enable');
         $("#inp_sf_serverloc").prop("disabled", false);
-        $("#inp_sf_saveloc").prop("disabled", false);
     }
 
     lockSSMSettings() {
@@ -203,7 +219,6 @@ class Page_Settings {
         $("#cancel-ssm-settings").prop("disabled", true);
         $('#inp_updatesfonstart').bootstrapToggle('disable');
         $("#inp_sf_serverloc").prop("disabled", true);
-        $("#inp_sf_saveloc").prop("disabled", true);
     }
 
     unlockModsSettings() {
@@ -225,20 +240,56 @@ class Page_Settings {
         $('#inp_mods_autoupdate').bootstrapToggle('disable')
     }
 
+    unlockSFSettings() {
+
+        $("#edit-sf-settings").prop("disabled", true);
+
+        $("#save-sf-settings").prop("disabled", false);
+        $("#cancel-sf-settings").prop("disabled", false);
+        $("#inp_maxplayers").prop("disabled", false);
+    }
+
+    lockSFSettings() {
+        $("#edit-sf-settings").prop("disabled", false);
+
+        $("#save-sf-settings").prop("disabled", true);
+        $("#cancel-sf-settings").prop("disabled", true);
+        $("#inp_maxplayers").prop("disabled", true);
+    }
+
     submitSSMSettings() {
         const updatesfonstart = $('#inp_updatesfonstart').is(":checked")
         const server_location = $("#inp_sf_serverloc").val();
-        const save_location = $("#inp_sf_saveloc").val();
         const postData = {
             updatesfonstart,
-            server_location,
-            save_location
+            server_location
         }
 
         API_Proxy.postData("config/ssmsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSSMSettings();
+                toastr.success("Settings have been saved!")
+            } else {
+                if (Tools.modal_opened == true) return;
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
+                    console.log(JSON.stringify(res.error));
+                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
+                });
+            }
+        });
+    }
+
+    submitSFSettings() {
+        const maxplayers = $('#inp_maxplayers').val();
+        const postData = {
+            maxplayers
+        }
+
+        API_Proxy.postData("config/sfsettings", postData).then(res => {
+
+            if (res.result == "success") {
+                this.lockSFSettings();
                 toastr.success("Settings have been saved!")
             } else {
                 if (Tools.modal_opened == true) return;

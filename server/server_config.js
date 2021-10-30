@@ -61,6 +61,14 @@ class ServerConfig extends iConfig {
     setDefaults() {
 
         const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
+
+        var AppArgs = process.argv.slice(2);
+        if (AppArgs.indexOf("--agent") > -1) {
+            super.set("ssm.agent", true)
+        } else {
+            super.set("ssm.agent", false)
+        }
+
         super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.0.24`);

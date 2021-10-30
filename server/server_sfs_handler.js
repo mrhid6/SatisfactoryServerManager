@@ -184,10 +184,15 @@ class SF_Server_Handler {
                         this._getServerState();
                         logger.info("[SFS_Handler] - Installed SF Dedicated Server");
                         Config.set("satisfactory.installed", true);
-                        resolve(true);
+                        const GameConfig = require("./server_gameconfig");
+                        GameConfig.load().then(() => {
+                            resolve(true);
+                        })
                     } else {
                         reject(new SFFailedInstall())
+                        return;
                     }
+
                 })
 
 
@@ -317,10 +322,8 @@ class SF_Server_Handler {
 
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
-                    this._getServerState().then(() => {
-                        Cleanup.decreaseCounter(1);
-                        reject("Server is already stopped!")
-                    })
+                    Cleanup.decreaseCounter(1);
+                    reject("Server is already stopped!")
 
                     return;
                 }
@@ -343,10 +346,8 @@ class SF_Server_Handler {
 
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped");
-                    this._getServerState().then(() => {
-                        Cleanup.decreaseCounter(1);
-                        reject("Server is already stopped!")
-                    })
+                    Cleanup.decreaseCounter(1);
+                    reject("Server is already stopped!")
                     return;
                 }
             })
@@ -606,29 +607,62 @@ class SF_Server_Handler {
 
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
-            const server_location = data.server_location || "";
-            const save_location = data.save_location || "";
+            const server_location = path.resolve(data.server_location) || "";
             const updatesfonstart = data.updatesfonstart == "true";
 
             if (server_location == "") {
                 reject("Both server location is required!")
                 return;
             }
+            /*
+                        if (fs.pathExistsSync(server_location) == false) {
+                            reject("Server location path doesn't exist!")
+                            return;
+                        }*/
 
-            if (fs.pathExistsSync(server_location) == false) {
-                reject("Server location path doesn't exist!")
-                return;
+            if (server_location != Config.get("satisfactory.server_location")) {
+                this._RemoveSFServer().then(() => {
+                    Config.set("satisfactory.server_location", server_location);
+
+
+                    const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
+                    super.set("satisfactory.log.location", LogFolder)
+
+                    Config.set("satisfactory.updateonstart", updatesfonstart)
+                    Config.load().then(() => {
+                        resolve();
+                    })
+                }).catch(err => {
+                    console.log(err);
+                })
+            } else {
+                Config.set("satisfactory.server_location", server_location);
+
+
+                const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
+                super.set("satisfactory.log.location", LogFolder)
+
+                Config.set("satisfactory.updateonstart", updatesfonstart)
+                Config.load().then(() => {
+                    resolve();
+                })
             }
 
-            Config.set("satisfactory.server_location", server_location);
 
+        });
+    }
 
-            const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
-            super.set("satisfactory.log.location", LogFolder)
+    updateSFSettings(data) {
+        return new Promise((resolve, reject) => {
+            const maxPlayers = data.maxplayers || 4;
 
-            Config.set("satisfactory.updateonstart", updatesfonstart)
+            if (maxPlayers < 4) {
+                reject("Max Players must be above 4 players!")
+                return;
+            }
+            const GameConfig = require("./server_gameconfig");
+            GameConfig.getGameConfig().set("/Script/Engine.GameSession.MaxPlayers", maxPlayers);
             resolve();
-
         });
     }
 

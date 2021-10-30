@@ -112,6 +112,17 @@ router.get('/', middleWare, function (req, res, next) {
     }
 });
 
+/* GET agents. */
+router.get('/agents', middleWare, function (req, res, next) {
+    if (req.isLoggedin == true) {
+        res.render('agents.hbs', {
+            layout: "main.hbs"
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 /* GET mods. */
 router.get('/mods', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
