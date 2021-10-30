@@ -76,7 +76,7 @@ fi
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
-    apt-get -qq install binutils curl wget jq software-properties-common -y >/dev/null 2>&1
+    apt-get -qq install binutils apt-utils curl wget jq software-properties-common -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386
     apt-get -qq update -y
