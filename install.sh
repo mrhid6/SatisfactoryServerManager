@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "#-----------------------------#"
 echo "#      _____ _____ __  __     #"
 echo "#     / ____/ ____|  \/  |    #"
@@ -76,6 +78,11 @@ fi
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
+    ln -fs /usr/share/zoneinfo/Europe/London /etc/localtime
+    apt-get install -y tzdata
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+
     apt-get -qq install binutils apt-utils curl wget jq software-properties-common -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386
