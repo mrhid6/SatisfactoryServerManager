@@ -79,8 +79,8 @@ if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq install curl wget jq software-properties-common -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386
-    apt -qq update -y
-    apt -qq install lib32gcc1 -y
+    apt-get -qq update -y
+    apt-get -qq install lib32gcc1 -y
 else
     echo "Error: This version of Linux is not supported for SSM"
     exit 2
