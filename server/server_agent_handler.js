@@ -44,8 +44,6 @@ class AgentHandler {
     init() {
         this.PullDockerImage().then(() => {
             return this.BuildAgentList()
-        }).then(() => {
-            return this.CreateNewDockerAgent();
         }).catch(err => {
             console.log(err);
         })
@@ -70,8 +68,12 @@ class AgentHandler {
 
             this._AGENTS = [];
 
-            this._docker.container.list().then(containers => {
+            this._docker.container.list({
+                all: 1
+            }).then(containers => {
+
                 for (let i = 0; i < containers.length; i++) {
+
                     const container = containers[i];
                     if (container.data.Image === "mrhid6/ssmagent") {
                         const name = container.data.Names[0];
@@ -89,12 +91,18 @@ class AgentHandler {
                 return this.CheckAllAgentsActive();
             }).then(() => {
                 resolve();
+            }).catch(err => {
+                reject(err);
             })
         });
     }
 
     GetAgentByDockerId(id) {
         return this._AGENTS.find(agent => agent.getContainerInfo().Id == id);
+    }
+
+    GetAgentById(id) {
+        return this._AGENTS.find(agent => agent.getId() == id);
     }
 
     GetNewDockerInfo() {
@@ -192,9 +200,95 @@ class AgentHandler {
                     const active = values[i];
                     this._AGENTS[i].setActive(active);
                 }
+                return this.CheckAgentInfo()
+            }).then(() => {
                 resolve();
             })
         });
+    }
+
+    CheckAgentInfo() {
+        return new Promise((resolve, reject) => {
+            const promises = [];
+            for (let i = 0; i < this._AGENTS.length; i++) {
+                const Agent = this._AGENTS[i];
+                promises.push(AgentAPI.GetAgentInfo(Agent));
+            }
+
+            Promise.all(promises).then(values => {
+                for (let i = 0; i < values.length; i++) {
+                    const active = values[i];
+                    this._AGENTS[i].setInfo(active);
+                }
+                resolve();
+            })
+        })
+    }
+
+    StartDockerAgent(id) {
+        logger.info("[AGENT_HANDLER] - Starting Agent...");
+        return new Promise((resolve, reject) => {
+            const Agent = this.GetAgentById(id);
+
+            if (Agent == null) {
+                logger.error(`[AGENT_HANDLER] - Cant Find Agent ${id}`);
+                reject("Agent is Null");
+                return;
+            }
+
+            Agent.getContainer().start().then(() => {
+                return this.BuildAgentList();
+            }).then(() => {
+                logger.info("[AGENT_HANDLER] - Agent Started!");
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+        });
+    }
+
+    StopDockerAgent(id) {
+        logger.info("[AGENT_HANDLER] - Stopping Agent...");
+        return new Promise((resolve, reject) => {
+            const Agent = this.GetAgentById(id);
+
+            if (Agent == null) {
+                logger.error(`[AGENT_HANDLER] - Cant Find Agent ${id}`);
+                reject("Agent is Null");
+                return;
+            }
+
+            let stoppromise;
+
+            if (Agent.isActive() == false) {
+                stoppromise = Agent.getContainer().stop();
+            } else {
+                stoppromise = AgentAPI.StopAgent(Agent)
+            }
+
+            stoppromise.then(() => {
+                return this.BuildAgentList();
+            }).then(() => {
+                logger.info("[AGENT_HANDLER] - Agent Stopped!");
+                resolve();
+            }).catch(err => {
+                reject(err);
+            })
+        });
+    }
+
+    API_GetAllAgents() {
+        return new Promise((resolve, reject) => {
+            this.BuildAgentList().then(() => {
+                const ResAgents = []
+                for (let i = 0; i < this._AGENTS.length; i++) {
+                    const agent = this._AGENTS[i];
+                    ResAgents.push(agent.getWebJson());
+                }
+
+                resolve(ResAgents);
+            })
+        })
     }
 }
 

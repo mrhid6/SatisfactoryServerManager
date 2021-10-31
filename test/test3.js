@@ -7,14 +7,10 @@ const docker = new Docker({
     port: 2375
 });
 
-docker.container.create({
-        Image: 'ubuntu',
-        name: 'test'
+docker.container.list({
+        all: 1
     })
-    .then(container => container.start())
-    .then(container => container.stop())
-    .then(container => container.restart())
-    .then(container => container.delete({
-        force: true
-    }))
+    .then(containers => {
+        console.log(containers[0].data)
+    })
     .catch(error => console.log(error));

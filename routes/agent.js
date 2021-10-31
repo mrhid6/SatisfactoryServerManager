@@ -5,6 +5,8 @@ const CryptoJS = require("crypto-js");
 const Config = require("../server/server_config");
 const Cleanup = require("../server/server_cleanup");
 
+const AgentApp = require("../server/server_agent_app");
+
 router.get("/ping", function (req, res, next) {
     res.json({
         result: "success"
@@ -29,6 +31,18 @@ router.post("/stopagent", checkHeaderKey, function (req, res, next) {
     res.json({
         result: "success"
     })
+})
+
+router.get("/info", checkHeaderKey, function (req, res, next) {
+
+    AgentApp.API_GetInfo().then(data => {
+        res.json({
+            result: "success",
+            data
+        })
+    })
+
+
 })
 
 

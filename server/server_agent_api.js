@@ -89,6 +89,36 @@ class AgentAPI {
         })
     }
 
+    GetAgentInfo(Agent) {
+        return new Promise((resolve, reject) => {
+
+            if (Agent.isRunning() === false || Agent.isActive() == false) {
+                resolve({});
+                return;
+            }
+
+            this.remoteRequestGET(Agent, "info").then(res => {
+                if (res.data.result == "success") {
+                    resolve(res.data.data);
+                }
+            }).catch(() => {
+                resolve({});
+            })
+        })
+    }
+
+    StopAgent(Agent) {
+        return new Promise((resolve, reject) => {
+            this.remoteRequestPOST(Agent, "stopagent").then(res => {
+                if (res.data.result == "success") {
+                    resolve();
+                }
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
 }
 
 const agentApi = new AgentAPI();

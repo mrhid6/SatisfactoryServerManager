@@ -123,6 +123,19 @@ router.get('/agents', middleWare, function (req, res, next) {
     }
 });
 
+/* GET agents. */
+router.get('/agent/:id', middleWare, function (req, res, next) {
+    const agentid = req.params.id;
+    if (req.isLoggedin == true) {
+        res.render('agent.hbs', {
+            layout: "main.hbs",
+            AGENTID: agentid
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
 /* GET mods. */
 router.get('/mods', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
