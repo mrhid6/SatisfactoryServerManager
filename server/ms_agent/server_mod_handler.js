@@ -2,8 +2,8 @@ const exec = require("child_process").exec
 const path = require("path");
 const schedule = require('node-schedule');
 
-const Config = require("./server_config");
-const logger = require("./server_logger");
+const Config = require("../server_config");
+const logger = require("../server_logger");
 const fs = require("fs-extra");
 
 const platform = process.platform;
@@ -22,7 +22,7 @@ const {
 
 const {
     SMLAPINotReady
-} = require("../objects/errors/error_sml");
+} = require("../../objects/errors/error_sml");
 
 
 const SteamCmd = require("steamcmd");

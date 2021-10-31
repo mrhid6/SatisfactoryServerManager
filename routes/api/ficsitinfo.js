@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const ServerApp = require("../../server/server_app");
-const SSM_Mod_Handler = require("../../server/server_mod_handler");
+const SSM_Mod_Handler = require("../../server/ms_agent/server_mod_handler");
 
 const middleWare = [
     ServerApp.checkLoggedInAPIMiddleWare,

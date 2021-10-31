@@ -10,9 +10,9 @@ const br = require('binary-reader');
 const SteamCmd = require("steamcmd");
 
 
-const logger = require("./server_logger");
-const Cleanup = require("./server_cleanup");
-const Config = require("./server_config");
+const logger = require("../server_logger");
+const Cleanup = require("../server_cleanup");
+const Config = require("../server_config");
 
 const platform = process.platform;
 const chmodr = require("chmodr");
@@ -25,7 +25,7 @@ const {
     SteamCMDNotInstalled,
     SFFailedInstall,
     SFActionFailedRunning
-} = require("../objects/errors/error_steamcmd");
+} = require("../../objects/errors/error_steamcmd");
 
 class SF_Server_Handler {
 

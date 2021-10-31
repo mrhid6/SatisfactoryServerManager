@@ -4,9 +4,11 @@ const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 
-const SFS_Handler = require("./server_sfs_handler");
-const SSM_Mod_Handler = require("./server_mod_handler");
+const SFS_Handler = require("./ms_agent/server_sfs_handler");
+const SSM_Mod_Handler = require("./ms_agent/server_mod_handler");
 const SSM_Log_Handler = require("./server_log_handler");
+
+const SSM_Agent_Handler = require("./server_agent_handler");
 
 const Metrics = require("./server_metrics");
 
@@ -19,16 +21,25 @@ class SSM_Server_App {
     init() {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
         this.setupEventHandlers();
+
+        SSM_Log_Handler.init();
+        Metrics.init();
+        Metrics.sendServerStartEvent();
+
+        if (Config.get("ssm.agent.isagent") === true) {
+            this.AgentInit();
+        } else {
+            SSM_Agent_Handler.init();
+        }
+
+    }
+
+    AgentInit() {
         SFS_Handler.init().then(() => {
             SSM_Mod_Handler.init();
-            SSM_Log_Handler.init();
-            Metrics.init();
-
-            Metrics.sendServerStartEvent();
         }).catch(err => {
             console.log(err);
         })
-
     }
 
     setupEventHandlers() {

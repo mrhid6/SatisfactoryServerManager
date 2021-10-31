@@ -21,7 +21,7 @@ const fs = require('fs');
 var logger = require("./server/server_logger");
 var Cleanup = require("./server/server_cleanup");
 const Config = require("./server/server_config");
-const GameConfig = require("./server/server_gameconfig");
+const GameConfig = require("./server/ms_agent/server_gameconfig");
 
 const SSM_Server_App = require("./server/server_app");
 
@@ -34,7 +34,11 @@ class AppServer {
     init() {
         logger.info("[APP] [PREINIT] - Loading Configs..");
         Config.load().then(() => {
-            return GameConfig.load();
+            if (Config.get("ssm.agent.isagent") == true) {
+                return GameConfig.load();
+            } else {
+                return;
+            }
         }).then(() => {
             logger.info("[APP] [PREINIT] - Starting SSM..");
             this.startExpress()
@@ -99,10 +103,13 @@ class AppServer {
         // methodOverride
         app.use(methodOverride('_method'));
 
-        logger.info("[APP] [EXPRESS] - Setup Express Static Routes..");
-        app.use("/libraries", express.static(__dirname + '/node_modules'));
-        app.use("/public", express.static(__dirname + '/public'));
-        logger.info("[APP] [EXPRESS] - Finished");
+
+        if (Config.get("ssm.agent.isagent") == false) {
+            logger.info("[APP] [EXPRESS] - Setup Express Static Routes..");
+            app.use("/libraries", express.static(__dirname + '/node_modules'));
+            app.use("/public", express.static(__dirname + '/public'));
+            logger.info("[APP] [EXPRESS] - Finished");
+        }
 
         app.use(cookieParser());
 
@@ -114,8 +121,12 @@ class AppServer {
             verify: rawBodyBuffer
         }));
         logger.info("[APP] [EXPRESS] - Setup Express Routers..");
-        app.use("/", require("./routes"))
-        app.use("/api", require("./routes/api/"))
+        if (Config.get("ssm.agent.isagent") == false) {
+            app.use("/", require("./routes"))
+            app.use("/api", require("./routes/api/"))
+        } else {
+            app.use("/agent", require("./routes/agent"))
+        }
 
         logger.info("[APP] [EXPRESS] - Finished");
 

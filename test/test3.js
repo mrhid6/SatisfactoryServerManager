@@ -3,7 +3,8 @@ const {
 } = require('node-docker-api');
 
 const docker = new Docker({
-    socketPath: '/var/run/docker.sock'
+    host: "http://127.0.0.1",
+    port: 2375
 });
 
 docker.container.create({

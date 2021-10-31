@@ -64,9 +64,12 @@ class ServerConfig extends iConfig {
 
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {
-            super.set("ssm.agent", true)
+            super.set("ssm.agent.setup", false)
+            super.set("ssm.agent.isagent", true)
         } else {
-            super.set("ssm.agent", false)
+            super.set("ssm.agent.isagent", false)
+            const uuid = Mrhid6Utils.Tools.generateRandomString(16);
+            super.get("ssm.agent.publickey", uuid);
         }
 
         super.get("ssm.setup", false)
@@ -171,6 +174,18 @@ class ServerConfig extends iConfig {
 
             resolve();
         });
+    }
+
+    InitAgentSettings(data) {
+        if (super.get("ssm.agent.setup") == false) {
+            console.log(data);
+
+            const AgentHash = CryptoJS.MD5(`${data.publicKey}-SSMAgent${data.agentId}`).toString();
+            console.log(AgentHash)
+            super.set("ssm.agent.id", parseInt(data.agentId));
+            super.set("ssm.agent.key", AgentHash);
+            super.set("ssm.agent.setup", true)
+        }
     }
 }
 

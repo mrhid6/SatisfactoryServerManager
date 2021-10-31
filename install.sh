@@ -20,6 +20,8 @@ FORCE=0
 UPDATE=0
 NOSERVICE=0
 
+ISDOCKER=0
+
 while [[ $# -gt 0 ]]; do
     key="$1"
 
@@ -88,6 +90,12 @@ if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     dpkg --add-architecture i386
     apt-get -qq update -y
     apt-get -qq install lib32gcc1 -y
+
+    CheckDockerContainer=$(grep 'docker\|lxc' /proc/1/cgroup | wc -l);
+
+    if [ $CheckDockerContainer -gt 0 ]; then
+        ISDOCKER=1;
+    fi
 else
     echo "Error: This version of Linux is not supported for SSM"
     exit 2
@@ -108,6 +116,10 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
         echo "Error: Couldn't install required libraries"
         exit 1
     fi
+fi
+
+if [ $ISDOCKER -eq 0 ]; then
+    wget -q https://get.docker.com/ -O - | sh >/dev/null 2>&1
 fi
 
 curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
