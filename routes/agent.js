@@ -3,7 +3,7 @@ var router = express.Router();
 const CryptoJS = require("crypto-js");
 
 const Config = require("../server/server_config");
-
+const Cleanup = require("../server/server_cleanup");
 
 router.get("/ping", function (req, res, next) {
     res.json({
@@ -19,6 +19,13 @@ router.post("/init", function (req, res, next) {
 })
 
 router.get("/check", checkHeaderKey, function (req, res, next) {
+    res.json({
+        result: "success"
+    })
+})
+
+router.post("/stopagent", checkHeaderKey, function (req, res, next) {
+    Cleanup.cleanup();
     res.json({
         result: "success"
     })

@@ -86,12 +86,15 @@ class AgentHandler {
                     }
                 }
 
-                console.log(this._AGENTS)
-                console.log(this._NextAgentId)
-
+                return this.CheckAllAgentsActive();
+            }).then(() => {
                 resolve();
             })
         });
+    }
+
+    GetAgentByDockerId(id) {
+        return this._AGENTS.find(agent => agent.getContainerInfo().Id == id);
     }
 
     GetNewDockerInfo() {
@@ -141,6 +144,7 @@ class AgentHandler {
                 const Agent = new IAgent(container);
                 return this.WaitForAgentToStart(Agent)
             }).then(Agent => {
+                logger.info("[AGENT_HANDLER] - Agent Started!");
                 return AgentAPI.InitNewAgent(Agent)
             }).then(() => {
                 resolve();
@@ -153,22 +157,43 @@ class AgentHandler {
 
     WaitForAgentToStart(Agent) {
         return new Promise((resolve, reject) => {
+            const AgentId = Agent.getContainerInfo().Id;
+
             let interval = setInterval(() => {
-                Agent.getContainer().status().then(data => {
-                    logger.debug("[AGENT_HANDLER] - Waiting for agent to start ...");
-                    if (data.data.State.Running == true) {
-                        AgentAPI.remoteRequestGET(Agent, "ping").then(res => {
-                            if (res.data.result == "success") {
-                                logger.debug("[AGENT_HANDLER] - Agent Started!");
-                                resolve(Agent);
-                                clearInterval(interval);
-                            }
-                        }).catch(err => {
-                            //console.log(err);
-                        })
+                logger.debug("[AGENT_HANDLER] - Waiting for agent to start ...");
+
+                this.BuildAgentList().then(() => {
+                    const TempAgent = this.GetAgentByDockerId(AgentId);
+
+                    if (TempAgent == null) {
+                        return;
+                    }
+
+                    if (TempAgent.isActive() === true) {
+                        resolve(TempAgent);
+                        clearInterval(interval);
                     }
                 })
-            }, 1000)
+            }, 5000)
+        });
+    }
+
+    CheckAllAgentsActive() {
+        return new Promise((resolve, reject) => {
+            const promises = [];
+
+            for (let i = 0; i < this._AGENTS.length; i++) {
+                const Agent = this._AGENTS[i];
+                promises.push(AgentAPI.PingAgent(Agent))
+            }
+
+            Promise.all(promises).then(values => {
+                for (let i = 0; i < values.length; i++) {
+                    const active = values[i];
+                    this._AGENTS[i].setActive(active);
+                }
+                resolve();
+            })
         });
     }
 }

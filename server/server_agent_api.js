@@ -14,15 +14,19 @@ class AgentAPI {
                     "x-ssm-key": Config.get("ssm.agent.publickey")
                 }
             }
+            const url = Agent.getURL() + endpoint;
+            //console.log(url)
 
-            axios.get(Agent.getURL() + endpoint, reqconfig).then(res => {
+            axios.get(url, reqconfig).then(res => {
                 const data = res.data;
 
-                if (data.success == null || data.success == false) {
+                if (data.result != "success") {
                     reject(new Error("Request returned an error: " + data.error));
                 } else {
                     resolve(res);
                 }
+            }).catch(err => {
+                reject(err);
             })
         });
     }
@@ -35,14 +39,19 @@ class AgentAPI {
                 }
             }
 
-            axios.post(Agent.getURL() + endpoint, requestdata, reqconfig).then(res => {
+            const url = Agent.getURL() + endpoint;
+            //console.log(url)
+
+            axios.post(url, requestdata, reqconfig).then(res => {
                 const data = res.data;
 
-                if (data.success == null || data.success == false) {
+                if (data.result != "success") {
                     reject(new Error("Request returned an error: " + data.error));
                 } else {
                     resolve(res);
                 }
+            }).catch(err => {
+                reject(err);
             })
         });
     }
@@ -54,12 +63,30 @@ class AgentAPI {
                 agentId: Agent.getId()
             }
             this.remoteRequestPOST(Agent, "init", postData).then(res => {
-                console.log(res.data);
+
                 resolve();
             }).catch(err => {
                 reject();
             })
         });
+    }
+
+    PingAgent(Agent) {
+        return new Promise((resolve, reject) => {
+
+            if (Agent.isRunning() === false) {
+                resolve(false);
+                return;
+            }
+
+            this.remoteRequestGET(Agent, "ping").then(res => {
+                if (res.data.result == "success") {
+                    resolve(true);
+                }
+            }).catch(() => {
+                resolve(false);
+            })
+        })
     }
 
 }
