@@ -19,6 +19,7 @@ INSTALL_DIR="/opt/SSM"
 FORCE=0
 UPDATE=0
 NOSERVICE=0
+ISDEV=0
 
 ISDOCKER=0
 
@@ -37,6 +38,10 @@ while [[ $# -gt 0 ]]; do
         ;;
     --noservice)
         NOSERVICE=1
+        shift
+        ;;
+    --dev)
+        ISDEV=1
         shift
         ;;
     --installdir)
@@ -126,6 +131,11 @@ if [ $ISDOCKER -eq 0 ]; then
 fi
 
 curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
+
+if [ $ISDEV -eq 1 ]; then
+    curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases" | jq -r "first(.[])" >${TEMP_DIR}/SSM_releases.json
+fi
+
 
 SSM_VER=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".tag_name")
 SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | grep -i "Linux" | sort | head -1)
