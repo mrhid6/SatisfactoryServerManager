@@ -64,7 +64,7 @@ class ServerConfig extends iConfig {
 
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {
-            super.set("ssm.agent.setup", false)
+            super.get("ssm.agent.setup", false)
             super.set("ssm.agent.isagent", true)
         } else {
             super.set("ssm.agent.isagent", false)
