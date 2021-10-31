@@ -49,6 +49,9 @@ while [[ $# -gt 0 ]]; do
         shift
         shift
         ;;
+    *)
+        echo "Invalid option must be: [--force, --update, --noservice, --dev, --installdir=<Location>"
+        exit 1
     esac
 done
 
