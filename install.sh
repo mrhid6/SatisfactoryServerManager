@@ -81,8 +81,8 @@ if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
     ln -fs /usr/share/zoneinfo/Europe/London /etc/localtime
-    apt-get install -y tzdata
-    dpkg-reconfigure --frontend noninteractive tzdata
+    apt-get -qq install -y tzdata >/dev/null 2>&1
+    dpkg-reconfigure --frontend noninteractive tzdata >/dev/null 2>&1
 
 
     apt-get -qq install binutils apt-utils curl wget jq software-properties-common -y >/dev/null 2>&1
@@ -120,6 +120,9 @@ fi
 
 if [ $ISDOCKER -eq 0 ]; then
     wget -q https://get.docker.com/ -O - | sh >/dev/null 2>&1
+
+    groupadd docker >/dev/null 2>&1
+    usermod -aG docker ssm
 fi
 
 curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
