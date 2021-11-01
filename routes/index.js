@@ -124,10 +124,10 @@ router.get('/servers', middleWare, function (req, res, next) {
 });
 
 /* GET agents. */
-router.get('/agent/:id', middleWare, function (req, res, next) {
+router.get('/server/:id', middleWare, function (req, res, next) {
     const agentid = req.params.id;
     if (req.isLoggedin == true) {
-        res.render('agent.hbs', {
+        res.render('server.hbs', {
             layout: "main.hbs",
             AGENTID: agentid
         });

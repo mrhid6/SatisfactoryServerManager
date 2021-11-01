@@ -2,6 +2,27 @@
     <h2 class="mb-3">Mods</h2>
     <div class="card border-secondary mb-3">
         <div class="card-header">
+            <h5>Select Server</h5>
+        </div>
+        <div class="card-body">
+            <div class="row settings-row">
+                <div class="col-12 col-md-4">
+                    <b class="settings-prop">Server:</b>
+                    <span class="settings-info">
+                        Select a Server instance to manage mods on.
+                    </span>
+                </div>
+                <div class="col-12 col-md-6">
+                    <select class="form-control" id="inp_server" disabled>
+                        <option value="-1">-- Select Server --</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
             <h5>Mod Status</h5>
         </div>
         <div class="card-body">
@@ -48,8 +69,7 @@
                         <div class="col-6">
 
                             <div class="custom-control custom-radio">
-                                <input type="radio" id="radio-install-sml1" value="0" name="radio-install-sml"
-                                    class="custom-control-input" checked="">
+                                <input type="radio" id="radio-install-sml1" value="0" name="radio-install-sml" class="custom-control-input" checked="">
                                 <label class="custom-control-label" for="radio-install-sml1">Latest Version</label>
                             </div>
                         </div>
@@ -58,8 +78,7 @@
                     <div class="row mt-2">
                         <div class="col-6">
                             <div class="custom-control custom-radio">
-                                <input type="radio" id="radio-install-sml2" name="radio-install-sml"
-                                    class="custom-control-input" value="1">
+                                <input type="radio" id="radio-install-sml2" name="radio-install-sml" class="custom-control-input" value="1">
                                 <label class="custom-control-label" for="radio-install-sml2">Select Version</label>
                             </div>
                         </div>
@@ -81,8 +100,7 @@
                 <div class="col-12 col-md-7 col-lg-6">
                     <div class="row">
                         <div class="col-12 col-md-4 text-center">
-                            <img src="/public/images/ssm_logo128_outline.png" width="128px" height="128px"
-                                id="add-mod-logo" />
+                            <img src="/public/images/ssm_logo128_outline.png" width="128px" height="128px" id="add-mod-logo" />
                         </div>
                         <div class="col-12 col-md-8">
                             <div class="row mb-2">

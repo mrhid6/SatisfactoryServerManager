@@ -3,9 +3,7 @@ const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
 class Page_Servers {
-    constructor() {
-        this.ServerState = {}
-    }
+    constructor() {}
 
     init() {
 
@@ -27,11 +25,17 @@ class Page_Servers {
                 this.StopDockerAgent($button.attr("data-agentid"));
             }
         })
+
+        $("#btn-createserver").on("click", e=>{
+            e.preventDefault()
+            this.CreateNewServer();
+        })
     }
 
     getAgentList() {
         API_Proxy.get("agent", "agents").then(res => {
             this._Agents = res.data;
+            console.log(res.data)
             this.DisplayAgentsTable();
         })
     }
@@ -40,7 +44,7 @@ class Page_Servers {
         const isDataTable = $.fn.dataTable.isDataTable("#agents-table")
         const tableData = [];
         this._Agents.forEach(agent => {
-            const $AgentLink = $("<a/>").attr("href", `/agent/${agent.id}`)
+            const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
             const $btn_info = $("<button/>")
                 .addClass("btn btn-light")
                 .html("<i class='fas fa-cog'></i>");
@@ -118,6 +122,17 @@ class Page_Servers {
             id: id
         }).then(() => {
             this.getAgentList();
+        })
+    }
+
+    CreateNewServer(){
+        API_Proxy.post("agent", "create").then(res=>{
+            if(res.data.result == "success"){
+                this.getAgentList()
+                toastr.success("Server created!")
+            }else{
+                toastr.error("Failed to create server")
+            }
         })
     }
 

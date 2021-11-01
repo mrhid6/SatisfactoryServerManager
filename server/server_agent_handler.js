@@ -75,7 +75,8 @@ class AgentHandler {
                 for (let i = 0; i < containers.length; i++) {
 
                     const container = containers[i];
-                    if (container.data.Image === "mrhid6/ssmagent") {
+                    const name = container.data.Names[0];
+                    if (name.startsWith("/SSMAgent")) {
                         const name = container.data.Names[0];
                         const id = parseInt(name.replace("/SSMAgent", ""))
 
@@ -87,6 +88,8 @@ class AgentHandler {
                         this._AGENTS.push(Agent);
                     }
                 }
+
+                console.log(this._AGENTS)
 
                 return this.CheckAllAgentsActive();
             }).then(() => {
