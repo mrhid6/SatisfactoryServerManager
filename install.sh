@@ -86,6 +86,7 @@ else
 fi
 
 if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
+    echo "Installing Prereqs"
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
     ln -fs /usr/share/zoneinfo/Europe/London /etc/localtime
@@ -95,9 +96,9 @@ if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
 
     apt-get -qq install binutils apt-utils curl wget jq software-properties-common -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
-    dpkg --add-architecture i386
-    apt-get -qq update -y
-    apt-get -qq install lib32gcc1 -y
+    dpkg --add-architecture i386 >/dev/null 2>&1
+    apt-get -qq update -y >/dev/null 2>&1
+    apt-get -qq install lib32gcc1 -y >/dev/null 2>&1
 
     CheckDockerContainer=$(grep 'docker\|lxc' /proc/1/cgroup | wc -l);
 
@@ -114,8 +115,8 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
 
     if [ $check_lib -eq 0 ]; then
         add-apt-repository ppa:ubuntu-toolchain-r/test -y >/dev/null 2>&1
-        apt-get -qq update -y
-        apt-get -qq upgrade -y
+        apt-get -qq update -y >/dev/null 2>&1
+        apt-get -qq upgrade -y >/dev/null 2>&1
     fi
 
     check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
@@ -127,6 +128,7 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
 fi
 
 if [ $ISDOCKER -eq 0 ]; then
+    echo "Installing Docker"
     wget -q https://get.docker.com/ -O - | sh >/dev/null 2>&1
 
     groupadd docker >/dev/null 2>&1
@@ -136,6 +138,7 @@ fi
 curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
 
 if [ $ISDEV -eq 1 ]; then
+    echo "Using Dev build of SSM"
     curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases" | jq -r "first(.[])" >${TEMP_DIR}/SSM_releases.json
 fi
 
