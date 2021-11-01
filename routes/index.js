@@ -112,10 +112,10 @@ router.get('/', middleWare, function (req, res, next) {
     }
 });
 
-/* GET agents. */
-router.get('/agents', middleWare, function (req, res, next) {
+/* GET servers. */
+router.get('/servers', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
-        res.render('agents.hbs', {
+        res.render('servers.hbs', {
             layout: "main.hbs"
         });
     } else {

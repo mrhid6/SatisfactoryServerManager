@@ -1,4 +1,694 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const serialize=require("serialijse");Tools={},Tools.modal_opened=!1,Tools.declareSerializedClasses=function(...e){for(let o=0;o<e.length;o++)serialize.declarePersistable(e[o])},Tools.declareSerializedClassesArray=function(e){for(let o=0;o<e.length;o++)serialize.declarePersistable(e[o])},Tools.serialize=function(e){return serialize.serialize(e)},Tools.deserialize=function(e){return serialize.deserialize(e)},Tools.generateRandomString=function(e){for(var o="",r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",l=0;l<e;l++)o+=r.charAt(Math.floor(Math.random()*r.length));return o},Tools.generateRandomInt=function(e){for(var o="",r=0;r<e;r++)o+="0123456789".charAt(Math.floor(Math.random()*"0123456789".length));return o},Tools.generateUUID=function(e){for(var o=e.split("-"),r="",l=0;l<o.length;l++){var a=o[l];l>0?r=r+"-"+Tools.generateRandomString(a.length):r+=Tools.generateRandomString(a.length)}return o=void 0,r},Tools.openModal=function(e,o,r,l){let a={allowBackdropRemoval:!0},n=null;3==arguments.length?n=r:4==arguments.length&&(a=r,n=l),$("body").hasClass("modal-open")||$.ajax({url:e+"/"+o+".html",success:function(e){$("body").append(e);var r=$("#"+o);r.find("button.close").on("click",e=>{e.preventDefault();const o=$(e.currentTarget).parent().parent().parent().parent();o.remove(),o.trigger("hidden.bs.modal"),o.modal("hide"),$("body").removeClass("modal-open").attr("style",null),$(".modal-backdrop").remove()}),r.on("hidden.bs.modal",()=>{$(this).remove(),$('[name^="__privateStripe"]').remove(),Tools.modal_opened=!1,1==a.allowBackdropRemoval&&$(".modal-backdrop").remove()}),r.modal("show"),n&&n(r)},dataType:"html"})},module.exports=Tools;
+
+},{"serialijse":3}],2:[function(require,module,exports){
+/*
+object-assign
+(c) Sindre Sorhus
+@license MIT
+*/
+
+'use strict';
+/* eslint-disable no-unused-vars */
+var getOwnPropertySymbols = Object.getOwnPropertySymbols;
+var hasOwnProperty = Object.prototype.hasOwnProperty;
+var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+function toObject(val) {
+	if (val === null || val === undefined) {
+		throw new TypeError('Object.assign cannot be called with null or undefined');
+	}
+
+	return Object(val);
+}
+
+function shouldUseNative() {
+	try {
+		if (!Object.assign) {
+			return false;
+		}
+
+		// Detect buggy property enumeration order in older V8 versions.
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
+		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
+		test1[5] = 'de';
+		if (Object.getOwnPropertyNames(test1)[0] === '5') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test2 = {};
+		for (var i = 0; i < 10; i++) {
+			test2['_' + String.fromCharCode(i)] = i;
+		}
+		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
+			return test2[n];
+		});
+		if (order2.join('') !== '0123456789') {
+			return false;
+		}
+
+		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
+		var test3 = {};
+		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
+			test3[letter] = letter;
+		});
+		if (Object.keys(Object.assign({}, test3)).join('') !==
+				'abcdefghijklmnopqrst') {
+			return false;
+		}
+
+		return true;
+	} catch (err) {
+		// We don't expect any of the above to throw, but better to be safe.
+		return false;
+	}
+}
+
+module.exports = shouldUseNative() ? Object.assign : function (target, source) {
+	var from;
+	var to = toObject(target);
+	var symbols;
+
+	for (var s = 1; s < arguments.length; s++) {
+		from = Object(arguments[s]);
+
+		for (var key in from) {
+			if (hasOwnProperty.call(from, key)) {
+				to[key] = from[key];
+			}
+		}
+
+		if (getOwnPropertySymbols) {
+			symbols = getOwnPropertySymbols(from);
+			for (var i = 0; i < symbols.length; i++) {
+				if (propIsEnumerable.call(from, symbols[i])) {
+					to[symbols[i]] = from[symbols[i]];
+				}
+			}
+		}
+	}
+
+	return to;
+};
+
+},{}],3:[function(require,module,exports){
+/*global exports,require*/
+var lib = require("./lib/serialijse");
+exports.serialize = lib.serialize;
+exports.deserialize = lib.deserialize;
+exports.serializeZ = lib.serializeZ;
+exports.deserializeZ = lib.deserializeZ;
+exports.declarePersistable = lib.declarePersistable;
+
+},{"./lib/serialijse":4}],4:[function(require,module,exports){
+(function (global,Buffer){(function (){
+(function (exports) {
+    "use strict";
+    var assert = require("assert");
+    var b = require("buffer");
+
+    var g_classInfos = {};
+
+    // note: phantomjs may not define  Object.assign by default so we need the pony fill
+    var objectAssign = Object.assign || require("object-assign");
+
+    var isFunction = function (obj) {
+        return typeof obj === 'function' || obj.prototype;
+    };
+
+
+    function merge_options(options1, options2) {
+        return objectAssign({}, options1, options2);
+    }
+    function serializeObject(context, object, rawData, global_options) {
+
+        assert(!rawData.hasOwnProperty("d"));
+
+        rawData.d = {};
+
+        var options = global_options || {};
+        if (object.constructor && object.constructor.serialijseOptions) {
+            options = merge_options(options, object.constructor.serialijseOptions);
+        }
+        if (options.ignored) {
+            options.ignored = (options.ignored instanceof Array) ? options.ignored : [options.ignored];
+        }
+
+        for (var property in object) {
+            if (isPropertyPersistable(object, property, options)) {
+                if (object[property] !== null) {
+                    rawData.d[property] = _serialize(context, options, object[property]);
+                } else {
+                    rawData.d[property] = null;
+                }
+            }
+        }
+    }
+
+    function deserializeObject(context, object_id, object_definition) {
+
+        var classInfo = this;
+
+        var object = new classInfo.constructor();
+        context.cache[object_id] = object;
+
+        var rawData = object_definition.d;
+
+        // istanbul ignore next
+        if (!rawData) {
+            return; // no properties
+        }
+
+        for (var property in rawData) {
+            if (rawData.hasOwnProperty(property)) {
+                try {
+                    object[property] = deserialize_node_or_value(context, rawData[property]);
+                }
+                catch (err)
+                // istanbul ignore next
+                {
+                    console.log(" property : ", property);
+                    console.log(err);
+                    throw err;
+                }
+            }
+        }
+
+        return object;
+
+    }
+
+    function serializeTypedArray(context, typedArray, rawData) {
+        rawData.a = Buffer.from(typedArray.buffer).toString("base64");
+    }
+
+    function deserializeTypedArray(context, object_id, rawData) {
+
+        var classInfo = this;
+        assert(typeof rawData.a === "string");
+        var buf = Buffer.from(rawData.a, "base64");
+        var tmp = new Uint8Array(buf);
+        var obj = new classInfo.constructor(tmp.buffer);
+        context.cache[object_id] = obj;
+
+        return obj;
+    }
+
+    function deserialize_node_or_value(context, node) {
+        assert(context);
+        if ("object" === typeof node) {
+            return deserialize_node(context, node);
+        }
+        return node;
+    }
+
+    function declarePersistable(constructor, name, serializeFunc, deserializeFunc) {
+
+        var className = constructor.prototype.constructor.name || constructor.name;
+
+        serializeFunc = serializeFunc || serializeObject;
+        deserializeFunc = deserializeFunc || deserializeObject;
+
+        if (name) {
+            className = name;
+        }
+
+        // istanbul ignore next
+        if (g_classInfos.hasOwnProperty(className)) {
+            console.warn("declarePersistable warning: declarePersistable : class " + className + " already registered");
+        }
+
+        // istanbul ignore next
+        if (!(constructor instanceof Function) && !constructor.prototype) {
+            throw new Error("declarePersistable: Cannot find constructor for " + className);
+        };
+
+        g_classInfos[className] = {
+            constructor: constructor,
+            serializeFunc: serializeFunc,
+            deserializeFunc: deserializeFunc
+        };
+    }
+
+
+    function declareTypedArrayPersistable(typeArrayName) {
+
+        // istanbul ignore next
+        if (!global[typeArrayName]) {
+            console.log("warning : " + typeArrayName + " is not supported in this environment");
+            return;
+        }
+
+        var constructor = global[typeArrayName];
+        // repair constructor name if any
+        // istanbul ignore next
+        if (!constructor.name) {
+            constructor.name = typeArrayName;
+        }
+        // if (!(constructor instanceof Function)) {
+        //     a = new constructor();
+        //     throw new Error("warning : " + typeArrayName + " is not supported FULLY FILLY in this environment"   +typeof constructor,typeof constructor.constructor);
+        // }
+        declarePersistable(constructor, typeArrayName, serializeTypedArray, deserializeTypedArray);
+
+    }
+    declarePersistable(Object, "Object", serializeObject, deserializeObject);
+    declareTypedArrayPersistable("Float32Array");
+    declareTypedArrayPersistable("Float64Array");
+    declareTypedArrayPersistable("Uint32Array");
+    declareTypedArrayPersistable("Uint16Array");
+    declareTypedArrayPersistable("Uint8Array");
+    declareTypedArrayPersistable("Int32Array");
+    declareTypedArrayPersistable("Int16Array");
+    declareTypedArrayPersistable("Int8Array");
+
+    /**
+     * returns true if the property is persistable.
+     * @param obj
+     * @param propertyName
+     * @returns {boolean}
+     */
+    function isPropertyPersistable(obj, propertyName, options) {
+        if (!obj.hasOwnProperty(propertyName)) {
+            return false;
+        }
+        if (propertyName === '____index') {
+            return false;
+        }
+        if (options && options.ignored) {
+
+            for (var i = 0; i < options.ignored.length; i++) {
+                var o = options.ignored[i];
+                if (typeof o === "string") {
+                    if (o === propertyName) {
+                        return false;
+                    }
+                } else if (o instanceof RegExp) {
+                    if (propertyName.match(o)) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    function find_object(context, obj) {
+        if (obj.____index !== undefined) {
+            assert(context.objects[obj.____index] === obj);
+            return obj.____index;
+        }
+        return -1;
+    }
+
+    function add_object_in_index(context, obj, serializing_data) {
+        var id = context.index.length;
+        obj.____index = id;
+        context.index.push(serializing_data);
+        context.objects.push(obj);
+        return id;
+    }
+
+    function extract_object_classname(object) {
+        var className = object.constructor.name;
+        if (className) {
+            return className;
+        }
+        /* in some old version of node className could be null */
+        // istanbul ignore next
+        if (true) {
+            if (object instanceof Float32Array) { return "Float32Array"; }
+            if (object instanceof Uint32Array) { return "Uint32Array"; }
+            if (object instanceof Uint16Array) { return "Uint16Array"; }
+            if (object instanceof Uint8Array) { return "Uint8Array"; }
+            if (object instanceof Int32Array) { return "Int32Array"; }
+            if (object instanceof Int16Array) { return "Int16Array"; }
+            if (object instanceof Int8Array) { return "Int8Array"; }    
+        }
+    }
+
+    function _serialize_xxx(context, options, object, construct, serialize) {
+        // check if the object has already been serialized
+        let id = find_object(context, object);
+        if (id === -1) {
+            const stuff = construct();
+            id = add_object_in_index(context, object, stuff);
+            serialize(context, object, stuff, options);
+        }
+        return id;
+    }
+    function _deserialize_xxx(context, object_id, contruct, deserialize) {
+        assert(object_id);
+        // check if this object has already been de-serialized
+        if (context.cache[object_id] !== undefined) {
+            return context.cache[object_id];
+        }
+        const newStuff = contruct();
+        context.cache[object_id] = newStuff;
+        const serializing_data = context.index[object_id];
+        deserialize(context, newStuff, serializing_data);
+        return newStuff;
+    }
+
+    function _serialize_map(context, options, object) {
+        return _serialize_xxx(context, options, object,
+            () => [],
+            (context, object, mapJson, options) => {
+                for (const [key, value] of object.entries()) {
+                    mapJson.push([
+                        _serialize(context, options, key),
+                        _serialize(context, options, value),
+                    ])
+                }
+            });
+    }
+    function _deserialize_map(context, object_id) {
+        return _deserialize_xxx(context, object_id,
+            () => new Map(),
+            (context, newMap, serializing_data) => {
+                for (const [key, value] of serializing_data) {
+                    const k = deserialize_node_or_value(context, key);
+                    const v = deserialize_node_or_value(context, value);
+                    newMap.set(k, v);
+                }
+            })
+    }
+    function _serialize_set(context, options, object) {
+        return _serialize_xxx(context, options, object,
+            () => [],
+            (context, object, setJson, options) => {
+                for (const value of object.values()) {
+                    setJson.push(_serialize(context, options, value))
+                }
+            });
+    }
+    function _deserialize_set(context, object_id) {
+        return _deserialize_xxx(context, object_id,
+            () => new Set(),
+            (context, newSet, serializing_data) => {
+                for (const value of serializing_data) {
+                    const v = deserialize_node_or_value(context, value);
+                    newSet.add(v)
+                }
+            })
+    }
+
+    function _serialize_basic_object(context, options, object) {
+        const className = extract_object_classname(object);
+
+        // istanbul ignore next
+        if (className !== "Object" && !g_classInfos.hasOwnProperty(className)) {
+            console.log(object);
+            throw new Error("class " + className + " is not registered in class Factory - deserialization will not be possible");
+        }
+        return _serialize_xxx(context, options, object,
+            () => ({ c: className }),
+            (context, object, s, options) =>
+                g_classInfos[className].serializeFunc(context, object, s, options));
+    }
+    function _deserialize_basic_object(context, object_id) {
+        if (object_id === null) {
+            return null;
+        }
+        // check if this object has already been de-serialized
+        if (context.cache[object_id] !== undefined) {
+            return context.cache[object_id];
+        }
+        var serializing_data = context.index[object_id];
+        var cache_object = _deserialize_object(context, serializing_data, object_id);
+        assert(context.cache[object_id] === cache_object);
+        return cache_object;
+    }
+    function _serialize_object(context, options, serializingObject, object) {
+
+        assert(context);
+        assert(object !== undefined);
+        if (object === null) {
+            serializingObject.o = null;
+            return;
+        }
+        const className = extract_object_classname(object);
+
+        // j => json object to follow
+        // d => date
+        // a => array
+        // o => class  { c: className d: data }
+        // o => null
+        // @ => already serialized object
+        // s => Set
+        // m => Map
+
+        if (className === "Array") {
+            serializingObject.a = object.map(_serialize.bind(null, context, options));
+        } else if (object.constructor === Map) {
+            serializingObject.m = _serialize_map(context, options, object);
+        } else if (object.constructor === Set) {
+            serializingObject.s = _serialize_set(context, options, object);
+        } else if (className === "Date") {
+            serializingObject.d = object.getTime();
+        } else {
+            serializingObject.o = _serialize_basic_object(context, options, object);
+        }
+    }
+
+    function _serialize(context, options, object) {
+
+        assert(context);
+        // istanbul ignore next
+        if (object === undefined) {
+            return undefined;
+        }
+
+        var serializingObject = {};
+        var _throw = function () {
+          throw new Error("invalid typeof " + typeof object + " " + JSON.stringify(object, null, " "));
+        }
+
+        switch (typeof object) {
+            case 'number':
+            case 'boolean':
+            case 'string':
+                // basic type
+                return object;
+            case 'object':
+                _serialize_object(context, options, serializingObject, object);
+                break;
+            default:
+                if (options.errorHandler) {
+                  options.errorHandler(context, options, object, _throw)
+                } else {
+                  _throw()
+                }
+        }
+        return serializingObject;
+    }
+
+    /**
+     *
+     * @param object            {object} object to serialize
+     * @param [options]         {object} optional options
+     * @param [options.ignored] {string|regexp|Array<string|regexp>} pattern for field to not serialize
+     * @return {string}
+     */
+    function serialize(object, options) {
+
+        assert(object !== undefined, "serialize: expect a valid object to serialize ");
+
+        var context = {
+            index: [],
+            objects: []
+        };
+
+        var obj = _serialize(context, options, object);
+
+        // unset temporary ___index properties
+        context.objects.forEach(function (e) {
+            delete e.____index;
+        });
+
+        return JSON.stringify([context.index, obj]);// ,null," ");
+    }
+
+
+    function deserialize_node(context, node) {
+        assert(context);
+        // special treatment
+        if (node === null || node === undefined) {
+            return node;
+        }
+
+        if (node.hasOwnProperty("s")) {
+            return _deserialize_set(context, node.s);
+        } else if (node.hasOwnProperty("m")) {
+            return _deserialize_map(context, node.m);
+        } else if (node.hasOwnProperty("d")) {
+            return new Date(node.d);
+        } else if (node.hasOwnProperty("o")) {
+            return _deserialize_basic_object(context, node.o);
+        } else if (node.hasOwnProperty("a")) {
+            // return _deserialize_object(node.o);
+            return node.a.map(deserialize_node_or_value.bind(null, context));
+        }
+        // istanbul ignore next
+        throw new Error("Unsupported deserialize_node " + JSON.stringify(node));
+    }
+
+    function _deserialize_object(context, object_definition, object_id) {
+
+        assert(object_definition.c);
+
+        var className = object_definition.c;
+        var classInfo = g_classInfos[className];
+
+        // istanbul ignore next
+        if (!classInfo) {
+            throw new Error(" Cannot find constructor to deserialize class of type " + className + ". use declarePersistable(Constructor)");
+        }
+        var constructor = classInfo.constructor;
+        assert(isFunction(constructor));
+
+        var obj = classInfo.deserializeFunc(context, object_id, object_definition);
+
+        if (constructor && constructor.serialijseOptions) {
+
+
+            // onDeserialize is called immediately after object has been created
+            if (constructor.serialijseOptions.onDeserialize) {
+                constructor.serialijseOptions.onDeserialize(obj);
+            }
+            // onPostDeserialize call is postponed after the main object has been fully de-serializednpm
+            if (constructor.serialijseOptions.onPostDeserialize) {
+                context.postDeserialiseActions.push(obj);
+            }
+        }
+        return obj;
+    }
+
+    function deserialize(serializationString) {
+
+        var data;
+        if (typeof serializationString === 'string') {
+            data = JSON.parse(serializationString);
+        } else if (typeof serializationString === 'object') {
+            data = serializationString;
+        }
+        // istanbul ignore next
+        if (!(data instanceof Array)) {
+            throw new Error("Invalid Serialization data");
+        }
+        // istanbul ignore next
+        if (data.length !== 2) {
+            throw new Error("Invalid Serialization data");
+        }
+
+        var rawObject = data[1];
+        var context = {
+            index: data[0],
+            cache: [],
+            postDeserialiseActions: []
+        };
+
+        var deserializedObject = deserialize_node_or_value(context, rawObject);
+
+        context.postDeserialiseActions.forEach(function (o) {
+            o.constructor.serialijseOptions.onPostDeserialize(o);
+        });
+
+        return deserializedObject;
+    }
+
+    exports.deserialize = deserialize;
+    exports.serialize = serialize;
+    exports.declarePersistable = declarePersistable;
+
+    exports.serializeZ = function (obj, callback) {
+        var zlib = require("zlib");
+        var str = serialize(obj);
+        zlib.deflate(str, function (err, buff) {
+            // istanbul ignore next
+            if (err) {
+                return callback(err);
+            }
+            callback(null, buff);
+        });
+    };
+
+    exports.deserializeZ = function (data, callback) {
+        var zlib = require("zlib");
+        zlib.inflate(data, function (err, buff) {
+            // istanbul ignore next
+            if (err) {
+                return callback(err);
+            }
+            callback(null, deserialize(buff.toString()));
+        });
+    };
+
+
+})(typeof exports === 'undefined' ? this['serialijse'] = {} : exports);
+
+
+}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
+},{"assert":16,"buffer":25,"object-assign":2,"zlib":24}],5:[function(require,module,exports){
+const Logger=require("./logger");class API_Proxy{constructor(){}get(...o){const e="/api/"+o.join("/");return Logger.debug("API Proxy [GET] "+e),new Promise((o,r)=>{$.get(e,e=>{o(e)})})}post(...o){const e="/api/"+o.join("/");return Logger.debug("API Proxy [POST] "+e),new Promise((o,r)=>{$.post(e,e=>{o(e)})})}postData(o,e){const r="/api/"+o;return Logger.debug("API Proxy [POST] "+r),new Promise((o,t)=>{$.post(r,e,e=>{o(e)})})}upload(o,e){const r="/api/"+o;return new Promise((o,t)=>{$.ajax({url:r,type:"POST",data:e,processData:!1,contentType:!1}).done(e=>{o(e)}).fail(o=>{t(o)})})}}const api_proxy=new API_Proxy;module.exports=api_proxy;
+
+},{"./logger":7}],6:[function(require,module,exports){
+const PageHandler=require("./page_handler"),Logger=require("./logger");function main(){Logger.displayBanner(),PageHandler.init()}Date.prototype.getMonthName=function(){return["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][this.getMonth()]},Number.prototype.pad=function(t,e){let n=this;return e=e||"0",(n+="").length>=t?n:new Array(t-n.length+1).join(e)+n},Number.prototype.toDecimal=function(){return this.toFixed(2)},String.prototype.trunc=String.prototype.trunc||function(t){return this.length>t?this.substr(0,t-1)+"&hellip;":this},$(document).ready(()=>{main()});
+
+},{"./logger":7,"./page_handler":9}],7:[function(require,module,exports){
+const Logger={TYPES:{LOG:0,INFO:1,SUCCESS:2,WARNING:3,ERROR:4,DEBUG:5,RESET:6}};Logger.LEVEL=Logger.TYPES.DEBUG,Logger.STYLES=["padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#008cba; color:#fff; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#43ac6a; color:#fff; font-weight:bold; border:1px solid #3c9a5f;","padding: 2px 8px; margin-right:8px; background:#E99002; color:#fff; font-weight:bold; border:1px solid #d08002;","padding: 2px 8px; margin-right:8px; background:#F04124; color:#fff; font-weight:bold; border:1px solid #ea2f10;","padding: 2px 8px; margin-right:8px; background:#003aba; color:#fff; font-weight:bold; border:1px solid #000;",""],Logger.init=(()=>{Logger.displayBanner()}),Logger.displayBanner=(()=>{Logger.BannerMessage="\n%c #-----------------------------# \n #      _____ _____ __  __     # \n #     / ____/ ____|  \\/  |    # \n #    | (___| (___ | \\  / |    # \n #     \\___ \\\\___ \\| |\\/| |    # \n #     ____) |___) | |  | |    # \n #    |_____/_____/|_|  |_|    # \n #-----------------------------# \n # Satisfactory Server Manager # \n #-----------------------------# \n",console.log(Logger.BannerMessage,"background:#008cba;color:#fff;font-weight:bold")}),Logger.getLoggerTypeString=(g=>{switch(g){case 0:return"LOG";case 1:return"INFO";case 2:return"SUCCESS";case 3:return"WARN";case 4:return"ERROR";case 5:return"DEBUG"}}),Logger.toLog=((g,o)=>{if(null==g)return;if(g>Logger.LEVEL)return;const r=Logger.STYLES[g],e=Logger.STYLES[Logger.TYPES.RESET],n=Logger.getLoggerTypeString(g);console.log("%c"+n+"%c"+o,r,e)}),Logger.log=(g=>{Logger.toLog(Logger.TYPES.LOG,g)}),Logger.info=(g=>{Logger.toLog(Logger.TYPES.INFO,g)}),Logger.success=(g=>{Logger.toLog(Logger.TYPES.SUCCESS,g)}),Logger.warning=(g=>{Logger.toLog(Logger.TYPES.WARNING,g)}),Logger.error=(g=>{Logger.toLog(Logger.TYPES.ERROR,g)}),Logger.debug=(g=>{Logger.toLog(Logger.TYPES.DEBUG,g)}),module.exports=Logger;
+
+},{}],8:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Dashboard{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getModCount(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#server-action-start").on("click",e=>{this.serverAction_Start()}),$("#server-action-stop").on("click",e=>{this.serverAction_Confirm("stop")}),$("#server-action-kill").on("click",e=>{this.serverAction_Confirm("kill")}),$("body").on("click","#confirm-action",e=>{const t=$(e.currentTarget).attr("data-action");"stop"!=t&&"kill"!=t||($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(t))})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{const t=$("#server-status");"success"==e.result?(this.ServerState=e.data,this.ToggleServerActionButtons(),"stopped"==e.data.status?t.text("Not Running"):"running"==e.data.status?t.text("Running"):"notinstalled"==e.data.status&&t.text("Not Installed"),$("#cpu-usage div").width(e.data.pcpu.toDecimal()+"%"),$("#ram-usage div").width(e.data.pmem.toDecimal()+"%")):t.text("Server Error!")})}getModCount(){API_Proxy.get("mods","modsinstalled").then(e=>{const t=$("#mod-count");"success"==e.result?t.text(e.data.length):t.text(e.error)})}ToggleServerActionButtons(){"stopped"==this.ServerState.status?($("#server-action-start").prop("disabled",!1),$("#server-action-stop").prop("disabled",!0),$("#server-action-kill").prop("disabled",!0)):"running"==this.ServerState.status?($("#server-action-start").prop("disabled",!0),$("#server-action-stop").prop("disabled",!1),$("#server-action-kill").prop("disabled",!1)):"notinstalled"==this.ServerState.status&&($("#server-action-start").prop("disabled",!0),$("#server-action-stop").prop("disabled",!0),$("#server-action-kill").prop("disabled",!0))}serverAction_Confirm(e){1!=Tools.modal_opened&&Tools.openModal("/public/modals","server-action-confirm",t=>{t.find("#confirm-action").attr("data-action",e)})}serverAction_Start(){if("stopped"==this.ServerState.status)API_Proxy.post("serveractions","start").then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("/public/modals","server-action-success",e=>{e.find("#success-msg").text("Server has been started!")})):Tools.openModal("/public/modals","server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-action-error",e=>{e.find("#error-msg").text("Error: The server is already started!")})}}serverAction_Stop(e){if("stopped"!=this.ServerState.status)API_Proxy.post("serveractions",e).then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("/public/modals","server-action-success",e=>{e.find("#success-msg").text("Server has been stopped!")})):Tools.openModal("server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-action-error",e=>{e.find("#error-msg").text("Error: The server is already stopped!")})}}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus(),this.getModCount()},5e3)}}const page=new Page_Dashboard;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],9:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Page_Dashboard=require("./page_dashboard"),Page_Mods=require("./page_mods"),Page_Logs=require("./page_logs"),Page_Saves=require("./page_saves"),Page_Settings=require("./page_settings"),Page_Servers=require("./page_servers"),Tools=require("../Mrhid6Utils/lib/tools"),Logger=require("./logger");class PageHandler{constructor(){this.page="",this.SETUP_CACHE={sfinstalls:[],selected_sfinstall:null}}init(){switch(toastr.options.closeButton=!0,toastr.options.closeMethod="fadeOut",toastr.options.closeDuration=300,toastr.options.closeEasing="swing",toastr.options.showEasing="swing",toastr.options.timeOut=3e4,toastr.options.extendedTimeOut=1e4,toastr.options.progressBar=!0,toastr.options.positionClass="toast-bottom-right",this.setupJqueryHandler(),this.getSSMVersion(),this.checkInitalSetup(),this.startLoggedInCheck(),this.page=$(".page-container").attr("data-page"),this.page){case"dashboard":Page_Dashboard.init();break;case"mods":Page_Mods.init();break;case"logs":Page_Logs.init();break;case"saves":Page_Saves.init();break;case"settings":Page_Settings.init();break;case"servers":Page_Servers.init()}}setupJqueryHandler(){$('[data-toggle="tooltip"]').tooltip(),$("body").on("click","#metrics-opt-in #cancel-action",e=>{$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendRejectMetrics()}),$("body").on("click","#metrics-opt-in #confirm-action",e=>{$(e.currentTarget);$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendAcceptMetrics()}).on("click","#btn_setup_findinstall",e=>{this.getSetupSFInstalls(e)})}getSSMVersion(){API_Proxy.get("info","ssmversion").then(e=>{const t=$("#ssm-version");"success"==e.result?(this.checkSSMVersion(e.data),t.text(e.data.current_version)):t.text("Server Error!")})}checkSSMVersion(e){const t="toast_"+e.current_version+"_"+e.github_version+"_"+e.version_diff;null==getCookie(t)&&("gt"==e.version_diff?toastr.warning("You are currently using a Development version of SSM"):"lt"==e.version_diff&&toastr.warning("SSM requires updating. Please update now"),setCookie(t,!0,30))}startLoggedInCheck(){const e=setInterval(()=>{Logger.info("Checking Logged In!"),this.checkLoggedIn().then(t=>{1!=t&&(clearInterval(e),window.location.replace("/logout"))})},1e4)}checkLoggedIn(){return new Promise((e,t)=>{API_Proxy.get("info","loggedin").then(t=>{"success"==t.result?e(!0):e(!1)})})}checkInitalSetup(){API_Proxy.get("config","ssm","setup").then(e=>{if("success"==e.result){0==e.data&&Tools.openModal("/public/modals","inital-setup",e=>{$("#initial-setup-wizard").steps({headerTag:"h3",bodyTag:"fieldset",transitionEffect:"slideLeft",onStepChanging:(e,t,s)=>{if(t>s)return!0;if(2==s&&""==$("#inp_sf_install_location").val())return!1;if(4==s){return $("#setup_summary_sfinstallloc").text($("#inp_sf_install_location").val()),$("#acceptTerms-2:checked").length>0}return!0},onFinishing:(e,t)=>!0,onFinished:(t,s)=>{const o={serverlocation:$("#inp_sf_install_location").val(),updateonstart:$("#inp_updatesfonstart:checked").length>0,metrics:$("#inp_setup_metrics:checked").length>0};e.find(".close").trigger("click"),API_Proxy.postData("config/ssm/setup",o).then(e=>{Tools.openModal("/public/modals","server-action-installsf",()=>{API_Proxy.post("serveractions","installsf").then(e=>{"success"==e.result?(toastr.success("Server has been installed!"),$("#server-action-installsf .close").trigger("click")):($("#server-action-installsf").remove(),Tools.openModal("/public/modals","server-settings-error",t=>{t.find("#error-msg").text(e.error.message)}))})})})}}),API_Proxy.get("config").then(e=>{e.data.ssm;const t=e.data.satisfactory;e.data.mods;$("#inp_sf_install_location").val(t.server_location),$("#inp_updatesfonstart").bootstrapToggle(),1==t.updateonstart?$("#inp_updatesfonstart").bootstrapToggle("on"):$("#inp_updatesfonstart").bootstrapToggle("off")}),$("#inp_setup_metrics").bootstrapToggle()})}})}}function setCookie(e,t,s){var o="";if(s){var i=new Date;i.setTime(i.getTime()+24*s*60*60*1e3),o="; expires="+i.toUTCString()}document.cookie=e+"="+(t||"")+o+"; path=/"}function getCookie(e){for(var t=e+"=",s=document.cookie.split(";"),o=0;o<s.length;o++){for(var i=s[o];" "==i.charAt(0);)i=i.substring(1,i.length);if(0==i.indexOf(t))return i.substring(t.length,i.length)}return null}function eraseCookie(e){document.cookie=e+"=; Max-Age=-99999999;"}const pagehandler=new PageHandler;module.exports=pagehandler;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5,"./logger":7,"./page_dashboard":8,"./page_logs":10,"./page_mods":11,"./page_saves":12,"./page_servers":13,"./page_settings":14}],10:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Logs{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getSSMLog(),this.getSMLauncherLog(),this.getSFServerLog(),this.startPageInfoRefresh()}setupJqueryListeners(){}getSSMLog(){API_Proxy.get("logs","ssmlog").then(e=>{const s=$("#ssm-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}getSMLauncherLog(){API_Proxy.get("logs","smlauncherlog").then(e=>{const s=$("#smlauncher-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}getSFServerLog(){API_Proxy.get("logs","sfserverlog").then(e=>{const s=$("#sf-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}startPageInfoRefresh(){setInterval(()=>{this.getSSMLog()},3e4)}}const page=new Page_Logs;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],11:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Mods{constructor(){this.Mods_State={},this.ServerState={},this.FicsitModList=[],this.loaded={ficsit_modlist:!1}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getSMLInfo(),this.getModCount(),this.getFicsitSMLVersion(),this.getFicsitModList(),this.startPageInfoRefresh(),this.waitTilLoaded().then(()=>{this.displayModsTable()})}isLoaded(){return 1==this.loaded.ficsit_modlist}waitTilLoaded(){return new Promise((s,e)=>{const o=setInterval(()=>{1==this.isLoaded()&&(clearInterval(o),s())},20)})}setupJqueryListeners(){$("body").on("change","#sel-add-mod-name",s=>{this.getFicsitModInfo()}).on("change","#sel-add-mod-version",s=>{-1==$(s.currentTarget).val()?this.lockInstallModBtn():this.unlockInstallModBtn()}).on("click",".btn-uninstall-mod",s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.uninstallMod(e)}).on("click",".btn-update-mod",s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.updateModToLatest(e)}),$("#btn-install-sml").click(s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.installSMLVersion(e)}),$("#btn-install-mod").click(s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.installModVersion(e)})}getServerStatus(){API_Proxy.get("info","serverstatus").then(s=>{"success"==s.result&&(this.ServerState=s.data)})}displayModsTable(){const s=$.fn.dataTable.isDataTable("#mods-table");API_Proxy.get("mods","modsinstalled").then(e=>{const o=[];if("success"==e.result)for(let s=0;s<e.data.length;s++){const t=e.data[s],d=this.FicsitModList.find(s=>s.id==t.id);if(null==d)continue;const a=t.version==d.latest_version,r=$("<button/>").addClass("btn btn-secondary btn-update-mod float-right").attr("data-modid",t.id).attr("data-toggle","tooltip").attr("data-placement","bottom").attr("title","Update Mod").html("<i class='fas fa-arrow-alt-circle-up'></i>"),l=$("<button/>").addClass("btn btn-danger btn-block btn-uninstall-mod").attr("data-modid",t.id).html("<i class='fas fa-trash'></i> Uninstall"),i=t.version+" "+(0==a?r.prop("outerHTML"):"");o.push([t.name,i,l.prop("outerHTML")])}if(0==s)$("#mods-table").DataTable({paging:!0,searching:!1,info:!1,order:[[0,"asc"]],columnDefs:[{targets:2,orderable:!1}],data:o});else{const s=$("#mods-table").DataTable();s.clear(),s.rows.add(o),s.draw()}$('[data-toggle="tooltip"]').tooltip()})}getSMLInfo(){API_Proxy.get("mods","smlinfo").then(s=>{const e=$(".sml-status"),o=$(".sml-version");"success"==s.result?(this.Mods_State=s.data,"not_installed"==s.data.state?(e.text("Not Installed"),o.text("Not Installed")):(e.text("Installed"),o.text(s.data.version))):(e.text(s.error),o.text("N/A"))})}getModCount(){API_Proxy.get("mods","modsinstalled").then(s=>{const e=$("#mod-count");"success"==s.result?e.text(s.data.length):e.text(s.error)})}getFicsitSMLVersion(){API_Proxy.get("ficsitinfo","smlversions").then(s=>{const e=$("#sel-install-sml-ver"),o=$(".sml-latest-version");"success"==s.result&&(o.text(s.data[0].version),s.data.forEach(s=>{e.append("<option value='"+s.version+"'>"+s.version+"</option")}))})}getFicsitModList(){API_Proxy.get("ficsitinfo","modslist").then(s=>{const e=$("#sel-add-mod-name");"success"==s.result?(this.FicsitModList=s.data,this.loaded.ficsit_modlist=!0,s.data.forEach(s=>{e.append("<option value='"+s.id+"'>"+s.name+"</option")})):console.log(s)})}getFicsitModInfo(){const s=$("#sel-add-mod-name").val();"-1"==s?this.hideNewModInfo():API_Proxy.get("ficsitinfo","modinfo",s).then(s=>{this.showNewModInfo(s.data)})}hideNewModInfo(){$("#add-mod-logo").attr("src","/public/images/ssm_logo128_outline.png"),$("#sel-add-mod-version").prop("disabled",!0),$("#sel-add-mod-version").find("option").not(":first").remove(),this.lockInstallModBtn()}showNewModInfo(s){""==s.logo?$("#add-mod-logo").attr("src","https://ficsit.app/static/assets/images/no_image.png"):$("#add-mod-logo").attr("src",s.logo);const e=$("#sel-add-mod-version");e.prop("disabled",!1),e.find("option").not(":first").remove(),console.log(s),s.versions.forEach(s=>{e.append("<option value='"+s.version+"'>"+s.version+"</option")})}installSMLVersion(s){s.prop("disabled",!0),s.find("i").removeClass("fa-download").addClass("fa-sync fa-spin"),$("input[name='radio-install-sml']").prop("disabled",!0);const e=$("input[name='radio-install-sml']:checked").val(),o=$("#sel-install-sml-ver");o.prop("disabled",!0);let t="latest";if(1==e){if(-1==o.val()){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",e=>{s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),e.find("#error-msg").text("Please select SML Version!")})}t=o.val()}const d={version:t};API_Proxy.postData("/mods/installsml",d).then(e=>{if(console.log(e),s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),"success"==e.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("SML has been installed!"),this.getSMLInfo()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text(e.error)})}})}unlockInstallModBtn(){$("#btn-install-mod").prop("disabled",!1)}lockInstallModBtn(){$("#btn-install-mod").prop("disabled",!0)}installModVersion(s){s.prop("disabled",!0),s.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");const e=$("#sel-add-mod-name"),o=$("#sel-add-mod-version");e.prop("disabled",!0),o.prop("disabled",!0);const t={modid:e.val(),versionid:o.val()};API_Proxy.postData("/mods/installmod",t).then(t=>{if(console.log(t),s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),e.prop("disabled",!1),o.prop("disabled",!1),"success"==t.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been installed!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text(t.error)})}})}uninstallMod(s){const e={modid:s.attr("data-modid")};API_Proxy.postData("/mods/uninstallmod",e).then(s=>{if("success"==s.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been uninstalled!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",e=>{e.find("#error-msg").text(""!=s.error.message?s.error.message:s.error)}),console.log(s)}})}updateModToLatest(s){const e={modid:s.attr("data-modid")};API_Proxy.postData("/mods/updatemod",e).then(s=>{if("success"==s.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been updated to the latest version!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",e=>{e.find("#error-msg").text(s.error)})}})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}const page=new Page_Mods;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],12:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("body").on("click",".select-save-btn",e=>{const s=$(e.currentTarget).attr("data-save");if("stopped"==this.ServerState.status)this.selectSave(s);else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#new-session-name").click(e=>{e.preventDefault(),Tools.openModal("server-session-new",e=>{e.find("#confirm-action").attr("data-action","new-session")})}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{"new-session"==$(e.currentTarget).attr("data-action")&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)}),$("#btn-save-upload").on("click",e=>{e.preventDefault(),this.uploadSaveFile()})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.displaySaveTable()}displaySaveTable(){const e=$.fn.dataTable.isDataTable("#saves-table"),s=this.Config.satisfactory;""==s.save.file?$("#current-save").text("No Save File Selected, Server will create a new world on start up."):$("#current-save").text(s.save.file),API_Proxy.get("gamesaves").then(a=>{console.log(a),$("#refresh-saves").prop("disabled",!1),$("#refresh-saves").find("i").removeClass("fa-spin");const t=[];if("success"==a.result&&a.data.forEach(e=>{if("failed"==e.result)return;$("<button/>").addClass("btn btn-light btn-block ").html("<i class='fas fa-search'></i>");let a=$("<button/>").addClass("btn btn-danger btn-block remove-save-btn").html("<i class='fas fa-trash'></i> Remove Save").attr("data-save",e.savename);e.savename==s.save.file&&a.prop("disabled",!0).text("Active Save");const o=a.prop("outerHTML"),n=e.savebody.split("?");let r="Unknown";for(let e=0;e<n.length;e++){const s=n[e].split("=");"sessionName"==s[0]&&(r=s[1])}t.push([r.trunc(25),e.savename.trunc(40),saveDate(e.last_modified),o])}),0==e)$("#saves-table").DataTable({paging:!0,searching:!1,info:!1,order:[[2,"desc"]],columnDefs:[{type:"date-euro",targets:2}],data:t});else{const e=$("#saves-table").DataTable();e.clear(),e.rows.add(t),e.draw()}})}uploadSaveFile(){$("#btn-save-upload i").removeClass("fa-upload").addClass("fa-sync fa-spin"),$("#btn-save-upload").prop("disabled",!0),$("#inp-save-file").prop("disabled",!0);const e=new FormData($("#save-upload-form")[0]);API_Proxy.upload("gamesaves/upload",e).then(e=>{"success"==e.result?toastr.success("Save has been uploaded!"):toastr.error("Save couldn't be uploaded!"),$("#btn-save-upload i").addClass("fa-upload").removeClass("fa-sync fa-spin"),$("#btn-save-upload").prop("disabled",!1),$("#inp-save-file").prop("disabled",!1)})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],13:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Servers{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getAgentList(),this.startPageInfoRefresh()}setupJqueryListeners(){$("body").on("click",".btn-startstop-docker",t=>{t.preventDefault();const a=$(t.currentTarget);"start"==a.attr("data-action")?this.StartDockerAgent(a.attr("data-agentid")):this.StopDockerAgent(a.attr("data-agentid"))})}getAgentList(){API_Proxy.get("agent","agents").then(t=>{this._Agents=t.data,this.DisplayAgentsTable()})}DisplayAgentsTable(){const t=$.fn.dataTable.isDataTable("#agents-table"),a=[];if(this._Agents.forEach(t=>{const e=$("<a/>").attr("href",`/agent/${t.id}`),s=$("<button/>").addClass("btn btn-light").html("<i class='fas fa-cog'></i>");e.append(s);const n=e.prop("outerHTML"),r=$("<button/>").addClass("btn btn-success ml-3").html("<i class='fas fa-play'></i>").attr("data-action","start").attr("data-agentid",`${t.id}`).addClass("btn-startstop-docker");1==t.running&&(r.attr("data-action","stop").removeClass("btn-success").addClass("btn-danger"),r.find("i").removeClass("fa-play").addClass("fa-stop"));const o=n+r.prop("outerHTML"),i=$("<i/>").addClass("fas fa-times text-danger"),d=$("<i/>").addClass("fas fa-times text-danger");1==t.running&&i.removeClass("fa-times text-danger").addClass("fa-check text-success"),1==t.active&&d.removeClass("fa-times text-danger").addClass("fa-check text-success"),a.push([t.name,i.prop("outerHTML"),d.prop("outerHTML"),t.info.version||"Unknown",o])}),0==t)$("#agents-table").DataTable({paging:!0,searching:!1,info:!1,order:[[2,"desc"]],columnDefs:[{type:"date-euro",targets:2}],data:a});else{const t=$("#agents-table").DataTable();t.clear(),t.rows.add(a),t.draw()}}StartDockerAgent(t){API_Proxy.postData("agent/start",{id:t}).then(()=>{this.getAgentList()})}StopDockerAgent(t){API_Proxy.postData("agent/stop",{id:t}).then(()=>{this.getAgentList()})}startPageInfoRefresh(){setInterval(()=>{this.getAgentList()},5e3)}}const page=new Page_Servers;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],14:[function(require,module,exports){
+const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("#edit-ssm-settings").click(e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockSSMSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#save-ssm-settings").on("click",e=>{e.preventDefault(),this.submitSSMSettings()}),$("#cancel-ssm-settings").on("click",e=>{e.preventDefault(),this.lockSSMSettings(),this.getConfig()}),$("#edit-mods-settings").on("click",e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockModsSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#cancel-mods-settings").on("click",e=>{e.preventDefault(),this.lockModsSettings(),this.getConfig()}),$("#save-mods-settings").on("click",e=>{e.preventDefault(),this.submitModsSettings()}),$("#edit-sf-settings").on("click",e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockSFSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#cancel-sf-settings").on("click",e=>{e.preventDefault(),this.lockSFSettings(),this.getConfig()}),$("#save-sf-settings").on("click",e=>{e.preventDefault(),this.submitSFSettings()}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{const s=$(e.currentTarget).attr("data-action");"stop"==s||"kill"==s?($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(s)):"new-session"==s&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)}),$("#settings-dangerarea-installsf").on("click",e=>{e.preventDefault(),this.installSFServer()}),$("#inp_maxplayers").on("input change",()=>{const e=$("#inp_maxplayers").val();$("#max-players-value").text(`${e} / 500`)})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(console.log(e.data),this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.populateSSMSettings(),this.populateSFSettings(),this.populateModsSettings()}populateSSMSettings(){const e=this.Config.satisfactory;$("#inp_sf_serverloc").val(e.server_location),$("#inp_sf_saveloc").val(e.save.location),$("#inp_sf_logloc").val(e.log.location),$("#inp_sf_logloc").val(e.log.location),$("#inp_updatesfonstart").bootstrapToggle("enable"),1==e.updateonstart?$("#inp_updatesfonstart").bootstrapToggle("on"):$("#inp_updatesfonstart").bootstrapToggle("off"),$("#inp_updatesfonstart").bootstrapToggle("disable")}populateSFSettings(){const e=this.Config.game;$("#inp_maxplayers").val(e.Game["/Script/Engine"].GameSession.MaxPlayers);const s=$("#inp_maxplayers").val();$("#max-players-value").text(`${s} / 500`)}populateModsSettings(){const e=this.Config.mods;$("#inp_mods_enabled").bootstrapToggle("enable"),1==e.enabled?$("#inp_mods_enabled").bootstrapToggle("on"):$("#inp_mods_enabled").bootstrapToggle("off"),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("enable"),1==e.autoupdate?$("#inp_mods_autoupdate").bootstrapToggle("on"):$("#inp_mods_autoupdate").bootstrapToggle("off"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}unlockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!0),$("#save-ssm-settings").prop("disabled",!1),$("#cancel-ssm-settings").prop("disabled",!1),$("#inp_updatesfonstart").bootstrapToggle("enable"),$("#inp_sf_serverloc").prop("disabled",!1)}lockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!1),$("#save-ssm-settings").prop("disabled",!0),$("#cancel-ssm-settings").prop("disabled",!0),$("#inp_updatesfonstart").bootstrapToggle("disable"),$("#inp_sf_serverloc").prop("disabled",!0)}unlockModsSettings(){$("#edit-mods-settings").prop("disabled",!0),$("#save-mods-settings").prop("disabled",!1),$("#cancel-mods-settings").prop("disabled",!1),$("#inp_mods_enabled").bootstrapToggle("enable"),$("#inp_mods_autoupdate").bootstrapToggle("enable")}lockModsSettings(){$("#edit-mods-settings").prop("disabled",!1),$("#save-mods-settings").prop("disabled",!0),$("#cancel-mods-settings").prop("disabled",!0),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}unlockSFSettings(){$("#edit-sf-settings").prop("disabled",!0),$("#save-sf-settings").prop("disabled",!1),$("#cancel-sf-settings").prop("disabled",!1),$("#inp_maxplayers").prop("disabled",!1)}lockSFSettings(){$("#edit-sf-settings").prop("disabled",!1),$("#save-sf-settings").prop("disabled",!0),$("#cancel-sf-settings").prop("disabled",!0),$("#inp_maxplayers").prop("disabled",!0)}submitSSMSettings(){const e={updatesfonstart:$("#inp_updatesfonstart").is(":checked"),server_location:$("#inp_sf_serverloc").val()};API_Proxy.postData("config/ssmsettings",e).then(e=>{if("success"==e.result)this.lockSSMSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{console.log(JSON.stringify(e.error)),s.find("#error-msg").text(null!=e.error.message?e.error.message:e.error)})}})}submitSFSettings(){const e={maxplayers:$("#inp_maxplayers").val()};API_Proxy.postData("config/sfsettings",e).then(e=>{if("success"==e.result)this.lockSFSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{console.log(JSON.stringify(e.error)),s.find("#error-msg").text(null!=e.error.message?e.error.message:e.error)})}})}submitModsSettings(){const e={enabled:$("#inp_mods_enabled").is(":checked"),autoupdate:$("#inp_mods_autoupdate").is(":checked")};API_Proxy.postData("/config/modssettings",e).then(e=>{if("success"==e.result)this.lockModsSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}installSFServer(){1!=Tools.modal_opened&&Tools.openModal("/public/modals","server-action-installsf",()=>{API_Proxy.post("serveractions","installsf").then(e=>{console.log(e),"success"==e.result?(toastr.success("Server has been installed!"),$("#server-action-installsf .close").trigger("click")):($("#server-action-installsf").remove(),Tools.openModal("/public/modals","server-settings-error",s=>{s.find("#error-msg").text(e.error.message)}))})})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
+
+},{"../Mrhid6Utils/lib/tools":1,"./api_proxy":5}],15:[function(require,module,exports){
+
+/**
+ * Array#filter.
+ *
+ * @param {Array} arr
+ * @param {Function} fn
+ * @param {Object=} self
+ * @return {Array}
+ * @throw TypeError
+ */
+
+module.exports = function (arr, fn, self) {
+  if (arr.filter) return arr.filter(fn, self);
+  if (void 0 === arr || null === arr) throw new TypeError;
+  if ('function' != typeof fn) throw new TypeError;
+  var ret = [];
+  for (var i = 0; i < arr.length; i++) {
+    if (!hasOwn.call(arr, i)) continue;
+    var val = arr[i];
+    if (fn.call(self, val, i, arr)) ret.push(val);
+  }
+  return ret;
+};
+
+var hasOwn = Object.prototype.hasOwnProperty;
+
+},{}],16:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -508,7 +1198,7 @@ var objectKeys = Object.keys || function (obj) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"object-assign":28,"util/":4}],2:[function(require,module,exports){
+},{"object-assign":42,"util/":19}],17:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -533,14 +1223,14 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],3:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 module.exports = function isBuffer(arg) {
   return arg && typeof arg === 'object'
     && typeof arg.copy === 'function'
     && typeof arg.fill === 'function'
     && typeof arg.readUInt8 === 'function';
 }
-},{}],4:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -1130,38 +1820,32 @@ function hasOwnProperty(obj, prop) {
 }
 
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./support/isBuffer":3,"_process":40,"inherits":2}],5:[function(require,module,exports){
+},{"./support/isBuffer":18,"_process":54,"inherits":17}],20:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
-var possibleNames = [
-	'BigInt64Array',
-	'BigUint64Array',
-	'Float32Array',
-	'Float64Array',
-	'Int16Array',
-	'Int32Array',
-	'Int8Array',
-	'Uint16Array',
-	'Uint32Array',
-	'Uint8Array',
-	'Uint8ClampedArray'
-];
-
-var g = typeof globalThis === 'undefined' ? global : globalThis;
+var filter = require('array-filter');
 
 module.exports = function availableTypedArrays() {
-	var out = [];
-	for (var i = 0; i < possibleNames.length; i++) {
-		if (typeof g[possibleNames[i]] === 'function') {
-			out[out.length] = possibleNames[i];
-		}
-	}
-	return out;
+	return filter([
+		'BigInt64Array',
+		'BigUint64Array',
+		'Float32Array',
+		'Float64Array',
+		'Int16Array',
+		'Int32Array',
+		'Int8Array',
+		'Uint16Array',
+		'Uint32Array',
+		'Uint8Array',
+		'Uint8ClampedArray'
+	], function (typedArray) {
+		return typeof global[typedArray] === 'function';
+	});
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],6:[function(require,module,exports){
+},{"array-filter":15}],21:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -1313,9 +1997,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],7:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 
-},{}],8:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (process,Buffer){(function (){
 'use strict';
 /* eslint camelcase: "off" */
@@ -1727,7 +2411,7 @@ Zlib.prototype._reset = function () {
 
 exports.Zlib = Zlib;
 }).call(this)}).call(this,require('_process'),require("buffer").Buffer)
-},{"_process":40,"assert":1,"buffer":10,"pako/lib/zlib/constants":31,"pako/lib/zlib/deflate.js":33,"pako/lib/zlib/inflate.js":35,"pako/lib/zlib/zstream":39}],9:[function(require,module,exports){
+},{"_process":54,"assert":16,"buffer":25,"pako/lib/zlib/constants":45,"pako/lib/zlib/deflate.js":47,"pako/lib/zlib/inflate.js":49,"pako/lib/zlib/zstream":53}],24:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -2339,7 +3023,7 @@ util.inherits(DeflateRaw, Zlib);
 util.inherits(InflateRaw, Zlib);
 util.inherits(Unzip, Zlib);
 }).call(this)}).call(this,require('_process'))
-},{"./binding":8,"_process":40,"assert":1,"buffer":10,"stream":42,"util":61}],10:[function(require,module,exports){
+},{"./binding":23,"_process":54,"assert":16,"buffer":25,"stream":56,"util":75}],25:[function(require,module,exports){
 (function (Buffer){(function (){
 /*!
  * The buffer module from node.js, for the browser.
@@ -4120,7 +4804,7 @@ function numberIsNaN (obj) {
 }
 
 }).call(this)}).call(this,require("buffer").Buffer)
-},{"base64-js":6,"buffer":10,"ieee754":23}],11:[function(require,module,exports){
+},{"base64-js":21,"buffer":25,"ieee754":37}],26:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
@@ -4137,7 +4821,7 @@ module.exports = function callBoundIntrinsic(name, allowMissing) {
 	return intrinsic;
 };
 
-},{"./":12,"get-intrinsic":18}],12:[function(require,module,exports){
+},{"./":27,"get-intrinsic":33}],27:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
@@ -4186,12 +4870,12 @@ if ($defineProperty) {
 	module.exports.apply = applyBind;
 }
 
-},{"function-bind":17,"get-intrinsic":18}],13:[function(require,module,exports){
+},{"function-bind":32,"get-intrinsic":33}],28:[function(require,module,exports){
 'use strict';
 
 var GetIntrinsic = require('get-intrinsic');
 
-var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%', true);
+var $gOPD = GetIntrinsic('%Object.getOwnPropertyDescriptor%');
 if ($gOPD) {
 	try {
 		$gOPD([], 'length');
@@ -4203,7 +4887,7 @@ if ($gOPD) {
 
 module.exports = $gOPD;
 
-},{"get-intrinsic":18}],14:[function(require,module,exports){
+},{"get-intrinsic":33}],29:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -4702,7 +5386,7 @@ function eventTargetAgnosticAddListener(emitter, name, listener, flags) {
   }
 }
 
-},{}],15:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 
 var hasOwn = Object.prototype.hasOwnProperty;
 var toString = Object.prototype.toString;
@@ -4726,7 +5410,7 @@ module.exports = function forEach (obj, fn, ctx) {
 };
 
 
-},{}],16:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 /* eslint no-invalid-this: 1 */
@@ -4780,14 +5464,14 @@ module.exports = function bind(that) {
     return bound;
 };
 
-},{}],17:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 var implementation = require('./implementation');
 
 module.exports = Function.prototype.bind || implementation;
 
-},{"./implementation":16}],18:[function(require,module,exports){
+},{"./implementation":31}],33:[function(require,module,exports){
 'use strict';
 
 var undefined;
@@ -5119,7 +5803,7 @@ module.exports = function GetIntrinsic(name, allowMissing) {
 	return value;
 };
 
-},{"function-bind":17,"has":22,"has-symbols":19}],19:[function(require,module,exports){
+},{"function-bind":32,"has":36,"has-symbols":34}],34:[function(require,module,exports){
 'use strict';
 
 var origSymbol = typeof Symbol !== 'undefined' && Symbol;
@@ -5134,7 +5818,7 @@ module.exports = function hasNativeSymbols() {
 	return hasSymbolSham();
 };
 
-},{"./shams":20}],20:[function(require,module,exports){
+},{"./shams":35}],35:[function(require,module,exports){
 'use strict';
 
 /* eslint complexity: [2, 18], max-statements: [2, 33] */
@@ -5178,23 +5862,14 @@ module.exports = function hasSymbols() {
 	return true;
 };
 
-},{}],21:[function(require,module,exports){
-'use strict';
-
-var hasSymbols = require('has-symbols/shams');
-
-module.exports = function hasToStringTagShams() {
-	return hasSymbols() && !!Symbol.toStringTag;
-};
-
-},{"has-symbols/shams":20}],22:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 'use strict';
 
 var bind = require('function-bind');
 
 module.exports = bind.call(Function.call, Object.prototype.hasOwnProperty);
 
-},{"function-bind":17}],23:[function(require,module,exports){
+},{"function-bind":32}],37:[function(require,module,exports){
 /*! ieee754. BSD-3-Clause License. Feross Aboukhadijeh <https://feross.org/opensource> */
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
@@ -5281,7 +5956,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],24:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -5310,10 +5985,10 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],25:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 'use strict';
 
-var hasToStringTag = require('has-tostringtag/shams')();
+var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 var callBound = require('call-bind/callBound');
 
 var $toString = callBound('Object.prototype.toString');
@@ -5345,13 +6020,13 @@ isStandardArguments.isLegacyArguments = isLegacyArguments; // for tests
 
 module.exports = supportsStandardArguments ? isStandardArguments : isLegacyArguments;
 
-},{"call-bind/callBound":11,"has-tostringtag/shams":21}],26:[function(require,module,exports){
+},{"call-bind/callBound":26}],40:[function(require,module,exports){
 'use strict';
 
 var toStr = Object.prototype.toString;
 var fnToStr = Function.prototype.toString;
 var isFnRegex = /^\s*(?:function)?\*/;
-var hasToStringTag = require('has-tostringtag/shams')();
+var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
 var getProto = Object.getPrototypeOf;
 var getGeneratorFunc = function () { // eslint-disable-line consistent-return
 	if (!hasToStringTag) {
@@ -5362,7 +6037,8 @@ var getGeneratorFunc = function () { // eslint-disable-line consistent-return
 	} catch (e) {
 	}
 };
-var GeneratorFunction;
+var generatorFunc = getGeneratorFunc();
+var GeneratorFunction = getProto && generatorFunc ? getProto(generatorFunc) : false;
 
 module.exports = function isGeneratorFunction(fn) {
 	if (typeof fn !== 'function') {
@@ -5375,17 +6051,10 @@ module.exports = function isGeneratorFunction(fn) {
 		var str = toStr.call(fn);
 		return str === '[object GeneratorFunction]';
 	}
-	if (!getProto) {
-		return false;
-	}
-	if (typeof GeneratorFunction === 'undefined') {
-		var generatorFunc = getGeneratorFunc();
-		GeneratorFunction = generatorFunc ? getProto(generatorFunc) : false;
-	}
-	return getProto(fn) === GeneratorFunction;
+	return getProto && getProto(fn) === GeneratorFunction;
 };
 
-},{"has-tostringtag/shams":21}],27:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -5394,9 +6063,9 @@ var availableTypedArrays = require('available-typed-arrays');
 var callBound = require('call-bind/callBound');
 
 var $toString = callBound('Object.prototype.toString');
-var hasToStringTag = require('has-tostringtag/shams')();
+var hasSymbols = require('has-symbols')();
+var hasToStringTag = hasSymbols && typeof Symbol.toStringTag === 'symbol';
 
-var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $indexOf = callBound('Array.prototype.indexOf', true) || function indexOf(array, value) {
@@ -5413,16 +6082,17 @@ var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
 var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 if (hasToStringTag && gOPD && getPrototypeOf) {
 	forEach(typedArrays, function (typedArray) {
-		var arr = new g[typedArray]();
-		if (Symbol.toStringTag in arr) {
-			var proto = getPrototypeOf(arr);
-			var descriptor = gOPD(proto, Symbol.toStringTag);
-			if (!descriptor) {
-				var superProto = getPrototypeOf(proto);
-				descriptor = gOPD(superProto, Symbol.toStringTag);
-			}
-			toStrTags[typedArray] = descriptor.get;
+		var arr = new global[typedArray]();
+		if (!(Symbol.toStringTag in arr)) {
+			throw new EvalError('this engine has support for Symbol.toStringTag, but ' + typedArray + ' does not have the property! Please report this.');
 		}
+		var proto = getPrototypeOf(arr);
+		var descriptor = gOPD(proto, Symbol.toStringTag);
+		if (!descriptor) {
+			var superProto = getPrototypeOf(proto);
+			descriptor = gOPD(superProto, Symbol.toStringTag);
+		}
+		toStrTags[typedArray] = descriptor.get;
 	});
 }
 
@@ -5440,7 +6110,7 @@ var tryTypedArrays = function tryAllTypedArrays(value) {
 
 module.exports = function isTypedArray(value) {
 	if (!value || typeof value !== 'object') { return false; }
-	if (!hasToStringTag || !(Symbol.toStringTag in value)) {
+	if (!hasToStringTag) {
 		var tag = $slice($toString(value), 8, -1);
 		return $indexOf(typedArrays, tag) > -1;
 	}
@@ -5449,99 +6119,9 @@ module.exports = function isTypedArray(value) {
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":5,"call-bind/callBound":11,"es-abstract/helpers/getOwnPropertyDescriptor":13,"foreach":15,"has-tostringtag/shams":21}],28:[function(require,module,exports){
-/*
-object-assign
-(c) Sindre Sorhus
-@license MIT
-*/
-
-'use strict';
-/* eslint-disable no-unused-vars */
-var getOwnPropertySymbols = Object.getOwnPropertySymbols;
-var hasOwnProperty = Object.prototype.hasOwnProperty;
-var propIsEnumerable = Object.prototype.propertyIsEnumerable;
-
-function toObject(val) {
-	if (val === null || val === undefined) {
-		throw new TypeError('Object.assign cannot be called with null or undefined');
-	}
-
-	return Object(val);
-}
-
-function shouldUseNative() {
-	try {
-		if (!Object.assign) {
-			return false;
-		}
-
-		// Detect buggy property enumeration order in older V8 versions.
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=4118
-		var test1 = new String('abc');  // eslint-disable-line no-new-wrappers
-		test1[5] = 'de';
-		if (Object.getOwnPropertyNames(test1)[0] === '5') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test2 = {};
-		for (var i = 0; i < 10; i++) {
-			test2['_' + String.fromCharCode(i)] = i;
-		}
-		var order2 = Object.getOwnPropertyNames(test2).map(function (n) {
-			return test2[n];
-		});
-		if (order2.join('') !== '0123456789') {
-			return false;
-		}
-
-		// https://bugs.chromium.org/p/v8/issues/detail?id=3056
-		var test3 = {};
-		'abcdefghijklmnopqrst'.split('').forEach(function (letter) {
-			test3[letter] = letter;
-		});
-		if (Object.keys(Object.assign({}, test3)).join('') !==
-				'abcdefghijklmnopqrst') {
-			return false;
-		}
-
-		return true;
-	} catch (err) {
-		// We don't expect any of the above to throw, but better to be safe.
-		return false;
-	}
-}
-
-module.exports = shouldUseNative() ? Object.assign : function (target, source) {
-	var from;
-	var to = toObject(target);
-	var symbols;
-
-	for (var s = 1; s < arguments.length; s++) {
-		from = Object(arguments[s]);
-
-		for (var key in from) {
-			if (hasOwnProperty.call(from, key)) {
-				to[key] = from[key];
-			}
-		}
-
-		if (getOwnPropertySymbols) {
-			symbols = getOwnPropertySymbols(from);
-			for (var i = 0; i < symbols.length; i++) {
-				if (propIsEnumerable.call(from, symbols[i])) {
-					to[symbols[i]] = from[symbols[i]];
-				}
-			}
-		}
-	}
-
-	return to;
-};
-
-},{}],29:[function(require,module,exports){
+},{"available-typed-arrays":20,"call-bind/callBound":26,"es-abstract/helpers/getOwnPropertyDescriptor":28,"foreach":30,"has-symbols":34}],42:[function(require,module,exports){
+arguments[4][2][0].apply(exports,arguments)
+},{"dup":2}],43:[function(require,module,exports){
 'use strict';
 
 
@@ -5648,7 +6228,7 @@ exports.setTyped = function (on) {
 
 exports.setTyped(TYPED_OK);
 
-},{}],30:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
@@ -5701,7 +6281,7 @@ function adler32(adler, buf, len, pos) {
 
 module.exports = adler32;
 
-},{}],31:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -5771,7 +6351,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 
-},{}],32:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 'use strict';
 
 // Note: we can't get significant speed boost here.
@@ -5832,7 +6412,7 @@ function crc32(crc, buf, len, pos) {
 
 module.exports = crc32;
 
-},{}],33:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -7708,7 +8288,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 
-},{"../utils/common":29,"./adler32":30,"./crc32":32,"./messages":37,"./trees":38}],34:[function(require,module,exports){
+},{"../utils/common":43,"./adler32":44,"./crc32":46,"./messages":51,"./trees":52}],48:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -8055,7 +8635,7 @@ module.exports = function inflate_fast(strm, start) {
   return;
 };
 
-},{}],35:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9613,7 +10193,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 
-},{"../utils/common":29,"./adler32":30,"./crc32":32,"./inffast":34,"./inftrees":36}],36:[function(require,module,exports){
+},{"../utils/common":43,"./adler32":44,"./crc32":46,"./inffast":48,"./inftrees":50}],50:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9958,7 +10538,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
   return 0;
 };
 
-},{"../utils/common":29}],37:[function(require,module,exports){
+},{"../utils/common":43}],51:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -9992,7 +10572,7 @@ module.exports = {
   '-6':   'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 
-},{}],38:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11216,7 +11796,7 @@ exports._tr_flush_block  = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 
-},{"../utils/common":29}],39:[function(require,module,exports){
+},{"../utils/common":43}],53:[function(require,module,exports){
 'use strict';
 
 // (C) 1995-2013 Jean-loup Gailly and Mark Adler
@@ -11265,7 +11845,7 @@ function ZStream() {
 
 module.exports = ZStream;
 
-},{}],40:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -11451,7 +12031,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],41:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /*! safe-buffer. MIT License. Feross Aboukhadijeh <https://feross.org/opensource> */
 /* eslint-disable node/no-deprecated-api */
 var buffer = require('buffer')
@@ -11518,7 +12098,7 @@ SafeBuffer.allocUnsafeSlow = function (size) {
   return buffer.SlowBuffer(size)
 }
 
-},{"buffer":10}],42:[function(require,module,exports){
+},{"buffer":25}],56:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -11649,7 +12229,7 @@ Stream.prototype.pipe = function(dest, options) {
   return dest;
 };
 
-},{"events":14,"inherits":24,"readable-stream/lib/_stream_duplex.js":44,"readable-stream/lib/_stream_passthrough.js":45,"readable-stream/lib/_stream_readable.js":46,"readable-stream/lib/_stream_transform.js":47,"readable-stream/lib/_stream_writable.js":48,"readable-stream/lib/internal/streams/end-of-stream.js":52,"readable-stream/lib/internal/streams/pipeline.js":54}],43:[function(require,module,exports){
+},{"events":29,"inherits":38,"readable-stream/lib/_stream_duplex.js":58,"readable-stream/lib/_stream_passthrough.js":59,"readable-stream/lib/_stream_readable.js":60,"readable-stream/lib/_stream_transform.js":61,"readable-stream/lib/_stream_writable.js":62,"readable-stream/lib/internal/streams/end-of-stream.js":66,"readable-stream/lib/internal/streams/pipeline.js":68}],57:[function(require,module,exports){
 'use strict';
 
 function _inheritsLoose(subClass, superClass) { subClass.prototype = Object.create(superClass.prototype); subClass.prototype.constructor = subClass; subClass.__proto__ = superClass; }
@@ -11778,7 +12358,7 @@ createErrorType('ERR_UNKNOWN_ENCODING', function (arg) {
 createErrorType('ERR_STREAM_UNSHIFT_AFTER_END_EVENT', 'stream.unshift() after end event');
 module.exports.codes = codes;
 
-},{}],44:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -11920,7 +12500,7 @@ Object.defineProperty(Duplex.prototype, 'destroyed', {
   }
 });
 }).call(this)}).call(this,require('_process'))
-},{"./_stream_readable":46,"./_stream_writable":48,"_process":40,"inherits":24}],45:[function(require,module,exports){
+},{"./_stream_readable":60,"./_stream_writable":62,"_process":54,"inherits":38}],59:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -11960,7 +12540,7 @@ function PassThrough(options) {
 PassThrough.prototype._transform = function (chunk, encoding, cb) {
   cb(null, chunk);
 };
-},{"./_stream_transform":47,"inherits":24}],46:[function(require,module,exports){
+},{"./_stream_transform":61,"inherits":38}],60:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13087,7 +13667,7 @@ function indexOf(xs, x) {
   return -1;
 }
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":43,"./_stream_duplex":44,"./internal/streams/async_iterator":49,"./internal/streams/buffer_list":50,"./internal/streams/destroy":51,"./internal/streams/from":53,"./internal/streams/state":55,"./internal/streams/stream":56,"_process":40,"buffer":10,"events":14,"inherits":24,"string_decoder/":57,"util":7}],47:[function(require,module,exports){
+},{"../errors":57,"./_stream_duplex":58,"./internal/streams/async_iterator":63,"./internal/streams/buffer_list":64,"./internal/streams/destroy":65,"./internal/streams/from":67,"./internal/streams/state":69,"./internal/streams/stream":70,"_process":54,"buffer":25,"events":29,"inherits":38,"string_decoder/":71,"util":22}],61:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -13289,7 +13869,7 @@ function done(stream, er, data) {
   if (stream._transformState.transforming) throw new ERR_TRANSFORM_ALREADY_TRANSFORMING();
   return stream.push(null);
 }
-},{"../errors":43,"./_stream_duplex":44,"inherits":24}],48:[function(require,module,exports){
+},{"../errors":57,"./_stream_duplex":58,"inherits":38}],62:[function(require,module,exports){
 (function (process,global){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -13989,7 +14569,7 @@ Writable.prototype._destroy = function (err, cb) {
   cb(err);
 };
 }).call(this)}).call(this,require('_process'),typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"../errors":43,"./_stream_duplex":44,"./internal/streams/destroy":51,"./internal/streams/state":55,"./internal/streams/stream":56,"_process":40,"buffer":10,"inherits":24,"util-deprecate":58}],49:[function(require,module,exports){
+},{"../errors":57,"./_stream_duplex":58,"./internal/streams/destroy":65,"./internal/streams/state":69,"./internal/streams/stream":70,"_process":54,"buffer":25,"inherits":38,"util-deprecate":72}],63:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -14199,7 +14779,7 @@ var createReadableStreamAsyncIterator = function createReadableStreamAsyncIterat
 
 module.exports = createReadableStreamAsyncIterator;
 }).call(this)}).call(this,require('_process'))
-},{"./end-of-stream":52,"_process":40}],50:[function(require,module,exports){
+},{"./end-of-stream":66,"_process":54}],64:[function(require,module,exports){
 'use strict';
 
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
@@ -14410,7 +14990,7 @@ function () {
 
   return BufferList;
 }();
-},{"buffer":10,"util":7}],51:[function(require,module,exports){
+},{"buffer":25,"util":22}],65:[function(require,module,exports){
 (function (process){(function (){
 'use strict'; // undocumented cb() API, needed for core, not for public API
 
@@ -14518,7 +15098,7 @@ module.exports = {
   errorOrDestroy: errorOrDestroy
 };
 }).call(this)}).call(this,require('_process'))
-},{"_process":40}],52:[function(require,module,exports){
+},{"_process":54}],66:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/end-of-stream with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -14623,12 +15203,12 @@ function eos(stream, opts, callback) {
 }
 
 module.exports = eos;
-},{"../../../errors":43}],53:[function(require,module,exports){
+},{"../../../errors":57}],67:[function(require,module,exports){
 module.exports = function () {
   throw new Error('Readable.from is not available in the browser')
 };
 
-},{}],54:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 // Ported from https://github.com/mafintosh/pump with
 // permission from the author, Mathias Buus (@mafintosh).
 'use strict';
@@ -14726,7 +15306,7 @@ function pipeline() {
 }
 
 module.exports = pipeline;
-},{"../../../errors":43,"./end-of-stream":52}],55:[function(require,module,exports){
+},{"../../../errors":57,"./end-of-stream":66}],69:[function(require,module,exports){
 'use strict';
 
 var ERR_INVALID_OPT_VALUE = require('../../../errors').codes.ERR_INVALID_OPT_VALUE;
@@ -14754,10 +15334,10 @@ function getHighWaterMark(state, options, duplexKey, isDuplex) {
 module.exports = {
   getHighWaterMark: getHighWaterMark
 };
-},{"../../../errors":43}],56:[function(require,module,exports){
+},{"../../../errors":57}],70:[function(require,module,exports){
 module.exports = require('events').EventEmitter;
 
-},{"events":14}],57:[function(require,module,exports){
+},{"events":29}],71:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -15054,7 +15634,7 @@ function simpleWrite(buf) {
 function simpleEnd(buf) {
   return buf && buf.length ? this.write(buf) : '';
 }
-},{"safe-buffer":41}],58:[function(require,module,exports){
+},{"safe-buffer":55}],72:[function(require,module,exports){
 (function (global){(function (){
 
 /**
@@ -15125,9 +15705,9 @@ function config (name) {
 }
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],59:[function(require,module,exports){
-arguments[4][3][0].apply(exports,arguments)
-},{"dup":3}],60:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
+arguments[4][18][0].apply(exports,arguments)
+},{"dup":18}],74:[function(require,module,exports){
 // Currently in sync with Node.js lib/internal/util/types.js
 // https://github.com/nodejs/node/commit/112cc7c27551254aa2b17098fb774867f05ed0d9
 
@@ -15365,23 +15945,21 @@ function isDataView(value) {
 }
 exports.isDataView = isDataView;
 
-// Store a copy of SharedArrayBuffer in case it's deleted elsewhere
-var SharedArrayBufferCopy = typeof SharedArrayBuffer !== 'undefined' ? SharedArrayBuffer : undefined;
 function isSharedArrayBufferToString(value) {
   return ObjectToString(value) === '[object SharedArrayBuffer]';
 }
+isSharedArrayBufferToString.working = (
+  typeof SharedArrayBuffer !== 'undefined' &&
+  isSharedArrayBufferToString(new SharedArrayBuffer())
+);
 function isSharedArrayBuffer(value) {
-  if (typeof SharedArrayBufferCopy === 'undefined') {
+  if (typeof SharedArrayBuffer === 'undefined') {
     return false;
-  }
-
-  if (typeof isSharedArrayBufferToString.working === 'undefined') {
-    isSharedArrayBufferToString.working = isSharedArrayBufferToString(new SharedArrayBufferCopy());
   }
 
   return isSharedArrayBufferToString.working
     ? isSharedArrayBufferToString(value)
-    : value instanceof SharedArrayBufferCopy;
+    : value instanceof SharedArrayBuffer;
 }
 exports.isSharedArrayBuffer = isSharedArrayBuffer;
 
@@ -15463,7 +16041,7 @@ exports.isAnyArrayBuffer = isAnyArrayBuffer;
   });
 });
 
-},{"is-arguments":25,"is-generator-function":26,"is-typed-array":27,"which-typed-array":62}],61:[function(require,module,exports){
+},{"is-arguments":39,"is-generator-function":40,"is-typed-array":41,"which-typed-array":76}],75:[function(require,module,exports){
 (function (process){(function (){
 // Copyright Joyent, Inc. and other Node contributors.
 //
@@ -16182,7 +16760,7 @@ function callbackify(original) {
 exports.callbackify = callbackify;
 
 }).call(this)}).call(this,require('_process'))
-},{"./support/isBuffer":59,"./support/types":60,"_process":40,"inherits":24}],62:[function(require,module,exports){
+},{"./support/isBuffer":73,"./support/types":74,"_process":54,"inherits":38}],76:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -16191,9 +16769,9 @@ var availableTypedArrays = require('available-typed-arrays');
 var callBound = require('call-bind/callBound');
 
 var $toString = callBound('Object.prototype.toString');
-var hasToStringTag = require('has-tostringtag/shams')();
+var hasSymbols = require('has-symbols')();
+var hasToStringTag = hasSymbols && typeof Symbol.toStringTag === 'symbol';
 
-var g = typeof globalThis === 'undefined' ? global : globalThis;
 var typedArrays = availableTypedArrays();
 
 var $slice = callBound('String.prototype.slice');
@@ -16202,17 +16780,18 @@ var gOPD = require('es-abstract/helpers/getOwnPropertyDescriptor');
 var getPrototypeOf = Object.getPrototypeOf; // require('getprototypeof');
 if (hasToStringTag && gOPD && getPrototypeOf) {
 	forEach(typedArrays, function (typedArray) {
-		if (typeof g[typedArray] === 'function') {
-			var arr = new g[typedArray]();
-			if (Symbol.toStringTag in arr) {
-				var proto = getPrototypeOf(arr);
-				var descriptor = gOPD(proto, Symbol.toStringTag);
-				if (!descriptor) {
-					var superProto = getPrototypeOf(proto);
-					descriptor = gOPD(superProto, Symbol.toStringTag);
-				}
-				toStrTags[typedArray] = descriptor.get;
+		if (typeof global[typedArray] === 'function') {
+			var arr = new global[typedArray]();
+			if (!(Symbol.toStringTag in arr)) {
+				throw new EvalError('this engine has support for Symbol.toStringTag, but ' + typedArray + ' does not have the property! Please report this.');
 			}
+			var proto = getPrototypeOf(arr);
+			var descriptor = gOPD(proto, Symbol.toStringTag);
+			if (!descriptor) {
+				var superProto = getPrototypeOf(proto);
+				descriptor = gOPD(superProto, Symbol.toStringTag);
+			}
+			toStrTags[typedArray] = descriptor.get;
 		}
 	});
 }
@@ -16236,582 +16815,9 @@ var isTypedArray = require('is-typed-array');
 
 module.exports = function whichTypedArray(value) {
 	if (!isTypedArray(value)) { return false; }
-	if (!hasToStringTag || !(Symbol.toStringTag in value)) { return $slice($toString(value), 8, -1); }
+	if (!hasToStringTag) { return $slice($toString(value), 8, -1); }
 	return tryTypedArrays(value);
 };
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"available-typed-arrays":5,"call-bind/callBound":11,"es-abstract/helpers/getOwnPropertyDescriptor":13,"foreach":15,"has-tostringtag/shams":21,"is-typed-array":27}],63:[function(require,module,exports){
-const serialize=require("serialijse");Tools={},Tools.modal_opened=!1,Tools.declareSerializedClasses=function(...e){for(let o=0;o<e.length;o++)serialize.declarePersistable(e[o])},Tools.declareSerializedClassesArray=function(e){for(let o=0;o<e.length;o++)serialize.declarePersistable(e[o])},Tools.serialize=function(e){return serialize.serialize(e)},Tools.deserialize=function(e){return serialize.deserialize(e)},Tools.generateRandomString=function(e){for(var o="",r="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",l=0;l<e;l++)o+=r.charAt(Math.floor(Math.random()*r.length));return o},Tools.generateRandomInt=function(e){for(var o="",r=0;r<e;r++)o+="0123456789".charAt(Math.floor(Math.random()*"0123456789".length));return o},Tools.generateUUID=function(e){for(var o=e.split("-"),r="",l=0;l<o.length;l++){var a=o[l];l>0?r=r+"-"+Tools.generateRandomString(a.length):r+=Tools.generateRandomString(a.length)}return o=void 0,r},Tools.openModal=function(e,o,r,l){let a={allowBackdropRemoval:!0},n=null;3==arguments.length?n=r:4==arguments.length&&(a=r,n=l),$("body").hasClass("modal-open")||$.ajax({url:e+"/"+o+".html",success:function(e){$("body").append(e);var r=$("#"+o);r.find("button.close").on("click",e=>{e.preventDefault();const o=$(e.currentTarget).parent().parent().parent().parent();o.remove(),o.trigger("hidden.bs.modal"),o.modal("hide"),$("body").removeClass("modal-open").attr("style",null),$(".modal-backdrop").remove()}),r.on("hidden.bs.modal",()=>{$(this).remove(),$('[name^="__privateStripe"]').remove(),Tools.modal_opened=!1,1==a.allowBackdropRemoval&&$(".modal-backdrop").remove()}),r.modal("show"),n&&n(r)},dataType:"html"})},module.exports=Tools;
-
-},{"serialijse":65}],64:[function(require,module,exports){
-arguments[4][28][0].apply(exports,arguments)
-},{"dup":28}],65:[function(require,module,exports){
-/*global exports,require*/
-var lib = require("./lib/serialijse");
-exports.serialize = lib.serialize;
-exports.deserialize = lib.deserialize;
-exports.serializeZ = lib.serializeZ;
-exports.deserializeZ = lib.deserializeZ;
-exports.declarePersistable = lib.declarePersistable;
-
-},{"./lib/serialijse":66}],66:[function(require,module,exports){
-(function (global,Buffer){(function (){
-(function (exports) {
-    "use strict";
-    var assert = require("assert");
-    var b = require("buffer");
-
-    var g_classInfos = {};
-
-    // note: phantomjs may not define  Object.assign by default so we need the pony fill
-    var objectAssign = Object.assign || require("object-assign");
-
-    var isFunction = function (obj) {
-        return typeof obj === 'function' || obj.prototype;
-    };
-
-
-    function merge_options(options1, options2) {
-        return objectAssign({}, options1, options2);
-    }
-    function serializeObject(context, object, rawData, global_options) {
-
-        assert(!rawData.hasOwnProperty("d"));
-
-        rawData.d = {};
-
-        var options = global_options || {};
-        if (object.constructor && object.constructor.serialijseOptions) {
-            options = merge_options(options, object.constructor.serialijseOptions);
-        }
-        if (options.ignored) {
-            options.ignored = (options.ignored instanceof Array) ? options.ignored : [options.ignored];
-        }
-
-        for (var property in object) {
-            if (isPropertyPersistable(object, property, options)) {
-                if (object[property] !== null) {
-                    rawData.d[property] = _serialize(context, options, object[property]);
-                } else {
-                    rawData.d[property] = null;
-                }
-            }
-        }
-    }
-
-    function deserializeObject(context, object_id, object_definition) {
-
-        var classInfo = this;
-
-        var object = new classInfo.constructor();
-        context.cache[object_id] = object;
-
-        var rawData = object_definition.d;
-
-        // istanbul ignore next
-        if (!rawData) {
-            return; // no properties
-        }
-
-        for (var property in rawData) {
-            if (rawData.hasOwnProperty(property)) {
-                try {
-                    object[property] = deserialize_node_or_value(context, rawData[property]);
-                }
-                catch (err)
-                // istanbul ignore next
-                {
-                    console.log(" property : ", property);
-                    console.log(err);
-                    throw err;
-                }
-            }
-        }
-
-        return object;
-
-    }
-
-    function serializeTypedArray(context, typedArray, rawData) {
-        rawData.a = Buffer.from(typedArray.buffer).toString("base64");
-    }
-
-    function deserializeTypedArray(context, object_id, rawData) {
-
-        var classInfo = this;
-        assert(typeof rawData.a === "string");
-        var buf = Buffer.from(rawData.a, "base64");
-        var tmp = new Uint8Array(buf);
-        var obj = new classInfo.constructor(tmp.buffer);
-        context.cache[object_id] = obj;
-
-        return obj;
-    }
-
-    function deserialize_node_or_value(context, node) {
-        assert(context);
-        if ("object" === typeof node) {
-            return deserialize_node(context, node);
-        }
-        return node;
-    }
-
-    function declarePersistable(constructor, name, serializeFunc, deserializeFunc) {
-
-        var className = constructor.prototype.constructor.name || constructor.name;
-
-        serializeFunc = serializeFunc || serializeObject;
-        deserializeFunc = deserializeFunc || deserializeObject;
-
-        if (name) {
-            className = name;
-        }
-
-        // istanbul ignore next
-        if (g_classInfos.hasOwnProperty(className)) {
-            console.warn("declarePersistable warning: declarePersistable : class " + className + " already registered");
-        }
-
-        // istanbul ignore next
-        if (!(constructor instanceof Function) && !constructor.prototype) {
-            throw new Error("declarePersistable: Cannot find constructor for " + className);
-        };
-
-        g_classInfos[className] = {
-            constructor: constructor,
-            serializeFunc: serializeFunc,
-            deserializeFunc: deserializeFunc
-        };
-    }
-
-
-    function declareTypedArrayPersistable(typeArrayName) {
-
-        // istanbul ignore next
-        if (!global[typeArrayName]) {
-            console.log("warning : " + typeArrayName + " is not supported in this environment");
-            return;
-        }
-
-        var constructor = global[typeArrayName];
-        // repair constructor name if any
-        // istanbul ignore next
-        if (!constructor.name) {
-            constructor.name = typeArrayName;
-        }
-        // if (!(constructor instanceof Function)) {
-        //     a = new constructor();
-        //     throw new Error("warning : " + typeArrayName + " is not supported FULLY FILLY in this environment"   +typeof constructor,typeof constructor.constructor);
-        // }
-        declarePersistable(constructor, typeArrayName, serializeTypedArray, deserializeTypedArray);
-
-    }
-    declarePersistable(Object, "Object", serializeObject, deserializeObject);
-    declareTypedArrayPersistable("Float32Array");
-    declareTypedArrayPersistable("Float64Array");
-    declareTypedArrayPersistable("Uint32Array");
-    declareTypedArrayPersistable("Uint16Array");
-    declareTypedArrayPersistable("Uint8Array");
-    declareTypedArrayPersistable("Int32Array");
-    declareTypedArrayPersistable("Int16Array");
-    declareTypedArrayPersistable("Int8Array");
-
-    /**
-     * returns true if the property is persistable.
-     * @param obj
-     * @param propertyName
-     * @returns {boolean}
-     */
-    function isPropertyPersistable(obj, propertyName, options) {
-        if (!obj.hasOwnProperty(propertyName)) {
-            return false;
-        }
-        if (propertyName === '____index') {
-            return false;
-        }
-        if (options && options.ignored) {
-
-            for (var i = 0; i < options.ignored.length; i++) {
-                var o = options.ignored[i];
-                if (typeof o === "string") {
-                    if (o === propertyName) {
-                        return false;
-                    }
-                } else if (o instanceof RegExp) {
-                    if (propertyName.match(o)) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    function find_object(context, obj) {
-        if (obj.____index !== undefined) {
-            assert(context.objects[obj.____index] === obj);
-            return obj.____index;
-        }
-        return -1;
-    }
-
-    function add_object_in_index(context, obj, serializing_data) {
-        var id = context.index.length;
-        obj.____index = id;
-        context.index.push(serializing_data);
-        context.objects.push(obj);
-        return id;
-    }
-
-    function extract_object_classname(object) {
-        var className = object.constructor.name;
-        if (className) {
-            return className;
-        }
-        /* in some old version of node className could be null */
-        // istanbul ignore next
-        if (true) {
-            if (object instanceof Float32Array) { return "Float32Array"; }
-            if (object instanceof Uint32Array) { return "Uint32Array"; }
-            if (object instanceof Uint16Array) { return "Uint16Array"; }
-            if (object instanceof Uint8Array) { return "Uint8Array"; }
-            if (object instanceof Int32Array) { return "Int32Array"; }
-            if (object instanceof Int16Array) { return "Int16Array"; }
-            if (object instanceof Int8Array) { return "Int8Array"; }    
-        }
-    }
-
-    function _serialize_xxx(context, options, object, construct, serialize) {
-        // check if the object has already been serialized
-        let id = find_object(context, object);
-        if (id === -1) {
-            const stuff = construct();
-            id = add_object_in_index(context, object, stuff);
-            serialize(context, object, stuff, options);
-        }
-        return id;
-    }
-    function _deserialize_xxx(context, object_id, contruct, deserialize) {
-        assert(object_id);
-        // check if this object has already been de-serialized
-        if (context.cache[object_id] !== undefined) {
-            return context.cache[object_id];
-        }
-        const newStuff = contruct();
-        context.cache[object_id] = newStuff;
-        const serializing_data = context.index[object_id];
-        deserialize(context, newStuff, serializing_data);
-        return newStuff;
-    }
-
-    function _serialize_map(context, options, object) {
-        return _serialize_xxx(context, options, object,
-            () => [],
-            (context, object, mapJson, options) => {
-                for (const [key, value] of object.entries()) {
-                    mapJson.push([
-                        _serialize(context, options, key),
-                        _serialize(context, options, value),
-                    ])
-                }
-            });
-    }
-    function _deserialize_map(context, object_id) {
-        return _deserialize_xxx(context, object_id,
-            () => new Map(),
-            (context, newMap, serializing_data) => {
-                for (const [key, value] of serializing_data) {
-                    const k = deserialize_node_or_value(context, key);
-                    const v = deserialize_node_or_value(context, value);
-                    newMap.set(k, v);
-                }
-            })
-    }
-    function _serialize_set(context, options, object) {
-        return _serialize_xxx(context, options, object,
-            () => [],
-            (context, object, setJson, options) => {
-                for (const value of object.values()) {
-                    setJson.push(_serialize(context, options, value))
-                }
-            });
-    }
-    function _deserialize_set(context, object_id) {
-        return _deserialize_xxx(context, object_id,
-            () => new Set(),
-            (context, newSet, serializing_data) => {
-                for (const value of serializing_data) {
-                    const v = deserialize_node_or_value(context, value);
-                    newSet.add(v)
-                }
-            })
-    }
-
-    function _serialize_basic_object(context, options, object) {
-        const className = extract_object_classname(object);
-
-        // istanbul ignore next
-        if (className !== "Object" && !g_classInfos.hasOwnProperty(className)) {
-            console.log(object);
-            throw new Error("class " + className + " is not registered in class Factory - deserialization will not be possible");
-        }
-        return _serialize_xxx(context, options, object,
-            () => ({ c: className }),
-            (context, object, s, options) =>
-                g_classInfos[className].serializeFunc(context, object, s, options));
-    }
-    function _deserialize_basic_object(context, object_id) {
-        if (object_id === null) {
-            return null;
-        }
-        // check if this object has already been de-serialized
-        if (context.cache[object_id] !== undefined) {
-            return context.cache[object_id];
-        }
-        var serializing_data = context.index[object_id];
-        var cache_object = _deserialize_object(context, serializing_data, object_id);
-        assert(context.cache[object_id] === cache_object);
-        return cache_object;
-    }
-    function _serialize_object(context, options, serializingObject, object) {
-
-        assert(context);
-        assert(object !== undefined);
-        if (object === null) {
-            serializingObject.o = null;
-            return;
-        }
-        const className = extract_object_classname(object);
-
-        // j => json object to follow
-        // d => date
-        // a => array
-        // o => class  { c: className d: data }
-        // o => null
-        // @ => already serialized object
-        // s => Set
-        // m => Map
-
-        if (className === "Array") {
-            serializingObject.a = object.map(_serialize.bind(null, context, options));
-        } else if (object.constructor === Map) {
-            serializingObject.m = _serialize_map(context, options, object);
-        } else if (object.constructor === Set) {
-            serializingObject.s = _serialize_set(context, options, object);
-        } else if (className === "Date") {
-            serializingObject.d = object.getTime();
-        } else {
-            serializingObject.o = _serialize_basic_object(context, options, object);
-        }
-    }
-
-    function _serialize(context, options, object) {
-
-        assert(context);
-        // istanbul ignore next
-        if (object === undefined) {
-            return undefined;
-        }
-
-        var serializingObject = {};
-        var _throw = function () {
-          throw new Error("invalid typeof " + typeof object + " " + JSON.stringify(object, null, " "));
-        }
-
-        switch (typeof object) {
-            case 'number':
-            case 'boolean':
-            case 'string':
-                // basic type
-                return object;
-            case 'object':
-                _serialize_object(context, options, serializingObject, object);
-                break;
-            default:
-                if (options.errorHandler) {
-                  options.errorHandler(context, options, object, _throw)
-                } else {
-                  _throw()
-                }
-        }
-        return serializingObject;
-    }
-
-    /**
-     *
-     * @param object            {object} object to serialize
-     * @param [options]         {object} optional options
-     * @param [options.ignored] {string|regexp|Array<string|regexp>} pattern for field to not serialize
-     * @return {string}
-     */
-    function serialize(object, options) {
-
-        assert(object !== undefined, "serialize: expect a valid object to serialize ");
-
-        var context = {
-            index: [],
-            objects: []
-        };
-
-        var obj = _serialize(context, options, object);
-
-        // unset temporary ___index properties
-        context.objects.forEach(function (e) {
-            delete e.____index;
-        });
-
-        return JSON.stringify([context.index, obj]);// ,null," ");
-    }
-
-
-    function deserialize_node(context, node) {
-        assert(context);
-        // special treatment
-        if (node === null || node === undefined) {
-            return node;
-        }
-
-        if (node.hasOwnProperty("s")) {
-            return _deserialize_set(context, node.s);
-        } else if (node.hasOwnProperty("m")) {
-            return _deserialize_map(context, node.m);
-        } else if (node.hasOwnProperty("d")) {
-            return new Date(node.d);
-        } else if (node.hasOwnProperty("o")) {
-            return _deserialize_basic_object(context, node.o);
-        } else if (node.hasOwnProperty("a")) {
-            // return _deserialize_object(node.o);
-            return node.a.map(deserialize_node_or_value.bind(null, context));
-        }
-        // istanbul ignore next
-        throw new Error("Unsupported deserialize_node " + JSON.stringify(node));
-    }
-
-    function _deserialize_object(context, object_definition, object_id) {
-
-        assert(object_definition.c);
-
-        var className = object_definition.c;
-        var classInfo = g_classInfos[className];
-
-        // istanbul ignore next
-        if (!classInfo) {
-            throw new Error(" Cannot find constructor to deserialize class of type " + className + ". use declarePersistable(Constructor)");
-        }
-        var constructor = classInfo.constructor;
-        assert(isFunction(constructor));
-
-        var obj = classInfo.deserializeFunc(context, object_id, object_definition);
-
-        if (constructor && constructor.serialijseOptions) {
-
-
-            // onDeserialize is called immediately after object has been created
-            if (constructor.serialijseOptions.onDeserialize) {
-                constructor.serialijseOptions.onDeserialize(obj);
-            }
-            // onPostDeserialize call is postponed after the main object has been fully de-serializednpm
-            if (constructor.serialijseOptions.onPostDeserialize) {
-                context.postDeserialiseActions.push(obj);
-            }
-        }
-        return obj;
-    }
-
-    function deserialize(serializationString) {
-
-        var data;
-        if (typeof serializationString === 'string') {
-            data = JSON.parse(serializationString);
-        } else if (typeof serializationString === 'object') {
-            data = serializationString;
-        }
-        // istanbul ignore next
-        if (!(data instanceof Array)) {
-            throw new Error("Invalid Serialization data");
-        }
-        // istanbul ignore next
-        if (data.length !== 2) {
-            throw new Error("Invalid Serialization data");
-        }
-
-        var rawObject = data[1];
-        var context = {
-            index: data[0],
-            cache: [],
-            postDeserialiseActions: []
-        };
-
-        var deserializedObject = deserialize_node_or_value(context, rawObject);
-
-        context.postDeserialiseActions.forEach(function (o) {
-            o.constructor.serialijseOptions.onPostDeserialize(o);
-        });
-
-        return deserializedObject;
-    }
-
-    exports.deserialize = deserialize;
-    exports.serialize = serialize;
-    exports.declarePersistable = declarePersistable;
-
-    exports.serializeZ = function (obj, callback) {
-        var zlib = require("zlib");
-        var str = serialize(obj);
-        zlib.deflate(str, function (err, buff) {
-            // istanbul ignore next
-            if (err) {
-                return callback(err);
-            }
-            callback(null, buff);
-        });
-    };
-
-    exports.deserializeZ = function (data, callback) {
-        var zlib = require("zlib");
-        zlib.inflate(data, function (err, buff) {
-            // istanbul ignore next
-            if (err) {
-                return callback(err);
-            }
-            callback(null, deserialize(buff.toString()));
-        });
-    };
-
-
-})(typeof exports === 'undefined' ? this['serialijse'] = {} : exports);
-
-
-}).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {},require("buffer").Buffer)
-},{"assert":1,"buffer":10,"object-assign":64,"zlib":9}],67:[function(require,module,exports){
-const Logger=require("./logger");class API_Proxy{constructor(){}get(...o){const e="/api/"+o.join("/");return Logger.debug("API Proxy [GET] "+e),new Promise((o,r)=>{$.get(e,e=>{o(e)})})}post(...o){const e="/api/"+o.join("/");return Logger.debug("API Proxy [POST] "+e),new Promise((o,r)=>{$.post(e,e=>{o(e)})})}postData(o,e){const r="/api/"+o;return Logger.debug("API Proxy [POST] "+r),new Promise((o,t)=>{$.post(r,e,e=>{o(e)})})}upload(o,e){const r="/api/"+o;return new Promise((o,t)=>{$.ajax({url:r,type:"POST",data:e,processData:!1,contentType:!1}).done(e=>{o(e)}).fail(o=>{t(o)})})}}const api_proxy=new API_Proxy;module.exports=api_proxy;
-
-},{"./logger":69}],68:[function(require,module,exports){
-const PageHandler=require("./page_handler"),Logger=require("./logger");function main(){Logger.displayBanner(),PageHandler.init()}Date.prototype.getMonthName=function(){return["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][this.getMonth()]},Number.prototype.pad=function(t,e){let n=this;return e=e||"0",(n+="").length>=t?n:new Array(t-n.length+1).join(e)+n},Number.prototype.toDecimal=function(){return this.toFixed(2)},String.prototype.trunc=String.prototype.trunc||function(t){return this.length>t?this.substr(0,t-1)+"&hellip;":this},$(document).ready(()=>{main()});
-
-},{"./logger":69,"./page_handler":72}],69:[function(require,module,exports){
-const Logger={TYPES:{LOG:0,INFO:1,SUCCESS:2,WARNING:3,ERROR:4,DEBUG:5,RESET:6}};Logger.LEVEL=Logger.TYPES.DEBUG,Logger.STYLES=["padding: 2px 8px; margin-right:8px; background:#cccccc; color:#000; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#008cba; color:#fff; font-weight:bold; border:1px solid #000;","padding: 2px 8px; margin-right:8px; background:#43ac6a; color:#fff; font-weight:bold; border:1px solid #3c9a5f;","padding: 2px 8px; margin-right:8px; background:#E99002; color:#fff; font-weight:bold; border:1px solid #d08002;","padding: 2px 8px; margin-right:8px; background:#F04124; color:#fff; font-weight:bold; border:1px solid #ea2f10;","padding: 2px 8px; margin-right:8px; background:#003aba; color:#fff; font-weight:bold; border:1px solid #000;",""],Logger.init=(()=>{Logger.displayBanner()}),Logger.displayBanner=(()=>{Logger.BannerMessage="\n%c #-----------------------------# \n #      _____ _____ __  __     # \n #     / ____/ ____|  \\/  |    # \n #    | (___| (___ | \\  / |    # \n #     \\___ \\\\___ \\| |\\/| |    # \n #     ____) |___) | |  | |    # \n #    |_____/_____/|_|  |_|    # \n #-----------------------------# \n # Satisfactory Server Manager # \n #-----------------------------# \n",console.log(Logger.BannerMessage,"background:#008cba;color:#fff;font-weight:bold")}),Logger.getLoggerTypeString=(g=>{switch(g){case 0:return"LOG";case 1:return"INFO";case 2:return"SUCCESS";case 3:return"WARN";case 4:return"ERROR";case 5:return"DEBUG"}}),Logger.toLog=((g,o)=>{if(null==g)return;if(g>Logger.LEVEL)return;const r=Logger.STYLES[g],e=Logger.STYLES[Logger.TYPES.RESET],n=Logger.getLoggerTypeString(g);console.log("%c"+n+"%c"+o,r,e)}),Logger.log=(g=>{Logger.toLog(Logger.TYPES.LOG,g)}),Logger.info=(g=>{Logger.toLog(Logger.TYPES.INFO,g)}),Logger.success=(g=>{Logger.toLog(Logger.TYPES.SUCCESS,g)}),Logger.warning=(g=>{Logger.toLog(Logger.TYPES.WARNING,g)}),Logger.error=(g=>{Logger.toLog(Logger.TYPES.ERROR,g)}),Logger.debug=(g=>{Logger.toLog(Logger.TYPES.DEBUG,g)}),module.exports=Logger;
-
-},{}],70:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Agents{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getAgentList(),this.startPageInfoRefresh()}setupJqueryListeners(){$("body").on("click",".btn-startstop-docker",t=>{t.preventDefault();const a=$(t.currentTarget);"start"==a.attr("data-action")?this.StartDockerAgent(a.attr("data-agentid")):this.StopDockerAgent(a.attr("data-agentid"))})}getAgentList(){API_Proxy.get("agent","agents").then(t=>{this._Agents=t.data,this.DisplayAgentsTable()})}DisplayAgentsTable(){const t=$.fn.dataTable.isDataTable("#agents-table"),a=[];if(this._Agents.forEach(t=>{const e=$("<a/>").attr("href",`/agent/${t.id}`),s=$("<button/>").addClass("btn btn-light").html("<i class='fas fa-cog'></i>");e.append(s);const n=e.prop("outerHTML"),r=$("<button/>").addClass("btn btn-success ml-3").html("<i class='fas fa-play'></i>").attr("data-action","start").attr("data-agentid",`${t.id}`).addClass("btn-startstop-docker");1==t.running&&(r.attr("data-action","stop").removeClass("btn-success").addClass("btn-danger"),r.find("i").removeClass("fa-play").addClass("fa-stop"));const o=n+r.prop("outerHTML"),i=$("<i/>").addClass("fas fa-times text-danger"),d=$("<i/>").addClass("fas fa-times text-danger");1==t.running&&i.removeClass("fa-times text-danger").addClass("fa-check text-success"),1==t.active&&d.removeClass("fa-times text-danger").addClass("fa-check text-success"),a.push([t.name,i.prop("outerHTML"),d.prop("outerHTML"),t.info.version||"Unknown",o])}),0==t)$("#agents-table").DataTable({paging:!0,searching:!1,info:!1,order:[[2,"desc"]],columnDefs:[{type:"date-euro",targets:2}],data:a});else{const t=$("#agents-table").DataTable();t.clear(),t.rows.add(a),t.draw()}}StartDockerAgent(t){API_Proxy.postData("agent/start",{id:t}).then(()=>{this.getAgentList()})}StopDockerAgent(t){API_Proxy.postData("agent/stop",{id:t}).then(()=>{this.getAgentList()})}startPageInfoRefresh(){setInterval(()=>{this.getAgentList()},5e3)}}const page=new Page_Agents;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}],71:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Dashboard{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getModCount(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#server-action-start").on("click",e=>{this.serverAction_Start()}),$("#server-action-stop").on("click",e=>{this.serverAction_Confirm("stop")}),$("#server-action-kill").on("click",e=>{this.serverAction_Confirm("kill")}),$("body").on("click","#confirm-action",e=>{const t=$(e.currentTarget).attr("data-action");"stop"!=t&&"kill"!=t||($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(t))})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{const t=$("#server-status");"success"==e.result?(this.ServerState=e.data,this.ToggleServerActionButtons(),"stopped"==e.data.status?t.text("Not Running"):"running"==e.data.status?t.text("Running"):"notinstalled"==e.data.status&&t.text("Not Installed"),$("#cpu-usage div").width(e.data.pcpu.toDecimal()+"%"),$("#ram-usage div").width(e.data.pmem.toDecimal()+"%")):t.text("Server Error!")})}getModCount(){API_Proxy.get("mods","modsinstalled").then(e=>{const t=$("#mod-count");"success"==e.result?t.text(e.data.length):t.text(e.error)})}ToggleServerActionButtons(){"stopped"==this.ServerState.status?($("#server-action-start").prop("disabled",!1),$("#server-action-stop").prop("disabled",!0),$("#server-action-kill").prop("disabled",!0)):"running"==this.ServerState.status?($("#server-action-start").prop("disabled",!0),$("#server-action-stop").prop("disabled",!1),$("#server-action-kill").prop("disabled",!1)):"notinstalled"==this.ServerState.status&&($("#server-action-start").prop("disabled",!0),$("#server-action-stop").prop("disabled",!0),$("#server-action-kill").prop("disabled",!0))}serverAction_Confirm(e){1!=Tools.modal_opened&&Tools.openModal("/public/modals","server-action-confirm",t=>{t.find("#confirm-action").attr("data-action",e)})}serverAction_Start(){if("stopped"==this.ServerState.status)API_Proxy.post("serveractions","start").then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("/public/modals","server-action-success",e=>{e.find("#success-msg").text("Server has been started!")})):Tools.openModal("/public/modals","server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-action-error",e=>{e.find("#error-msg").text("Error: The server is already started!")})}}serverAction_Stop(e){if("stopped"!=this.ServerState.status)API_Proxy.post("serveractions",e).then(e=>{1!=Tools.modal_opened&&("success"==e.result?(this.getServerStatus(),Tools.openModal("/public/modals","server-action-success",e=>{e.find("#success-msg").text("Server has been stopped!")})):Tools.openModal("server-action-error",t=>{t.find("#error-msg").text(e.error)}))});else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-action-error",e=>{e.find("#error-msg").text("Error: The server is already stopped!")})}}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus(),this.getModCount()},5e3)}}const page=new Page_Dashboard;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}],72:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Page_Dashboard=require("./page_dashboard"),Page_Mods=require("./page_mods"),Page_Logs=require("./page_logs"),Page_Saves=require("./page_saves"),Page_Settings=require("./page_settings"),Page_Agents=require("./page_agents"),Tools=require("../Mrhid6Utils/lib/tools"),Logger=require("./logger");class PageHandler{constructor(){this.page="",this.SETUP_CACHE={sfinstalls:[],selected_sfinstall:null}}init(){switch(toastr.options.closeButton=!0,toastr.options.closeMethod="fadeOut",toastr.options.closeDuration=300,toastr.options.closeEasing="swing",toastr.options.showEasing="swing",toastr.options.timeOut=3e4,toastr.options.extendedTimeOut=1e4,toastr.options.progressBar=!0,toastr.options.positionClass="toast-bottom-right",this.setupJqueryHandler(),this.getSSMVersion(),this.checkInitalSetup(),this.startLoggedInCheck(),this.page=$(".page-container").attr("data-page"),this.page){case"dashboard":Page_Dashboard.init();break;case"mods":Page_Mods.init();break;case"logs":Page_Logs.init();break;case"saves":Page_Saves.init();break;case"settings":Page_Settings.init();break;case"agents":Page_Agents.init()}}setupJqueryHandler(){$('[data-toggle="tooltip"]').tooltip(),$("body").on("click","#metrics-opt-in #cancel-action",e=>{$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendRejectMetrics()}),$("body").on("click","#metrics-opt-in #confirm-action",e=>{$(e.currentTarget);$("#metrics-opt-in .close").trigger("click"),Tools.modal_opened=!1,this.sendAcceptMetrics()}).on("click","#btn_setup_findinstall",e=>{this.getSetupSFInstalls(e)})}getSSMVersion(){API_Proxy.get("info","ssmversion").then(e=>{const t=$("#ssm-version");"success"==e.result?(this.checkSSMVersion(e.data),t.text(e.data.current_version)):t.text("Server Error!")})}checkSSMVersion(e){const t="toast_"+e.current_version+"_"+e.github_version+"_"+e.version_diff;null==getCookie(t)&&("gt"==e.version_diff?toastr.warning("You are currently using a Development version of SSM"):"lt"==e.version_diff&&toastr.warning("SSM requires updating. Please update now"),setCookie(t,!0,30))}startLoggedInCheck(){const e=setInterval(()=>{Logger.info("Checking Logged In!"),this.checkLoggedIn().then(t=>{1!=t&&(clearInterval(e),window.location.replace("/logout"))})},1e4)}checkLoggedIn(){return new Promise((e,t)=>{API_Proxy.get("info","loggedin").then(t=>{"success"==t.result?e(!0):e(!1)})})}checkInitalSetup(){API_Proxy.get("config","ssm","setup").then(e=>{if("success"==e.result){0==e.data&&Tools.openModal("/public/modals","inital-setup",e=>{$("#initial-setup-wizard").steps({headerTag:"h3",bodyTag:"fieldset",transitionEffect:"slideLeft",onStepChanging:(e,t,s)=>{if(t>s)return!0;if(2==s&&""==$("#inp_sf_install_location").val())return!1;if(4==s){return $("#setup_summary_sfinstallloc").text($("#inp_sf_install_location").val()),$("#acceptTerms-2:checked").length>0}return!0},onFinishing:(e,t)=>!0,onFinished:(t,s)=>{const o={serverlocation:$("#inp_sf_install_location").val(),updateonstart:$("#inp_updatesfonstart:checked").length>0,metrics:$("#inp_setup_metrics:checked").length>0};e.find(".close").trigger("click"),API_Proxy.postData("config/ssm/setup",o).then(e=>{Tools.openModal("/public/modals","server-action-installsf",()=>{API_Proxy.post("serveractions","installsf").then(e=>{"success"==e.result?(toastr.success("Server has been installed!"),$("#server-action-installsf .close").trigger("click")):($("#server-action-installsf").remove(),Tools.openModal("/public/modals","server-settings-error",t=>{t.find("#error-msg").text(e.error.message)}))})})})}}),API_Proxy.get("config").then(e=>{e.data.ssm;const t=e.data.satisfactory;e.data.mods;$("#inp_sf_install_location").val(t.server_location),$("#inp_updatesfonstart").bootstrapToggle(),1==t.updateonstart?$("#inp_updatesfonstart").bootstrapToggle("on"):$("#inp_updatesfonstart").bootstrapToggle("off")}),$("#inp_setup_metrics").bootstrapToggle()})}})}}function setCookie(e,t,s){var o="";if(s){var i=new Date;i.setTime(i.getTime()+24*s*60*60*1e3),o="; expires="+i.toUTCString()}document.cookie=e+"="+(t||"")+o+"; path=/"}function getCookie(e){for(var t=e+"=",s=document.cookie.split(";"),o=0;o<s.length;o++){for(var i=s[o];" "==i.charAt(0);)i=i.substring(1,i.length);if(0==i.indexOf(t))return i.substring(t.length,i.length)}return null}function eraseCookie(e){document.cookie=e+"=; Max-Age=-99999999;"}const pagehandler=new PageHandler;module.exports=pagehandler;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67,"./logger":69,"./page_agents":70,"./page_dashboard":71,"./page_logs":73,"./page_mods":74,"./page_saves":75,"./page_settings":76}],73:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Logs{constructor(){this.ServerState={}}init(){this.setupJqueryListeners(),this.getSSMLog(),this.getSMLauncherLog(),this.getSFServerLog(),this.startPageInfoRefresh()}setupJqueryListeners(){}getSSMLog(){API_Proxy.get("logs","ssmlog").then(e=>{const s=$("#ssm-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}getSMLauncherLog(){API_Proxy.get("logs","smlauncherlog").then(e=>{const s=$("#smlauncher-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}getSFServerLog(){API_Proxy.get("logs","sfserverlog").then(e=>{const s=$("#sf-log-viewer samp");s.empty(),"success"==e.result?e.data.forEach(e=>{s.append("<p>"+e+"</p>")}):s.text(e.error)})}startPageInfoRefresh(){setInterval(()=>{this.getSSMLog()},3e4)}}const page=new Page_Logs;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}],74:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Mods{constructor(){this.Mods_State={},this.ServerState={},this.FicsitModList=[],this.loaded={ficsit_modlist:!1}}init(){this.setupJqueryListeners(),this.getServerStatus(),this.getSMLInfo(),this.getModCount(),this.getFicsitSMLVersion(),this.getFicsitModList(),this.startPageInfoRefresh(),this.waitTilLoaded().then(()=>{this.displayModsTable()})}isLoaded(){return 1==this.loaded.ficsit_modlist}waitTilLoaded(){return new Promise((s,e)=>{const o=setInterval(()=>{1==this.isLoaded()&&(clearInterval(o),s())},20)})}setupJqueryListeners(){$("body").on("change","#sel-add-mod-name",s=>{this.getFicsitModInfo()}).on("change","#sel-add-mod-version",s=>{-1==$(s.currentTarget).val()?this.lockInstallModBtn():this.unlockInstallModBtn()}).on("click",".btn-uninstall-mod",s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.uninstallMod(e)}).on("click",".btn-update-mod",s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.updateModToLatest(e)}),$("#btn-install-sml").click(s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.installSMLVersion(e)}),$("#btn-install-mod").click(s=>{if("stopped"!=this.ServerState.status){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text("Server needs to be stopped before making changes!")})}const e=$(s.currentTarget);this.installModVersion(e)})}getServerStatus(){API_Proxy.get("info","serverstatus").then(s=>{"success"==s.result&&(this.ServerState=s.data)})}displayModsTable(){const s=$.fn.dataTable.isDataTable("#mods-table");API_Proxy.get("mods","modsinstalled").then(e=>{const o=[];if("success"==e.result)for(let s=0;s<e.data.length;s++){const t=e.data[s],d=this.FicsitModList.find(s=>s.id==t.id);if(null==d)continue;const a=t.version==d.latest_version,r=$("<button/>").addClass("btn btn-secondary btn-update-mod float-right").attr("data-modid",t.id).attr("data-toggle","tooltip").attr("data-placement","bottom").attr("title","Update Mod").html("<i class='fas fa-arrow-alt-circle-up'></i>"),l=$("<button/>").addClass("btn btn-danger btn-block btn-uninstall-mod").attr("data-modid",t.id).html("<i class='fas fa-trash'></i> Uninstall"),i=t.version+" "+(0==a?r.prop("outerHTML"):"");o.push([t.name,i,l.prop("outerHTML")])}if(0==s)$("#mods-table").DataTable({paging:!0,searching:!1,info:!1,order:[[0,"asc"]],columnDefs:[{targets:2,orderable:!1}],data:o});else{const s=$("#mods-table").DataTable();s.clear(),s.rows.add(o),s.draw()}$('[data-toggle="tooltip"]').tooltip()})}getSMLInfo(){API_Proxy.get("mods","smlinfo").then(s=>{const e=$(".sml-status"),o=$(".sml-version");"success"==s.result?(this.Mods_State=s.data,"not_installed"==s.data.state?(e.text("Not Installed"),o.text("Not Installed")):(e.text("Installed"),o.text(s.data.version))):(e.text(s.error),o.text("N/A"))})}getModCount(){API_Proxy.get("mods","modsinstalled").then(s=>{const e=$("#mod-count");"success"==s.result?e.text(s.data.length):e.text(s.error)})}getFicsitSMLVersion(){API_Proxy.get("ficsitinfo","smlversions").then(s=>{const e=$("#sel-install-sml-ver"),o=$(".sml-latest-version");"success"==s.result&&(o.text(s.data[0].version),s.data.forEach(s=>{e.append("<option value='"+s.version+"'>"+s.version+"</option")}))})}getFicsitModList(){API_Proxy.get("ficsitinfo","modslist").then(s=>{const e=$("#sel-add-mod-name");"success"==s.result?(this.FicsitModList=s.data,this.loaded.ficsit_modlist=!0,s.data.forEach(s=>{e.append("<option value='"+s.id+"'>"+s.name+"</option")})):console.log(s)})}getFicsitModInfo(){const s=$("#sel-add-mod-name").val();"-1"==s?this.hideNewModInfo():API_Proxy.get("ficsitinfo","modinfo",s).then(s=>{this.showNewModInfo(s.data)})}hideNewModInfo(){$("#add-mod-logo").attr("src","/public/images/ssm_logo128_outline.png"),$("#sel-add-mod-version").prop("disabled",!0),$("#sel-add-mod-version").find("option").not(":first").remove(),this.lockInstallModBtn()}showNewModInfo(s){""==s.logo?$("#add-mod-logo").attr("src","https://ficsit.app/static/assets/images/no_image.png"):$("#add-mod-logo").attr("src",s.logo);const e=$("#sel-add-mod-version");e.prop("disabled",!1),e.find("option").not(":first").remove(),console.log(s),s.versions.forEach(s=>{e.append("<option value='"+s.version+"'>"+s.version+"</option")})}installSMLVersion(s){s.prop("disabled",!0),s.find("i").removeClass("fa-download").addClass("fa-sync fa-spin"),$("input[name='radio-install-sml']").prop("disabled",!0);const e=$("input[name='radio-install-sml']:checked").val(),o=$("#sel-install-sml-ver");o.prop("disabled",!0);let t="latest";if(1==e){if(-1==o.val()){if(1==Tools.modal_opened)return;return void Tools.openModal("/public/modals","server-mods-error",e=>{s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),e.find("#error-msg").text("Please select SML Version!")})}t=o.val()}const d={version:t};API_Proxy.postData("/mods/installsml",d).then(e=>{if(console.log(e),s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),o.prop("disabled",!1),$("input[name='radio-install-sml']").prop("disabled",!1),"success"==e.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("SML has been installed!"),this.getSMLInfo()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text(e.error)})}})}unlockInstallModBtn(){$("#btn-install-mod").prop("disabled",!1)}lockInstallModBtn(){$("#btn-install-mod").prop("disabled",!0)}installModVersion(s){s.prop("disabled",!0),s.find("i").removeClass("fa-download").addClass("fa-sync fa-spin");const e=$("#sel-add-mod-name"),o=$("#sel-add-mod-version");e.prop("disabled",!0),o.prop("disabled",!0);const t={modid:e.val(),versionid:o.val()};API_Proxy.postData("/mods/installmod",t).then(t=>{if(console.log(t),s.prop("disabled",!1),s.find("i").addClass("fa-download").removeClass("fa-sync fa-spin"),e.prop("disabled",!1),o.prop("disabled",!1),"success"==t.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been installed!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",s=>{s.find("#error-msg").text(t.error)})}})}uninstallMod(s){const e={modid:s.attr("data-modid")};API_Proxy.postData("/mods/uninstallmod",e).then(s=>{if("success"==s.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been uninstalled!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",e=>{e.find("#error-msg").text(""!=s.error.message?s.error.message:s.error)}),console.log(s)}})}updateModToLatest(s){const e={modid:s.attr("data-modid")};API_Proxy.postData("/mods/updatemod",e).then(s=>{if("success"==s.result){if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-success",s=>{s.find("#success-msg").text("Mod has been updated to the latest version!"),this.displayModsTable(),this.getModCount()})}else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-mods-error",e=>{e.find("#error-msg").text(s.error)})}})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}const page=new Page_Mods;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}],75:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("body").on("click",".select-save-btn",e=>{const s=$(e.currentTarget).attr("data-save");if("stopped"==this.ServerState.status)this.selectSave(s);else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#new-session-name").click(e=>{e.preventDefault(),Tools.openModal("server-session-new",e=>{e.find("#confirm-action").attr("data-action","new-session")})}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{"new-session"==$(e.currentTarget).attr("data-action")&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)}),$("#btn-save-upload").on("click",e=>{e.preventDefault(),this.uploadSaveFile()})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.displaySaveTable()}displaySaveTable(){const e=$.fn.dataTable.isDataTable("#saves-table"),s=this.Config.satisfactory;""==s.save.file?$("#current-save").text("No Save File Selected, Server will create a new world on start up."):$("#current-save").text(s.save.file),API_Proxy.get("gamesaves").then(a=>{console.log(a),$("#refresh-saves").prop("disabled",!1),$("#refresh-saves").find("i").removeClass("fa-spin");const t=[];if("success"==a.result&&a.data.forEach(e=>{if("failed"==e.result)return;$("<button/>").addClass("btn btn-light btn-block ").html("<i class='fas fa-search'></i>");let a=$("<button/>").addClass("btn btn-danger btn-block remove-save-btn").html("<i class='fas fa-trash'></i> Remove Save").attr("data-save",e.savename);e.savename==s.save.file&&a.prop("disabled",!0).text("Active Save");const o=a.prop("outerHTML"),n=e.savebody.split("?");let r="Unknown";for(let e=0;e<n.length;e++){const s=n[e].split("=");"sessionName"==s[0]&&(r=s[1])}t.push([r.trunc(25),e.savename.trunc(40),saveDate(e.last_modified),o])}),0==e)$("#saves-table").DataTable({paging:!0,searching:!1,info:!1,order:[[2,"desc"]],columnDefs:[{type:"date-euro",targets:2}],data:t});else{const e=$("#saves-table").DataTable();e.clear(),e.rows.add(t),e.draw()}})}uploadSaveFile(){$("#btn-save-upload i").removeClass("fa-upload").addClass("fa-sync fa-spin"),$("#btn-save-upload").prop("disabled",!0),$("#inp-save-file").prop("disabled",!0);const e=new FormData($("#save-upload-form")[0]);API_Proxy.upload("gamesaves/upload",e).then(e=>{"success"==e.result?toastr.success("Save has been uploaded!"):toastr.error("Save couldn't be uploaded!"),$("#btn-save-upload i").addClass("fa-upload").removeClass("fa-sync fa-spin"),$("#btn-save-upload").prop("disabled",!1),$("#inp-save-file").prop("disabled",!1)})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}],76:[function(require,module,exports){
-const API_Proxy=require("./api_proxy"),Tools=require("../Mrhid6Utils/lib/tools");class Page_Settings{constructor(){this.Config={},this.ServerState={}}init(){this.setupJqueryListeners(),this.getConfig(),this.getServerStatus(),this.startPageInfoRefresh()}setupJqueryListeners(){$("#refresh-saves").click(e=>{e.preventDefault();const s=$(e.currentTarget);s.prop("disabled",!0),s.find("i").addClass("fa-spin"),this.displaySaveTable()}),$("#edit-ssm-settings").click(e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockSSMSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#save-ssm-settings").on("click",e=>{e.preventDefault(),this.submitSSMSettings()}),$("#cancel-ssm-settings").on("click",e=>{e.preventDefault(),this.lockSSMSettings(),this.getConfig()}),$("#edit-mods-settings").on("click",e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockModsSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#cancel-mods-settings").on("click",e=>{e.preventDefault(),this.lockModsSettings(),this.getConfig()}),$("#save-mods-settings").on("click",e=>{e.preventDefault(),this.submitModsSettings()}),$("#edit-sf-settings").on("click",e=>{if(e.preventDefault(),"running"!=this.ServerState.status)this.unlockSFSettings();else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",e=>{e.find("#error-msg").text("Server needs to be stopped before making changes!")})}}),$("#cancel-sf-settings").on("click",e=>{e.preventDefault(),this.lockSFSettings(),this.getConfig()}),$("#save-sf-settings").on("click",e=>{e.preventDefault(),this.submitSFSettings()}),$("body").on("click","#cancel-action",e=>{$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1}),$("body").on("click","#confirm-action",e=>{const s=$(e.currentTarget).attr("data-action");"stop"==s||"kill"==s?($("#server-action-confirm .close").trigger("click"),Tools.modal_opened=!1,this.serverAction_Stop(s)):"new-session"==s&&(this.serverAction_NewSession($("#inp_new_session_name").val()),$("#server-session-new .close").trigger("click"),Tools.modal_opened=!1)}),$("#settings-dangerarea-installsf").on("click",e=>{e.preventDefault(),this.installSFServer()}),$("#inp_maxplayers").on("input change",()=>{const e=$("#inp_maxplayers").val();$("#max-players-value").text(`${e} / 500`)})}getConfig(){API_Proxy.get("config").then(e=>{"success"==e.result&&(console.log(e.data),this.Config=e.data,this.MainDisplayFunction())})}getServerStatus(){API_Proxy.get("info","serverstatus").then(e=>{"success"==e.result&&(this.ServerState=e.data)})}MainDisplayFunction(){this.populateSSMSettings(),this.populateSFSettings(),this.populateModsSettings()}populateSSMSettings(){const e=this.Config.satisfactory;$("#inp_sf_serverloc").val(e.server_location),$("#inp_sf_saveloc").val(e.save.location),$("#inp_sf_logloc").val(e.log.location),$("#inp_sf_logloc").val(e.log.location),$("#inp_updatesfonstart").bootstrapToggle("enable"),1==e.updateonstart?$("#inp_updatesfonstart").bootstrapToggle("on"):$("#inp_updatesfonstart").bootstrapToggle("off"),$("#inp_updatesfonstart").bootstrapToggle("disable")}populateSFSettings(){const e=this.Config.game;$("#inp_maxplayers").val(e.Game["/Script/Engine"].GameSession.MaxPlayers);const s=$("#inp_maxplayers").val();$("#max-players-value").text(`${s} / 500`)}populateModsSettings(){const e=this.Config.mods;$("#inp_mods_enabled").bootstrapToggle("enable"),1==e.enabled?$("#inp_mods_enabled").bootstrapToggle("on"):$("#inp_mods_enabled").bootstrapToggle("off"),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("enable"),1==e.autoupdate?$("#inp_mods_autoupdate").bootstrapToggle("on"):$("#inp_mods_autoupdate").bootstrapToggle("off"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}unlockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!0),$("#save-ssm-settings").prop("disabled",!1),$("#cancel-ssm-settings").prop("disabled",!1),$("#inp_updatesfonstart").bootstrapToggle("enable"),$("#inp_sf_serverloc").prop("disabled",!1)}lockSSMSettings(){$("#edit-ssm-settings").prop("disabled",!1),$("#save-ssm-settings").prop("disabled",!0),$("#cancel-ssm-settings").prop("disabled",!0),$("#inp_updatesfonstart").bootstrapToggle("disable"),$("#inp_sf_serverloc").prop("disabled",!0)}unlockModsSettings(){$("#edit-mods-settings").prop("disabled",!0),$("#save-mods-settings").prop("disabled",!1),$("#cancel-mods-settings").prop("disabled",!1),$("#inp_mods_enabled").bootstrapToggle("enable"),$("#inp_mods_autoupdate").bootstrapToggle("enable")}lockModsSettings(){$("#edit-mods-settings").prop("disabled",!1),$("#save-mods-settings").prop("disabled",!0),$("#cancel-mods-settings").prop("disabled",!0),$("#inp_mods_enabled").bootstrapToggle("disable"),$("#inp_mods_autoupdate").bootstrapToggle("disable")}unlockSFSettings(){$("#edit-sf-settings").prop("disabled",!0),$("#save-sf-settings").prop("disabled",!1),$("#cancel-sf-settings").prop("disabled",!1),$("#inp_maxplayers").prop("disabled",!1)}lockSFSettings(){$("#edit-sf-settings").prop("disabled",!1),$("#save-sf-settings").prop("disabled",!0),$("#cancel-sf-settings").prop("disabled",!0),$("#inp_maxplayers").prop("disabled",!0)}submitSSMSettings(){const e={updatesfonstart:$("#inp_updatesfonstart").is(":checked"),server_location:$("#inp_sf_serverloc").val()};API_Proxy.postData("config/ssmsettings",e).then(e=>{if("success"==e.result)this.lockSSMSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{console.log(JSON.stringify(e.error)),s.find("#error-msg").text(null!=e.error.message?e.error.message:e.error)})}})}submitSFSettings(){const e={maxplayers:$("#inp_maxplayers").val()};API_Proxy.postData("config/sfsettings",e).then(e=>{if("success"==e.result)this.lockSFSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{console.log(JSON.stringify(e.error)),s.find("#error-msg").text(null!=e.error.message?e.error.message:e.error)})}})}submitModsSettings(){const e={enabled:$("#inp_mods_enabled").is(":checked"),autoupdate:$("#inp_mods_autoupdate").is(":checked")};API_Proxy.postData("/config/modssettings",e).then(e=>{if("success"==e.result)this.lockModsSettings(),toastr.success("Settings have been saved!");else{if(1==Tools.modal_opened)return;Tools.openModal("/public/modals","server-settings-error",s=>{s.find("#error-msg").text(e.error)})}})}installSFServer(){1!=Tools.modal_opened&&Tools.openModal("/public/modals","server-action-installsf",()=>{API_Proxy.post("serveractions","installsf").then(e=>{console.log(e),"success"==e.result?(toastr.success("Server has been installed!"),$("#server-action-installsf .close").trigger("click")):($("#server-action-installsf").remove(),Tools.openModal("/public/modals","server-settings-error",s=>{s.find("#error-msg").text(e.error.message)}))})})}startPageInfoRefresh(){setInterval(()=>{this.getServerStatus()},5e3)}}function saveDate(e){const s=new Date(e);return s.getDate().pad(2)+"/"+(s.getMonth()+1).pad(2)+"/"+s.getFullYear()+" "+s.getHours().pad(2)+":"+s.getMinutes().pad(2)+":"+s.getSeconds().pad(2)}const page=new Page_Settings;module.exports=page;
-
-},{"../Mrhid6Utils/lib/tools":63,"./api_proxy":67}]},{},[68]);
+},{"available-typed-arrays":20,"call-bind/callBound":26,"es-abstract/helpers/getOwnPropertyDescriptor":28,"foreach":30,"has-symbols":34,"is-typed-array":41}]},{},[6]);

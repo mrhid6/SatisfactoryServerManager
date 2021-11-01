@@ -4,7 +4,7 @@ const Page_Mods = require("./page_mods");
 const Page_Logs = require("./page_logs");
 const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
-const Page_Agents = require("./page_agents");
+const Page_Servers = require("./page_servers");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -54,8 +54,8 @@ class PageHandler {
             case "settings":
                 Page_Settings.init();
                 break;
-            case "agents":
-                Page_Agents.init();
+            case "servers":
+                Page_Servers.init();
                 break;
         }
     }

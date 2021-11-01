@@ -2,7 +2,7 @@ const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 
-class Page_Agents {
+class Page_Servers {
     constructor() {
         this.ServerState = {}
     }
@@ -129,6 +129,6 @@ class Page_Agents {
 
 }
 
-const page = new Page_Agents();
+const page = new Page_Servers();
 
 module.exports = page;
