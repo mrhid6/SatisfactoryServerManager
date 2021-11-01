@@ -41,7 +41,7 @@ class SF_Server_Handler {
             this.InstallSteamCmd().then(() => {
                 this._getServerState();
 
-                if (Config.get("ssm.setup") == true && Config.get("satisfactory.updateonstart") == true) {
+                if (Config.get("satisfactory.updateonstart") == true) {
                     this.InstallSFServer().then(() => {
                         resolve()
                     }).catch(err => {

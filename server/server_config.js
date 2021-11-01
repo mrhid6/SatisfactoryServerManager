@@ -64,28 +64,32 @@ class ServerConfig extends iConfig {
 
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {
-            super.get("ssm.agent.setup", false)
-            super.set("ssm.agent.isagent", true)
+            this.setAgentDefaults();
         } else {
             super.set("ssm.agent.isagent", false)
             const uuid = Mrhid6Utils.Tools.generateRandomString(16);
             super.get("ssm.agent.publickey", uuid);
         }
 
-        super.get("ssm.setup", false)
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.0.28`);
+        super.set("ssm.version", `v1.0.29`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
 
         super.get("ssm.metrics.enabled", false)
         super.get("ssm.metrics.clientid", "")
+
+    }
+
+    setAgentDefaults() {
+        super.get("ssm.agent.setup", false)
+        super.set("ssm.agent.isagent", true)
         super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
         super.get("satisfactory.installed", false)
         super.get("satisfactory.updateonstart", false)
-        super.get("satisfactory.server_location", path.join(userDataPath, "SFServer"));
+        super.set("satisfactory.server_location", path.join(userDataPath, "SFServer"));
 
         if (platform == "win32") {
             super.set("satisfactory.server_exe", "FactoryServer.exe")
@@ -113,7 +117,6 @@ class ServerConfig extends iConfig {
 
         super.get("mods.enabled", false);
         super.get("mods.autoupdate", false);
-        super.get("mods.location", "")
     }
 
     getSessionStorePath() {

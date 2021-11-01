@@ -1,4 +1,7 @@
 const API_Proxy = require("./api_proxy");
+const PageCache = require("./cache");
+
+
 const Page_Dashboard = require("./page_dashboard");
 const Page_Mods = require("./page_mods");
 const Page_Logs = require("./page_logs");
@@ -34,6 +37,7 @@ class PageHandler {
         this.setupJqueryHandler();
         this.getSSMVersion();
         this.checkInitalSetup();
+        this.getAgentsList();
         this.startLoggedInCheck()
 
         this.page = $(".page-container").attr("data-page");
@@ -77,6 +81,38 @@ class PageHandler {
         }).on("click", "#btn_setup_findinstall", e => {
             this.getSetupSFInstalls(e)
         })
+
+
+        $("#inp_server").on("change", e => {
+            e.preventDefault();
+            PageCache.setActiveAgent($(e.currentTarget).val())
+        })
+    }
+
+    getAgentsList() {
+        API_Proxy.get("agent", "agents").then(res => {
+
+            if (res.result == "success") {
+                PageCache.setAgentsList(res.data);
+
+                this.populateServerSelection();
+
+                //$("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
+                //$("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
+
+            }
+        })
+    }
+
+    populateServerSelection() {
+        const $el = $("#inp_server");
+        $el.find("option").not(":first").remove();
+        for (let i = 0; i < PageCache.getAgentsList().length; i++) {
+            const Agent = PageCache.getAgentsList()[i];
+            $el.append(`<option value="${Agent.id}">${Agent.name}</option>`)
+        }
+
+        $el.val(getCookie("currentAgentId"))
     }
 
     getSSMVersion() {

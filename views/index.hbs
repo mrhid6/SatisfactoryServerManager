@@ -73,20 +73,35 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-12 col-md-4">
-                    <button class="btn btn-success btn-block server-action-btn" id="server-action-start" disabled>
-                        <i class="fas fa-play"></i>
-                        Start Server</button>
+                <div class="col-12 col-md-3">
+                    <select class="form-control" id="inp_server">
+                        <option value="-1">-- Select Server --</option>
+                    </select>
                 </div>
-                <div class="col-12 col-md-4">
-                    <button class="btn btn-warning btn-block server-action-btn" id="server-action-stop" disabled>
-                        <i class="fas fa-stop"></i>
-                        Stop Server</button>
+                <div class="col-12 col-md-3">
+                    <div class="tooltip-wrapper" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        title="Tooltip on bottom">
+                        <button class="btn btn-success btn-block server-action-btn" id="server-action-start">
+                            <i class="fas fa-play"></i>
+                            Start Server</button>
+                    </div>
+
                 </div>
-                <div class="col-12 col-md-4">
-                    <button class="btn btn-danger btn-block server-action-btn" id="server-action-kill" disabled>
-                        <i class="fas fa-skull-crossbones"></i>
-                        Kill Server</button>
+                <div class="col-12 col-md-3">
+                    <div class="tooltip-wrapper" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        title="Tooltip on bottom">
+                        <button class="btn btn-warning btn-block server-action-btn" id="server-action-stop" disabled>
+                            <i class="fas fa-stop"></i>
+                            Stop Server</button>
+                    </div>
+                </div>
+                <div class="col-12 col-md-3">
+                    <div class="tooltip-wrapper" data-bs-toggle="tooltip" data-bs-placement="bottom"
+                        title="Tooltip on bottom">
+                        <button class="btn btn-danger btn-block server-action-btn" id="server-action-kill" disabled>
+                            <i class="fas fa-skull-crossbones"></i>
+                            Kill Server</button>
+                    </div>
                 </div>
             </div>
         </div>

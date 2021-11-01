@@ -1,6 +1,8 @@
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
+const PageCache = require("./cache");
+
 class Page_Settings {
     constructor() {
         this.Config = {};
@@ -8,24 +10,18 @@ class Page_Settings {
     }
 
     init() {
+        this.LockAllEditButtons();
         this.setupJqueryListeners();
-        this.getConfig();
-        this.getServerStatus();
+        this.SetupEventHandlers();
+    }
 
-        this.startPageInfoRefresh();
+    SetupEventHandlers() {
+        PageCache.on("setactiveagent", () => {
+            this.MainDisplayFunction();
+        })
     }
 
     setupJqueryListeners() {
-        $("#refresh-saves").click(e => {
-            e.preventDefault();
-
-            const $self = $(e.currentTarget);
-
-            $self.prop("disabled", true);
-            $self.find("i").addClass("fa-spin");
-
-            this.displaySaveTable();
-        });
 
         $("#edit-ssm-settings").click(e => {
             e.preventDefault();
@@ -134,32 +130,54 @@ class Page_Settings {
         })
     }
 
-    getConfig() {
-        API_Proxy.get("config").then(res => {
-            if (res.result == "success") {
-                console.log(res.data);
-                this.Config = res.data;
-                this.MainDisplayFunction();
-            }
-        });
+    LockAllEditButtons() {
+        $("i.fa-edit").parent().prop("disabled", true)
+        $("#settings-dangerarea-installsf").prop("disabled", true)
     }
 
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
-        })
+    UnlockAllEditButtons() {
+        $("i.fa-edit").parent().prop("disabled", false)
+        $("#settings-dangerarea-installsf").prop("disabled", false)
     }
 
     MainDisplayFunction() {
-        this.populateSSMSettings();
-        this.populateSFSettings();
-        this.populateModsSettings();
+        this.LockAllEditButtons();
+        this.clearAllValues();
+
+        const Agent = PageCache.getActiveAgent();
+        if (Agent != null && Agent.info.config != null) {
+            this.UnlockAllEditButtons();
+            this.populateSSMSettings();
+            this.populateSFSettings();
+            this.populateModsSettings();
+        }
+    }
+
+    clearAllValues() {
+        $("#inp_sf_serverloc").val("")
+        $("#inp_sf_saveloc").val("")
+        $("#inp_sf_logloc").val("")
+        $("#inp_sf_logloc").val("")
+        $('#inp_updatesfonstart').bootstrapToggle('enable')
+        $('#inp_updatesfonstart').bootstrapToggle('off')
+        $('#inp_updatesfonstart').bootstrapToggle('disable')
+
+        $("#inp_maxplayers").val(0);
+        $("#max-players-value").text(`0 / 500`)
+
+        $('#inp_mods_enabled').bootstrapToggle('enable')
+        $('#inp_mods_enabled').bootstrapToggle('off')
+        $('#inp_mods_enabled').bootstrapToggle('disable')
+
+        $('#inp_mods_autoupdate').bootstrapToggle('enable')
+        $('#inp_mods_autoupdate').bootstrapToggle('off')
+        $('#inp_mods_autoupdate').bootstrapToggle('disable')
     }
 
     populateSSMSettings() {
-        const ssmConfig = this.Config.satisfactory;
+        const Agent = PageCache.getActiveAgent();
+
+        const ssmConfig = Agent.info.config.satisfactory;
         $("#inp_sf_serverloc").val(ssmConfig.server_location)
         $("#inp_sf_saveloc").val(ssmConfig.save.location)
         $("#inp_sf_logloc").val(ssmConfig.log.location)
@@ -176,14 +194,16 @@ class Page_Settings {
     }
 
     populateSFSettings() {
-        const gameConfig = this.Config.game;
+        const Agent = PageCache.getActiveAgent();
+        const gameConfig = Agent.info.config.game;
         $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
         const val = $("#inp_maxplayers").val();
         $("#max-players-value").text(`${val} / 500`)
     }
 
     populateModsSettings() {
-        const modsConfig = this.Config.mods;
+        const Agent = PageCache.getActiveAgent();
+        const modsConfig = Agent.info.config.mods;
         $('#inp_mods_enabled').bootstrapToggle('enable')
         if (modsConfig.enabled == true) {
             $('#inp_mods_enabled').bootstrapToggle('on')
@@ -341,25 +361,6 @@ class Page_Settings {
             })
         });
     }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
-    }
-}
-
-function saveDate(dateStr) {
-    const date = new Date(dateStr)
-    const day = date.getDate().pad(2);
-    const month = (date.getMonth() + 1).pad(2);
-    const year = date.getFullYear();
-
-    const hour = date.getHours().pad(2);
-    const min = date.getMinutes().pad(2);
-    const sec = date.getSeconds().pad(2);
-
-    return day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
 }
 
 const page = new Page_Settings();

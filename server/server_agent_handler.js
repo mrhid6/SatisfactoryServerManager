@@ -89,7 +89,7 @@ class AgentHandler {
                     }
                 }
 
-                console.log(this._AGENTS)
+                //console.log(this._AGENTS)
 
                 return this.CheckAllAgentsActive();
             }).then(() => {

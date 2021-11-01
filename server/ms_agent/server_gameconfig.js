@@ -4,7 +4,7 @@ const platform = process.platform;
 const fs = require("fs-extra");
 const path = require("path");
 
-const Config = require("./../server_config");
+const Config = require("../server_config");
 
 
 const IEngineConfig = require("../../objects/configs/config_engine.js");
