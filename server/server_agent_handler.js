@@ -130,7 +130,7 @@ class AgentHandler {
             } = this.GetNewDockerInfo()
 
             this._docker.container.create({
-                Image: 'mrhid6/ssmagent',
+                Image: 'mrhid6/ssmagent:latest',
                 name: Name,
                 HostConfig: {
                     PortBindings: {
