@@ -6,6 +6,7 @@ const Config = require("../server/server_config");
 const Cleanup = require("../server/server_cleanup");
 
 const AgentApp = require("../server/server_agent_app");
+const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
 
 router.get("/ping", function (req, res, next) {
     res.json({
@@ -41,9 +42,69 @@ router.get("/info", checkHeaderKey, function (req, res, next) {
             data
         })
     })
-
-
 })
+
+router.post('/config/ssmsettings', checkHeaderKey, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateSSMSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/config/sfsettings', checkHeaderKey, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateSFSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/config/modsettings', checkHeaderKey, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateModsSettings(post).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
+
+router.post('/installsf', checkHeaderKey, function (req, res, next) {
+    SFS_Handler.InstallSFServer(true).then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
 
 
 function checkHeaderKey(req, res, next) {

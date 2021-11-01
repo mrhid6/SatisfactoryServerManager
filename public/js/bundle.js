@@ -17311,7 +17311,6 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
-        this.checkInitalSetup();
         this.getAgentsList();
         this.startLoggedInCheck()
 
@@ -17442,93 +17441,6 @@ class PageHandler {
                 }
             })
         })
-    }
-
-    checkInitalSetup() {
-        API_Proxy.get("config", "ssm", "setup").then(res => {
-            if (res.result == "success") {
-                const resdata = res.data;
-
-                if (resdata == false) {
-                    Tools.openModal("/public/modals", "inital-setup", (modal) => {
-
-                        const form = $("#initial-setup-wizard")
-
-
-                        form.steps({
-                            headerTag: "h3",
-                            bodyTag: "fieldset",
-                            transitionEffect: "slideLeft",
-                            onStepChanging: (event, currentIndex, newIndex) => {
-                                if (currentIndex > newIndex) {
-                                    return true;
-                                }
-
-                                if (newIndex == 2 && $("#inp_sf_install_location").val() == "") {
-                                    return false;
-                                }
-
-                                if (newIndex == 4) {
-
-                                    $("#setup_summary_sfinstallloc").text($("#inp_sf_install_location").val())
-
-                                    const terms = ($("#acceptTerms-2:checked").length > 0)
-                                    return terms;
-                                }
-
-                                return true;
-                            },
-                            onFinishing: (event, currentIndex) => {
-                                return true;
-                            },
-                            onFinished: (event, currentIndex) => {
-                                const postData = {
-                                    serverlocation: $("#inp_sf_install_location").val(),
-                                    updateonstart: ($("#inp_updatesfonstart:checked").length > 0),
-                                    metrics: ($("#inp_setup_metrics:checked").length > 0)
-                                }
-
-                                modal.find(".close").trigger("click");
-
-                                API_Proxy.postData("config/ssm/setup", postData).then(res => {
-
-                                    Tools.openModal("/public/modals", "server-action-installsf", () => {
-                                        API_Proxy.post("serveractions", "installsf").then(res => {
-                                            if (res.result == "success") {
-                                                toastr.success("Server has been installed!")
-                                                $("#server-action-installsf .close").trigger("click");
-                                            } else {
-                                                $("#server-action-installsf").remove();
-
-                                                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                                                    modal_el.find("#error-msg").text(res.error.message)
-                                                });
-                                            }
-                                        })
-                                    });
-                                })
-                            }
-                        });
-
-                        API_Proxy.get("config").then(res => {
-                            const SSMConfig = res.data.ssm;
-                            const SFConfig = res.data.satisfactory;
-                            const ModsConfig = res.data.mods;
-
-                            $("#inp_sf_install_location").val(SFConfig.server_location);
-                            $('#inp_updatesfonstart').bootstrapToggle()
-                            if (SFConfig.updateonstart == true) {
-                                $('#inp_updatesfonstart').bootstrapToggle('on')
-                            } else {
-                                $('#inp_updatesfonstart').bootstrapToggle('off')
-                            }
-                        })
-
-                        $("#inp_setup_metrics").bootstrapToggle();
-                    })
-                }
-            }
-        });
     }
 }
 
@@ -18634,10 +18546,9 @@ class Page_Settings {
         const Agent = PageCache.getActiveAgent();
 
         const ssmConfig = Agent.info.config.satisfactory;
-        $("#inp_sf_serverloc").val(ssmConfig.server_location)
-        $("#inp_sf_saveloc").val(ssmConfig.save.location)
-        $("#inp_sf_logloc").val(ssmConfig.log.location)
-        $("#inp_sf_logloc").val(ssmConfig.log.location)
+        $("#setting-info-serverloc").text(ssmConfig.server_location)
+        $("#setting-info-saveloc").text(ssmConfig.save.location)
+        $("#setting-info-logloc").text(ssmConfig.log.location)
 
         $('#inp_updatesfonstart').bootstrapToggle('enable')
         if (ssmConfig.updateonstart == true) {
@@ -18651,10 +18562,14 @@ class Page_Settings {
 
     populateSFSettings() {
         const Agent = PageCache.getActiveAgent();
-        const gameConfig = Agent.info.config.game;
-        $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
-        const val = $("#inp_maxplayers").val();
-        $("#max-players-value").text(`${val} / 500`)
+        if (Agent.info.serverstate.status != "notinstalled") {
+            const gameConfig = Agent.info.config.game;
+            $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
+            const val = $("#inp_maxplayers").val();
+            $("#max-players-value").text(`${val} / 500`)
+        } else {
+            $("#edit-sf-settings").prop("disabled", true)
+        }
     }
 
     populateModsSettings() {
@@ -18685,7 +18600,6 @@ class Page_Settings {
         $("#save-ssm-settings").prop("disabled", false);
         $("#cancel-ssm-settings").prop("disabled", false);
         $('#inp_updatesfonstart').bootstrapToggle('enable');
-        $("#inp_sf_serverloc").prop("disabled", false);
     }
 
     lockSSMSettings() {
@@ -18734,14 +18648,15 @@ class Page_Settings {
     }
 
     submitSSMSettings() {
+        const Agent = PageCache.getActiveAgent();
+
         const updatesfonstart = $('#inp_updatesfonstart').is(":checked")
-        const server_location = $("#inp_sf_serverloc").val();
         const postData = {
-            updatesfonstart,
-            server_location
+            agentid: Agent.id,
+            updatesfonstart
         }
 
-        API_Proxy.postData("config/ssmsettings", postData).then(res => {
+        API_Proxy.postData("agent/config/ssmsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSSMSettings();
@@ -18757,12 +18672,14 @@ class Page_Settings {
     }
 
     submitSFSettings() {
+        const Agent = PageCache.getActiveAgent();
         const maxplayers = $('#inp_maxplayers').val();
         const postData = {
+            agentid: Agent.id,
             maxplayers
         }
 
-        API_Proxy.postData("config/sfsettings", postData).then(res => {
+        API_Proxy.postData("agent/config/sfsettings", postData).then(res => {
 
             if (res.result == "success") {
                 this.lockSFSettings();
@@ -18778,14 +18695,16 @@ class Page_Settings {
     }
 
     submitModsSettings() {
+        const Agent = PageCache.getActiveAgent();
         const enabled = $('#inp_mods_enabled').is(":checked")
         const autoupdate = $('#inp_mods_autoupdate').is(":checked")
         const postData = {
+            agentid: Agent.id,
             enabled,
             autoupdate
         }
 
-        API_Proxy.postData("/config/modssettings", postData).then(res => {
+        API_Proxy.postData("agent/config/modsettings", postData).then(res => {
             if (res.result == "success") {
                 this.lockModsSettings();
                 toastr.success("Settings have been saved!")
@@ -18799,10 +18718,16 @@ class Page_Settings {
     }
 
     installSFServer() {
+        const Agent = PageCache.getActiveAgent();
 
         if (Tools.modal_opened == true) return;
         Tools.openModal("/public/modals", "server-action-installsf", () => {
-            API_Proxy.post("serveractions", "installsf").then(res => {
+
+            const postData = {
+                agentid: Agent.id,
+            }
+
+            API_Proxy.postData("agent/serveractions/installsf", postData).then(res => {
                 console.log(res)
                 if (res.result == "success") {
                     toastr.success("Server has been installed!")

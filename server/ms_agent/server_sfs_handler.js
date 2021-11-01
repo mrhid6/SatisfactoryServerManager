@@ -607,47 +607,10 @@ class SF_Server_Handler {
 
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
-            const server_location = path.resolve(data.server_location) || "";
             const updatesfonstart = data.updatesfonstart == "true";
 
-            if (server_location == "") {
-                reject("Both server location is required!")
-                return;
-            }
-            /*
-                        if (fs.pathExistsSync(server_location) == false) {
-                            reject("Server location path doesn't exist!")
-                            return;
-                        }*/
-
-            if (server_location != Config.get("satisfactory.server_location")) {
-                this._RemoveSFServer().then(() => {
-                    Config.set("satisfactory.server_location", server_location);
-
-
-                    const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
-                    super.set("satisfactory.log.location", LogFolder)
-
-                    Config.set("satisfactory.updateonstart", updatesfonstart)
-                    Config.load().then(() => {
-                        resolve();
-                    })
-                }).catch(err => {
-                    console.log(err);
-                })
-            } else {
-                Config.set("satisfactory.server_location", server_location);
-
-
-                const LogFolder = path.join(super.get("satisfactory.server_location"), "FactoryGame", "Saved", "Logs")
-                super.set("satisfactory.log.location", LogFolder)
-
-                Config.set("satisfactory.updateonstart", updatesfonstart)
-                Config.load().then(() => {
-                    resolve();
-                })
-            }
-
+            Config.set("satisfactory.updateonstart", updatesfonstart)
+            resolve();
 
         });
     }

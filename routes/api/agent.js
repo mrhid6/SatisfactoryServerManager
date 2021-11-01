@@ -69,4 +69,61 @@ router.post('/stop', middleWare, function (req, res, next) {
 });
 
 
+router.post("/config/ssmsettings", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_SetConfigSettings("ssmsettings", post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
+router.post("/config/sfsettings", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_SetConfigSettings("sfsettings", post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
+router.post("/config/modsettings", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_SetConfigSettings("modsettings", post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
+router.post("/serveractions/installsf", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_InstallSF(post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
+
 module.exports = router;

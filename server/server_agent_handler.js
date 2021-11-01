@@ -293,6 +293,60 @@ class AgentHandler {
             })
         })
     }
+
+    API_SetConfigSettings(ConfigKey, data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+
+            AgentAPI.remoteRequestPOST(Agent, "config/" + ConfigKey, data).then(res => {
+                if (res.data.result == "success") {
+                    resolve();
+                } else {
+                    reject(new Error(res.data.error));
+                }
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+    API_InstallSF(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestPOST(Agent, "installsf", {}).then(res => {
+                if (res.data.result == "success") {
+                    resolve();
+                } else {
+                    reject(new Error(res.data.error));
+                }
+            }).catch(err => {
+                reject(err);
+            })
+
+        });
+    }
 }
 
 const agentHandler = new AgentHandler();

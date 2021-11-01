@@ -36,7 +36,6 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
-        this.checkInitalSetup();
         this.getAgentsList();
         this.startLoggedInCheck()
 
@@ -167,93 +166,6 @@ class PageHandler {
                 }
             })
         })
-    }
-
-    checkInitalSetup() {
-        API_Proxy.get("config", "ssm", "setup").then(res => {
-            if (res.result == "success") {
-                const resdata = res.data;
-
-                if (resdata == false) {
-                    Tools.openModal("/public/modals", "inital-setup", (modal) => {
-
-                        const form = $("#initial-setup-wizard")
-
-
-                        form.steps({
-                            headerTag: "h3",
-                            bodyTag: "fieldset",
-                            transitionEffect: "slideLeft",
-                            onStepChanging: (event, currentIndex, newIndex) => {
-                                if (currentIndex > newIndex) {
-                                    return true;
-                                }
-
-                                if (newIndex == 2 && $("#inp_sf_install_location").val() == "") {
-                                    return false;
-                                }
-
-                                if (newIndex == 4) {
-
-                                    $("#setup_summary_sfinstallloc").text($("#inp_sf_install_location").val())
-
-                                    const terms = ($("#acceptTerms-2:checked").length > 0)
-                                    return terms;
-                                }
-
-                                return true;
-                            },
-                            onFinishing: (event, currentIndex) => {
-                                return true;
-                            },
-                            onFinished: (event, currentIndex) => {
-                                const postData = {
-                                    serverlocation: $("#inp_sf_install_location").val(),
-                                    updateonstart: ($("#inp_updatesfonstart:checked").length > 0),
-                                    metrics: ($("#inp_setup_metrics:checked").length > 0)
-                                }
-
-                                modal.find(".close").trigger("click");
-
-                                API_Proxy.postData("config/ssm/setup", postData).then(res => {
-
-                                    Tools.openModal("/public/modals", "server-action-installsf", () => {
-                                        API_Proxy.post("serveractions", "installsf").then(res => {
-                                            if (res.result == "success") {
-                                                toastr.success("Server has been installed!")
-                                                $("#server-action-installsf .close").trigger("click");
-                                            } else {
-                                                $("#server-action-installsf").remove();
-
-                                                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                                                    modal_el.find("#error-msg").text(res.error.message)
-                                                });
-                                            }
-                                        })
-                                    });
-                                })
-                            }
-                        });
-
-                        API_Proxy.get("config").then(res => {
-                            const SSMConfig = res.data.ssm;
-                            const SFConfig = res.data.satisfactory;
-                            const ModsConfig = res.data.mods;
-
-                            $("#inp_sf_install_location").val(SFConfig.server_location);
-                            $('#inp_updatesfonstart').bootstrapToggle()
-                            if (SFConfig.updateonstart == true) {
-                                $('#inp_updatesfonstart').bootstrapToggle('on')
-                            } else {
-                                $('#inp_updatesfonstart').bootstrapToggle('off')
-                            }
-                        })
-
-                        $("#inp_setup_metrics").bootstrapToggle();
-                    })
-                }
-            }
-        });
     }
 }
 
