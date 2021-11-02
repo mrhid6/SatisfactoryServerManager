@@ -256,7 +256,15 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid == -1) {
                     const LogFile = path.join(Config.get("satisfactory.log.location"), "FactoryServer.Log")
-                    return this.execSFSCmd(`-unattended`);
+
+                    const {
+                        ServerQueryPort,
+                        BeaconPort,
+                        Port
+                    } = this.getStartupPortConfig()
+
+
+                    return this.execSFSCmd(`?listen -Port=${Port} -ServerQueryPort=${ServerQueryPort} -BeaconPort=${BeaconPort} -unattended`);
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
@@ -277,6 +285,14 @@ class SF_Server_Handler {
                 reject(err);
             })
         });
+    }
+
+    getStartupPortConfig() {
+        return {
+            ServerQueryPort: (15777 + Config.get("ssm.agent.id")),
+            BeaconPort: (15000 + Config.get("ssm.agent.id")),
+            Port: (7777 + Config.get("ssm.agent.id"))
+        }
     }
 
     wailTillSFServerStarted() {

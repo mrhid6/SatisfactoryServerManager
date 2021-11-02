@@ -96,7 +96,14 @@ class Page_Settings {
 
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
 
-        API_Proxy.get("gamesaves").then(res => {
+        const Agent = PageCache.getActiveAgent()
+
+        const postData = {
+            agentid: Agent.id
+        }
+
+
+        API_Proxy.postData("agent/gamesaves", postData).then(res => {
             console.log(res)
             $("#refresh-saves").prop("disabled", false);
             $("#refresh-saves").find("i").removeClass("fa-spin");

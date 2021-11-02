@@ -194,6 +194,22 @@ router.post("/modaction", middleWare, function (req, res, next) {
     })
 })
 
+router.post("/gamesaves", middleWare, function (req, res, next) {
+    const post = req.body;
+
+    AgentHandler.API_GetGameSaves(post).then(data => {
+        res.json({
+            result: "success",
+            data
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
 
 router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
     const data = {

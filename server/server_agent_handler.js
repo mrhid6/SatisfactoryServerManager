@@ -129,24 +129,29 @@ class AgentHandler {
                 Port
             } = this.GetNewDockerInfo()
 
+            const PortBindings = {};
+
+            PortBindings["3000/tcp"] = [{
+                "HostPort": `${AgentPort}`
+            }]
+
+            PortBindings[`${ServerQueryPort}/udp`] = [{
+                "HostPort": `${ServerQueryPort}`
+            }]
+
+            PortBindings[`${BeaconPort}/udp`] = [{
+                "HostPort": `${BeaconPort}`
+            }]
+
+            PortBindings[`${Port}/udp`] = [{
+                "HostPort": `${Port}`
+            }]
+
             this._docker.container.create({
                 Image: 'mrhid6/ssmagent:latest',
                 name: Name,
                 HostConfig: {
-                    PortBindings: {
-                        "3000/tcp": [{
-                            "HostPort": `${AgentPort}`
-                        }],
-                        "15777/udp": [{
-                            "HostPort": `${ServerQueryPort}`
-                        }],
-                        "15000/udp": [{
-                            "HostPort": `${BeaconPort}`
-                        }],
-                        "7777/udp": [{
-                            "HostPort": `${Port}`
-                        }]
-                    }
+                    PortBindings: PortBindings
                 }
             }).then(container => {
                 logger.info("[AGENT_HANDLER] - Created agent successfully!");
@@ -431,7 +436,6 @@ class AgentHandler {
 
     API_UploadSaveFile(fileData, data) {
         return new Promise((resolve, reject) => {
-            console.log(data)
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -451,6 +455,28 @@ class AgentHandler {
             })
 
         });
+    }
+
+    API_GetGameSaves(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestGET(Agent, "gamesaves").then(res => {
+                resolve(res.data.data)
+            }).catch(err => {
+                reject(err);
+            })
+        })
     }
 }
 
