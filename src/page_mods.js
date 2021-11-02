@@ -16,13 +16,20 @@ class Page_Mods {
 
     init() {
         this.setupJqueryListeners();
-        this.getSMLInfo();
-        this.getModCount();
-        this.getFicsitSMLVersion();
-        this.getFicsitModList();
+        this.SetupEventHandlers();
+    }
 
-        this.waitTilLoaded().then(() => {
-            this.displayModsTable();
+    SetupEventHandlers() {
+        PageCache.on("setactiveagent", () => {
+            this.MainDisplayFunction();
+        })
+
+        PageCache.on("setsmlversions", () => {
+            this.displaySMLVersions();
+        })
+
+        PageCache.on("setficsitmods", () => {
+            this.displayFicsitModList();
         })
     }
 
@@ -108,11 +115,19 @@ class Page_Mods {
         })
     }
 
+    MainDisplayFunction() {
+        this.getFicsitSMLVersion();
+    }
+
+    getInstalledMods(){
+        
+    }
+
     displayModsTable() {
 
         const isDataTable = $.fn.dataTable.isDataTable("#mods-table")
 
-        API_Proxy.get("mods", "modsinstalled").then(res => {
+        API_Proxy.get("agent", "modinfo", "installed").then(res => {
             const tableData = [];
             if (res.result == "success") {
                 for (let i = 0; i < res.data.length; i++) {
@@ -204,30 +219,38 @@ class Page_Mods {
 
     getFicsitSMLVersion() {
         API_Proxy.get("ficsitinfo", "smlversions").then(res => {
-            const el1 = $("#sel-install-sml-ver");
-            const el2 = $(".sml-latest-version");
+
             if (res.result == "success") {
-                el2.text(res.data[0].version);
-                res.data.forEach(sml => {
-                    el1.append("<option value='" + sml.version + "'>" + sml.version + "</option");
-                })
+                PageCache.setSMLVersions(res.data);
             }
         });
     }
 
+    displaySMLVersions() {
+        const el1 = $("#sel-install-sml-ver");
+        const el2 = $(".sml-latest-version");
+        el2.text(PageCache.getSMLVersions()[0].version);
+        PageCache.getSMLVersions().forEach(sml => {
+            el1.append("<option value='" + sml.version + "'>" + sml.version + "</option");
+        })
+    }
+
     getFicsitModList() {
         API_Proxy.get("ficsitinfo", "modslist").then(res => {
-            const el = $("#sel-add-mod-name");
+
             if (res.result == "success") {
-                this.FicsitModList = res.data;
-                this.loaded.ficsit_modlist = true;
-                res.data.forEach(mod => {
-                    el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
-                })
+                PageCache.setFicsitMods(res.data);
             } else {
                 console.log(res)
             }
         });
+    }
+
+    displayFicsitModList() {
+        const el = $("#sel-add-mod-name");
+        PageCache.getFicsitMods().forEach(mod => {
+            el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
+        })
     }
 
     getFicsitModInfo() {
@@ -298,7 +321,7 @@ class Page_Mods {
             version
         }
 
-        API_Proxy.postData("/mods/installsml", postData).then(res => {
+        API_Proxy.postData("/agent/mods/installsml", postData).then(res => {
             console.log(res);
 
             $btn.prop("disabled", false);
