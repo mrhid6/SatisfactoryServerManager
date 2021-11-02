@@ -19,6 +19,7 @@ class Page_Mods {
 
         PageCache.on("setficsitmods", () => {
             this.displayFicsitModList();
+            this.displayInstalledMods();
         })
 
         PageCache.on("setinstalledmods", () => {
@@ -130,6 +131,7 @@ class Page_Mods {
         }
         API_Proxy.postData("agent/modinfo/installed", postData).then(res => {
             if (res.result == "success") {
+                console.log(res)
                 PageCache.SetAgentInstalledMods(res.data);
             } else {
                 PageCache.SetAgentInstalledMods([]);
@@ -138,6 +140,11 @@ class Page_Mods {
     }
 
     displayInstalledMods() {
+
+        if (PageCache.getFicsitMods().length == 0) {
+            return;
+        }
+
         const isDataTable = $.fn.dataTable.isDataTable("#mods-table");
         const installedMods = PageCache.getAgentInstalledMods();
         const Agent = PageCache.getActiveAgent()
@@ -151,9 +158,7 @@ class Page_Mods {
         for (let i = 0; i < installedMods.length; i++) {
             const mod = installedMods[i];
 
-            const ficsitMod = this.PageCache.getFicsitMods().find(el => el.id == mod.id);
-
-            if (ficsitMod == null) continue;
+            const ficsitMod = PageCache.getFicsitMods().find(el => el.id == mod.id);
 
             const latestVersion = (mod.version == ficsitMod.latest_version)
 
@@ -213,6 +218,7 @@ class Page_Mods {
         API_Proxy.postData("agent/modinfo/smlinfo", postData).then(res => {
             const el = $(".sml-status");
             const el2 = $(".sml-version");
+            console.log(res)
             if (res.result == "success") {
                 if (res.data.state == "not_installed") {
                     el.text("Not Installed")
@@ -247,6 +253,11 @@ class Page_Mods {
     }
 
     getFicsitModList() {
+        if (PageCache.getFicsitMods().length > 0) {
+            PageCache.emit("setficsitmods");
+            return;
+        }
+
         API_Proxy.get("ficsitinfo", "modslist").then(res => {
 
             if (res.result == "success") {
@@ -348,6 +359,8 @@ class Page_Mods {
                 toastr.error("Failed to install SML")
             }
 
+            this.getInstalledMods();
+
         })
     }
 
@@ -389,6 +402,7 @@ class Page_Mods {
             } else {
                 toastr.error("Failed to install Mod")
             }
+            this.getInstalledMods();
         });
     }
 
@@ -408,6 +422,7 @@ class Page_Mods {
             } else {
                 toastr.error("Failed to uninstall Mod")
             }
+            this.getInstalledMods();
         })
     }
 
@@ -427,6 +442,7 @@ class Page_Mods {
             } else {
                 toastr.error("Failed to update Mod")
             }
+            this.getInstalledMods();
         })
     }
 }

@@ -391,7 +391,7 @@ class AgentHandler {
 
             AgentAPI.remoteRequestGET(Agent, `modinfo/${data.info}`).then(res => {
                 if (res.data.result == "success") {
-                    resolve();
+                    resolve(res.data.data);
                 } else {
                     reject(new Error(res.data.error));
                 }

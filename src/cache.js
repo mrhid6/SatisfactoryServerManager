@@ -1,6 +1,9 @@
 const logger = require("./logger");
 
 const EventEmitter = require('events');
+const {
+    stringify
+} = require("querystring");
 
 class PageCache extends EventEmitter {
 
@@ -10,7 +13,7 @@ class PageCache extends EventEmitter {
         this.AgentList = [];
         this.ActiveAgent = null;
         this.SMLVersions = [];
-        this.FicsitMods = [];
+        this.FicsitMods = GetLocalStorage("FicsitMods", []);
         this.InstalledMods = [];
 
     }
@@ -51,6 +54,12 @@ class PageCache extends EventEmitter {
 
     setFicsitMods(mods) {
         this.FicsitMods = mods;
+
+        const StorageData = {
+            data: this.FicsitMods
+        }
+
+        StoreInLocalStorage("FicsitMods", StorageData, 1);
         this.emit("setficsitmods");
     }
 
@@ -67,6 +76,36 @@ class PageCache extends EventEmitter {
         this.emit("setinstalledmods");
     }
 }
+
+function StoreInLocalStorage(Key, Data, ExpiryHrs) {
+
+    var date = new Date();
+    date.setTime(date.getTime() + (ExpiryHrs * 60 * 60 * 1000));
+    Data.expiry = date.getTime();
+
+    const DataStr = JSON.stringify(Data);
+
+    localStorage.setItem(Key, DataStr)
+}
+
+function RemoveLocalStorage(Key) {
+    localStorage.removeItem(Key)
+}
+
+function GetLocalStorage(Key, defaultReturn) {
+    const LSdata = localStorage.getItem(Key);
+    const data = JSON.parse(LSdata);
+
+    var date = new Date();
+    if (date.getTime() > data.expiry) {
+        RemoveLocalStorage(Key);
+        return defaultReturn;
+    }
+
+    return data.data
+}
+
+
 
 function setCookie(name, value, days) {
     var expires = "";
