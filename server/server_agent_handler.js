@@ -147,12 +147,25 @@ class AgentHandler {
                 "HostPort": `${Port}`
             }]
 
+            const ExposedPorts = {
+                "3000/tcp": {}
+            }
+
+            ExposedPorts[`${ServerQueryPort}/udp`] = {}
+
+            ExposedPorts[`${BeaconPort}/udp`] = {}
+
+            ExposedPorts[`${Port}/udp`] = {}
+
+            console.log(PortBindings)
+
             this._docker.container.create({
                 Image: 'mrhid6/ssmagent:latest',
                 name: Name,
                 HostConfig: {
                     PortBindings: PortBindings
-                }
+                },
+                ExposedPorts
             }).then(container => {
                 logger.info("[AGENT_HANDLER] - Created agent successfully!");
                 return container.start()

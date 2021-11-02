@@ -33,6 +33,16 @@ class Page_Dashboard {
             e.preventDefault();
             this.ServerAction_Start();
         })
+
+        $("#server-action-stop").on("click", e => {
+            e.preventDefault();
+            this.ServerAction_Stop();
+        })
+
+        $("#server-action-kill").on("click", e => {
+            e.preventDefault();
+            this.ServerAction_Kill();
+        })
     }
 
     getModCount() {
