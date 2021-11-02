@@ -69,10 +69,14 @@ class ServerConfig extends iConfig {
             super.set("ssm.agent.isagent", false)
             const uuid = Mrhid6Utils.Tools.generateRandomString(16);
             super.get("ssm.agent.publickey", uuid);
+
+            super.set("ssm.tempdir", path.join(userDataPath, "temp"));
+
+            fs.ensureDirSync(super.get("ssm.tempdir"))
         }
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.0.31`);
+        super.set("ssm.version", `v1.0.32`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)

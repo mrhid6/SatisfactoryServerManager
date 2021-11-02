@@ -3,10 +3,31 @@ var router = express.Router();
 
 const ServerApp = require("../../server/server_app");
 const AgentHandler = require("../../server/server_agent_handler");
+const Config = require("../../server/server_config");
+
+const path = require("path");
+const multer = require("multer");
 
 const middleWare = [
     ServerApp.checkLoggedInAPIMiddleWare
 ]
+
+//set Storage Engine
+const TempStorage = multer.diskStorage({
+    destination: path.resolve(Config.get("ssm.tempdir")),
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+
+const GameSaveUpload = multer({
+    storage: TempStorage,
+    limits: {
+        fileSize: (200 * 1024 * 1024 * 1024) //give no. of bytes
+    }
+}).single('savefile');
+
+
 
 
 
@@ -172,6 +193,33 @@ router.post("/modaction", middleWare, function (req, res, next) {
         });
     })
 })
+
+
+router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
+    const data = {
+        agentid: req.params.agentid
+    };
+
+    GameSaveUpload(req, res, (err) => {
+        if (err) {
+            res.json({
+                result: "error",
+                error: err.message
+            })
+        } else {
+            AgentHandler.API_UploadSaveFile(req.file, data).then(() => {
+                res.json({
+                    result: "success"
+                })
+            }).catch(err => {
+                res.json({
+                    result: "error",
+                    error: err.message
+                })
+            })
+        }
+    });
+});
 
 
 module.exports = router;

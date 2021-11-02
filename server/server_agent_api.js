@@ -1,5 +1,8 @@
 const axios = require('axios').default;
 const Config = require("./server_config");
+const fs = require("fs-extra");
+
+const FormData = require('form-data');
 
 class AgentAPI {
 
@@ -117,6 +120,28 @@ class AgentAPI {
                 reject(err);
             })
         })
+    }
+
+    UploadAgentSaveFile(Agent, file) {
+        return new Promise((resolve, reject) => {
+            const form = new FormData();
+            form.append('savefile', fs.createReadStream(file.path));
+
+            const request_config = {
+                headers: {
+                    "x-ssm-key": Config.get("ssm.agent.publickey"),
+                    ...form.getHeaders()
+                }
+            };
+
+            const url = Agent.getURL() + "gamesaves/upload";
+
+            axios.post(url, form, request_config).then(res => {
+                resolve(res)
+            }).catch(err => {
+                reject(err);
+            })
+        });
     }
 
 }

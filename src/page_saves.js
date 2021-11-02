@@ -1,6 +1,8 @@
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
+const PageCache = require("./cache");
+
 class Page_Settings {
     constructor() {
         this.Config = {};
@@ -9,10 +11,13 @@ class Page_Settings {
 
     init() {
         this.setupJqueryListeners();
-        this.getConfig();
-        this.getServerStatus();
+        this.SetupEventHandlers();
+    }
 
-        this.startPageInfoRefresh();
+    SetupEventHandlers() {
+        PageCache.on("setactiveagent", () => {
+            this.MainDisplayFunction();
+        })
     }
 
     setupJqueryListeners() {
@@ -72,12 +77,7 @@ class Page_Settings {
     }
 
     getConfig() {
-        API_Proxy.get("config").then(res => {
-            if (res.result == "success") {
-                this.Config = res.data;
-                this.MainDisplayFunction();
-            }
-        });
+        this.MainDisplayFunction();
     }
 
     getServerStatus() {
@@ -95,13 +95,6 @@ class Page_Settings {
     displaySaveTable() {
 
         const isDataTable = $.fn.dataTable.isDataTable("#saves-table")
-        const sfConfig = this.Config.satisfactory;
-
-        if (sfConfig.save.file == "") {
-            $("#current-save").text("No Save File Selected, Server will create a new world on start up.")
-        } else {
-            $("#current-save").text(sfConfig.save.file)
-        }
 
         API_Proxy.get("gamesaves").then(res => {
             console.log(res)
@@ -176,14 +169,22 @@ class Page_Settings {
     uploadSaveFile() {
         $("#btn-save-upload i").removeClass("fa-upload").addClass("fa-sync fa-spin")
         $("#btn-save-upload").prop("disabled", true);
-        $("#inp-save-file").prop("disabled", true);
+        //$("#inp-save-file").prop("disabled", true);
 
         const formData = new FormData($("#save-upload-form")[0]);
 
-        API_Proxy.upload("gamesaves/upload", formData).then(res => {
+        const Agent = PageCache.getActiveAgent()
+
+        if (Agent == null) {
+            toastr.error("Select A Server!");
+            return;
+        }
+
+        API_Proxy.upload("agent/gamesaves/upload/" + Agent.id, formData).then(res => {
             if (res.result == "success") {
                 toastr.success("Save has been uploaded!");
             } else {
+                console.log(res.error)
                 toastr.error("Save couldn't be uploaded!");
             }
 
@@ -193,12 +194,6 @@ class Page_Settings {
         })
 
 
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
     }
 }
 

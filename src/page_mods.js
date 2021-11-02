@@ -360,6 +360,7 @@ class Page_Mods {
             }
 
             this.getInstalledMods();
+            this.getSMLInfo();
 
         })
     }

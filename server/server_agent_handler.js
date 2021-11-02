@@ -428,6 +428,30 @@ class AgentHandler {
 
         })
     }
+
+    API_UploadSaveFile(fileData, data) {
+        return new Promise((resolve, reject) => {
+            console.log(data)
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.UploadAgentSaveFile(Agent, fileData).then(res => {
+                resolve(res)
+            }).catch(err => {
+                reject(err);
+            })
+
+        });
+    }
 }
 
 const agentHandler = new AgentHandler();

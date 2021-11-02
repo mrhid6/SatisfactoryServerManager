@@ -5,10 +5,29 @@ const CryptoJS = require("crypto-js");
 const Config = require("../server/server_config");
 const Cleanup = require("../server/server_cleanup");
 
+const path = require("path");
+const multer = require("multer");
+
 const AgentApp = require("../server/server_agent_app");
 const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/ms_agent/server_mod_handler");
 const ServerApp = require("../server/server_app");
+
+//set Storage Engine
+const SaveStorage = multer.diskStorage({
+    destination: path.resolve(Config.get("satisfactory.save.location")),
+    filename: function (req, file, cb) {
+        cb(null, file.originalname);
+    }
+})
+
+const GameSaveUpload = multer({
+    storage: SaveStorage,
+    limits: {
+        fileSize: (200 * 1024 * 1024 * 1024) //give no. of bytes
+    }
+}).single('savefile');
+
 
 router.get("/ping", function (req, res, next) {
     res.json({
@@ -241,8 +260,34 @@ router.post('/modaction/updatemod', checkHeaderKey, ServerApp.checkModsEnabledAP
     })
 });
 
+router.get('/gamesaves', checkHeaderKey, function (req, res, next) {
+    SFS_Handler.getSaves().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err
+        });
+    })
+});
 
-
+router.post('/gamesaves/upload', checkHeaderKey, function (req, res) {
+    GameSaveUpload(req, res, (err) => {
+        if (err) {
+            res.json({
+                result: "error",
+                error: err.message
+            })
+        } else {
+            res.json({
+                result: "success"
+            })
+        }
+    });
+});
 
 
 
