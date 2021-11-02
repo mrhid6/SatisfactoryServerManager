@@ -9,7 +9,9 @@ class PageCache extends EventEmitter {
 
         this.AgentList = [];
         this.ActiveAgent = null;
-
+        this.SMLVersions = [];
+        this.FicsitMods = [];
+        this.InstalledMods = [];
 
     }
 
@@ -22,8 +24,6 @@ class PageCache extends EventEmitter {
     getAgentsList() {
         return this.AgentList;
     }
-
-
 
     setActiveAgent(id) {
         if (id == null) {
@@ -56,6 +56,15 @@ class PageCache extends EventEmitter {
 
     getFicsitMods() {
         return this.FicsitMods;
+    }
+
+    getAgentInstalledMods() {
+        return this.InstalledMods;
+    }
+
+    SetAgentInstalledMods(mods) {
+        this.InstalledMods = mods;
+        this.emit("setinstalledmods");
     }
 }
 

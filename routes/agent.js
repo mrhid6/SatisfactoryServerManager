@@ -149,7 +149,7 @@ router.get('/modinfo/smlinfo', checkHeaderKey, ServerApp.checkModsEnabledAPIMidd
     })
 });
 
-router.get('/modinfo/modsinstalled', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
+router.get('/modinfo/installed', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
 
     SSM_Mod_Handler.getModsInstalled().then(result => {
         res.json({

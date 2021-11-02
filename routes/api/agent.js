@@ -139,5 +139,39 @@ router.post("/serveraction", middleWare, function (req, res, next) {
     })
 })
 
+router.post("/modinfo/:info", middleWare, function (req, res, next) {
+    const RequestedInfo = req.params.info;
+    const post = req.body;
+    post.info = RequestedInfo;
+
+    AgentHandler.API_GetModInfo(post).then(data => {
+        res.json({
+            result: "success",
+            data
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
+router.post("/modaction", middleWare, function (req, res, next) {
+    const post = req.body;
+
+    AgentHandler.API_ExecuteModAction(post).then(data => {
+        res.json({
+            result: "success",
+            data
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
 
 module.exports = router;

@@ -374,6 +374,60 @@ class AgentHandler {
 
         })
     }
+
+    API_GetModInfo(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestGET(Agent, `modinfo/${data.info}`).then(res => {
+                if (res.data.result == "success") {
+                    resolve();
+                } else {
+                    reject(new Error(res.data.error));
+                }
+            }).catch(err => {
+                reject(err);
+            })
+
+        })
+    }
+
+    API_ExecuteModAction(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestPOST(Agent, `modaction/${data.action}`, data).then(res => {
+                if (res.data.result == "success") {
+                    resolve();
+                } else {
+                    reject(new Error(res.data.error));
+                }
+            }).catch(err => {
+                reject(err);
+            })
+
+        })
+    }
 }
 
 const agentHandler = new AgentHandler();
