@@ -125,5 +125,19 @@ router.post("/serveractions/installsf", middleWare, function (req, res, next) {
     })
 })
 
+router.post("/serveraction", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_ExecuteServerAction(post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
 
 module.exports = router;

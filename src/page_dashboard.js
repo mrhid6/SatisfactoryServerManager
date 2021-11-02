@@ -29,7 +29,10 @@ class Page_Dashboard {
     }
 
     setupJqueryListeners() {
-
+        $("#server-action-start").on("click", e => {
+            e.preventDefault();
+            this.ServerAction_Start();
+        })
     }
 
     getModCount() {
@@ -70,10 +73,10 @@ class Page_Dashboard {
         const Agent = PageCache.getActiveAgent();
 
         if (Agent != null && Agent.running === true && Agent.active === true) {
-            const serverState = Agent.info.sfStatus;
+            const serverState = Agent.info.serverstate;
             if (serverState != null) {
 
-                console.log()
+                console.log(serverState)
 
                 if (serverState.status == "notinstalled") {
                     $StartButton.parent().attr("title", "SF Server Not Installed");
@@ -102,6 +105,55 @@ class Page_Dashboard {
             $StartButton.parent().tooltip("_fixTitle");
             $StopButton.parent().tooltip("_fixTitle");
             $KillButton.parent().tooltip("_fixTitle");
+        }
+    }
+
+    ExecuteServerAction(postData) {
+        API_Proxy.postData("agent/serveraction", postData).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Action Completed!")
+            } else {
+                toastr.error("Failed to Execute Server Action!");
+            }
+        })
+    }
+
+    ServerAction_Start() {
+        const Agent = PageCache.getActiveAgent();
+
+        if (Agent != null) {
+            const postData = {
+                agentid: Agent.id,
+                action: "start"
+            }
+
+            this.ExecuteServerAction(postData);
+        }
+    }
+
+    ServerAction_Stop() {
+        const Agent = PageCache.getActiveAgent();
+
+        if (Agent != null) {
+            const postData = {
+                agentid: Agent.id,
+                action: "stop"
+            }
+
+            this.ExecuteServerAction(postData);
+        }
+    }
+
+    ServerAction_Kill() {
+        const Agent = PageCache.getActiveAgent();
+
+        if (Agent != null) {
+            const postData = {
+                agentid: Agent.id,
+                action: "kill"
+            }
+
+            this.ExecuteServerAction(postData);
         }
     }
 

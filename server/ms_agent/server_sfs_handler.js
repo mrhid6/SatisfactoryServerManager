@@ -640,23 +640,6 @@ class SF_Server_Handler {
 
         });
     }
-
-    validSessionName(sessionName) {
-        logger.info("[SFS_Handler] [validSessionName] - sessionName = " + sessionName);
-        return sessionName.length > 3;
-    }
-
-    updateNewSession(sessionName) {
-        return new Promise((resolve, reject) => {
-            if (this.validSessionName(sessionName)) {
-                Config.set("satisfactory.save.file", "");
-                Config.set("satisfactory.save.session", sessionName);
-                resolve();
-                return;
-            }
-            reject("Invalid session name");
-        });
-    }
 }
 
 function saveFileFilter(file, stats) {

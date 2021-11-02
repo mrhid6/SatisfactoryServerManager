@@ -1,5 +1,6 @@
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
+const PageCache = require("./cache");
 
 class Page_Mods {
     constructor() {
@@ -15,13 +16,10 @@ class Page_Mods {
 
     init() {
         this.setupJqueryListeners();
-        this.getServerStatus();
         this.getSMLInfo();
         this.getModCount();
         this.getFicsitSMLVersion();
         this.getFicsitModList();
-
-        this.startPageInfoRefresh();
 
         this.waitTilLoaded().then(() => {
             this.displayModsTable();
@@ -107,15 +105,6 @@ class Page_Mods {
 
             const $self = $(e.currentTarget);
             this.installModVersion($self);
-        })
-    }
-
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
         })
     }
 
@@ -428,13 +417,6 @@ class Page_Mods {
                 });
             }
         })
-    }
-
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getServerStatus();
-        }, 5 * 1000);
     }
 }
 
