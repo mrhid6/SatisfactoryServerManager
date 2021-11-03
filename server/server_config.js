@@ -76,7 +76,7 @@ class ServerConfig extends iConfig {
         }
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.0.34`);
+        super.set("ssm.version", `v1.0.35`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
