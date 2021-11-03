@@ -26,7 +26,7 @@ class Page_Servers {
             }
         })
 
-        $("#btn-createserver").on("click", e=>{
+        $("#btn-createserver").on("click", e => {
             e.preventDefault()
             this.CreateNewServer();
         })
@@ -125,12 +125,12 @@ class Page_Servers {
         })
     }
 
-    CreateNewServer(){
-        API_Proxy.post("agent", "create").then(res=>{
-            if(res.data.result == "success"){
+    CreateNewServer() {
+        API_Proxy.post("agent", "create").then(res => {
+            if (res.result == "success") {
                 this.getAgentList()
                 toastr.success("Server created!")
-            }else{
+            } else {
                 toastr.error("Failed to create server")
             }
         })

@@ -24,7 +24,14 @@ class Page_Dashboard {
         PageCache.on("setactiveagent", () => {
             logger.info("Set Active Agent!")
             this.ToggleActionsButtons();
+            this.SetServerStatus();
+            this.getInstalledMods();
         })
+
+        PageCache.on("setinstalledmods", () => {
+            $(".installed-mods").text(PageCache.getAgentInstalledMods().length)
+            this.getSMLInfo();
+        });
     }
 
     setupJqueryListeners() {
@@ -53,8 +60,71 @@ class Page_Dashboard {
         el.text(`${runningCount} / ${maxCount}`)
     }
 
+    getSMLInfo() {
+
+        const Agent = PageCache.getActiveAgent()
+        const postData = {
+            agentid: Agent.id
+        }
+
+        API_Proxy.postData("agent/modinfo/smlinfo", postData).then(res => {
+            const el = $("#mod-status");
+            if (res.result == "success") {
+                if (res.data.state == "not_installed") {
+                    el.text("Not Installed")
+                } else {
+                    el.text("Installed")
+                }
+            } else {
+                el.text("Unknown")
+            }
+        });
+    }
+
+    getInstalledMods() {
+        const Agent = PageCache.getActiveAgent()
+        if (Agent != null && Agent.running && Agent.active) {
+            const postData = {
+                agentid: Agent.id
+            }
+            API_Proxy.postData("agent/modinfo/installed", postData).then(res => {
+                if (res.result == "success") {
+                    PageCache.SetAgentInstalledMods(res.data);
+                } else {
+                    PageCache.SetAgentInstalledMods([]);
+                }
+            });
+        } else {
+            $("#mod-status").text("Select An Active Server")
+        }
+    }
+
+    SetServerStatus() {
+        const Agent = PageCache.getActiveAgent();
+        const $el = $("#server-status");
+
+        if (Agent != null && Agent.running && Agent.active) {
+            const serverState = Agent.info.serverstate;
+            if (serverState != null) {
+                if (serverState.status == "notinstalled") {
+                    $el.text("Not Installed")
+                } else if (serverState.status == "stopped") {
+                    $el.text("Stopped")
+                } else if (serverState.status == "running") {
+                    $el.text("Running")
+                }
+
+                $("#cpu-usage div").width((serverState.pcpu).toDecimal() + "%")
+                $("#ram-usage div").width((serverState.pmem).toDecimal() + "%")
+
+                return;
+
+            }
+        }
+        $el.text("Select An Active Server")
+    }
+
     ToggleActionsButtons() {
-        console.log(PageCache.getActiveAgent())
 
         const $StartButton = $("#server-action-start");
         const $StopButton = $("#server-action-stop");
@@ -73,8 +143,6 @@ class Page_Dashboard {
         if (Agent != null && Agent.running === true && Agent.active === true) {
             const serverState = Agent.info.serverstate;
             if (serverState != null) {
-
-                console.log(serverState)
 
                 if (serverState.status == "notinstalled") {
                     $StartButton.parent().attr("title", "SF Server Not Installed");
