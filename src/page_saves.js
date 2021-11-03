@@ -123,9 +123,6 @@ class Page_Settings {
                         .html("<i class='fas fa-trash'></i> Remove Save")
                         .attr("data-save", save.savename);
 
-                    if (save.savename == sfConfig.save.file) {
-                        useSaveEl.prop("disabled", true).text("Active Save");
-                    }
                     const useSaveStr = useSaveEl.prop('outerHTML')
 
                     const saveOptions = save.savebody.split("?");
