@@ -61,6 +61,8 @@ class PageHandler {
                 Page_Servers.init();
                 break;
         }
+
+        this.startPageInfoRefresh();
     }
 
     setupJqueryHandler() {
@@ -95,10 +97,6 @@ class PageHandler {
                 PageCache.setAgentsList(res.data);
 
                 this.populateServerSelection();
-
-                //$("#cpu-usage div").width((res.data.pcpu).toDecimal() + "%")
-                //$("#ram-usage div").width((res.data.pmem).toDecimal() + "%")
-
             }
         })
     }
@@ -166,6 +164,12 @@ class PageHandler {
                 }
             })
         })
+    }
+
+    startPageInfoRefresh() {
+        setInterval(() => {
+            this.getAgentsList()
+        }, 5 * 1000);
     }
 }
 

@@ -122,7 +122,7 @@ router.post('/installsf', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });

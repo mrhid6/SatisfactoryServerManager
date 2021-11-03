@@ -1,6 +1,7 @@
 const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
+const PageCache = require("./cache");
 
 class Page_Servers {
     constructor() {}
@@ -8,9 +9,7 @@ class Page_Servers {
     init() {
 
         this.setupJqueryListeners();
-        this.getAgentList();
-        this.startPageInfoRefresh();
-
+        this.SetupEventHandlers();
     }
 
     setupJqueryListeners() {
@@ -32,10 +31,8 @@ class Page_Servers {
         })
     }
 
-    getAgentList() {
-        API_Proxy.get("agent", "agents").then(res => {
-            this._Agents = res.data;
-            console.log(res.data)
+    SetupEventHandlers() {
+        PageCache.on("setagentslist", () => {
             this.DisplayAgentsTable();
         })
     }
@@ -43,7 +40,7 @@ class Page_Servers {
     DisplayAgentsTable() {
         const isDataTable = $.fn.dataTable.isDataTable("#agents-table")
         const tableData = [];
-        this._Agents.forEach(agent => {
+        PageCache.getAgentsList().forEach(agent => {
             const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
             const $btn_info = $("<button/>")
                 .addClass("btn btn-light")
@@ -112,34 +109,23 @@ class Page_Servers {
     StartDockerAgent(id) {
         API_Proxy.postData("agent/start", {
             id: id
-        }).then(() => {
-            this.getAgentList();
-        })
+        }).then(() => {})
     }
 
     StopDockerAgent(id) {
         API_Proxy.postData("agent/stop", {
             id: id
-        }).then(() => {
-            this.getAgentList();
-        })
+        }).then(() => {})
     }
 
     CreateNewServer() {
         API_Proxy.post("agent", "create").then(res => {
             if (res.result == "success") {
-                this.getAgentList()
                 toastr.success("Server created!")
             } else {
                 toastr.error("Failed to create server")
             }
         })
-    }
-
-    startPageInfoRefresh() {
-        setInterval(() => {
-            this.getAgentList()
-        }, 5 * 1000);
     }
 
 }
