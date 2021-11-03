@@ -127,6 +127,8 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
     fi
 fi
 
+useradd -m ssm -s /bin/bash >/dev/null 2>&1
+
 if [ $ISDOCKER -eq 0 ]; then
     echo "Installing Docker"
     wget -q https://get.docker.com/ -O - | sh >/dev/null 2>&1
@@ -172,10 +174,8 @@ if [ ${NOSERVICE} -eq 0 ]; then
     fi
 fi
 
-useradd -m ssm -s /bin/bash 2>&1 >/dev/null
-
 echo "* Downloading SSM"
-rm -r ${INSTALL_DIR}/* 2>&1 >/dev/null
+rm -r ${INSTALL_DIR}/* >/dev/null 2>&1
 
 wget -q "${SSM_URL}" -O "${INSTALL_DIR}/SSM.tar.gz"
 tar xzf "${INSTALL_DIR}/SSM.tar.gz" -C "${INSTALL_DIR}"
