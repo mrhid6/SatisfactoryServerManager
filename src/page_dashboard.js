@@ -12,7 +12,6 @@ class Page_Dashboard {
     init() {
         this.setupEventHandlers();
         this.setupJqueryListeners();
-        this.getModCount();
 
     }
 
@@ -42,17 +41,6 @@ class Page_Dashboard {
         $("#server-action-kill").on("click", e => {
             e.preventDefault();
             this.ServerAction_Kill();
-        })
-    }
-
-    getModCount() {
-        API_Proxy.get("mods", "modsinstalled").then(res => {
-            const el = $("#mod-count");
-            if (res.result == "success") {
-                el.text(res.data.length)
-            } else {
-                el.text(res.error)
-            }
         })
     }
 
