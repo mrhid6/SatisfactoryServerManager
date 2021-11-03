@@ -69,7 +69,7 @@ class AgentAPI {
 
                 resolve();
             }).catch(err => {
-                reject();
+                reject(err);
             })
         });
     }

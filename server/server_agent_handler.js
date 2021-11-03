@@ -202,7 +202,7 @@ class AgentHandler {
                         resolve(TempAgent);
                         clearInterval(interval);
                     }
-                })
+                }).catch(err => {})
             }, 5000)
         });
     }
@@ -224,6 +224,8 @@ class AgentHandler {
                 return this.CheckAgentInfo()
             }).then(() => {
                 resolve();
+            }).catch(err => {
+                reject(err);
             })
         });
     }
@@ -242,6 +244,8 @@ class AgentHandler {
                     this._AGENTS[i].setInfo(active);
                 }
                 resolve();
+            }).catch(err => {
+                reject(err);
             })
         })
     }
@@ -308,6 +312,8 @@ class AgentHandler {
                 }
 
                 resolve(ResAgents);
+            }).catch(err => {
+                reject(err);
             })
         })
     }
