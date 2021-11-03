@@ -96,6 +96,10 @@ function GetLocalStorage(Key, defaultReturn) {
     const LSdata = localStorage.getItem(Key);
     const data = JSON.parse(LSdata);
 
+    if (data == null) {
+        return defaultReturn;
+    }
+
     var date = new Date();
     if (date.getTime() > data.expiry) {
         RemoveLocalStorage(Key);
