@@ -237,5 +237,19 @@ router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
     });
 });
 
+router.post('/gamesaves/delete', middleWare, function (req, res) {
+
+    AgentHandler.API_DeleteSaveFile(req.body).then(() => {
+        res.json({
+            result: "success"
+        })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+});
+
 
 module.exports = router;

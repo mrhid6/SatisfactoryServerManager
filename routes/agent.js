@@ -76,7 +76,7 @@ router.post('/config/ssmsettings', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -92,7 +92,7 @@ router.post('/config/sfsettings', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -108,7 +108,7 @@ router.post('/config/modsettings', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -148,7 +148,7 @@ router.post('/serveraction', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -163,7 +163,7 @@ router.get('/modinfo/smlinfo', checkHeaderKey, ServerApp.checkModsEnabledAPIMidd
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -178,7 +178,7 @@ router.get('/modinfo/installed', checkHeaderKey, ServerApp.checkModsEnabledAPIMi
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -202,7 +202,7 @@ router.post('/modaction/installsml', checkHeaderKey, ServerApp.checkModsEnabledA
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 
@@ -221,7 +221,7 @@ router.post('/modaction/installmod', checkHeaderKey, ServerApp.checkModsEnabledA
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -238,7 +238,7 @@ router.post('/modaction/uninstallmod', checkHeaderKey, ServerApp.checkModsEnable
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -255,7 +255,7 @@ router.post('/modaction/updatemod', checkHeaderKey, ServerApp.checkModsEnabledAP
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -269,7 +269,7 @@ router.get('/gamesaves', checkHeaderKey, function (req, res, next) {
     }).catch(err => {
         res.json({
             result: "error",
-            error: err
+            error: err.message
         });
     })
 });
@@ -289,7 +289,21 @@ router.post('/gamesaves/upload', checkHeaderKey, function (req, res) {
     });
 });
 
+router.post('/gamesaves/delete', checkHeaderKey, function (req, res) {
 
+    const post = req.body
+
+    AgentApp.API_DeleteSave(post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+});
 
 
 

@@ -1,4 +1,57 @@
-<div class="alert alert-dismissible alert-info">
-  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-  <strong>Heads up!</strong> This page has not yet been implemented!
+<div class="page-container" data-page="server" data-agentid="{{{AGENTID}}}">
+    <h2 class="mb-3">Server - <span id="server-name">SSMAgent{{{AGENTID}}}</span></h2>
+    <div class="alert alert-dismissible alert-info">
+        <strong>Heads up!</strong> This page has not fully implemented!
+    </div>
+
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <h5>Server Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row settings-row">
+                <div class="col-12 col-md-4">
+                    <b class="settings-prop">Server Host:</b>
+                    <span class="settings-info">
+                        This is your Hostname to connect to the Server in game.</b>
+                    </span>
+                </div>
+                <div class="col-12 col-md-8">
+                    <b id="agent-publicip">1.2.3.4</b>
+                </div>
+            </div>
+            <div class="row settings-row">
+                <div class="col-12 col-md-4">
+                    <b class="settings-prop">Connection Port:</b>
+                    <span class="settings-info">
+                        This is the port number of the SF server.</b>
+                    </span>
+                </div>
+                <div class="col-12 col-md-8">
+                    <b id="agent-connectionport">15778</b>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-danger mb-3">
+        <div class="card-header">
+            <h5>Danger Area!</h5>
+        </div>
+        <div class="card-body">
+            <div class="row settings-row">
+                <div class="col-12 col-md-4">
+                    <b class="settings-prop">Delete Server:</b>
+                    <span class="settings-info">
+                        Delete this server instance <b>( Deletes All Data )</b>
+                    </span>
+                </div>
+                <div class="col-12 col-md-8">
+                    <button class="btn btn-danger" id="server-dangerarea-delete"><i class="fas fa-trash"></i>
+                        Delete Server</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>

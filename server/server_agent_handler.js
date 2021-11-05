@@ -497,6 +497,28 @@ class AgentHandler {
             })
         })
     }
+
+    API_DeleteSaveFile(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestPOST(Agent, "gamesaves/delete", data).then(res => {
+                resolve(res.data)
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
 }
 
 const agentHandler = new AgentHandler();

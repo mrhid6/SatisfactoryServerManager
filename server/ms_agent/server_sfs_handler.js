@@ -621,6 +621,30 @@ class SF_Server_Handler {
         })
     }
 
+    deleteSaveFile(savefile) {
+        return new Promise((resolve, reject) => {
+            const SaveFile = path.resolve(path.join(Config.get("satisfactory.save.location"), savefile + ".sav"))
+
+            if (fs.existsSync(SaveFile) == false) {
+                logger.error("[SFS_Handler] - Remove Save Error: Save File Doesn't Exist!")
+                reject(new Error("Save File Doesn't Exist!"))
+                return;
+            }
+
+
+            rimraf(SaveFile, ["unlink"], err => {
+                if (err) {
+                    logger.error("[SFS_Handler] - Remove Save Unknown Error")
+                    reject(err);
+                    return;
+                }
+                logger.info("[SFS_Handler] - Removed Save File");
+                resolve();
+
+            })
+        });
+    }
+
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
             const updatesfonstart = data.updatesfonstart == "true";

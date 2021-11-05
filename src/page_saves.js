@@ -59,33 +59,35 @@ class Page_Settings {
             Tools.modal_opened = false;
         })
 
-        $("body").on("click", "#confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            const action = $btnel.attr("data-action");
-            if (action == "new-session") {
-                this.serverAction_NewSession($("#inp_new_session_name").val());
-
-                $("#server-session-new .close").trigger("click");
-                Tools.modal_opened = false;
-            }
-        })
-
         $("#btn-save-upload").on("click", e => {
             e.preventDefault();
             this.uploadSaveFile();
+        })
+
+        $("body").on("click", ".remove-save-btn", e => {
+            e.preventDefault();
+            this.RemoveSave($(e.currentTarget));
+        })
+
+        $("body").on("click", "#confirm-action", e => {
+            e.preventDefault();
+            const $btn = $(e.currentTarget)
+            const Action = $btn.attr("data-action")
+            if (Action == "remove-save") {
+                this.RemoveSaveConfirmed($btn);
+            }
+        })
+
+        $("body").on("click", "#cancel-action", e => {
+            e.preventDefault();
+            const $btn = $(e.currentTarget)
+
+            $("#server-settings-confirm").find(".close").trigger("click")
         })
     }
 
     getConfig() {
         this.MainDisplayFunction();
-    }
-
-    getServerStatus() {
-        API_Proxy.get("info", "serverstatus").then(res => {
-            if (res.result == "success") {
-                this.ServerState = res.data;
-            }
-        })
     }
 
     MainDisplayFunction() {
@@ -114,16 +116,18 @@ class Page_Settings {
                 res.data.forEach(save => {
                     if (save.result == "failed") return;
 
-                    const $btn_info = $("<button/>")
-                        .addClass("btn btn-light btn-block ")
-                        .html("<i class='fas fa-search'></i>");
-
-                    let useSaveEl = $("<button/>")
-                        .addClass("btn btn-danger btn-block remove-save-btn")
-                        .html("<i class='fas fa-trash'></i> Remove Save")
+                    let deleteSaveEl = $("<button/>")
+                        .addClass("btn btn-danger float-right remove-save-btn")
+                        .html("<i class='fas fa-trash'></i>")
                         .attr("data-save", save.savename);
 
-                    const useSaveStr = useSaveEl.prop('outerHTML')
+                    let downloadSaveEl = $("<button/>")
+                        .addClass("btn btn-primary float-left remove-save-btn")
+                        .html("<i class='fas fa-download'></i>")
+                        .attr("data-save", save.savename);
+
+                    const downloadSaveStr = downloadSaveEl.prop('outerHTML')
+                    const deleteSaveStr = deleteSaveEl.prop('outerHTML')
 
                     const saveOptions = save.savebody.split("?");
                     let saveSessionName = "Unknown";
@@ -141,7 +145,7 @@ class Page_Settings {
                         saveSessionName.trunc(25),
                         save.savename.trunc(40),
                         saveDate(save.last_modified),
-                        useSaveStr
+                        downloadSaveStr + deleteSaveStr
                     ])
                 })
 
@@ -198,6 +202,33 @@ class Page_Settings {
         })
 
 
+    }
+
+    RemoveSave(btn) {
+        const SaveFile = btn.attr("data-save");
+
+        Tools.openModal("/public/modals", "server-settings-confirm", $modalEl => {
+            $modalEl.find("#confirm-action")
+                .attr("data-action", "remove-save")
+                .attr("data-save", SaveFile);
+        })
+    }
+
+    RemoveSaveConfirmed(btn) {
+        const SaveFile = btn.attr("data-save");
+
+        const Agent = PageCache.getActiveAgent()
+
+        const postData = {
+            agentid: Agent.id,
+            savefile: SaveFile
+        }
+
+        API_Proxy.postData("agent/gamesaves/delete", postData).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err)
+        })
     }
 }
 

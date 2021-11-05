@@ -8,6 +8,7 @@ const Page_Logs = require("./page_logs");
 const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 const Page_Servers = require("./page_servers");
+const Page_Server = require("./page_server");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -36,8 +37,7 @@ class PageHandler {
 
         this.setupJqueryHandler();
         this.getSSMVersion();
-        this.getAgentsList();
-        this.startLoggedInCheck()
+
 
         this.page = $(".page-container").attr("data-page");
 
@@ -60,8 +60,13 @@ class PageHandler {
             case "servers":
                 Page_Servers.init();
                 break;
+            case "server":
+                Page_Server.init();
+                break;
         }
 
+        this.getAgentsList();
+        this.startLoggedInCheck()
         this.startPageInfoRefresh();
     }
 

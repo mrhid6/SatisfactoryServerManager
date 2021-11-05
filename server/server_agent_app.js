@@ -1,8 +1,15 @@
 const Config = require("./server_config");
+const logger = require("./server_logger");
 
 const SFS_Handler = require("./ms_agent/server_sfs_handler");
 const SSM_Mod_Handler = require("./ms_agent/server_mod_handler");
+const SSM_Log_Handler = require("./server_log_handler");
 const GameConfig = require("./ms_agent/server_gameconfig");
+
+const path = require("path");
+const fs = require("fs-extra")
+
+const rimraf = require("rimraf")
 
 class AgentApp {
     constructor() {}
@@ -59,11 +66,45 @@ class AgentApp {
 
             SFS_Handler.getServerStatus().then(status => {
                 resData.serverstate = status;
+                return this.GetUserCount()
+            }).then(usercount => {
+                resData.usercount = usercount;
                 resolve(resData)
             })
 
         });
     }
+
+    GetUserCount() {
+        return new Promise((resolve, reject) => {
+            SSM_Log_Handler.getSFServerLog().then(logRows => {
+
+                const FilteredJoinLogRows = logRows.filter(row => row.includes("AddClientConnection: Added client connection:"));
+                const FilteredLeaveLogRows = logRows.filter(row => row.includes("UNetConnection::Close: [UNetConnection]"));
+
+                const count = FilteredJoinLogRows.length - FilteredLeaveLogRows.length;
+                if (count < 0) {
+                    resolve(0)
+                } else {
+                    resolve(count);
+                }
+            }).catch(err => {
+                resolve(0)
+            })
+        })
+    }
+
+    API_DeleteSave(data) {
+        return new Promise((resolve, reject) => {
+            SFS_Handler.deleteSaveFile(data.savefile).then(() => {
+                resolve()
+            }).catch(err => {
+                reject(err);
+            })
+        })
+    }
+
+
 }
 
 const agentApp = new AgentApp();
