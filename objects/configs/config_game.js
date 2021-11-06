@@ -25,9 +25,9 @@ class ObjGameConfig extends iConfig {
     }
 
     setDefaults() {
-        super.get("/Script/Engine.GameNetworkManager.TotalNetBandwidth", 104857600);
-        super.get("/Script/Engine.GameNetworkManager.MaxDynamicBandwidth", 104857600);
-        super.get("/Script/Engine.GameNetworkManager.MinDynamicBandwidth", 104857600);
+        super.set("/Script/Engine.GameNetworkManager.TotalNetBandwidth", 104857600);
+        super.set("/Script/Engine.GameNetworkManager.MaxDynamicBandwidth", 104857600);
+        super.set("/Script/Engine.GameNetworkManager.MinDynamicBandwidth", 104857600);
 
         super.get("/Script/Engine.GameSession.MaxPlayers", 20);
     }
