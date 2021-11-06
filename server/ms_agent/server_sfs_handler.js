@@ -289,9 +289,9 @@ class SF_Server_Handler {
 
     getStartupPortConfig() {
         return {
-            ServerQueryPort: (15777 + Config.get("ssm.agent.id")),
-            BeaconPort: (15000 + Config.get("ssm.agent.id")),
-            Port: (7777 + Config.get("ssm.agent.id"))
+            ServerQueryPort: (15776 + Config.get("ssm.agent.id")),
+            BeaconPort: (14999 + Config.get("ssm.agent.id")),
+            Port: (7776 + Config.get("ssm.agent.id"))
         }
     }
 
