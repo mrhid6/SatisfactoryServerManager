@@ -36,6 +36,7 @@ Configuration of SSM can be done in the settings page or by editing the Json fil
 ## Development:
 
 * Install nodejs (tested on v12.13.1)
+* Install Docker Desktop
 * Git clone this repo
 * Fetch git submodule `git submodule update --init`
 * Install Dependencies:

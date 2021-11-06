@@ -112,9 +112,9 @@ class AgentHandler {
         return {
             Name: "SSMAgent" + this._NextAgentId,
             AgentPort: (3000 + this._NextAgentId),
-            ServerQueryPort: (15777 + this._NextAgentId),
-            BeaconPort: (15000 + this._NextAgentId),
-            Port: (7777 + this._NextAgentId),
+            ServerQueryPort: (15776 + this._NextAgentId),
+            BeaconPort: (14999 + this._NextAgentId),
+            Port: (7776 + this._NextAgentId),
         }
     }
 
@@ -152,9 +152,7 @@ class AgentHandler {
             }
 
             ExposedPorts[`${ServerQueryPort}/udp`] = {}
-
             ExposedPorts[`${BeaconPort}/udp`] = {}
-
             ExposedPorts[`${Port}/udp`] = {}
 
             console.log(PortBindings)

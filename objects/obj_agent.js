@@ -57,7 +57,21 @@ class ObjectAgent {
         if (ports == null || ports.length == 0) {
             return 0;
         }
-        return (ports.find(p => p.PrivatePort == (port + this.getId()))).PublicPort;
+
+        const PortID = port + this.getId()
+
+
+        const resPort = ports.find(p => p.PrivatePort == PortID)
+
+        if (resPort == null) {
+            console.log(PortID)
+            return 0;
+        } else {
+            return resPort.PublicPort;
+        }
+
+
+
     }
 
     getURL() {
@@ -83,9 +97,9 @@ class ObjectAgent {
             name: this.getName(),
             ports: {
                 AgentPort: this.getPortByPrivatePort(3000),
-                ServerQueryPort: this.getPortByPrivatePortAgentId(15777),
-                BeaconPort: this.getPortByPrivatePortAgentId(15000),
-                ServerPort: this.getPortByPrivatePortAgentId(7777)
+                ServerQueryPort: this.getPortByPrivatePortAgentId(15776),
+                BeaconPort: this.getPortByPrivatePortAgentId(14999),
+                ServerPort: this.getPortByPrivatePortAgentId(7776)
             },
             info: this.getInfo()
         }

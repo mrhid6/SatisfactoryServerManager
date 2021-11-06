@@ -117,10 +117,13 @@ class Page_Dashboard {
                 $("#cpu-usage div").width((serverState.pcpu).toDecimal() + "%")
                 $("#ram-usage div").width((serverState.pmem).toDecimal() + "%")
 
+                $(".user-count").text(Agent.info.usercount);
                 return;
-
             }
+
+
         }
+        $(".user-count").text(0);
         $el.text("Select An Active Server")
     }
 
