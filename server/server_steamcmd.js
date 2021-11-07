@@ -15,7 +15,8 @@ const pty = require("node-pty");
 const vdf = require('vdf')
 
 const {
-    SteamCMDError
+    SteamCMDError,
+    EXIT_CODES
 } = require("../objects/errors/error_steamcmdrun");
 
 const {
@@ -156,8 +157,8 @@ class ServerSteamCMD {
 
             const exitCode = await exitPromise;
 
-            if (exitCode !== SteamCMDError.EXIT_CODES.NO_ERROR &&
-                exitCode !== SteamCMDError.EXIT_CODES.INITIALIZED) {
+            if (exitCode !== EXIT_CODES.NO_ERROR &&
+                exitCode !== EXIT_CODES.INITIALIZED) {
                 throw new SteamCMDError(exitCode)
             }
 
