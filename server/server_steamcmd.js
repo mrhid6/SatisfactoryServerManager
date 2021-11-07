@@ -3,6 +3,8 @@ const path = require("path");
 const childProcess = require("child_process")
 const platform = process.platform;
 const axios = require('axios').default;
+const stripAnsi = require('@electerm/strip-ansi').default;
+
 const {
     file
 } = require("tmp-promise");
@@ -187,8 +189,6 @@ class ServerSteamCMD {
     getPtyDataIterator = async (pty) => {
 
         const datalines = [];
-        const stripAnsiModule = await import("strip-ansi")
-        const stripAnsi = stripAnsiModule.default;
 
         const {
             dispose: disposeDataListener

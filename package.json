@@ -6,6 +6,7 @@
     "author": "Mrhid6 <mrhid6@gmail.com>",
     "license": "MIT",
     "dependencies": {
+        "@electerm/strip-ansi": "^1.0.0",
         "@fortawesome/fontawesome-free": "^5.15.4",
         "archiver": "^5.3.0",
         "axios": "^0.24.0",
@@ -45,7 +46,6 @@
         "rimraf": "^3.0.2",
         "satisfactory-mod-manager-api": "^3.0.0",
         "simple-node-logger": "^21.8.12",
-        "strip-ansi": "^7.0.1",
         "systeminformation": "^5.9.8",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
