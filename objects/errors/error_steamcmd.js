@@ -6,6 +6,14 @@ class SteamCMDNotInstalled extends Error {
     }
 }
 
+class SteamCMDAlreadyInstalled extends Error {
+    constructor() {
+        super("Steam CMD Is Already Installed!")
+        this.name = "SteamCMDException"
+        this.stack = (new Error()).stack;
+    }
+}
+
 class SFFailedInstall extends Error {
     constructor() {
         super("Satisfactory Server Failed To Install")
@@ -22,6 +30,7 @@ class SFActionFailedRunning extends Error {
     }
 }
 
+module.exports.SteamCMDAlreadyInstalled = SteamCMDAlreadyInstalled;
 module.exports.SteamCMDNotInstalled = SteamCMDNotInstalled;
 module.exports.SFFailedInstall = SFFailedInstall;
 module.exports.SFActionFailedRunning = SFActionFailedRunning;

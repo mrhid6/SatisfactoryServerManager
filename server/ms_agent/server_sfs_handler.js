@@ -1,36 +1,32 @@
 const childProcess = require("child_process")
 const path = require("path");
-
 const si = require("systeminformation")
-
 const fs = require("fs-extra");
 const recursive = require("recursive-readdir");
-
 const br = require('binary-reader');
-const SteamCmd = require("steamcmd");
-
+const platform = process.platform;
+const chmodr = require("chmodr");
+const schedule = require('node-schedule');
+const rimraf = require("rimraf");
 
 const logger = require("../server_logger");
 const Cleanup = require("../server_cleanup");
 const Config = require("../server_config");
 
-const platform = process.platform;
-const chmodr = require("chmodr");
 
-const schedule = require('node-schedule');
-
-const rimraf = require("rimraf");
+const iSteamCMD = require("../server_steamcmd");
 
 const {
     SteamCMDNotInstalled,
     SFFailedInstall,
-    SFActionFailedRunning
+    SFActionFailedRunning,
+    SteamCMDAlreadyInstalled
 } = require("../../objects/errors/error_steamcmd");
 
 class SF_Server_Handler {
 
     constructor() {
-
+        this.SteamCMD = new iSteamCMD();
     }
 
     init() {
@@ -78,20 +74,27 @@ class SF_Server_Handler {
 
     InstallSteamCmd() {
         return new Promise((resolve, reject) => {
+
+            this.SteamCMD.init(Config.get("ssm.steamcmd"));
             logger.info("[SFS_Handler] - Checking SteamCmd binaries ..")
-            SteamCmd.download({
-                binDir: Config.get("ssm.steamcmd")
+
+            this.SteamCMD.download().then(() => {
+                logger.info("[SFS_Handler] - SteamCmd Downloaded!")
+                logger.info("[SFS_Handler] - SteamCmd Initializing!")
+                return this.SteamCMD.run()
             }).then(() => {
-                return this.FixSteamCmdPerms();
-            }).then(() => {
-                return SteamCmd.prep({
-                    binDir: Config.get("ssm.steamcmd")
-                })
-            }).then(() => {
+                logger.info("[SFS_Handler] - SteamCmd Initialised!")
                 logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
-                resolve()
+                this.FixSteamCmdPerms();
+            }).then(() => {
+                resolve();
             }).catch(err => {
-                reject(err);
+                if (err instanceof SteamCMDAlreadyInstalled) {
+                    logger.info("[SFS_Handler] - Installed/Validated SteamCmd binaries")
+                    resolve()
+                } else {
+                    reject(err);
+                }
             })
         });
     }
@@ -176,9 +179,7 @@ class SF_Server_Handler {
                 return;
             }
 
-            SteamCmd.updateApp(1690800, installPath, {
-                binDir: Config.get("ssm.steamcmd")
-            }).then(() => {
+            this.SteamCMD.updateApp(1690800, installPath).then(() => {
                 this.isGameInstalled().then(installed => {
                     if (installed) {
                         this._getServerState();
