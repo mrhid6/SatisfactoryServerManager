@@ -144,7 +144,42 @@ class AgentAPI {
         });
     }
 
-}
+    DownloadAgentSaveFile(Agent, file) {
+        return new Promise((resolve, reject) => {
+            const outputFile = path.join(Config.get("ssm.tempdir"), `Agent${Agent.getId()}_${file}`);
+            const writer = fs.createWriteStream(outputFile);
 
+            const reqconfig = {
+                headers: {
+                    "x-ssm-key": Config.get("ssm.agent.publickey")
+                },
+                responseType: 'stream',
+            }
+
+            const url = Agent.getURL() + "gamesaves/download";
+            //console.log(url)
+
+            axios.post(url, {
+                savefile: file
+            }, reqconfig).then(res => {
+                res.data.pipe(writer)
+                let error = null;
+
+                writer.on("error", err => {
+                    error = err;
+                    writer.close();
+                    reject(err)
+                })
+
+                writer.on("close", err => {
+                    if (!error) {
+                        resolve(outputFile);
+                    }
+                })
+            })
+
+        });
+    }
+}
 const agentApi = new AgentAPI();
 module.exports = agentApi;

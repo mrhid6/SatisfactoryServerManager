@@ -517,6 +517,27 @@ class AgentHandler {
             })
         })
     }
+
+    API_DownloadSaveFile(data) {
+        return new Promise((resolve, reject) => {
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+            AgentAPI.DownloadAgentSaveFile(Agent, data.savefile).then(savefile => {
+                resolve(savefile)
+            }).catch(err => {
+                reject(err);
+            })
+        });
+    }
 }
 
 const agentHandler = new AgentHandler();

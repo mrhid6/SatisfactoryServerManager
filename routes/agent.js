@@ -7,6 +7,7 @@ const Cleanup = require("../server/server_cleanup");
 
 const path = require("path");
 const multer = require("multer");
+const fs = require("fs-extra");
 
 const AgentApp = require("../server/server_agent_app");
 const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
@@ -303,6 +304,19 @@ router.post('/gamesaves/delete', checkHeaderKey, function (req, res) {
             error: err.message
         });
     })
+});
+
+router.post('/gamesaves/download', checkHeaderKey, function (req, res) {
+
+    const post = req.body
+
+    const saveFile = path.join(Config.get("satisfactory.save.location"), post.savefile + ".sav")
+
+    if (fs.existsSync(saveFile)) {
+        res.download(saveFile);
+    } else {
+        res.status(404).send('Not found');
+    }
 });
 
 

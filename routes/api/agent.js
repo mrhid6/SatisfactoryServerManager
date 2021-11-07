@@ -251,5 +251,17 @@ router.post('/gamesaves/delete', middleWare, function (req, res) {
     })
 });
 
+router.post('/gamesaves/download', middleWare, function (req, res) {
+
+    AgentHandler.API_DownloadSaveFile(req.body).then(saveFile => {
+        res.download(savefile);
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+});
+
 
 module.exports = router;

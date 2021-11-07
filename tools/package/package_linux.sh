@@ -82,7 +82,7 @@ if [ ${COMPILEONLY} -eq 0 ]; then
         bash ./tools/package/package_linux.sh --version ${VERSION} --compile; \
         exit \$?
     "
-    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}" >/dev/null 2>&1
+    ${SSH_CMD} root@${LINUX_SERVER} "${sshargs}"
 
     ${SCP_CMD} root@${LINUX_SERVER}:/nodejs/build/SSM/release-builds/linux/* ${release_dir_linux}/.
 
