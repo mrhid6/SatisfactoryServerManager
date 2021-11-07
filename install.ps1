@@ -3,6 +3,7 @@ param(
     [bool]$update=$false,
     [bool]$force=$false,
 	[bool]$noservice=$false,
+	[bool]$nodocker=$false,
     [string]$installDir="C:\Program Files\SSM"
 )
 
@@ -60,15 +61,17 @@ if($SSM_Service -ne $null -and $isAdmin -eq $true){
 	$SSM_Service | Stop-Service -ErrorAction SilentlyContinue | out-null
 }
 
-write-host "* Installing Docker"
-Enable-WindowsOptionalFeature –Online -FeatureName Microsoft-Hyper-V –All -NoRestart |out-null
-Install-WindowsFeature RSAT-Hyper-V-Tools -IncludeAllSubFeature -Confirm:$false |out-null
-Uninstall-Package -Name docker -ProviderName DockerMSFTProvider -Confirm:$false |out-null
-Get-VM WinContainerHost | Set-VMProcessor -ExposeVirtualizationExtensions $true |out-null
-Install-Module DockerProvider -Confirm:$false -force |out-null
-Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview -Confirm:$false -force |out-null
-[Environment]::SetEnvironmentVariable(“LCOW_SUPPORTED”, “1”, “Machine”)
-Restart-Service docker
+if($nodocker -eq $false){
+    write-host "* Installing Docker"
+    Enable-WindowsOptionalFeature –Online -FeatureName Microsoft-Hyper-V –All -NoRestart |out-null
+    Install-WindowsFeature RSAT-Hyper-V-Tools -IncludeAllSubFeature -Confirm:$false |out-null
+    Uninstall-Package -Name docker -ProviderName DockerMSFTProvider -Confirm:$false |out-null
+    Get-VM WinContainerHost | Set-VMProcessor -ExposeVirtualizationExtensions $true |out-null
+    Install-Module DockerProvider -Confirm:$false -force |out-null
+    Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview -Confirm:$false -force |out-null
+    [Environment]::SetEnvironmentVariable(“LCOW_SUPPORTED”, “1”, “Machine”)
+    Restart-Service docker
+}
 
 write-host "* Downloading SSM"
 Remove-Item -Path "$($installDir)\*" -Recurse | out-null
