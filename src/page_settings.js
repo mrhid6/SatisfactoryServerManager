@@ -6,7 +6,6 @@ const PageCache = require("./cache");
 class Page_Settings {
     constructor() {
         this.Config = {};
-        this.ServerState = {};
     }
 
     init() {
@@ -26,9 +25,10 @@ class Page_Settings {
         $("#edit-ssm-settings").click(e => {
             e.preventDefault();
 
-            if (this.ServerState.status == "running") {
+            const Agent = PageCache.getActiveAgent();
+            if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
                 if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -51,7 +51,8 @@ class Page_Settings {
         $("#edit-mods-settings").on("click", e => {
             e.preventDefault();
 
-            if (this.ServerState.status == "running") {
+            const Agent = PageCache.getActiveAgent();
+            if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
@@ -76,7 +77,8 @@ class Page_Settings {
         $("#edit-sf-settings").on("click", e => {
             e.preventDefault();
 
-            if (this.ServerState.status == "running") {
+            const Agent = PageCache.getActiveAgent();
+            if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
                 if (Tools.modal_opened == true) return;
                 Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")

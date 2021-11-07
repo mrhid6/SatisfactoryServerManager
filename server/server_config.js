@@ -75,8 +75,10 @@ class ServerConfig extends iConfig {
             fs.ensureDirSync(super.get("ssm.tempdir"))
         }
 
+        super.set("ssm.backup.location", path.join(userDataPath, "backups"));
+
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.0.42`);
+        super.set("ssm.version", `v1.0.43`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
@@ -90,6 +92,10 @@ class ServerConfig extends iConfig {
         super.get("ssm.agent.setup", false)
         super.set("ssm.agent.isagent", true)
         super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
+
+        super.get("ssm.backup.interval", 1);
+        super.get("ssm.backup.keep", 5);
+        super.get("ssm.backup.nextbackup", 0);
 
         super.get("satisfactory.installed", false)
         super.get("satisfactory.updateonstart", false)

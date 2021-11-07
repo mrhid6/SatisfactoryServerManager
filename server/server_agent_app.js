@@ -5,6 +5,7 @@ const SFS_Handler = require("./ms_agent/server_sfs_handler");
 const SSM_Mod_Handler = require("./ms_agent/server_mod_handler");
 const SSM_Log_Handler = require("./server_log_handler");
 const GameConfig = require("./ms_agent/server_gameconfig");
+const SSM_BackupManager = require("./ms_agent/server_backup_manager");
 
 const path = require("path");
 const fs = require("fs-extra")
@@ -17,6 +18,7 @@ class AgentApp {
     init() {
         SFS_Handler.init().then(() => {
             SSM_Mod_Handler.init();
+            SSM_BackupManager.init();
         }).catch(err => {
             console.log(err);
         })
