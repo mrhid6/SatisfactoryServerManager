@@ -12,6 +12,7 @@ const extractZip = require("extract-zip");
 const tar = require("tar");
 
 const pty = require("node-pty");
+const vdf = require('vdf')
 
 const {
     SteamCMDError
@@ -128,6 +129,7 @@ class ServerSteamCMD {
     }
 
     run = async (commands = []) => {
+
         const allCommands = [
             '@ShutdownOnFailedCommand 1',
             '@NoPromptForPassword 1',
@@ -148,12 +150,20 @@ class ServerSteamCMD {
                 cwd: this.options.binDir
             })
 
-            const exitCode = await this.getPtyExitPromise(steamCmdPty);
+            const exitPromise = this.getPtyExitPromise(steamCmdPty);
+
+            const outputPromise = this.getPtyDataIterator(steamCmdPty)
+
+            const exitCode = await exitPromise;
 
             if (exitCode !== SteamCMDError.EXIT_CODES.NO_ERROR &&
                 exitCode !== SteamCMDError.EXIT_CODES.INITIALIZED) {
                 throw new SteamCMDError(exitCode)
             }
+
+            const output = await outputPromise;
+
+            return output;
 
         } finally {
             // Always cleanup the temp file
@@ -173,6 +183,40 @@ class ServerSteamCMD {
         })
     }
 
+    getPtyDataIterator = async (pty) => {
+
+        const datalines = [];
+        const stripAnsiModule = await import("strip-ansi")
+        const stripAnsi = stripAnsiModule.default;
+
+        const {
+            dispose: disposeDataListener
+        } = pty.onData(outputLine => {
+
+            const normalisedLine = outputLine
+                .replace(/\r\n/g, '\n')
+                .replace(/\r/, '')
+                .trim()
+            const line = `${stripAnsi(normalisedLine)}`
+
+            datalines.push(line)
+        })
+
+        const output = await new Promise(resolve => {
+            const {
+                dispose: disposeExitListener
+            } = pty.onExit(() => {
+
+                disposeExitListener()
+                disposeDataListener()
+
+                resolve(datalines.join(""))
+            })
+        })
+
+        return output;
+    }
+
     updateApp = async (appId, installDir) => {
         if (!path.isAbsolute(installDir)) {
             throw new TypeError('installDir must be an absolute path to update an app')
@@ -184,7 +228,27 @@ class ServerSteamCMD {
             `force_install_dir "${installDir}"`,
             `app_update ${appId}`
         ];
-        await this.run(commands);
+        return await this.run(commands);
+    }
+
+    getAppInfo = async (appId) => {
+        var commands = [
+            'app_info_update 1', // force data update
+            'app_info_print ' + appId,
+            'find e' // fill the buffer so info's not truncated on Windows
+        ]
+
+        const output = await this.run(commands);
+
+        var infoTextStart = output.indexOf('"' + appId + '"')
+        var infoTextEnd = output.indexOf('ConVars:')
+        var infoText = output.substr(infoTextStart, infoTextEnd - infoTextStart).replace("find e", "")
+
+        return vdf.parse(infoText)[appId]
+    }
+
+    isInstalled() {
+        return fs.existsSync(this.options.exePath);
     }
 }
 

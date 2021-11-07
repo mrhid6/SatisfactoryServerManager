@@ -72,6 +72,10 @@ class SF_Server_Handler {
         this.stopServer().catch(err => {})
     }
 
+    GetSteamCMD() {
+        return this.SteamCMD;
+    }
+
     InstallSteamCmd() {
         return new Promise((resolve, reject) => {
 

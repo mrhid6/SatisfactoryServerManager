@@ -45,12 +45,14 @@
         "rimraf": "^3.0.2",
         "satisfactory-mod-manager-api": "^3.0.0",
         "simple-node-logger": "^21.8.12",
+        "strip-ansi": "^7.0.1",
         "systeminformation": "^5.9.8",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
         "uglifyify": "^5.0.2",
-        "universal-analytics": "^0.4.20"
+        "universal-analytics": "^0.4.20",
+        "vdf": "^0.0.2"
     },
     "scripts": {
         "start": "node app.js",

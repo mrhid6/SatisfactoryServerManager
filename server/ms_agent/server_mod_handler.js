@@ -1,12 +1,11 @@
-const exec = require("child_process").exec
 const path = require("path");
 const schedule = require('node-schedule');
+const fs = require("fs-extra");
+const platform = process.platform;
 
 const Config = require("../server_config");
 const logger = require("../server_logger");
-const fs = require("fs-extra");
 
-const platform = process.platform;
 
 const {
     SatisfactoryInstall,
@@ -24,8 +23,7 @@ const {
     SMLAPINotReady
 } = require("../../objects/errors/error_sml");
 
-
-const SteamCmd = require("steamcmd");
+const SFS_Handler = require("./server_sfs_handler");
 
 class SSM_Mod_Handler {
     constructor() {
@@ -36,9 +34,8 @@ class SSM_Mod_Handler {
         logger.info("[Mod_Handler] [INIT] - Mod Handler Initialized");
 
         this.waitForSteamCmdInstall().then(() => {
-            SteamCmd.getAppInfo(1690800, {
-                binDir: Config.get("ssm.steamcmd")
-            }).then((data) => {
+            const steamCMD = SFS_Handler.GetSteamCMD();
+            steamCMD.getAppInfo(1690800).then((data) => {
                 const ServerVersion = data.depots.branches.public.buildid;
                 this.SML_API = new SatisfactoryInstall("Statisfactory Dedicated Server", ServerVersion, "public", Config.get("satisfactory.server_location"), "", "")
             });
@@ -52,13 +49,9 @@ class SSM_Mod_Handler {
         return new Promise((resolve, reject) => {
             let interval = setInterval(() => {
                 logger.debug("[Mod_Handler] - Waiting for SteamCMD Install..")
-                let steamcmdexe = ""
-                if (platform == "win32") {
-                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.exe")
-                } else {
-                    steamcmdexe = path.join(Config.get("ssm.steamcmd"), "steamcmd.sh")
-                }
-                if (fs.existsSync(steamcmdexe)) {
+                const steamCMD = SFS_Handler.GetSteamCMD();
+
+                if (steamCMD.isInstalled()) {
                     logger.debug("[Mod_Handler] - SteamCMD Install Completed!")
                     resolve();
                     clearInterval(interval);

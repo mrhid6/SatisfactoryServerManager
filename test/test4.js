@@ -15,12 +15,15 @@ Config.load().then(() => {
         return SteamCMD.run()
     }).then(() => {
         console.log("SteamCMD Initialised!")
-        //return SteamCMD.updateApp(1690800, Config.get("satisfactory.server_location"))
     }).then(() => {
         console.log("SteamCMD Installed SF Server!")
     }).catch(err => {
         if (!(err instanceof SteamCMDAlreadyInstalled)) {
             console.log(err);
         }
+    })
+
+    SteamCMD.getAppInfo(1690800).then(output => {
+        console.log(output)
     })
 })
