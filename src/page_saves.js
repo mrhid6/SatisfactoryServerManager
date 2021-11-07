@@ -69,6 +69,11 @@ class Page_Settings {
             this.RemoveSave($(e.currentTarget));
         })
 
+        $("body").on("click", ".download-save-btn", e => {
+            e.preventDefault();
+            this.DownloadSave($(e.currentTarget));
+        })
+
         $("body").on("click", "#confirm-action", e => {
             e.preventDefault();
             const $btn = $(e.currentTarget)
@@ -76,6 +81,13 @@ class Page_Settings {
             if (Action == "remove-save") {
                 this.RemoveSaveConfirmed($btn);
             }
+        })
+
+        $("body").on("click", "#cancel-action", e => {
+            e.preventDefault();
+            const $btn = $(e.currentTarget)
+
+            $("#server-settings-confirm").find(".close").trigger("click")
         })
 
         $("body").on("click", "#cancel-action", e => {
@@ -122,7 +134,7 @@ class Page_Settings {
                         .attr("data-save", save.savename);
 
                     let downloadSaveEl = $("<button/>")
-                        .addClass("btn btn-primary float-left remove-save-btn")
+                        .addClass("btn btn-primary float-left download-save-btn")
                         .html("<i class='fas fa-download'></i>")
                         .attr("data-save", save.savename);
 
@@ -225,6 +237,23 @@ class Page_Settings {
         }
 
         API_Proxy.postData("agent/gamesaves/delete", postData).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+
+    DownloadSave(btn) {
+        const SaveFile = btn.attr("data-save");
+
+        const Agent = PageCache.getActiveAgent()
+
+        const postData = {
+            agentid: Agent.id,
+            savefile: SaveFile
+        }
+
+        API_Proxy.download("agent/gamesaves/download", postData).then(res => {
             console.log(res);
         }).catch(err => {
             console.log(err)
