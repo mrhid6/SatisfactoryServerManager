@@ -51,13 +51,13 @@ class SteamCMDError extends Error {
     constructor(exitCode) {
         // Auto-generate the error message and send it to the super class.
         // noinspection JSCheckFunctionSignatures
-        super(this.getErrorMessage(exitCode))
+        super(SteamCMDError.getErrorMessage(exitCode))
 
         this.name = 'SteamCmdError'
         this.exitCode = exitCode
     }
 
-    getErrorMessage(exitCode) {
+    static getErrorMessage(exitCode) {
         switch (exitCode) {
             case SteamCMDError.EXIT_CODES.NO_ERROR:
                 return 'No error'
