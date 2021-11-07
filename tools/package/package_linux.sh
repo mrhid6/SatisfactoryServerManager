@@ -98,7 +98,7 @@ else
 
     printDots "* Copying Linux Executables" 30
 
-    find ${BASEDIR} -name "*.node" | grep -v "release-builds" >${release_dir_linux}/exe.list
+    find ${BASEDIR} -name "*.node" | grep -v "release-builds" | grep -v "obj.target" >${release_dir_linux}/exe.list
 
     while read -r line; do
         cp ${line} ${release_dir_linux}/.
