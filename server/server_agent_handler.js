@@ -531,6 +531,7 @@ class AgentHandler {
                 reject(new Error("Agent is offline"))
                 return;
             }
+
             AgentAPI.DownloadAgentSaveFile(Agent, data.savefile).then(savefile => {
                 resolve(savefile)
             }).catch(err => {

@@ -1,6 +1,7 @@
 const axios = require('axios').default;
 const Config = require("./server_config");
 const fs = require("fs-extra");
+const path = require("path")
 
 const FormData = require('form-data');
 
@@ -146,7 +147,7 @@ class AgentAPI {
 
     DownloadAgentSaveFile(Agent, file) {
         return new Promise((resolve, reject) => {
-            const outputFile = path.join(Config.get("ssm.tempdir"), `Agent${Agent.getId()}_${file}`);
+            const outputFile = path.join(Config.get("ssm.tempdir"), `Agent${Agent.getId()}_${file}.sav`);
             const writer = fs.createWriteStream(outputFile);
 
             const reqconfig = {
@@ -156,6 +157,7 @@ class AgentAPI {
                 responseType: 'stream',
             }
 
+            //const url = "http://localhost:3001/agent/gamesaves/download"
             const url = Agent.getURL() + "gamesaves/download";
             //console.log(url)
 
