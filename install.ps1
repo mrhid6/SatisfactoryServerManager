@@ -83,6 +83,16 @@ if($nodocker -eq $false){
         [Environment]::SetEnvironmentVariable(“LCOW_SUPPORTED”, “1”, “Machine”)
         Restart-Service docker
     }else{
+
+        dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+        dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+        $WSLInstaller = Join-Path $Env:Temp "WSL2.0.msi"
+        Invoke-WebRequest "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi" -OutFile $WSLInstaller
+        msiexec.exe /I $WSLInstaller /quiet
+        wsl --set-default-version 2
+
+        del $WSLInstaller
         
         $DockerInstaller = Join-Path $Env:Temp InstallDocker.msi
         Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
