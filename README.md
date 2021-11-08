@@ -8,7 +8,9 @@ As a **note** this project has been tested with the Experimental Satisfactory de
 ## Tests & Approvals:
 
 SSM Has been tested and approved on Windows 10 Pro, Windows Server 2019 and Ubuntu 20.04.
+
 When installing on Windows 10/11 you **MUST** have the Pro edition installed.
+
 It is advised that SSM is installed on one of these operating systems.
 
 If you are running on a Windows 10/11 workstation make sure you have enabled Virtualisation in the BIOS.
