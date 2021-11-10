@@ -78,7 +78,7 @@ class ServerConfig extends iConfig {
         super.set("ssm.backup.location", path.join(userDataPath, "backups"));
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.2`);
+        super.set("ssm.version", `v1.1.3`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
