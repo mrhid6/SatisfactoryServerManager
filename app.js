@@ -169,13 +169,13 @@ class AppServer {
             var checkExpiration = function (filePath) {
                 fs.readFile(filePath, function (err, data) {
                     if (!err) {
-                        if (data.IsJsonString() == true) {
+                        try {
                             data = JSON.parse(data);
                             if (data.expired && data.expired < now) {
                                 //console.log("deleted file " + filePath);
                                 fs.unlinkSync(filePath);
                             }
-                        } else {
+                        }catch(e){
                             fs.unlinkSync(filePath);
                         }
                     }
