@@ -32,6 +32,15 @@ Number.prototype.pad = function (width, z) {
     return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
+String.prototype.IsJsonString = () => {
+    try {
+        JSON.parse(this);
+    } catch (e) {
+        return false;
+    }
+    return true;
+}
+
 class AppServer {
     constructor() {
         this.fixFileStoreSessionDelete()
@@ -160,9 +169,13 @@ class AppServer {
             var checkExpiration = function (filePath) {
                 fs.readFile(filePath, function (err, data) {
                     if (!err) {
-                        data = JSON.parse(data);
-                        if (data.expired && data.expired < now) {
-                            //console.log("deleted file " + filePath);
+                        if (data.IsJsonString() == true) {
+                            data = JSON.parse(data);
+                            if (data.expired && data.expired < now) {
+                                //console.log("deleted file " + filePath);
+                                fs.unlinkSync(filePath);
+                            }
+                        } else {
                             fs.unlinkSync(filePath);
                         }
                     }

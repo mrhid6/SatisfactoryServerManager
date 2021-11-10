@@ -24,6 +24,6 @@ Config.load().then(() => {
     })
 
     SteamCMD.getAppInfo(1690800).then(output => {
-        console.log(output)
+        console.log(JSON.stringify(output,null,4))
     })
 })
