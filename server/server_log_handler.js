@@ -41,7 +41,7 @@ class SSM_Log_Handler {
                 })
 
                 if (logfile == null) {
-                    reject("Can't find log file");
+                    reject(new Error("Can't find log file"));
                     return;
                 }
 
@@ -67,7 +67,7 @@ class SSM_Log_Handler {
             const logfile = path.join(Config.get("satisfactory.log.location"), "FactoryGame.log");
 
             if (fs.existsSync(logfile) == false) {
-                reject("Can't find log file");
+                reject(new Error("Can't find log file"));
                 return;
             }
 
@@ -88,7 +88,7 @@ class SSM_Log_Handler {
             const logfile = getLogFilePath();
 
             if (fs.existsSync(logfile) == false) {
-                reject("Can't find log file");
+                reject(new Error("Can't find log file"));
                 return;
             }
 

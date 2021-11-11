@@ -8,6 +8,7 @@ const logger = require("./server_logger");
 const platform = process.platform;
 
 const AgentAPI = require("./server_agent_api");
+const SSM_Log_Handler = require("./server_log_handler");
 
 const IAgent = require("../objects/obj_agent");
 
@@ -537,6 +538,37 @@ class AgentHandler {
             }).catch(err => {
                 reject(err);
             })
+        });
+    }
+
+    API_GetLogs(LogType, data) {
+        return new Promise((resolve, reject) => {
+
+            if (data.agentid == -1 && LogType == "ssmlog") {
+                SSM_Log_Handler.getSSMLog().then(logs => {
+                    resolve(logs);
+                    return;
+                })
+                return;
+            }
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is not defined!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestGET(Agent, `logs/${LogType}`).then(res => {
+                resolve(res.data.data);
+            }).catch(err => {
+                reject(err);
+            })
+
         });
     }
 }

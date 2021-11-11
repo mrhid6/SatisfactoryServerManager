@@ -189,8 +189,12 @@ class SF_Server_Handler {
                         this._getServerState();
                         logger.info("[SFS_Handler] - Installed SF Dedicated Server");
                         Config.set("satisfactory.installed", true);
-                        const GameConfig = require("./server_gameconfig");
-                        GameConfig.load().then(() => {
+                        this.SteamCMD.getAppInfo(1690800).then(appInfo => {
+                            const ServerVersion = appInfo.depots.branches.public.buildid;
+                            Config.set("satisfactory.server_version", ServerVersion)
+                            const GameConfig = require("./server_gameconfig");
+                            return GameConfig.load()
+                        }).then(() => {
                             resolve(true);
                         })
                     } else {

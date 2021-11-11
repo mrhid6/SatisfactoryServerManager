@@ -263,5 +263,47 @@ router.post('/gamesaves/download', middleWare, function (req, res) {
     })
 });
 
+router.post('/logs/ssmlog', middleWare, function (req, res) {
+    AgentHandler.API_GetLogs("ssmlog", req.body).then(logs => {
+        res.json({
+            result: "success",
+            data: logs
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+});
+
+router.post('/logs/smlauncherlog', middleWare, function (req, res) {
+    AgentHandler.API_GetLogs("smlauncherlog", req.body).then(logs => {
+        res.json({
+            result: "success",
+            data: logs
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+});
+
+router.post('/logs/sfserverlog', middleWare, function (req, res) {
+    AgentHandler.API_GetLogs("sfserverlog", req.body).then(logs => {
+        res.json({
+            result: "success",
+            data: logs
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+});
+
 
 module.exports = router;

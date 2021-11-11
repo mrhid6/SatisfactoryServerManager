@@ -12,6 +12,7 @@ const fs = require("fs-extra");
 const AgentApp = require("../server/server_agent_app");
 const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
 const SSM_Mod_Handler = require("../server/ms_agent/server_mod_handler");
+const SSM_Log_Handler = require("../server/server_log_handler");
 const ServerApp = require("../server/server_app");
 
 //set Storage Engine
@@ -317,6 +318,52 @@ router.post('/gamesaves/download', checkHeaderKey, function (req, res) {
     } else {
         res.status(404).send('Not found');
     }
+});
+
+
+router.get('/logs/ssmlog', checkHeaderKey, function (req, res, next) {
+
+    SSM_Log_Handler.getSSMLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+});
+
+router.get('/logs/smlauncherlog', checkHeaderKey, function (req, res, next) {
+
+    SSM_Log_Handler.getSMLauncherLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+});
+
+router.get('/logs/sfserverlog', checkHeaderKey, function (req, res, next) {
+
+    SSM_Log_Handler.getSFServerLog().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
 });
 
 

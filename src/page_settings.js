@@ -22,7 +22,7 @@ class Page_Settings {
 
     setupJqueryListeners() {
 
-        $("#edit-ssm-settings").click(e => {
+        $("#edit-ssm-settings").on("click", e => {
             e.preventDefault();
 
             const Agent = PageCache.getActiveAgent();
@@ -143,6 +143,15 @@ class Page_Settings {
     }
 
     MainDisplayFunction() {
+
+        if (
+            $("#edit-ssm-settings").prop("disabled") == false ||
+            $("#edit-sf-settings").prop("disabled") == false ||
+            $("#edit-mods-settings").prop("disabled") == false
+        ) {
+            return;
+        }
+
         this.LockAllEditButtons();
         this.clearAllValues();
 

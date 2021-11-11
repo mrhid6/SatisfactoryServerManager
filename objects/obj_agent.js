@@ -3,6 +3,7 @@ class ObjectAgent {
         this._container = container;
         this._active = false;
         this._info = {};
+        this.id = -1;
     }
 
     isActive() {
