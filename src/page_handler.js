@@ -99,7 +99,6 @@ class PageHandler {
         API_Proxy.get("agent", "agents").then(res => {
 
             if (res.result == "success") {
-                console.log("Got Agents!")
                 PageCache.setAgentsList(res.data);
 
                 this.populateServerSelection();

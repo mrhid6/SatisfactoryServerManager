@@ -45,59 +45,6 @@ class Page_Settings {
         $("#cancel-ssm-settings").on("click", e => {
             e.preventDefault();
             this.lockSSMSettings();
-            this.getConfig();
-        })
-
-        $("#edit-mods-settings").on("click", e => {
-            e.preventDefault();
-
-            const Agent = PageCache.getActiveAgent();
-            if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockModsSettings();
-        })
-
-        $("#cancel-mods-settings").on("click", e => {
-            e.preventDefault();
-            this.lockModsSettings();
-            this.getConfig();
-        })
-
-        $("#save-mods-settings").on("click", e => {
-            e.preventDefault();
-            this.submitModsSettings();
-        })
-
-        $("#edit-sf-settings").on("click", e => {
-            e.preventDefault();
-
-            const Agent = PageCache.getActiveAgent();
-            if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
-                });
-                return;
-            }
-
-            this.unlockSFSettings();
-        })
-
-        $("#cancel-sf-settings").on("click", e => {
-            e.preventDefault();
-            this.lockSFSettings();
-            this.getConfig();
-        })
-
-        $("#save-sf-settings").on("click", e => {
-            e.preventDefault();
-            this.submitSFSettings();
         })
 
         $("body").on("click", "#cancel-action", (e) => {
@@ -121,15 +68,7 @@ class Page_Settings {
             }
         })
 
-        $("#settings-dangerarea-installsf").on("click", e => {
-            e.preventDefault();
-            this.installSFServer();
-        })
-
-        $("#inp_maxplayers").on("input change", () => {
-            const val = $("#inp_maxplayers").val();
-            $("#max-players-value").text(`${val} / 500`)
-        })
+        
     }
 
     LockAllEditButtons() {
@@ -145,9 +84,7 @@ class Page_Settings {
     MainDisplayFunction() {
 
         if (
-            $("#edit-ssm-settings").prop("disabled") == false ||
-            $("#edit-sf-settings").prop("disabled") == false ||
-            $("#edit-mods-settings").prop("disabled") == false
+            $("#edit-ssm-settings").prop("disabled") == false
         ) {
             return;
         }
@@ -159,206 +96,36 @@ class Page_Settings {
         if (Agent != null && Agent.info.config != null) {
             this.UnlockAllEditButtons();
             this.populateSSMSettings();
-            this.populateSFSettings();
-            this.populateModsSettings();
         }
     }
 
     clearAllValues() {
-        $("#inp_sf_serverloc").val("")
-        $("#inp_sf_saveloc").val("")
-        $("#inp_sf_logloc").val("")
-        $("#inp_sf_logloc").val("")
-        $('#inp_updatesfonstart').bootstrapToggle('enable')
-        $('#inp_updatesfonstart').bootstrapToggle('off')
-        $('#inp_updatesfonstart').bootstrapToggle('disable')
 
-        $("#inp_maxplayers").val(0);
-        $("#max-players-value").text(`0 / 500`)
-
-        $('#inp_mods_enabled').bootstrapToggle('enable')
-        $('#inp_mods_enabled').bootstrapToggle('off')
-        $('#inp_mods_enabled').bootstrapToggle('disable')
-
-        $('#inp_mods_autoupdate').bootstrapToggle('enable')
-        $('#inp_mods_autoupdate').bootstrapToggle('off')
-        $('#inp_mods_autoupdate').bootstrapToggle('disable')
     }
 
     populateSSMSettings() {
         const Agent = PageCache.getActiveAgent();
 
         const ssmConfig = Agent.info.config.satisfactory;
-        $("#setting-info-serverloc").text(ssmConfig.server_location)
-        $("#setting-info-saveloc").text(ssmConfig.save.location)
-        $("#setting-info-logloc").text(ssmConfig.log.location)
-
-        $('#inp_updatesfonstart').bootstrapToggle('enable')
-        if (ssmConfig.updateonstart == true) {
-            $('#inp_updatesfonstart').bootstrapToggle('on')
-        } else {
-            $('#inp_updatesfonstart').bootstrapToggle('off')
-        }
-        $('#inp_updatesfonstart').bootstrapToggle('disable')
-
-    }
-
-    populateSFSettings() {
-        const Agent = PageCache.getActiveAgent();
-        if (Agent.info.serverstate.status != "notinstalled") {
-            const gameConfig = Agent.info.config.game;
-            $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
-            const val = $("#inp_maxplayers").val();
-            $("#max-players-value").text(`${val} / 500`)
-        } else {
-            $("#edit-sf-settings").prop("disabled", true)
-        }
-    }
-
-    populateModsSettings() {
-        const Agent = PageCache.getActiveAgent();
-        const modsConfig = Agent.info.config.mods;
-        $('#inp_mods_enabled').bootstrapToggle('enable')
-        if (modsConfig.enabled == true) {
-            $('#inp_mods_enabled').bootstrapToggle('on')
-        } else {
-            $('#inp_mods_enabled').bootstrapToggle('off')
-        }
-        $('#inp_mods_enabled').bootstrapToggle('disable')
-
-        $('#inp_mods_autoupdate').bootstrapToggle('enable')
-        if (modsConfig.autoupdate == true) {
-            $('#inp_mods_autoupdate').bootstrapToggle('on')
-        } else {
-            $('#inp_mods_autoupdate').bootstrapToggle('off')
-        }
-        $('#inp_mods_autoupdate').bootstrapToggle('disable')
-
     }
 
     unlockSSMSettings() {
-
         $("#edit-ssm-settings").prop("disabled", true);
-
         $("#save-ssm-settings").prop("disabled", false);
         $("#cancel-ssm-settings").prop("disabled", false);
-        $('#inp_updatesfonstart').bootstrapToggle('enable');
     }
 
     lockSSMSettings() {
         $("#edit-ssm-settings").prop("disabled", false);
-
         $("#save-ssm-settings").prop("disabled", true);
         $("#cancel-ssm-settings").prop("disabled", true);
-        $('#inp_updatesfonstart').bootstrapToggle('disable');
-        $("#inp_sf_serverloc").prop("disabled", true);
-    }
-
-    unlockModsSettings() {
-
-        $("#edit-mods-settings").prop("disabled", true);
-
-        $("#save-mods-settings").prop("disabled", false);
-        $("#cancel-mods-settings").prop("disabled", false);
-        $('#inp_mods_enabled').bootstrapToggle('enable');
-        $('#inp_mods_autoupdate').bootstrapToggle('enable')
-    }
-
-    lockModsSettings() {
-        $("#edit-mods-settings").prop("disabled", false);
-
-        $("#save-mods-settings").prop("disabled", true);
-        $("#cancel-mods-settings").prop("disabled", true);
-        $('#inp_mods_enabled').bootstrapToggle('disable');
-        $('#inp_mods_autoupdate').bootstrapToggle('disable')
-    }
-
-    unlockSFSettings() {
-
-        $("#edit-sf-settings").prop("disabled", true);
-
-        $("#save-sf-settings").prop("disabled", false);
-        $("#cancel-sf-settings").prop("disabled", false);
-        $("#inp_maxplayers").prop("disabled", false);
-    }
-
-    lockSFSettings() {
-        $("#edit-sf-settings").prop("disabled", false);
-
-        $("#save-sf-settings").prop("disabled", true);
-        $("#cancel-sf-settings").prop("disabled", true);
-        $("#inp_maxplayers").prop("disabled", true);
     }
 
     submitSSMSettings() {
-        const Agent = PageCache.getActiveAgent();
-
-        const updatesfonstart = $('#inp_updatesfonstart').is(":checked")
-        const postData = {
-            agentid: Agent.id,
-            updatesfonstart
-        }
-
-        API_Proxy.postData("agent/config/ssmsettings", postData).then(res => {
-
-            if (res.result == "success") {
-                this.lockSSMSettings();
-                toastr.success("Settings have been saved!")
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    console.log(JSON.stringify(res.error));
-                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
-                });
-            }
-        });
+        this.lockSSMSettings();
     }
 
-    submitSFSettings() {
-        const Agent = PageCache.getActiveAgent();
-        const maxplayers = $('#inp_maxplayers').val();
-        const postData = {
-            agentid: Agent.id,
-            maxplayers
-        }
 
-        API_Proxy.postData("agent/config/sfsettings", postData).then(res => {
-
-            if (res.result == "success") {
-                this.lockSFSettings();
-                toastr.success("Settings have been saved!")
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    console.log(JSON.stringify(res.error));
-                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
-                });
-            }
-        });
-    }
-
-    submitModsSettings() {
-        const Agent = PageCache.getActiveAgent();
-        const enabled = $('#inp_mods_enabled').is(":checked")
-        const autoupdate = $('#inp_mods_autoupdate').is(":checked")
-        const postData = {
-            agentid: Agent.id,
-            enabled,
-            autoupdate
-        }
-
-        API_Proxy.postData("agent/config/modsettings", postData).then(res => {
-            if (res.result == "success") {
-                this.lockModsSettings();
-                toastr.success("Settings have been saved!")
-            } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
-            }
-        });
-    }
 
     installSFServer() {
         const Agent = PageCache.getActiveAgent();

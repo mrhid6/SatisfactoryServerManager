@@ -132,6 +132,20 @@ router.post("/config/modsettings", middleWare, function (req, res, next) {
     })
 })
 
+router.post("/config/backupsettings", middleWare, function (req, res, next) {
+    const post = req.body;
+    AgentHandler.API_SetConfigSettings("backupsettings", post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
 router.post("/serveractions/installsf", middleWare, function (req, res, next) {
     const post = req.body;
     AgentHandler.API_InstallSF(post).then(() => {

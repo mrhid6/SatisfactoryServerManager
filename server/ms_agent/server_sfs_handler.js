@@ -656,9 +656,7 @@ class SF_Server_Handler {
 
     updateSSMSettings(data) {
         return new Promise((resolve, reject) => {
-            const updatesfonstart = data.updatesfonstart == "true";
 
-            Config.set("satisfactory.updateonstart", updatesfonstart)
             resolve();
 
         });
@@ -666,6 +664,9 @@ class SF_Server_Handler {
 
     updateSFSettings(data) {
         return new Promise((resolve, reject) => {
+            const updatesfonstart = data.updatesfonstart == "true";
+            Config.set("satisfactory.updateonstart", updatesfonstart)
+
             const maxPlayers = data.maxplayers || 4;
 
             if (maxPlayers < 4) {
@@ -685,6 +686,16 @@ class SF_Server_Handler {
 
             Config.set("mods.enabled", enabled);
             Config.set("mods.autoupdate", autoupdate);
+            resolve();
+
+        });
+    }
+
+    updateBackupSettings(data) {
+        return new Promise((resolve, reject) => {
+
+            Config.set("ssm.backup.interval", data.interval);
+            Config.set("ssm.backup.keep", data.keep);
             resolve();
 
         });

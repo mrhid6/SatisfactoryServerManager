@@ -115,6 +115,21 @@ router.post('/config/modsettings', checkHeaderKey, function (req, res, next) {
     })
 });
 
+router.post('/config/backupsettings', checkHeaderKey, function (req, res, next) {
+
+    const post = req.body
+    SFS_Handler.updateBackupSettings(post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+});
+
 router.post('/installsf', checkHeaderKey, function (req, res, next) {
     SFS_Handler.InstallSFServer(true).then(result => {
         res.json({
