@@ -52,7 +52,7 @@ class AgentApp {
 
         return {
             satisfactory: sfConfig_clone,
-            smm: ssmConfig_clone,
+            ssm: ssmConfig_clone,
             mods: modsConfig,
             game: gameConfig
         }
