@@ -105,8 +105,9 @@ class Page_Dashboard {
 
         if (Agent != null && Agent.running && Agent.active) {
             const serverState = Agent.info.serverstate;
+            const SFConfig = Agent.info.config.satisfactory;
             if (serverState != null) {
-                if (serverState.status == "notinstalled") {
+                if (serverState.status == "notinstalled" || SFConfig.installed == false) {
                     $el.text("Not Installed")
                 } else if (serverState.status == "stopped") {
                     $el.text("Stopped")
@@ -145,9 +146,10 @@ class Page_Dashboard {
 
         if (Agent != null && Agent.running === true && Agent.active === true) {
             const serverState = Agent.info.serverstate;
+            const SFConfig = Agent.info.config.satisfactory;
             if (serverState != null) {
 
-                if (serverState.status == "notinstalled") {
+                if (serverState.status == "notinstalled" || SFConfig.installed == false) {
                     $StartButton.parent().attr("title", "SF Server Not Installed");
                     $StopButton.parent().attr("title", "SF Server Not Installed");
                     $KillButton.parent().attr("title", "SF Server Not Installed");

@@ -37,15 +37,11 @@ class SF_Server_Handler {
             this.InstallSteamCmd().then(() => {
                 this._getServerState();
 
-                if (Config.get("satisfactory.updateonstart") == true) {
-                    this.InstallSFServer().then(() => {
-                        resolve()
-                    }).catch(err => {
-                        reject(err);
-                    })
-                } else {
+                this.UpdateSFServer().then(() => {
                     resolve()
-                }
+                }).catch(err => {
+                    reject(err);
+                })
             }).catch(err => {
                 reject(err)
             })
@@ -123,6 +119,25 @@ class SF_Server_Handler {
                 resolve();
             }
         })
+    }
+
+    UpdateSFServer() {
+        return new Promise((resolve, reject) => {
+            this.SteamCMD.getAppInfo(1690800).then(data => {
+                const ServerVersion = data.depots.branches.public.buildid;
+
+                if (ServerVersion > Config.get("satisfactory.server_version") && Config.get("satisfactory.updateonstart") == true) {
+                    logger.info("[SFS_Handler] - SF Server Requires Updating..")
+                    this.InstallSFServer().then(() => {
+                        resolve()
+                    }).catch(err => {
+                        reject(err);
+                    })
+                } else {
+                    resolve();
+                }
+            })
+        });
     }
 
     InstallSFServer(forceInstall = false) {

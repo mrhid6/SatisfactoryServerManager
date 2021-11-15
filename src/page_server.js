@@ -119,7 +119,7 @@ class Page_Server {
             return;
         }
         const sfConfig = this.Agent.info.config.satisfactory;
-        const ssmConfig = this.Agent.info.config.smm;
+        const ssmConfig = this.Agent.info.config.ssm;
 
         $("#agent-connectionport").text(this.Agent.ports.ServerQueryPort)
         $("#setting-info-serverloc").text(sfConfig.server_location)
