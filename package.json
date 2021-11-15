@@ -22,7 +22,7 @@
         "crypto-js": "^4.1.1",
         "datatables.net-bs5": "^1.11.3",
         "express": "^4.17.1",
-        "express-handlebars": "^5.3.4",
+        "express-handlebars": "^6.0.1",
         "express-session": "^1.17.2",
         "extract-zip": "^2.0.1",
         "file-type": "^16.5.3",
