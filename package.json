@@ -17,7 +17,7 @@
         "bootstrap4-toggle": "^3.6.1",
         "chmodr": "^1.2.0",
         "connect-fs2": "^0.1.8",
-        "cookie-parser": "^1.4.4",
+        "cookie-parser": "^1.4.6",
         "cors": "^2.8.5",
         "crypto-js": "^4.1.1",
         "datatables.net-bs5": "^1.11.3",
