@@ -287,8 +287,8 @@ class SF_Server_Handler {
                         Port
                     } = this.getStartupPortConfig()
 
-
-                    return this.execSFSCmd(`?listen -Port=${Port} -ServerQueryPort=${ServerQueryPort} -BeaconPort=${BeaconPort} -unattended`);
+                    const workerThreads = Config.get("satisfactory.worker_threads");
+                    return this.execSFSCmd(`?listen -Port=${Port} -ServerQueryPort=${ServerQueryPort} -BeaconPort=${BeaconPort} -unattended -MaxWorkerThreads=${workerThreads}`);
                 } else {
                     logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Already Running");
                     reject("Server is already started!")
@@ -681,6 +681,7 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const updatesfonstart = data.updatesfonstart == "true";
             Config.set("satisfactory.updateonstart", updatesfonstart)
+            Config.set("satisfactory.worker_threads", data.workerthreads)
 
             const maxPlayers = data.maxplayers || 4;
 

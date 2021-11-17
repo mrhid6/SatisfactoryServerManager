@@ -236,6 +236,8 @@ class Page_Server {
             $("#inp_maxplayers").val(gameConfig.Game["/Script/Engine"].GameSession.MaxPlayers)
             const val = $("#inp_maxplayers").val();
             $("#max-players-value").text(`${val} / 500`)
+
+            $("#inp_workerthreads").val(ssmConfig.worker_threads)
         } else {
             $("#edit-sf-settings").prop("disabled", true)
         }
@@ -248,6 +250,7 @@ class Page_Server {
         $("#save-sf-settings").prop("disabled", false);
         $("#cancel-sf-settings").prop("disabled", false);
         $("#inp_maxplayers").prop("disabled", false);
+        $("#inp_workerthreads").prop("disabled", false);
         $('#inp_updatesfonstart').bootstrapToggle('enable');
     }
 
@@ -257,18 +260,21 @@ class Page_Server {
         $("#save-sf-settings").prop("disabled", true);
         $("#cancel-sf-settings").prop("disabled", true);
         $("#inp_maxplayers").prop("disabled", true);
+        $("#inp_workerthreads").prop("disabled", true);
         $('#inp_updatesfonstart').bootstrapToggle('disable');
     }
 
     submitSFSettings() {
         const Agent = this.Agent;
         const maxplayers = $('#inp_maxplayers').val();
+        const workerthreads = $('#inp_workerthreads').val();
         const updatesfonstart = $('#inp_updatesfonstart').is(":checked")
 
         const postData = {
             agentid: Agent.id,
             maxplayers,
-            updatesfonstart
+            updatesfonstart,
+            workerthreads
         }
 
         API_Proxy.postData("agent/config/sfsettings", postData).then(res => {

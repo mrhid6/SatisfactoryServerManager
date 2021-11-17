@@ -78,7 +78,7 @@ class ServerConfig extends iConfig {
         super.set("ssm.backup.location", path.join(userDataPath, "backups"));
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.8`);
+        super.set("ssm.version", `v1.1.9`);
 
         super.get("ssm.users.0.username", "admin")
         super.get("ssm.users.0.password", defaultpasshash)
@@ -124,6 +124,7 @@ class ServerConfig extends iConfig {
 
         super.set("satisfactory.save.location", SaveFolder)
         super.set("satisfactory.log.location", LogFolder)
+        super.get("satisfactory.worker_threads", 20);
 
         super.get("mods.enabled", false);
         super.get("mods.autoupdate", false);
