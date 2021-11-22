@@ -51,7 +51,7 @@
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
         "uglifyify": "^5.0.2",
-        "universal-analytics": "^0.4.20",
+        "universal-analytics": "^0.5.1",
         "vdf": "^0.0.2"
     },
     "scripts": {
