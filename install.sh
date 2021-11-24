@@ -191,9 +191,10 @@ rm -r ${TEMP_DIR}
 
 if [ ${NOSERVICE} -eq 0 ]; then
     echo "Creating SSM Service"
-    ENV_SYSTEMD=$(pidof systemd >/dev/null && echo "systemd" || echo "other")
+    ENV_SYSTEMD=$(pidof systemd | wc -l)
+    ENV_SYSTEMCTL=$(which systemctl | wc -l)
 
-    if [ "${ENV_SYSTEMD}" == "other" ]; then
+    if [[ ${ENV_SYSTEMD} -eq 0 ]] && [[ ${ENV_SYSTEMCTL} -eq 0 ]]; then
         echo "Error: Cant install service on this system!"
         exit 3
     fi
