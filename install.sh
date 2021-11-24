@@ -85,7 +85,7 @@ else
     exit 2
 fi
 
-if [[ "${OS}" == "Debian" ]] || [[ "${OS}" == "Ubuntu" ]]; then
+if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
     echo "Installing Prereqs"
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
