@@ -39,7 +39,7 @@
         "multer": "^1.4.3",
         "node-docker-api": "^1.1.22",
         "node-pty": "^0.10.1",
-        "node-schedule": "^2.0.0",
+        "node-schedule": "^2.1.0",
         "platform-folders": "0.5.4",
         "popper.js": "^1.16.1",
         "recursive-readdir": "^2.2.2",
