@@ -9,7 +9,7 @@ require("isomorphic-fetch");
 const express = require('express');
 const session = require('express-session');
 const FSStore = require('connect-fs2')(session);
-const exphbs = require('express-handlebars');
+const exphbs = require('express-handlebars').engine;
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
@@ -175,7 +175,7 @@ class AppServer {
                                 //console.log("deleted file " + filePath);
                                 fs.unlinkSync(filePath);
                             }
-                        }catch(e){
+                        } catch (e) {
                             fs.unlinkSync(filePath);
                         }
                     }

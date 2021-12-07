@@ -110,7 +110,7 @@ else
     exit 2
 fi
 
-if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
+if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "20.04" ]]; then
     check_lib=$(strings /usr/lib/x86_64-linux-gnu/libstdc++.so.6 | grep GLIBCXX_3.4.26 | wc -l)
 
     if [ $check_lib -eq 0 ]; then
@@ -153,8 +153,18 @@ if [ -d "${INSTALL_DIR}" ]; then
         echo "Error: SSM is already installed!"
         exit 1
     else
-        SSM_CUR=$(cat ${INSTALL_DIR}/version.txt)
-        echo "Updating SSM ${SSM_CUR} to ${SSM_VER} ..."
+        if [ -f "${INSTALL_DIR}/version.txt" ]; then
+            SSM_CUR=$(cat ${INSTALL_DIR}/version.txt)
+
+            if [[ "${SSM_CUR}" == "${SSM_VER}" ]] && [[ ${FORCE} -eq 0 ]]; then
+                echo "Skipping update version already installed!"
+                exit 0;
+            fi
+
+            echo "Updating SSM ${SSM_CUR} to ${SSM_VER} ..."
+        else
+            echo "Updating SSM v0.0.0 to ${SSM_VER} ..."
+        fi
     fi
 else
     echo "Installing SSM ${SSM_VER} ..."

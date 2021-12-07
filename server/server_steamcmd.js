@@ -9,7 +9,7 @@ const {
     file
 } = require("tmp-promise");
 
-const FileType = require("file-type");
+const mime = require('mime-types')
 const extractZip = require("extract-zip");
 const tar = require("tar");
 
@@ -113,9 +113,8 @@ class ServerSteamCMD {
     }
 
     async extractArchive(pathToArchive, targetDirectory) {
-        const fileTypeDetails = await FileType.fromFile(pathToArchive)
 
-        switch (fileTypeDetails.mime) {
+        switch (mime.lookup(pathToArchive)) {
             case 'application/gzip':
                 return tar.extract({
                     cwd: targetDirectory,
