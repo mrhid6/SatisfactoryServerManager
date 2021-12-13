@@ -94,7 +94,7 @@ if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
     dpkg-reconfigure --frontend noninteractive tzdata >/dev/null 2>&1
 
 
-    apt-get -qq install binutils apt-utils curl wget jq software-properties-common -y >/dev/null 2>&1
+    apt-get -qq install binutils apt-utils curl wget jq software-properties-common libcap2-bin -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386 >/dev/null 2>&1
     apt-get -qq update -y >/dev/null 2>&1
@@ -195,6 +195,8 @@ echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
 
 chmod -R 777 ${INSTALL_DIR}
 chown -R ssm:ssm ${INSTALL_DIR}
+
+setcap cap_net_bind_service=+ep `readlink -f /opt/SSM/SatisfactoryServerManager`
 
 echo "* Cleanup"
 rm -r ${TEMP_DIR}
