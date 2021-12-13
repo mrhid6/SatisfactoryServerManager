@@ -43,6 +43,37 @@ Configuration of SSM can be done in the settings page or by editing the Json fil
     Edit C:\ProgramData\SatisfactoryServerManager\SSM.json
 ```
 
+## Nginx Reverse Proxy Config
+```
+upstream ssm {
+    server <SSM IP>:3000;
+}
+
+server {
+    root /var/www/html;
+    index index.html index.htm index.nginx-debian.html;
+    server_name <WEBSITE HOSTNAME>;
+
+    location / {
+        proxy_pass http://ssm/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Fowarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Fowarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    add_header Strict-Transport-Security "max-age=31536000" always; # managed by Certbot
+
+
+    listen 80;
+
+}
+```
+
 ## Development:
 
 * Install nodejs (tested on v12.13.1)
