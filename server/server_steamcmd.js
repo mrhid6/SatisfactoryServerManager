@@ -70,12 +70,16 @@ class ServerSteamCMD {
     download = async () => {
 
         if (fs.existsSync(this.options.exePath)) {
+            logger.warn("[STEAM CMD] [DOWNLOAD] - Already Installed!")
             throw new SteamCMDAlreadyInstalled();
         }
 
         await fs.ensureDir(this.options.binDir);
 
         const tempFile = await file()
+
+        logger.debug("[STEAM CMD] [DOWNLOAD] - TempFile: " + tempFile.path);
+
         try {
             const responseStream = await axios.get(this.options.downloadUrl, {
                 responseType: 'stream'
@@ -87,6 +91,8 @@ class ServerSteamCMD {
             await new Promise(resolve => {
                 tempFileWriteStream.on('finish', resolve)
             })
+
+            logger.debug("[STEAM CMD] [DOWNLOAD] - Downloaded SteamCMD Archive");
 
             await this.extractArchive(tempFile.path, this.options.binDir)
         } finally {
@@ -126,7 +132,8 @@ class ServerSteamCMD {
                     dir: targetDirectory
                 })
             default:
-                throw new Error('Archive format not recognised')
+                logger.error("[STEAM CMD] [EXTRACT] - Invalid Archive type: " + mime.lookup(pathToArchive));
+                throw new Error('Archive format not recognised');
         }
     }
 
