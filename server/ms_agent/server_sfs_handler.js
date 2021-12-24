@@ -346,18 +346,47 @@ class SF_Server_Handler {
         });
     }
 
+    wailTillSFServerStopped() {
+        return new Promise((resolve, reject) => {
+
+
+            let timeoutCounter = 0;
+            let timeoutLimit = 30 * 1000; // 30 Seconds
+
+            const interval = setInterval(() => {
+                this._getServerState().then(info => {
+
+                    if (timeoutCounter >= timeoutLimit) {
+                        clearInterval(interval)
+                        reject("Satisfactory server stop timed out!")
+                        return;
+                    }
+
+                    if (info.status != "running") {
+                        clearInterval(interval)
+                        resolve();
+                    } else {
+                        timeoutCounter++;
+                    }
+                })
+            }, 1000)
+        });
+    }
+
     stopServer() {
         logger.debug("[SFS_Handler] [SERVER_ACTION] - Stopping SF Server ...");
         Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
-                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
-                    Cleanup.decreaseCounter(1);
-                    process.kill(server_status.pid, 'SIGINT');
 
-                    this._getServerState().then(() => {
-                        resolve();
+                    process.kill(server_status.pid, 'SIGINT');
+                    this.wailTillSFServerStopped().then(() => {
+                        logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
+                        Cleanup.decreaseCounter(1);
+                        this._getServerState().then(() => {
+                            resolve();
+                        })
                     })
 
                 } else {

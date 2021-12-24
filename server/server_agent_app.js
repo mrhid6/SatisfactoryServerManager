@@ -20,7 +20,7 @@ class AgentApp {
             SSM_Mod_Handler.init();
             SSM_BackupManager.init();
         }).catch(err => {
-            console.log(err);
+            logger.error("[SFS_HANDLER] - Failed To Initialize - " + err.message);
         })
 
         this.SetupEventHandlers();

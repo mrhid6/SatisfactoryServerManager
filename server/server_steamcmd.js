@@ -41,23 +41,27 @@ class ServerSteamCMD {
             binDir: path.resolve(binDir),
             username: "anonymous",
             downloadUrl: "",
-            exeName: ""
+            exeName: "",
+            ArchiveType: ""
         }
 
         switch (process.platform) {
             case 'win32':
                 this.options.downloadUrl =
                     'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip'
+                this.options.ArchiveType = "application/zip"
                 this.options.exeName = 'steamcmd.exe'
                 break
             case 'darwin':
                 this.options.downloadUrl =
                     'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_osx.tar.gz'
+                this.options.ArchiveType = "application/gzip"
                 this.options.exeName = 'steamcmd.sh'
                 break
             case 'linux':
                 this.options.downloadUrl =
                     'https://steamcdn-a.akamaihd.net/client/installer/steamcmd_linux.tar.gz'
+                this.options.ArchiveType = "application/gzip"
                 this.options.exeName = 'steamcmd.sh'
                 break
             default:
@@ -95,9 +99,10 @@ class ServerSteamCMD {
             logger.debug("[STEAM CMD] [DOWNLOAD] - Downloaded SteamCMD Archive");
 
             await this.extractArchive(tempFile.path, this.options.binDir)
+            logger.debug("[STEAM CMD] [EXTRACT] - Extracted Steam CMD Archive");
         } finally {
             // Cleanup the temp file
-            await tempFile.cleanup()
+            //await tempFile.cleanup()
         }
 
         try {
@@ -120,7 +125,7 @@ class ServerSteamCMD {
 
     async extractArchive(pathToArchive, targetDirectory) {
 
-        switch (mime.lookup(pathToArchive)) {
+        switch (this.options.ArchiveType) {
             case 'application/gzip':
                 return tar.extract({
                     cwd: targetDirectory,
@@ -132,7 +137,7 @@ class ServerSteamCMD {
                     dir: targetDirectory
                 })
             default:
-                logger.error("[STEAM CMD] [EXTRACT] - Invalid Archive type: " + mime.lookup(pathToArchive));
+                logger.error("[STEAM CMD] [EXTRACT] - Invalid Archive Type: " + this.options.ArchiveType);
                 throw new Error('Archive format not recognised');
         }
     }
