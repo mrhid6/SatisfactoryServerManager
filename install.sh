@@ -85,7 +85,44 @@ else
     exit 2
 fi
 
+
+
 if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
+
+    curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
+
+    if [ $ISDEV -eq 1 ]; then
+        echo "Using Dev build of SSM"
+        curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases" | jq -r "first(.[])" >${TEMP_DIR}/SSM_releases.json
+    fi
+
+
+    SSM_VER=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".tag_name")
+    SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | grep -i "Linux" | sort | head -1)
+
+    if [ -d "${INSTALL_DIR}" ]; then
+        if [[ ${UPDATE} -eq 0 ]] && [[ ${FORCE} -eq 0 ]]; then
+            echo "Error: SSM is already installed!"
+            exit 1
+        else
+            if [ -f "${INSTALL_DIR}/version.txt" ]; then
+                SSM_CUR=$(cat ${INSTALL_DIR}/version.txt)
+
+                if [[ "${SSM_CUR}" == "${SSM_VER}" ]] && [[ ${FORCE} -eq 0 ]]; then
+                    echo "Skipping update version already installed!"
+                    exit 0;
+                fi
+
+                echo "Updating SSM ${SSM_CUR} to ${SSM_VER} ..."
+            else
+                echo "Updating SSM v0.0.0 to ${SSM_VER} ..."
+            fi
+        fi
+    else
+        echo "Installing SSM ${SSM_VER} ..."
+        mkdir -p ${INSTALL_DIR}
+    fi
+
     echo "Installing Prereqs"
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq upgrade -y >/dev/null 2>&1
@@ -137,39 +174,6 @@ if [ $ISDOCKER -eq 0 ]; then
     usermod -aG docker ssm
 fi
 
-curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
-
-if [ $ISDEV -eq 1 ]; then
-    echo "Using Dev build of SSM"
-    curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases" | jq -r "first(.[])" >${TEMP_DIR}/SSM_releases.json
-fi
-
-
-SSM_VER=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".tag_name")
-SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | grep -i "Linux" | sort | head -1)
-
-if [ -d "${INSTALL_DIR}" ]; then
-    if [[ ${UPDATE} -eq 0 ]] && [[ ${FORCE} -eq 0 ]]; then
-        echo "Error: SSM is already installed!"
-        exit 1
-    else
-        if [ -f "${INSTALL_DIR}/version.txt" ]; then
-            SSM_CUR=$(cat ${INSTALL_DIR}/version.txt)
-
-            if [[ "${SSM_CUR}" == "${SSM_VER}" ]] && [[ ${FORCE} -eq 0 ]]; then
-                echo "Skipping update version already installed!"
-                exit 0;
-            fi
-
-            echo "Updating SSM ${SSM_CUR} to ${SSM_VER} ..."
-        else
-            echo "Updating SSM v0.0.0 to ${SSM_VER} ..."
-        fi
-    fi
-else
-    echo "Installing SSM ${SSM_VER} ..."
-    mkdir -p ${INSTALL_DIR}
-fi
 if [ ${NOSERVICE} -eq 0 ]; then
     SSM_SERVICENAME="SSM.service"
     SSM_SERVICEFILE="/etc/systemd/system/SSM.service"
