@@ -4,6 +4,8 @@ var router = express.Router();
 const ServerApp = require("../server/server_app");
 const Config = require("../server/server_config");
 
+const UserManager = require("../server/server_user_manager");
+
 const middleWare = [
     ServerApp.checkLoggedInMiddleWare
 ]
@@ -41,7 +43,7 @@ router.get('/changedefaultpass', middleWare, function (req, res, next) {
     if (req.isLoggedin != true) {
         res.redirect("/login");
     } else {
-        const UserAccount = Config.get("ssm.users." + req.session.userid);
+        const UserAccount = UserManager.getUserById(req.session.userid);
 
         if (UserAccount == null || typeof UserAccount === 'undifined') {
             res.redirect("/login");
@@ -55,7 +57,7 @@ router.get('/changedefaultpass', middleWare, function (req, res, next) {
 
         res.render('changedefaultpass.hbs', {
             layout: "login.hbs",
-            UserName: UserAccount.username
+            UserName: UserAccount.getUsername()
         });
     }
 });
@@ -66,22 +68,28 @@ router.post('/changedefaultpass', middleWare, ServerApp.changeUserDefaultPasswor
         res.redirect("/login");
         return;
     }
-    const UserAccount = Config.get("ssm.users." + req.session.userid);
+    const UserAccount = UserManager.getUserById(req.session.userid);
 
     if (UserAccount == null || typeof UserAccount === 'undifined') {
         res.redirect("/login");
+        if (req.session != null) {
+            req.session.destroy();
+        }
         return;
     }
 
     if (req.session.changepass != true) {
         res.redirect("/login");
+        if (req.session != null) {
+            req.session.destroy();
+        }
         return;
     }
 
     if (req.passchangeresult == "error") {
         res.render('changedefaultpass.hbs', {
             layout: "login.hbs",
-            UserName: UserAccount.username,
+            UserName: UserAccount.getUsername(),
             ERROR_MSG: req.passchangeerror
         });
         return;
@@ -104,8 +112,12 @@ router.get('/logout', middleWare, ServerApp.logoutUserAccount, function (req, re
 /* GET dashboard. */
 router.get('/', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+
+        const UserID = req.session.userid;
+
         res.render('index.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -115,8 +127,10 @@ router.get('/', middleWare, function (req, res, next) {
 /* GET servers. */
 router.get('/servers', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('servers.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -127,9 +141,11 @@ router.get('/servers', middleWare, function (req, res, next) {
 router.get('/server/:id', middleWare, function (req, res, next) {
     const agentid = req.params.id;
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('server.hbs', {
             layout: "main.hbs",
-            AGENTID: agentid
+            AGENTID: agentid,
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -139,8 +155,10 @@ router.get('/server/:id', middleWare, function (req, res, next) {
 /* GET mods. */
 router.get('/mods', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('mods.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -150,8 +168,10 @@ router.get('/mods', middleWare, function (req, res, next) {
 /* GET Logs. */
 router.get('/logs', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('logs.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -161,8 +181,10 @@ router.get('/logs', middleWare, function (req, res, next) {
 /* GET settings. */
 router.get('/settings', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('settings.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
@@ -172,13 +194,31 @@ router.get('/settings', middleWare, function (req, res, next) {
 /* GET settings. */
 router.get('/saves', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
         res.render('saves.hbs', {
-            layout: "main.hbs"
+            layout: "main.hbs",
+            perms: GetPagePermissions(UserID)
         });
     } else {
         res.redirect("/login");
     }
 });
+
+
+function GetPagePermissions(UserID) {
+    const UserAccount = UserManager.getUserById(UserID);
+
+    const Perms = {
+        dashboard: UserAccount.HasPermission("page.dashboard"),
+        servers: UserAccount.HasPermission("page.servers"),
+        mods: UserAccount.HasPermission("page.mods"),
+        logs: UserAccount.HasPermission("page.logs"),
+        saves: UserAccount.HasPermission("page.saves"),
+        settings: UserAccount.HasPermission("page.settings"),
+    }
+
+    return Perms;
+}
 
 
 module.exports = router;

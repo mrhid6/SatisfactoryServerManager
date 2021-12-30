@@ -78,13 +78,15 @@ class ServerConfig extends iConfig {
         super.set("ssm.backup.location", path.join(userDataPath, "backups"));
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.12`);
+        super.set("ssm.version", `v1.1.13`);
 
-        super.get("ssm.users.0.username", "admin")
-        super.get("ssm.users.0.password", defaultpasshash)
+        if (super.get("ssm.users") != null) {
+            super.delete("ssm.users");
+        }
 
-        super.get("ssm.metrics.enabled", false)
-        super.get("ssm.metrics.clientid", "")
+        if (super.get("ssm.metrics") != null) {
+            super.delete("ssm.metrics");
+        }
 
     }
 
@@ -174,20 +176,6 @@ class ServerConfig extends iConfig {
             })
         })
 
-    }
-
-    setSSMSetupConfig(data) {
-        return new Promise((resolve, reject) => {
-            super.set("ssm.setup", true)
-            super.set("ssm.metrics.enabled", (data.metrics == "true"))
-            super.set("satisfactory.server_location", data.serverlocation)
-            super.set("satisfactory.updateonstart", (data.updateonstart == "true"))
-
-            require("./server_mod_handler").init();
-            require("./server_metrics").sendServerStartEvent();
-
-            resolve();
-        });
     }
 
     InitAgentSettings(data) {

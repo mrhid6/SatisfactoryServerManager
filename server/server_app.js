@@ -8,8 +8,8 @@ const AgentApp = require("./server_agent_app");
 
 const SSM_Log_Handler = require("./server_log_handler");
 const SSM_Agent_Handler = require("./server_agent_handler");
-
-const Metrics = require("./server_metrics");
+const DB = require("./server_db");
+const UserManager = require("./server_user_manager");
 
 class SSM_Server_App {
 
@@ -22,13 +22,14 @@ class SSM_Server_App {
         this.setupEventHandlers();
 
         SSM_Log_Handler.init();
-        Metrics.init();
-        Metrics.sendServerStartEvent();
 
         if (Config.get("ssm.agent.isagent") === true) {
             AgentApp.init();
         } else {
-            SSM_Agent_Handler.init();
+            DB.init().then(() => {
+                UserManager.init();
+                SSM_Agent_Handler.init();
+            })
         }
 
     }
@@ -36,7 +37,6 @@ class SSM_Server_App {
     setupEventHandlers() {
         Cleanup.addEventHandler(() => {
             logger.info("[SERVER_APP] [CLEANUP] - Closing Server App...");
-            Metrics.sendServerStopEvent();
         })
     }
 
@@ -87,9 +87,7 @@ class SSM_Server_App {
         const user = post.inp_user;
         const pass = post.inp_pass;
 
-        const users = Config.get("ssm.users");
-        const UserAccount = users.find(el => el.username == user);
-        const UserId = users.findIndex(el => el.username == user);
+        const UserAccount = UserManager.getUserByUername(user);
 
         var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
@@ -103,12 +101,22 @@ class SSM_Server_App {
             return;
         }
 
-        const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
+        if (!UserAccount.HasPermission("login.login")) {
+            req.loginresult = "error";
+            req.loginerror = "User Doesn't Have Permission to Login!";
 
-        const passString = "SSM:" + UserAccount.username + "-" + pass;
+            logger.warn("[SERVER_APP] [LOGIN] - Failed Login Attempt from " + clientip)
+
+            next();
+            return;
+        }
+
+        const defaultpasshash = CryptoJS.MD5(`SSM:${UserAccount.getUsername()}-ssm`).toString();
+
+        const passString = "SSM:" + UserAccount.getUsername() + "-" + pass;
         const passhash = CryptoJS.MD5(passString).toString();
 
-        if (UserAccount.username != user || UserAccount.password != passhash) {
+        if (UserAccount.getUsername() != user || UserAccount.getPassword() != passhash) {
             req.loginresult = "error";
             req.loginerror = "Invalid Login Credientials!";
 
@@ -120,16 +128,19 @@ class SSM_Server_App {
 
         req.loginresult = "success";
         req.session.loggedin = true;
-        req.session.userid = UserId;
+        req.session.userid = UserAccount.getId();
 
-        if (UserAccount.password == defaultpasshash) {
+
+
+        if (UserAccount.getPassword() == defaultpasshash) {
+            console.log(UserAccount.getPassword(), defaultpasshash)
             req.changepass = true;
             req.session.changepass = true;
         } else {
             req.changepass = false;
         }
 
-        logger.debug("[SERVER_APP] [LOGIN] - Successful Login from " + clientip + " User:" + UserAccount.username)
+        logger.debug("[SERVER_APP] [LOGIN] - Successful Login from " + clientip + " User:" + UserAccount.getUsername())
         next();
         return;
     }
@@ -141,7 +152,7 @@ class SSM_Server_App {
             return;
         }
 
-        const UserAccount = Config.get("ssm.users." + req.session.userid)
+        const UserAccount = UserManager.getUserById(req.session.userid);
 
         if (UserAccount == null || typeof UserAccount === 'undifined') {
             req.passchangeresult = "error";
@@ -153,17 +164,27 @@ class SSM_Server_App {
             return;
         }
 
+        if (!UserAccount.HasPermission("login.resetpass")) {
+            req.loginresult = "error";
+            req.loginerror = "User Doesn't Have Permission to Change Password!";
+
+            logger.warn("[SERVER_APP] [LOGIN] - Failed Login Attempt from " + clientip)
+
+            next();
+            return;
+        }
+
         const post = req.body;
         const pass1 = post.inp_pass1;
         const pass2 = post.inp_pass2;
 
-        const pass1String = "SSM:" + UserAccount.username + "-" + pass1;
-        const pass2String = "SSM:" + UserAccount.username + "-" + pass2;
+        const pass1String = "SSM:" + UserAccount.getUsername() + "-" + pass1;
+        const pass2String = "SSM:" + UserAccount.getUsername() + "-" + pass2;
 
         const pass1hash = CryptoJS.MD5(pass1String).toString();
         const pass2hash = CryptoJS.MD5(pass2String).toString();
 
-        const defaultpasshash = CryptoJS.MD5("ssm").toString();
+        const defaultpasshash = CryptoJS.MD5(`SSM:${UserAccount.getUsername()}-ssm`).toString();
 
         var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
@@ -177,7 +198,7 @@ class SSM_Server_App {
             return;
         }
 
-        if (pass1 == UserAccount.username) {
+        if (pass1 == UserAccount.getUsername()) {
             req.passchangeresult = "error";
             req.passchangeerror = "You can't use the same password as your username!";
 
@@ -187,7 +208,7 @@ class SSM_Server_App {
             return;
         }
 
-        if (pass1hash == UserAccount.password) {
+        if (pass1hash == UserAccount.getPassword()) {
             req.passchangeresult = "error";
             req.passchangeerror = "The password you entered is the same as the current one!";
 
@@ -207,16 +228,21 @@ class SSM_Server_App {
             return;
         }
 
-        req.passchangeresult = "success";
 
-        Config.set("ssm.users." + req.session.userid + ".password", pass1hash);
+        UserManager.UpdateUserPassword(UserAccount, pass1hash).then(() => {
+            // Make the user resigin.
+            req.session.loggedin = false;
+            req.session.userid = null;
+            req.session.changepass = false;
+            req.session.touch();
+            req.passchangeresult = "success";
+            next();
+        }).catch(err => {
+            req.passchangeresult = "error";
+            req.passchangeerror = err;
+        })
 
-        // Make the user resigin.
-        req.session.loggedin = false;
-        req.session.userid = null;
-        req.session.changepass = false;
-        req.session.touch();
-        next();
+
     }
 
     logoutUserAccount(req, res, next) {
@@ -228,10 +254,10 @@ class SSM_Server_App {
             return;
         }
 
-        const UserAccount = Config.get("ssm.users." + req.session.userid)
+        const UserAccount = UserManager.getUserById(req.session.userid);
         var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
-        logger.debug("[SERVER_APP] [LOGIN] - Successful Logged Out from " + clientip + " User:" + UserAccount.username)
+        logger.debug("[SERVER_APP] [LOGIN] - Successful Logged Out from " + clientip + " User:" + UserAccount.getUsername())
         req.session.destroy();
 
         next();

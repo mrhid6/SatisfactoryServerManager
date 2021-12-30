@@ -1,6 +1,6 @@
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
-const logger = require("./logger");
+const Logger = require("./logger");
 const API_Proxy = require("./api_proxy");
 
 class Page_Server {
@@ -208,13 +208,10 @@ class Page_Server {
 
             if (res.result == "success") {
                 this.lockBackupSettings();
-                toastr.success("Settings have been saved!")
+                toastr.success("Settings Saved!")
             } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    console.log(JSON.stringify(res.error));
-                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
-                });
+                toastr.error("Failed To Save Settings!")
+                Logger.error(res.error);
             }
         });
     }
@@ -280,14 +277,11 @@ class Page_Server {
         API_Proxy.postData("agent/config/sfsettings", postData).then(res => {
 
             if (res.result == "success") {
-                this.lockSFSettings();
-                toastr.success("Settings have been saved!")
+                this.lockSFSettings()
+                toastr.success("Settings Saved!")
             } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    console.log(JSON.stringify(res.error));
-                    modal_el.find("#error-msg").text(res.error.message != null ? res.error.message : res.error);
-                });
+                toastr.error("Failed To Save Settings!")
+                Logger.error(res.error);
             }
         });
     }
@@ -345,12 +339,10 @@ class Page_Server {
         API_Proxy.postData("agent/config/modsettings", postData).then(res => {
             if (res.result == "success") {
                 this.lockModsSettings();
-                toastr.success("Settings have been saved!")
+                toastr.success("Settings Saved!")
             } else {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                    modal_el.find("#error-msg").text(res.error)
-                });
+                toastr.error("Failed To Save Settings!")
+                Logger.error(res.error);
             }
         });
     }
@@ -366,16 +358,14 @@ class Page_Server {
             }
 
             API_Proxy.postData("agent/serveractions/installsf", postData).then(res => {
-                console.log(res)
                 if (res.result == "success") {
                     toastr.success("Server has been installed!")
                     $("#server-action-installsf .close").trigger("click");
                 } else {
-                    $("#server-action-installsf").remove();
+                    $("#server-action-installsf .close").trigger("click");
 
-                    Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
-                        modal_el.find("#error-msg").text(res.error.message)
-                    });
+                    toastr.error("Failed To Install Server!")
+                    Logger.error(res.error);
                 }
             })
         });

@@ -12,6 +12,7 @@ const SSM_Log_Handler = require("./server_log_handler");
 
 const IAgent = require("../objects/obj_agent");
 
+const UserManager = require("./server_user_manager");
 
 const promisifyStream = (stream) => new Promise((resolve, reject) => {
     stream.on('data', (d) => {})
@@ -119,8 +120,21 @@ class AgentHandler {
         }
     }
 
-    CreateNewDockerAgent() {
+    CreateNewDockerAgent(UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission("agentactions.create")) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
 
             const {
                 Name,
@@ -249,9 +263,24 @@ class AgentHandler {
         })
     }
 
-    StartDockerAgent(id) {
-        logger.info("[AGENT_HANDLER] - Starting Agent...");
+    StartDockerAgent(id, UserID) {
+
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission("agentactions.start")) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+            logger.info("[AGENT_HANDLER] - Starting Agent...");
+
             const Agent = this.GetAgentById(id);
 
             if (Agent == null) {
@@ -271,9 +300,25 @@ class AgentHandler {
         });
     }
 
-    StopDockerAgent(id) {
-        logger.info("[AGENT_HANDLER] - Stopping Agent...");
+    StopDockerAgent(id, UserID) {
+
         return new Promise((resolve, reject) => {
+
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission("agentactions.stop")) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+            logger.info("[AGENT_HANDLER] - Stopping Agent...");
+
             const Agent = this.GetAgentById(id);
 
             if (Agent == null) {
@@ -317,8 +362,22 @@ class AgentHandler {
         })
     }
 
-    API_SetConfigSettings(ConfigKey, data) {
+    API_SetConfigSettings(ConfigKey, data, UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            const shortKey = ConfigKey.replace("settings", "");
+
+            if (!UserAccount.HasPermission(`settings.agent.${shortKey}`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -344,8 +403,20 @@ class AgentHandler {
         })
     }
 
-    API_InstallSF(data) {
+    API_InstallSF(data, UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`serveractions.install`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -371,8 +442,22 @@ class AgentHandler {
         });
     }
 
-    API_ExecuteServerAction(data) {
+    API_ExecuteServerAction(data, UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`serveractions.${data.action}`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {

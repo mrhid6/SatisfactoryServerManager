@@ -2,6 +2,7 @@ const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
+const Logger = require("./logger");
 
 class Page_Servers {
     constructor() {}
@@ -109,13 +110,27 @@ class Page_Servers {
     StartDockerAgent(id) {
         API_Proxy.postData("agent/start", {
             id: id
-        }).then(() => {})
+        }).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Started!")
+            } else {
+                toastr.error("Failed to start server")
+                Logger.error(res.error);
+            }
+        })
     }
 
     StopDockerAgent(id) {
         API_Proxy.postData("agent/stop", {
             id: id
-        }).then(() => {})
+        }).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Stopped!")
+            } else {
+                toastr.error("Failed to stop server")
+                Logger.error(res.error);
+            }
+        })
     }
 
     CreateNewServer() {
@@ -124,6 +139,7 @@ class Page_Servers {
                 toastr.success("Server created!")
             } else {
                 toastr.error("Failed to create server")
+                Logger.error(res.error);
             }
         })
     }

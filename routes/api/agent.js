@@ -46,7 +46,10 @@ router.get('/agents', middleWare, function (req, res, next) {
 });
 
 router.post('/create', middleWare, function (req, res, next) {
-    AgentHandler.CreateNewDockerAgent().then(() => {
+
+    const UserID = req.session.userid;
+
+    AgentHandler.CreateNewDockerAgent(UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -60,10 +63,8 @@ router.post('/create', middleWare, function (req, res, next) {
 
 router.post('/start', middleWare, function (req, res, next) {
     const agentId = parseInt(req.body.id);
-
-    console.log(req.body);
-
-    AgentHandler.StartDockerAgent(agentId).then(() => {
+    const UserID = req.session.userid;
+    AgentHandler.StartDockerAgent(agentId, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -77,7 +78,9 @@ router.post('/start', middleWare, function (req, res, next) {
 
 router.post('/stop', middleWare, function (req, res, next) {
     const agentId = parseInt(req.body.id);
-    AgentHandler.StopDockerAgent(agentId).then(() => {
+    const UserID = req.session.userid;
+
+    AgentHandler.StopDockerAgent(agentId, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -92,7 +95,9 @@ router.post('/stop', middleWare, function (req, res, next) {
 
 router.post("/config/ssmsettings", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_SetConfigSettings("ssmsettings", post).then(() => {
+
+    const UserID = req.session.userid;
+    AgentHandler.API_SetConfigSettings("ssmsettings", post, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -106,7 +111,8 @@ router.post("/config/ssmsettings", middleWare, function (req, res, next) {
 
 router.post("/config/sfsettings", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_SetConfigSettings("sfsettings", post).then(() => {
+    const UserID = req.session.userid;
+    AgentHandler.API_SetConfigSettings("sfsettings", post, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -120,7 +126,8 @@ router.post("/config/sfsettings", middleWare, function (req, res, next) {
 
 router.post("/config/modsettings", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_SetConfigSettings("modsettings", post).then(() => {
+    const UserID = req.session.userid;
+    AgentHandler.API_SetConfigSettings("modsettings", post, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -134,7 +141,8 @@ router.post("/config/modsettings", middleWare, function (req, res, next) {
 
 router.post("/config/backupsettings", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_SetConfigSettings("backupsettings", post).then(() => {
+    const UserID = req.session.userid;
+    AgentHandler.API_SetConfigSettings("backupsettings", post, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -148,7 +156,9 @@ router.post("/config/backupsettings", middleWare, function (req, res, next) {
 
 router.post("/serveractions/installsf", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_InstallSF(post).then(() => {
+    const UserID = req.session.userid;
+
+    AgentHandler.API_InstallSF(post, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -162,7 +172,8 @@ router.post("/serveractions/installsf", middleWare, function (req, res, next) {
 
 router.post("/serveraction", middleWare, function (req, res, next) {
     const post = req.body;
-    AgentHandler.API_ExecuteServerAction(post).then(() => {
+    const UserID = req.session.userid;
+    AgentHandler.API_ExecuteServerAction(post, UserID).then(() => {
         res.json({
             result: "success"
         });

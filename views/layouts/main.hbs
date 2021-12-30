@@ -52,42 +52,54 @@
 
         <div class="collapse navbar-collapse" id="navbarColor01">
             <ul class="navbar-nav mr-auto">
+                {{#if perms.dashboard}}
                 <li class="nav-item">
                     <a class="nav-link" href="/">
                         <i class="fas fa-tachometer-alt"></i>
                         Dashboard
                     </a>
                 </li>
+                {{/if}}
+                {{#if perms.servers}}
                 <li class="nav-item">
                     <a class="nav-link" href="/servers">
                         <i class="fas fa-server"></i>
                         Servers
                     </a>
                 </li>
+                {{/if}}
+                {{#if perms.mods}}
                 <li class="nav-item">
                     <a class="nav-link" href="/mods">
                         <i class="fas fa-pencil-ruler"></i>
                         Mods
                     </a>
                 </li>
+                {{/if}}
+                 {{#if perms.logs}}
                 <li class="nav-item">
                     <a class="nav-link" href="/logs">
                         <i class="fas fa-file-alt"></i>
                         Logs
                     </a>
                 </li>
+                {{/if}}
+                {{#if perms.saves}}
                 <li class="nav-item">
                     <a class="nav-link" href="/saves">
                         <i class="fas fa-save"></i>
                         Saves
                     </a>
                 </li>
+                {{/if}}
+                {{#if perms.settings}}
                 <li class="nav-item">
                     <a class="nav-link" href="/settings">
                         <i class="fas fa-cog"></i>
                         Settings
                     </a>
                 </li>
+                {{/if}}
             </ul>
             <div class="my-2 my-lg-0">
                 <ul class="navbar-nav mr-auto rightnavbar">

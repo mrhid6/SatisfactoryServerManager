@@ -185,6 +185,7 @@ class Page_Dashboard {
                 toastr.success("Server Action Completed!")
             } else {
                 toastr.error("Failed to Execute Server Action!");
+                logger.error(res.error);
             }
         })
     }
