@@ -117,11 +117,11 @@ if($noservice -eq $false -and $isAdmin -eq $true){
 	write-host "Creating SSM Service"
 	write-host "* Downloading NSSM"
 	
-	Invoke-WebRequest https://nssm.cc/release/nssm-2.24.zip -Out "$($installDir)\nssm.zip" -UseBasicParsing
+	Invoke-WebRequest "https://nssm.cc/ci/nssm-2.24-101-g897c7ad.zip" -Out "$($installDir)\nssm.zip" -UseBasicParsing
 	Expand-Archive "$($installDir)\nssm.zip" -DestinationPath "$($installDir)" -Force
 	
-	Move-item -Path "$($installDir)\nssm-2.24\win64\nssm.exe" -Destination "$($installDir)\nssm.exe"
-	Remove-Item -Path "$($installDir)\nssm-2.24" -Recurse
+	Move-item -Path "$($installDir)\nssm-2.24-101-g897c7ad\win64\nssm.exe" -Destination "$($installDir)\nssm.exe" -force
+	Remove-Item -Path "$($installDir)\nssm-2.24-101-g897c7ad" -Recurse
 	Remove-Item -Path "$($installDir)\nssm.zip"
 	
 	if($SSM_Service -ne $null){

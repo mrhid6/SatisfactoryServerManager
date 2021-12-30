@@ -89,6 +89,8 @@ fi
 
 if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
 
+    apt-get -qq install apt-utils curl wget jq -y >/dev/null 2>&1
+
     curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases/latest" >${TEMP_DIR}/SSM_releases.json
 
     if [ $ISDEV -eq 1 ]; then
@@ -131,7 +133,7 @@ if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
     dpkg-reconfigure --frontend noninteractive tzdata >/dev/null 2>&1
 
 
-    apt-get -qq install binutils apt-utils curl wget jq software-properties-common libcap2-bin -y >/dev/null 2>&1
+    apt-get -qq install binutils software-properties-common libcap2-bin -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386 >/dev/null 2>&1
     apt-get -qq update -y >/dev/null 2>&1
