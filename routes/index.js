@@ -118,6 +118,7 @@ router.get('/', middleWare, function (req, res, next) {
 
         if (perms.dashboard == false) {
             res.redirect("/logout");
+            return;
         }
         res.render('index.hbs', {
             layout: "main.hbs",
@@ -136,6 +137,7 @@ router.get('/servers', middleWare, function (req, res, next) {
 
         if (perms.servers == false) {
             res.redirect("/");
+            return;
         }
 
         res.render('servers.hbs', {
@@ -156,6 +158,7 @@ router.get('/server/:id', middleWare, function (req, res, next) {
 
         if (perms.servers == false) {
             res.redirect("/");
+            return;
         }
 
         res.render('server.hbs', {
@@ -176,6 +179,7 @@ router.get('/mods', middleWare, function (req, res, next) {
 
         if (perms.mods == false) {
             res.redirect("/");
+            return;
         }
 
         res.render('mods.hbs', {
@@ -195,6 +199,7 @@ router.get('/logs', middleWare, function (req, res, next) {
 
         if (perms.logs == false) {
             res.redirect("/");
+            return;
         }
 
         res.render('logs.hbs', {
@@ -214,6 +219,7 @@ router.get('/settings', middleWare, function (req, res, next) {
 
         if (perms.settings == false) {
             res.redirect("/");
+            return;
         }
         res.render('settings.hbs', {
             layout: "main.hbs",
@@ -233,6 +239,7 @@ router.get('/saves', middleWare, function (req, res, next) {
 
         if (perms.saves == false) {
             res.redirect("/");
+            return;
         }
 
         res.render('saves.hbs', {
