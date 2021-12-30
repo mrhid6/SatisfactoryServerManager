@@ -114,10 +114,14 @@ router.get('/', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
 
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
 
+        if (perms.dashboard == false) {
+            res.redirect("/logout");
+        }
         res.render('index.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -128,9 +132,15 @@ router.get('/', middleWare, function (req, res, next) {
 router.get('/servers', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.servers == false) {
+            res.redirect("/");
+        }
+
         res.render('servers.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -142,10 +152,16 @@ router.get('/server/:id', middleWare, function (req, res, next) {
     const agentid = req.params.id;
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.servers == false) {
+            res.redirect("/");
+        }
+
         res.render('server.hbs', {
             layout: "main.hbs",
             AGENTID: agentid,
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -156,9 +172,15 @@ router.get('/server/:id', middleWare, function (req, res, next) {
 router.get('/mods', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.mods == false) {
+            res.redirect("/");
+        }
+
         res.render('mods.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -169,9 +191,15 @@ router.get('/mods', middleWare, function (req, res, next) {
 router.get('/logs', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.logs == false) {
+            res.redirect("/");
+        }
+
         res.render('logs.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -182,9 +210,14 @@ router.get('/logs', middleWare, function (req, res, next) {
 router.get('/settings', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.settings == false) {
+            res.redirect("/");
+        }
         res.render('settings.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");
@@ -195,9 +228,16 @@ router.get('/settings', middleWare, function (req, res, next) {
 router.get('/saves', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
+
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.saves == false) {
+            res.redirect("/");
+        }
+
         res.render('saves.hbs', {
             layout: "main.hbs",
-            perms: GetPagePermissions(UserID)
+            perms
         });
     } else {
         res.redirect("/login");

@@ -19295,8 +19295,6 @@ module.exports = page;
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
-const PageCache = require("./cache");
-
 class Page_Settings {
     constructor() {
         this.Config = {};
@@ -19325,4 +19323,4 @@ class Page_Settings {
 const page = new Page_Settings();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}]},{},[71]);
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70}]},{},[71]);
