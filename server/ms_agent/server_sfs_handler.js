@@ -329,6 +329,8 @@ class SF_Server_Handler {
             const interval = setInterval(() => {
                 this._getServerState().then(info => {
 
+                    this.serverState = info;
+
                     if (timeoutCounter >= timeoutLimit) {
                         clearInterval(interval)
                         reject("Satisfactory server start timed out!")
@@ -355,6 +357,8 @@ class SF_Server_Handler {
 
             const interval = setInterval(() => {
                 this._getServerState().then(info => {
+
+                    this.serverState = info;
 
                     if (timeoutCounter >= timeoutLimit) {
                         clearInterval(interval)
@@ -407,10 +411,12 @@ class SF_Server_Handler {
             this.getServerStatus().then(server_status => {
                 if (server_status.pid != -1) {
                     process.kill(server_status.pid, 'SIGKILL');
-                    logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
-                    Cleanup.decreaseCounter(1);
-                    this._getServerState().then(() => {
-                        resolve();
+                    this.wailTillSFServerStopped().then(() => {
+                        logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
+                        Cleanup.decreaseCounter(1);
+                        this._getServerState().then(() => {
+                            resolve();
+                        })
                     })
 
                 } else {
