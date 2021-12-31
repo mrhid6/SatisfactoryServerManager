@@ -130,8 +130,8 @@ class ServerDB {
 
             const AdminUser = `INSERT INTO users(user_name, user_pass, user_role_id) VALUES (?,?,?);`
 
-            this.query(userTableSql).then(() => {
-                return this.query(AdminUser, ["admin", "209a221fa0090f144de33f88ab3fd88d", 3])
+            this.queryRun(userTableSql).then(() => {
+                return this.queryRun(AdminUser, ["admin", "209a221fa0090f144de33f88ab3fd88d", 3])
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -149,7 +149,7 @@ class ServerDB {
                 "role_permissions" TEXT NOT NULL DEFAULT ''
             );`
 
-            this.query(rolesTableSql).then(() => {
+            this.queryRun(rolesTableSql).then(() => {
                 let RoleSQL = `INSERT INTO roles(role_name, role_permissions) VALUES `
                 const sqlData = [];
 
@@ -189,7 +189,7 @@ class ServerDB {
                 RoleSQL = RoleSQL.substring(0, RoleSQL.length - 2);
                 RoleSQL += ";";
 
-                return this.query(RoleSQL, sqlData)
+                return this.queryRun(RoleSQL, sqlData)
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -205,7 +205,7 @@ class ServerDB {
                 "perm_name" VARCHAR(255) NOT NULL DEFAULT '' UNIQUE
             );`
 
-            this.query(permsTableSql).then(() => {
+            this.queryRun(permsTableSql).then(() => {
                 const defaultPerms = [
                     "login.login",
                     "login.resetpass",
@@ -240,7 +240,7 @@ class ServerDB {
                 let PermSQL = `INSERT INTO permissions(perm_name) VALUES `
                 PermSQL += defaultPerms.map(perm => "(?)").join(",");
 
-                return this.query(PermSQL, defaultPerms)
+                return this.queryRun(PermSQL, defaultPerms)
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -269,6 +269,18 @@ class ServerDB {
             try {
                 const row = stmt.get(data);
                 resolve(row);
+            } catch (err) {
+                reject(err);
+            }
+        })
+    }
+
+    queryRun(sql, data = []) {
+        return new Promise((resolve, reject) => {
+            const stmt = this.DB.prepare(sql)
+            try {
+                stmt.run(data);
+                resolve();
             } catch (err) {
                 reject(err);
             }
