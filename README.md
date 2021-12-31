@@ -73,6 +73,37 @@ server {
 
 }
 ```
+## Troubleshooting:
+
+**Getting a EACCES on http://0.0.0.0:3000 on Windows?**
+
+First open powershell as a admin and check to see if windows has allocated the port using the following command:
+```
+netsh interface ipv4 show excludedportrange protocol=tcp
+```
+
+You will get a response simular to the one below:
+```
+Start Port    End Port
+----------    --------
+      1587        1686
+      1787        1886
+      1987        2086
+      2931        3030
+     50000       50059     *
+```
+
+
+As you can see the 2nd to last record windows has allocated ports 2931-3030 for something this conflicts with SSM default port of 3000
+
+To fix this run the following commands:
+```
+net stop winnat
+netsh int ipv4 set dynamic tcp start=49152 num=16384
+netsh int ipv6 set dynamic tcp start=49152 num=16384
+net start winnat
+```
+
 
 ## Development:
 

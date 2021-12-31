@@ -27,7 +27,6 @@ class UserManager {
                 return this.GetAllRoles()
             }).then(roles => {
                 this._ROLES = roles;
-                console.log(this._ROLES)
                 resolve();
             })
         })
@@ -200,7 +199,7 @@ class UserManager {
 
     UpdateUserPassword(User, NewPassword) {
         return new Promise((resolve, reject) => {
-            DB.query("UPDATE users SET user_pass=? WHERE user_id=?", [NewPassword, User.getId()]).then(() => {
+            DB.queryRun("UPDATE users SET user_pass=? WHERE user_id=?", [NewPassword, User.getId()]).then(() => {
                 return this.reinit();
             }).then(() => {
                 resolve();

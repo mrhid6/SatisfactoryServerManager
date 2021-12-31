@@ -159,14 +159,13 @@ class SSM_Server_App {
             req.passchangeerror = "Server Error";
 
             logger.warn("[SERVER_APP] [LOGIN] - Failed change default password Attempt from " + clientip)
-
             next();
             return;
         }
 
         if (!UserAccount.HasPermission("login.resetpass")) {
-            req.loginresult = "error";
-            req.loginerror = "User Doesn't Have Permission to Change Password!";
+            req.passchangeresult = "error";
+            req.passchangeerror = "User Doesn't Have Permission to Change Password!";
 
             logger.warn("[SERVER_APP] [LOGIN] - Failed Login Attempt from " + clientip)
 
