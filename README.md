@@ -1,9 +1,9 @@
 # SatisfactoryServerManager
 
 ## Introduction
-Satisfactory Server Manager (SSM) is a webpage designed to manage and control you satisfactory dedicated server.
+Satisfactory Server Manager (SSM) is a webpage designed to manage and control multiple satisfactory dedicated server instances.
 
-As a **note** this project has been tested with the Experimental Satisfactory dedicated servers. SSM is subject to change.
+As a **note** this project has been tested with the Early Access Satisfactory dedicated servers. SSM is subject to change.
 
 ## Tests & Approvals:
 
@@ -14,6 +14,11 @@ When installing on Windows 10/11 you **MUST** have the Pro edition installed.
 It is advised that SSM is installed on one of these operating systems.
 
 If you are running on a Windows 10/11 workstation make sure you have enabled Virtualisation in the BIOS.
+
+## Recommendations:
+During our testing we have found that running more than 4 server instances can be detrimental to dedicated server gameplay.
+
+We Recommend not installing SSM in a docker/container but rather on the Host or in a VM.
 
 ## How To Install / Update:
 **Debian / Ubuntu:**
