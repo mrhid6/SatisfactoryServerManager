@@ -10,18 +10,24 @@ class UserManager {
     constructor() {
         /** @type {Array.<ObjUser>} */
         this._USERS = [];
+
+
+        /** @type {Array.<ObjUserRole>} */
+        this._ROLES = [];
     }
 
     init() {
-        this.GetAllUsersFromDB().then(users => {
-            this._USERS = users;
-        })
+        this.reinit();
     }
 
     reinit() {
         return new Promise((resolve, reject) => {
             this.GetAllUsersFromDB().then(users => {
                 this._USERS = users;
+                return this.GetAllRoles()
+            }).then(roles => {
+                this._ROLES = roles;
+                console.log(this._ROLES)
                 resolve();
             })
         })
@@ -36,7 +42,7 @@ class UserManager {
                 rows.forEach(row => {
                     const User = new ObjUser();
                     User.parseDBData(row);
-                    UserRolePromises.push(this.GetRoleForUser(User))
+                    UserRolePromises.push(this.GetDBRoleByID(User.getRoleId()))
                     USERS.push(User);
                 })
 
@@ -54,13 +60,31 @@ class UserManager {
         });
     }
 
-
-    /**
-     * @param {ObjUser} User 
-     */
-    GetRoleForUser(User) {
+    GetAllRoles() {
         return new Promise((resolve, reject) => {
-            DB.querySingle("SELECT * FROM roles WHERE role_id=?", [User.getRoleId()]).then(roleRow => {
+            DB.query("SELECT * FROM roles").then(roleRows => {
+                const ROLES = [];
+                const rolesPromises = [];
+                roleRows.forEach(roleRow => {
+                    rolesPromises.push(this.GetDBRoleByID(roleRow.role_id))
+                })
+
+                Promise.all(rolesPromises).then(values => {
+                    for (let i = 0; i < values.length; i++) {
+                        const role = values[i];
+                        ROLES.push(role);
+                    }
+
+                    resolve(ROLES);
+                });
+
+            });
+        });
+    }
+
+    GetDBRoleByID(RoleID) {
+        return new Promise((resolve, reject) => {
+            DB.querySingle("SELECT * FROM roles WHERE role_id=?", [RoleID]).then(roleRow => {
                 const Role = new ObjUserRole();
                 Role.parseDBData(roleRow);
 
@@ -109,6 +133,14 @@ class UserManager {
 
     /**
      * 
+     * @returns {Array.<ObjUserRole>} - User Array
+     */
+    getAllUserRoles() {
+        return this._ROLES;
+    }
+
+    /**
+     * 
      * @returns {Array.<ObjUser>} - User Array
      */
     getAllUsers() {
@@ -129,6 +161,40 @@ class UserManager {
      */
     getUserById(id) {
         return this.getAllUsers().find(user => user.getId() == id);
+    }
+
+
+    API_GetAllUsers() {
+        return new Promise((resolve, reject) => {
+            const users = [];
+            this.getAllUsers().forEach(user => {
+                users.push(user.getWebJson());
+            })
+
+            resolve(users);
+        });
+    }
+
+    API_GetAllRoles() {
+        return new Promise((resolve, reject) => {
+            const roles = [];
+            this.getAllUserRoles().forEach(role => {
+                roles.push(role.getWebJson());
+            })
+
+            resolve(roles);
+        });
+    }
+
+    API_GetAllUsers() {
+        return new Promise((resolve, reject) => {
+            const users = [];
+            this.getAllUsers().forEach(user => {
+                users.push(user.getWebJson());
+            })
+
+            resolve(users);
+        });
     }
 
 

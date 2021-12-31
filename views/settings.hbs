@@ -2,10 +2,39 @@
     <h2 class="mb-3">Settings</h2>
     <div class="card border-secondary mb-3">
         <div class="card-header">
+            <button id="btn-adduser" class="btn btn-primary float-right"><i class="fas fa-plus"></i> Add User</button>
             <h5>Users</h5>
+
         </div>
         <div class="card-body">
-           
+            <table class="table table-bordered" id="users-table">
+                <thead>
+                    <tr>
+                        <th width="100px">User ID</th>
+                        <th>User Name</th>
+                        <th>Role</th>
+                        <th width="80px">Options</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <div class="card border-secondary mb-3">
+        <div class="card-header">
+            <button id="btn-addrole" class="btn btn-primary float-right"><i class="fas fa-plus"></i> Add Role</button>
+            <h5>Roles</h5>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered" id="roles-table">
+                <thead>
+                    <tr>
+                        <th width="100px">Role ID</th>
+                        <th>Role Name</th>
+                        <th width="100px">Permissions</th>
+                        <th width="80px">Options</th>
+                    </tr>
+                </thead>
+            </table>
         </div>
     </div>
 </div>

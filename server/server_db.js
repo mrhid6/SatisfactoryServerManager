@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3').verbose();
+const Database = require('better-sqlite3');
 const path = require("path");
 const fs = require("fs-extra");
 const platform = process.platform;
@@ -42,18 +42,23 @@ class ServerDB {
 
     connect() {
         return new Promise((resolve, reject) => {
-            this.DB = new sqlite3.Database(this.DBFile, sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, (err) => {
-                if (err) {
-                    logger.error(err.message);
-                    reject(err);
-                    return;
-                }
+
+            try {
+                this.DB = new Database(this.DBFile, {
+                    //verbose: console.log,
+                    fileMustExist: false
+                });
+
+                logger.info('Connected to the database.');
                 this.createTables().then(() => {
-                    logger.info('Connected to the database.');
                     resolve();
                 }).catch(reject);
 
-            })
+            } catch (err) {
+                reject(err);
+                return;
+            }
+
         })
     }
 
@@ -170,7 +175,7 @@ class ServerDB {
                         ]
                     },
                     {
-                        name: "Admin",
+                        name: "Administrator",
                         permissions: ["*"]
                     }
                 ]
@@ -248,25 +253,25 @@ class ServerDB {
 
     query(sql, data = []) {
         return new Promise((resolve, reject) => {
-            this.DB.all(sql, data, (err, rows) => {
-                if (err) {
-                    reject(err.message);
-                    return;
-                }
-                resolve(rows)
-            })
+            const stmt = this.DB.prepare(sql)
+            try {
+                const rows = stmt.all(data);
+                resolve(rows);
+            } catch (err) {
+                reject(err);
+            }
         })
     }
 
     querySingle(sql, data = []) {
         return new Promise((resolve, reject) => {
-            this.DB.get(sql, data, (err, rows) => {
-                if (err) {
-                    reject(err.message);
-                    return;
-                }
-                resolve(rows)
-            })
+            const stmt = this.DB.prepare(sql)
+            try {
+                const row = stmt.get(data);
+                resolve(row);
+            } catch (err) {
+                reject(err);
+            }
         })
     }
 }

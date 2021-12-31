@@ -244,6 +244,10 @@ body {
     font-weight: bold;
 }
 
+.ssm-modal .input-group i {
+    font-size: unset;
+}
+
 
 /* Toasts */
 
@@ -323,16 +327,20 @@ body {
     .status-info-card {
         height: 70px;
     }
+
     .status-info-card .status-info-card-main {
         margin-top: 2px;
         font-size: 13px;
     }
+
     .status-info-card .status-info-card-secondary {
         font-size: 15px;
     }
+
     .status-info-card .status-info-card-icon {
         font-size: 35px;
     }
+
     .server-action-btn {
         font-size: 13px;
     }

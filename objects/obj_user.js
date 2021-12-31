@@ -85,6 +85,15 @@ class ObjUser {
     }
 
 
+    getWebJson() {
+        return {
+            id: this.getId(),
+            username: this.getUsername(),
+            role: this.getRole().getWebJson()
+        }
+    }
+
+
 }
 
 module.exports = ObjUser;

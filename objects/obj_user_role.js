@@ -14,6 +14,22 @@ class ObjUserRole {
         this._name = data.role_name;
 
     }
+    /** 
+     * 
+     * @returns {Number} - Role ID
+     */
+    getId() {
+        return this._id;
+    }
+
+
+    /**
+     * 
+     * @returns {String} - Role Name
+     */
+    getName() {
+        return this._name;
+    }
 
     /**
      * 
@@ -31,6 +47,15 @@ class ObjUserRole {
 
     HasPermission(RequiredPermission) {
         return (this._permissions.includes(RequiredPermission));
+    }
+
+
+    getWebJson() {
+        return {
+            id: this.getId(),
+            name: this.getName(),
+            permissions: this._permissions
+        }
     }
 }
 
