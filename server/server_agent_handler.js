@@ -13,6 +13,7 @@ const SSM_Log_Handler = require("./server_log_handler");
 const IAgent = require("../objects/obj_agent");
 
 const UserManager = require("./server_user_manager");
+const DB = require("./server_db");
 
 const promisifyStream = (stream) => new Promise((resolve, reject) => {
     stream.on('data', (d) => {})
@@ -46,6 +47,8 @@ class AgentHandler {
     init() {
         this.PullDockerImage().then(() => {
             return this.BuildAgentList()
+        }).then(() => {
+            //console.log(this._AGENTS)
         }).catch(err => {
             console.log(err);
         })
@@ -70,57 +73,155 @@ class AgentHandler {
 
             this._AGENTS = [];
 
+            const SQL = `SELECT * FROM agents`
+
+            DB.query(SQL).then(rows => {
+
+                const containerPromises = [];
+
+                rows.forEach(row => {
+                    const Agent = new IAgent();
+                    Agent.parseDBData(row);
+                    this._AGENTS.push(Agent);
+
+                    containerPromises.push(this.GetDockerForAgent(Agent));
+                })
+
+                Promise.all(containerPromises).then(values => {
+                    for (let i = 0; i < values.length; i++) {
+                        const container = values[i];
+                        const Agent = this._AGENTS[i];
+
+                        Agent.setContainer(container);
+
+
+                    }
+
+                    const removePromises = [];
+
+                    this.GetAllAgents().forEach(Agent => {
+                        if (!Agent.isValid()) {
+                            removePromises.push(this.RemoveAgentFromDB(Agent));
+                        } else {
+                            if (Agent.getId() >= this._NextAgentId) {
+                                this._NextAgentId = Agent.getId() + 1;
+                            }
+                        }
+                    })
+
+                    return Promise.all(removePromises);
+                }).then(values => {
+
+                    for (let i = 0; i < values.length; i++) {
+                        const agentId = values[i];
+                        const Agent = this.GetAgentById(agentId);
+
+                        const index = this._AGENTS.indexOf(Agent);
+
+                        if (index > -1) {
+                            this._AGENTS.splice(index, 1);
+                        }
+                    }
+
+                    return this.CheckAllAgentsActive();
+                }).then(() => {
+                    return this.FixAgentsMigrationPortData();
+                }).then(() => {
+                    resolve();
+                }).catch(reject)
+            });
+
+        });
+    }
+
+    GetDockerForAgent(Agent) {
+        return new Promise((resolve, reject) => {
             this._docker.container.list({
                 all: 1
             }).then(containers => {
-
-                for (let i = 0; i < containers.length; i++) {
-
-                    const container = containers[i];
-                    const name = container.data.Names[0];
-                    if (name.startsWith("/SSMAgent")) {
-                        const name = container.data.Names[0];
-                        const id = parseInt(name.replace("/SSMAgent", ""))
-
-                        if (id >= this._NextAgentId) {
-                            this._NextAgentId = id + 1;
-                        }
-
-                        const Agent = new IAgent(container);
-                        this._AGENTS.push(Agent);
+                containers.forEach(container => {
+                    if (container.data.Id == Agent.getDockerId()) {
+                        resolve(container);
+                        return;
                     }
-                }
+                })
 
-                //console.log(this._AGENTS)
+                resolve(null)
+            }).catch(reject)
 
-                return this.CheckAllAgentsActive();
-            }).then(() => {
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
         });
     }
 
     GetAgentByDockerId(id) {
-        return this._AGENTS.find(agent => agent.getContainerInfo().Id == id);
+        return this._AGENTS.find(agent => agent.getDockerId() == id);
+    }
+
+    GetAllAgents() {
+        return this._AGENTS;
     }
 
     GetAgentById(id) {
         return this._AGENTS.find(agent => agent.getId() == id);
     }
 
-    GetNewDockerInfo() {
+    GetAgentByDisplayName(name) {
+        return this._AGENTS.find(agent => agent.getDisplayName().toLowerCase() == name.toLowerCase());
+    }
+
+    GetAgentByServerPort(port) {
+        return this._AGENTS.find(agent => agent.getServerPort() == port);
+    }
+
+    GetNewDockerInfo(ServerName, portOffset) {
         return {
-            Name: "SSMAgent" + this._NextAgentId,
-            AgentPort: (3000 + this._NextAgentId),
-            ServerQueryPort: (15776 + this._NextAgentId),
-            BeaconPort: (14999 + this._NextAgentId),
-            Port: (7776 + this._NextAgentId),
+            Name: "SSMAgent_" + ServerName,
+            AgentPort: (3000 + portOffset),
+            ServerQueryPort: (15776 + portOffset),
+            BeaconPort: (14999 + portOffset),
+            Port: (7776 + portOffset),
         }
     }
 
-    CreateNewDockerAgent(UserID) {
+    FixAgentsMigrationPortData() {
+        return new Promise((resolve, reject) => {
+            const promises = [];
+
+            this.GetAllAgents().forEach(Agent => {
+                if (Agent.getSSMPort() == 0 && Agent.isRunning()) {
+
+                    const Ports = Agent.getContainerInfo().Ports;
+                    let BeaconPort = 0,
+                        ServerPort = 0,
+                        SSMPort = 0,
+                        Port = 0;
+
+                    if (Ports.length > 0) {
+                        BeaconPort = Ports[0].PublicPort;
+                        ServerPort = Ports[1].PublicPort;
+                        SSMPort = Ports[2].PublicPort;
+                        Port = Ports[3].PublicPort;
+                    }
+
+                    const SQL = `UPDATE agents SET agent_ssm_port=?, agent_serverport=?, agent_beaconport=?, agent_port=? WHERE agent_id=?`
+                    const SQLData = [
+                        SSMPort,
+                        ServerPort,
+                        BeaconPort,
+                        Port,
+                        Agent.getId()
+                    ];
+                    promises.push(DB.queryRun(SQL, SQLData));
+                }
+            })
+
+            Promise.all(promises).then(() => {
+                resolve();
+            })
+
+        });
+    }
+
+    CreateNewDockerAgent(UserID, Data) {
         return new Promise((resolve, reject) => {
 
             const UserAccount = UserManager.getUserById(UserID);
@@ -136,13 +237,39 @@ class AgentHandler {
             }
 
 
+            const portOffset = Data.port - 15776;
+
+            if (portOffset < 0) {
+                reject(new Error("Server Port must be above 15776"))
+                return;
+            }
+
+            const DisplayName = Data.name.replace(" ", "");
+
+
             const {
                 Name,
                 AgentPort,
                 ServerQueryPort,
                 BeaconPort,
                 Port
-            } = this.GetNewDockerInfo()
+            } = this.GetNewDockerInfo(DisplayName, portOffset)
+
+            let ExistingAgent = this.GetAgentByServerPort(ServerQueryPort);
+
+            if (ExistingAgent != null) {
+                reject(new Error(`Server Instance with this port (${ServerQueryPort}) Already Exist!`))
+                return;
+            }
+
+            ExistingAgent = this.GetAgentByDisplayName(DisplayName);
+
+            if (ExistingAgent != null) {
+                reject(new Error(`Server Instance with this name (${DisplayName}) Already Exist!`))
+                return;
+            }
+
+            logger.info(`[AGENT_HANDLER] - Creating Agent (${DisplayName}) ...`);
 
             const PortBindings = {};
 
@@ -170,8 +297,6 @@ class AgentHandler {
             ExposedPorts[`${BeaconPort}/udp`] = {}
             ExposedPorts[`${Port}/udp`] = {}
 
-            console.log(PortBindings)
-
             this._docker.container.create({
                 Image: 'mrhid6/ssmagent:latest',
                 name: Name,
@@ -181,7 +306,10 @@ class AgentHandler {
                 ExposedPorts
             }).then(container => {
                 logger.info("[AGENT_HANDLER] - Created agent successfully!");
-                return container.start()
+                return this.CreateAgentInDB(container, Name, DisplayName, AgentPort, ServerQueryPort, BeaconPort, Port).then(() => {
+                    logger.info("[AGENT_HANDLER] - Starting Agent ...");
+                    return container.start()
+                })
             }).then(container => {
                 const Agent = new IAgent(container);
                 return this.WaitForAgentToStart(Agent)
@@ -193,6 +321,88 @@ class AgentHandler {
             }).catch(err => {
                 reject(err);
             })
+
+        });
+    }
+
+    CreateAgentInDB(container, Name, DisplayName, SSMPort, ServerPort, BeaconPort, Port) {
+        return new Promise((resolve, reject) => {
+            const SQL = "INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port) VALUES (?,?,?,?,?,?,?)"
+
+            const SQLData = [
+                Name,
+                DisplayName,
+                container.data.Id,
+                SSMPort,
+                ServerPort,
+                BeaconPort,
+                Port
+            ];
+            DB.queryRun(SQL, SQLData).then(() => {
+                return this.BuildAgentList();
+            }).then(() => {
+                resolve();
+            }).catch(reject)
+        });
+    }
+
+    RemoveAgentFromDB(Agent) {
+        return new Promise((resolve, reject) => {
+            const AgentID = Agent.getId();
+            const SQL = "DELETE FROM agents WHERE agent_id=?";
+            DB.queryRun(SQL, [Agent.getId()]).then(() => {
+                resolve(AgentID);
+            })
+        });
+    }
+
+
+    DeleteAgent(UserID, Data) {
+        return new Promise((resolve, reject) => {
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission("agentactions.delete")) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+            logger.info(`[AGENT_HANDLER] - Deleting Agent`);
+            let VolumeID = "";
+            this.StopDockerAgent(Data.agentid, UserID).then(() => {
+                logger.info(`[AGENT_HANDLER] - Agent Stopped`);
+                const Agent = this.GetAgentById(Data.agentid);
+                if (Agent == null) {
+                    logger.error(`[AGENT_HANDLER] - Cant Find Agent ${Data.agentid}`);
+                    reject("Agent is Null");
+                    return;
+                }
+
+
+                VolumeID = Agent.getContainerInfo().Mounts[0].Name
+                const Container = Agent.getContainer();
+
+                return Container.delete({
+                    force: true
+                })
+            }).then(() => {
+                logger.info(`[AGENT_HANDLER] - Docker Deleted`);
+                return this._docker.volume.get(VolumeID);
+            }).then(Volume => {
+                return Volume.remove({
+                    force: true
+                });
+            }).then(() => {
+                logger.info(`[AGENT_HANDLER] - Docker Volume Deleted`);
+                return this.BuildAgentList();
+            }).then(() => {
+                logger.info(`[AGENT_HANDLER] - Agent Deleted!`);
+                resolve();
+            }).catch(reject)
 
         });
     }
@@ -212,6 +422,29 @@ class AgentHandler {
                     }
 
                     if (TempAgent.isActive() === true) {
+                        resolve(TempAgent);
+                        clearInterval(interval);
+                    }
+                }).catch(err => {})
+            }, 5000)
+        });
+    }
+
+    WaitForAgentToStop(Agent) {
+        return new Promise((resolve, reject) => {
+            const AgentId = Agent.getContainerInfo().Id;
+
+            let interval = setInterval(() => {
+                logger.debug("[AGENT_HANDLER] - Waiting for agent to stop ...");
+
+                this.BuildAgentList().then(() => {
+                    const TempAgent = this.GetAgentByDockerId(AgentId);
+
+                    if (TempAgent == null) {
+                        return;
+                    }
+
+                    if (TempAgent.isActive() === false && TempAgent.isRunning() == false) {
                         resolve(TempAgent);
                         clearInterval(interval);
                     }
@@ -327,6 +560,12 @@ class AgentHandler {
                 return;
             }
 
+            if (Agent.isActive() == false && Agent.isRunning() == false) {
+                logger.info("[AGENT_HANDLER] - Agent Already Stopped!");
+                resolve();
+                return;
+            }
+
             let stoppromise;
 
             if (Agent.isActive() == false) {
@@ -336,6 +575,8 @@ class AgentHandler {
             }
 
             stoppromise.then(() => {
+                return this.WaitForAgentToStop(Agent)
+            }).then(() => {
                 return this.BuildAgentList();
             }).then(() => {
                 logger.info("[AGENT_HANDLER] - Agent Stopped!");
@@ -348,10 +589,10 @@ class AgentHandler {
 
     API_GetAllAgents() {
         return new Promise((resolve, reject) => {
-            this.BuildAgentList().then(() => {
+            this.CheckAllAgentsActive().then(() => {
                 const ResAgents = []
-                for (let i = 0; i < this._AGENTS.length; i++) {
-                    const agent = this._AGENTS[i];
+                for (let i = 0; i < this.GetAllAgents().length; i++) {
+                    const agent = this.GetAllAgents()[i];
                     ResAgents.push(agent.getWebJson());
                 }
 

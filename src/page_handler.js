@@ -103,7 +103,7 @@ class PageHandler {
 
                 this.populateServerSelection();
             } else {
-                console.log(res)
+                Logger.error(res.error)
             }
         }).catch(err => {
             console.log(err);
@@ -153,7 +153,7 @@ class PageHandler {
 
     startLoggedInCheck() {
         const interval = setInterval(() => {
-            Logger.info("Checking Logged In!");
+            Logger.debug("Checking Logged In!");
             this.checkLoggedIn().then(loggedin => {
                 if (loggedin != true) {
                     clearInterval(interval)

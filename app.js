@@ -194,7 +194,9 @@ class AppServer {
         };
 
         FSStore.prototype.destroy = function (sid) {
-            fs.unlinkSync(path.join(this.dir, sid + '.json'));
+            const sessionFile = path.join(this.dir, sid + '.json');
+            if (fs.existsSync(sessionFile))
+                fs.unlinkSync(sessionFile);
         };
     }
 

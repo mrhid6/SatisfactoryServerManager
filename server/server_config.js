@@ -96,7 +96,7 @@ class ServerConfig extends iConfig {
         super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
         super.get("ssm.backup.interval", 1);
-        super.get("ssm.backup.keep", 5);
+        super.get("ssm.backup.keep", 24);
         super.get("ssm.backup.nextbackup", 0);
 
         super.get("satisfactory.installed", false)

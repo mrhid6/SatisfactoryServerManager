@@ -1,4 +1,5 @@
 var express = require('express');
+const AgentHandler = require('../server/server_agent_handler');
 var router = express.Router();
 
 const ServerApp = require("../server/server_app");
@@ -152,6 +153,7 @@ router.get('/servers', middleWare, function (req, res, next) {
 /* GET agents. */
 router.get('/server/:id', middleWare, function (req, res, next) {
     const agentid = req.params.id;
+
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;
         const perms = GetPagePermissions(UserID);
@@ -161,9 +163,17 @@ router.get('/server/:id', middleWare, function (req, res, next) {
             return;
         }
 
+        const Agent = AgentHandler.GetAgentById(agentid);
+
+        if (Agent == null) {
+            res.redirect("/");
+            return;
+        }
+
         res.render('server.hbs', {
             layout: "main.hbs",
             AGENTID: agentid,
+            AGENTNAME: Agent.getDisplayName(),
             perms
         });
     } else {

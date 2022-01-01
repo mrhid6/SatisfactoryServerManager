@@ -17808,7 +17808,7 @@ class PageHandler {
 
                 this.populateServerSelection();
             } else {
-                console.log(res)
+                Logger.error(res.error)
             }
         }).catch(err => {
             console.log(err);
@@ -17858,7 +17858,7 @@ class PageHandler {
 
     startLoggedInCheck() {
         const interval = setInterval(() => {
-            Logger.info("Checking Logged In!");
+            Logger.debug("Checking Logged In!");
             this.checkLoggedIn().then(loggedin => {
                 if (loggedin != true) {
                     clearInterval(interval)
@@ -18861,6 +18861,22 @@ class Page_Server {
             e.preventDefault();
             this.installSFServer();
         })
+
+        $("#server-dangerarea-delete").on("click", e => {
+            e.preventDefault();
+            this.OpenConfirmDeleteModal();
+        })
+
+        $("body").on("click", "#confirm-action", e => {
+            const $btn = $(e.currentTarget);
+
+            const action = $btn.attr("data-action");
+
+            if (action == "delete-server") {
+                $("#server-action-confirm .close").trigger("click")
+                this.DeleteAgent();
+            }
+        })
     }
 
     DisplayServerInfo() {
@@ -19134,7 +19150,33 @@ class Page_Server {
         });
     }
 
+    OpenConfirmDeleteModal() {
+        Tools.openModal("/public/modals", "server-action-confirm", modal => {
+            modal.find("#confirm-action").attr("data-action", "delete-server");
+        })
+    }
+
+    DeleteAgent() {
+        const postData = {
+            agentid: this.agentid
+        }
+
+        API_Proxy.postData("agent/delete", postData).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Has Been Deleted!")
+
+                setTimeout(() => {
+                    window.redirect("/servers")
+                }, 10000);
+            } else {
+                toastr.error("Failed To Delete Server!")
+                Logger.error(res.error);
+            }
+        })
+    }
 }
+
+
 
 const page = new Page_Server();
 
@@ -19166,11 +19208,14 @@ class Page_Servers {
             } else {
                 this.StopDockerAgent($button.attr("data-agentid"));
             }
+        }).on("click", "#submit-create-server-btn", e => {
+            this.CreateNewServer();
         })
 
         $("#btn-createserver").on("click", e => {
             e.preventDefault()
-            this.CreateNewServer();
+            this.OpenCreateServerModal();
+            //this.CreateNewServer();
         })
     }
 
@@ -19219,7 +19264,7 @@ class Page_Servers {
             }
 
             tableData.push([
-                agent.name,
+                agent.displayname,
                 $RunningIcon.prop('outerHTML'),
                 $ActiveIcon.prop('outerHTML'),
                 (agent.info.version || "Unknown"),
@@ -19275,8 +19320,24 @@ class Page_Servers {
         })
     }
 
+    OpenCreateServerModal() {
+        Tools.openModal("/public/modals", "create-server-modal", modal => {})
+    }
+
     CreateNewServer() {
-        API_Proxy.post("agent", "create").then(res => {
+        const postData = {
+            name: $("#inp_servername").val(),
+            port: parseInt($("#inp_serverport").val())
+        }
+
+        if (postData.name == "" || postData.port < 15777) {
+            $("#create-server-error").removeClass("hidden").text("Error: Server Name Is Required And Server Port must be more than 15776")
+            return;
+        }
+
+        $("#create-server-modal .close").trigger("click");
+
+        API_Proxy.postData("agent/create", postData).then(res => {
             if (res.result == "success") {
                 toastr.success("Server created!")
             } else {

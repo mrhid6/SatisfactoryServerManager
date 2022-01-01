@@ -27,7 +27,8 @@ class ServerDB {
         this._ExpectedTables = [
             "users",
             "roles",
-            "permissions"
+            "permissions",
+            "agents"
         ]
 
     }
@@ -104,6 +105,9 @@ class ServerDB {
                                 break;
                             case "permissions":
                                 promises.push(this.createPermissionsTable())
+                                break;
+                            case "agents":
+                                promises.push(this.createAgentsTable())
                                 break;
                         }
                     }
@@ -248,6 +252,100 @@ class ServerDB {
                 reject(err)
             });
         });
+    }
+
+    createAgentsTable() {
+        return new Promise((resolve, reject) => {
+            logger.info("Creating Agents Table")
+            const agentsTableSql = `CREATE TABLE "agents" (
+                "agent_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "agent_name" VARCHAR(255) NOT NULL DEFAULT '',
+                "agent_displayname" VARCHAR(255) NOT NULL DEFAULT '',
+                "agent_docker_id" TEXT NOT NULL DEFAULT '',
+                "agent_ssm_port" INTEGER NOT NULL DEFAULT 0,
+                "agent_serverport" INTEGER NOT NULL DEFAULT 0,
+                "agent_beaconport" INTEGER NOT NULL DEFAULT 0,
+                "agent_port" INTEGER NOT NULL DEFAULT 0
+            );`
+
+            this.queryRun(agentsTableSql).then(() => {
+                const {
+                    Docker
+                } = require('node-docker-api');
+
+                let dockerSettings = {
+                    host: "http://127.0.0.1",
+                    port: 2375
+                }
+
+                if (process.platform != "win32") {
+                    dockerSettings = {
+                        socketPath: "/var/run/docker.sock"
+                    }
+                }
+
+                const docker = new Docker(dockerSettings);
+
+                docker.container.list({
+                    all: 1
+                }).then(containers => {
+
+                    const SQLData = [];
+
+                    let AgentSQL = `INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port) VALUES `
+
+                    for (let i = 0; i < containers.length; i++) {
+
+                        const container = containers[i];
+                        let name = container.data.Names[0];
+                        const ports = container.data.Ports;
+
+                        if (name.startsWith("/SSMAgent")) {
+                            name = name.replace("/", "");
+                            AgentSQL += "(?,?,?,?,?,?,?), "
+
+
+
+                            const NameArr = name.split("_");
+                            let DisplayName = name;
+                            if (NameArr.length > 1) {
+                                DisplayName = NameArr[1];
+                            }
+
+                            const Ports = containers[0].data.Ports;
+                            let BeaconPort = 0,
+                                ServerPort = 0,
+                                SSMPort = 0,
+                                Port = 0;
+
+                            if (Ports.length > 0) {
+                                BeaconPort = Ports[0].PublicPort;
+                                ServerPort = Ports[1].PublicPort;
+                                SSMPort = Ports[2].PublicPort;
+                                Port = Ports[3].PublicPort;
+                            }
+
+                            SQLData.push(name, DisplayName, container.data.Id, SSMPort, ServerPort, BeaconPort, Port);
+                        }
+                    }
+
+                    if (SQLData.length == 0) {
+                        return;
+                    }
+
+                    AgentSQL = AgentSQL.substring(0, AgentSQL.length - 2);
+                    AgentSQL += ";";
+
+                    return this.queryRun(AgentSQL, SQLData)
+                }).then(() => {
+                    resolve();
+                }).catch(err => {
+                    console.log(err);
+                    reject(err)
+                });
+            });
+
+        })
     }
 
 

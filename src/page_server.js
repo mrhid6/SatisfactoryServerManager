@@ -98,6 +98,22 @@ class Page_Server {
             e.preventDefault();
             this.installSFServer();
         })
+
+        $("#server-dangerarea-delete").on("click", e => {
+            e.preventDefault();
+            this.OpenConfirmDeleteModal();
+        })
+
+        $("body").on("click", "#confirm-action", e => {
+            const $btn = $(e.currentTarget);
+
+            const action = $btn.attr("data-action");
+
+            if (action == "delete-server") {
+                $("#server-action-confirm .close").trigger("click")
+                this.DeleteAgent();
+            }
+        })
     }
 
     DisplayServerInfo() {
@@ -371,7 +387,33 @@ class Page_Server {
         });
     }
 
+    OpenConfirmDeleteModal() {
+        Tools.openModal("/public/modals", "server-action-confirm", modal => {
+            modal.find("#confirm-action").attr("data-action", "delete-server");
+        })
+    }
+
+    DeleteAgent() {
+        const postData = {
+            agentid: this.agentid
+        }
+
+        API_Proxy.postData("agent/delete", postData).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Has Been Deleted!")
+
+                setTimeout(() => {
+                    window.redirect("/servers")
+                }, 10000);
+            } else {
+                toastr.error("Failed To Delete Server!")
+                Logger.error(res.error);
+            }
+        })
+    }
 }
+
+
 
 const page = new Page_Server();
 

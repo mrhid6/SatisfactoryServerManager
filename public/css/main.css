@@ -65,6 +65,10 @@ body {
     font-size: 14px;
 }
 
+.hidden {
+    display: none;
+}
+
 
 /* Dashboard Page*/
 
@@ -244,7 +248,8 @@ body {
     font-weight: bold;
 }
 
-.ssm-modal .input-group i {
+.ssm-modal .input-group i,
+.ssm-modal .btn i {
     font-size: unset;
 }
 

@@ -16,13 +16,29 @@ if (platform != "win32") {
 }
 
 
-
+/*
 const docker = new Docker(dockerSettings);
 
 docker.container.list({
         all: 1
     })
     .then(containers => {
-        console.log(containers[0].data)
+        const container = containers[0];
+        const VolumeID = container.data.Mounts[0].Name;
+        return docker.volume.get(VolumeID);
+    }).then(volume => {
+        console.log(volume)
+        /*container.delete({
+            force: true
+        })
     })
     .catch(error => console.log(error));
+
+
+
+docker.volume.list({
+    all: 1
+}).then(volumes => {
+    console.log(volumes)
+}).catch(console.log)
+*/

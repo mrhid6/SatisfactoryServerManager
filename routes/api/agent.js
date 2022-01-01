@@ -48,8 +48,24 @@ router.get('/agents', middleWare, function (req, res, next) {
 router.post('/create', middleWare, function (req, res, next) {
 
     const UserID = req.session.userid;
+    const post = req.body;
+    AgentHandler.CreateNewDockerAgent(UserID, post).then(() => {
+        res.json({
+            result: "success"
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+});
 
-    AgentHandler.CreateNewDockerAgent(UserID).then(() => {
+router.post('/delete', middleWare, function (req, res, next) {
+
+    const UserID = req.session.userid;
+    const post = req.body;
+    AgentHandler.DeleteAgent(UserID, post).then(() => {
         res.json({
             result: "success"
         });
