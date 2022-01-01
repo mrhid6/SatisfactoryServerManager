@@ -76,7 +76,7 @@
                     </a>
                 </li>
                 {{/if}}
-                 {{#if perms.logs}}
+                {{#if perms.logs}}
                 <li class="nav-item">
                     <a class="nav-link" href="/logs">
                         <i class="fas fa-file-alt"></i>
@@ -92,6 +92,26 @@
                     </a>
                 </li>
                 {{/if}}
+
+                {{#if (or perms.admin.settings perms.admin.users perms.admin.backups)}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                        aria-haspopup="true" aria-expanded="false"> <i class="fas fa-user-shield"></i>
+                        Admin</a>
+                    <div class="dropdown-menu">
+                        {{#if perms.admin.backups}}
+                        <a class="dropdown-item" href="/backups">Backups</a>
+                        {{/if}}
+                        {{#if perms.admin.settings}}
+                        <a class="dropdown-item" href="/settings">Settings</a>
+                        {{/if}}
+                        {{#if perms.admin.users}}
+                        <a class="dropdown-item" href="/users">Users</a>
+                        {{/if}}
+                    </div>
+                </li>
+                {{/if}}
+
                 {{#if perms.settings}}
                 <li class="nav-item">
                     <a class="nav-link" href="/settings">

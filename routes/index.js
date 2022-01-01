@@ -227,7 +227,7 @@ router.get('/settings', middleWare, function (req, res, next) {
         const UserID = req.session.userid;
         const perms = GetPagePermissions(UserID);
 
-        if (perms.settings == false) {
+        if (perms.admin.settings == false) {
             res.redirect("/");
             return;
         }
@@ -271,7 +271,11 @@ function GetPagePermissions(UserID) {
         mods: UserAccount.HasPermission("page.mods"),
         logs: UserAccount.HasPermission("page.logs"),
         saves: UserAccount.HasPermission("page.saves"),
-        settings: UserAccount.HasPermission("page.settings"),
+        admin: {
+            settings: UserAccount.HasPermission("page.admin.settings"),
+            users: UserAccount.HasPermission("page.admin.users"),
+            backups: UserAccount.HasPermission("page.admin.backups"),
+        }
     }
 
     return Perms;

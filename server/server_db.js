@@ -239,7 +239,10 @@ class ServerDB {
                     "page.mods",
                     "page.logs",
                     "page.saves",
-                    "page.settings",
+                    "page.admin",
+                    "page.admin.settings",
+                    "page.admin.users",
+                    "page.admin.backups",
                 ];
                 let PermSQL = `INSERT INTO permissions(perm_name) VALUES `
                 PermSQL += defaultPerms.map(perm => "(?)").join(",");

@@ -9,7 +9,7 @@ require("isomorphic-fetch");
 const express = require('express');
 const session = require('express-session');
 const FSStore = require('connect-fs2')(session);
-const exphbs = require('express-handlebars').engine;
+const exphbs = require('express-handlebars');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
@@ -88,13 +88,19 @@ class AppServer {
         app.use(expsess);
 
         app.set('trust proxy', '127.0.0.1');
+        const hbs = exphbs.create({
+            defaultLayout: 'main.hbs',
+            layoutsDir: path.join(__dirname + '/views/layouts'),
+            helpers: {
+                or: function () {
+                    return Array.prototype.slice.call(arguments, 0, -1).some(Boolean)
+                }
+            }
+        });
 
         // View Engine
         app.set('views', path.join(__dirname + '/views'));
-        app.engine('.hbs', exphbs({
-            defaultLayout: 'main.hbs',
-            layoutsDir: path.join(__dirname + '/views/layouts')
-        }));
+        app.engine('.hbs', hbs.engine);
         app.set('view engine', '.hbs');
 
         var corsOptions = {
