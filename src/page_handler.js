@@ -9,6 +9,7 @@ const Page_Saves = require("./page_saves");
 const Page_Settings = require("./page_settings");
 const Page_Servers = require("./page_servers");
 const Page_Server = require("./page_server");
+const Page_Users = require("./page_users");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -62,6 +63,9 @@ class PageHandler {
                 break;
             case "server":
                 Page_Server.init();
+                break;
+            case "users":
+                Page_Users.init();
                 break;
         }
 

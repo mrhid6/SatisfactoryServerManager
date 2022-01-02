@@ -80,6 +80,15 @@ class ServerConfig extends iConfig {
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.1.13`);
 
+
+        const NotificationEvents = [
+            "ssm.startup",
+            "ssm.shutdown"
+        ]
+        super.get("ssm.notifications.discord.enabled", false)
+        super.get("ssm.notifications.discord.webhookurl", "");
+        super.set("ssm.notifications.discord.events", NotificationEvents);
+
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");
         }

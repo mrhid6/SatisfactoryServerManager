@@ -11,6 +11,9 @@ const SSM_Agent_Handler = require("./server_agent_handler");
 const DB = require("./server_db");
 const UserManager = require("./server_user_manager");
 
+const NotificationHandler = require("./server_notifcation_handler");
+const DiscordNotification = require("./notifications/DiscordNotification");
+
 class SSM_Server_App {
 
     constructor() {
@@ -29,6 +32,9 @@ class SSM_Server_App {
             DB.init().then(() => {
                 UserManager.init();
                 SSM_Agent_Handler.init();
+                DiscordNotification.init();
+
+                NotificationHandler.TriggerNotification("ssm.startup", {});
             })
         }
 
@@ -37,6 +43,11 @@ class SSM_Server_App {
     setupEventHandlers() {
         Cleanup.addEventHandler(() => {
             logger.info("[SERVER_APP] [CLEANUP] - Closing Server App...");
+
+            Cleanup.increaseCounter(1);
+            NotificationHandler.TriggerNotification("ssm.shutdown", {}).then(() => {
+                Cleanup.decreaseCounter(1);
+            })
         })
     }
 
