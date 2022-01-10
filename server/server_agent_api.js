@@ -64,7 +64,12 @@ class AgentAPI {
         return new Promise((resolve, reject) => {
             const postData = {
                 publicKey: Config.get("ssm.agent.publickey"),
-                agentId: Agent.getId()
+                agentId: Agent.getId(),
+                ports: {
+                    server: Agent.getServerPort(),
+                    beacon: Agent.getBeaconPort(),
+                    port: Agent.getPort()
+                }
             }
             this.remoteRequestPOST(Agent, "init", postData).then(res => {
 

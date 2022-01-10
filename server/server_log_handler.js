@@ -78,7 +78,11 @@ class SSM_Log_Handler {
                 }
                 const dataStr = data.toString().replace(/\r\n/g, '\n');
                 const dataArr = (dataStr.split("\n")).reverse().filter(el => el != "");
-                resolve(dataArr)
+                const resData = {
+                    logArray: dataArr,
+                    playerJoins: dataArr.filter(l=>l.includes("Join suc"))
+                }
+                resolve(resData)
             })
         });
     }

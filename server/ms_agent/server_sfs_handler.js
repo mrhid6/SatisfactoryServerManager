@@ -277,7 +277,7 @@ class SF_Server_Handler {
 
         return new Promise((resolve, reject) => {
             logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
-            this.getServerStatus().then(server_status => {
+            this._getServerState().then(server_status => {
                 if (server_status.pid == -1) {
                     const LogFile = path.join(Config.get("satisfactory.log.location"), "FactoryServer.Log")
 
@@ -312,10 +312,11 @@ class SF_Server_Handler {
     }
 
     getStartupPortConfig() {
+
         return {
-            ServerQueryPort: (15776 + Config.get("ssm.agent.id")),
-            BeaconPort: (14999 + Config.get("ssm.agent.id")),
-            Port: (7776 + Config.get("ssm.agent.id"))
+            ServerQueryPort: Config.get("satisfactory.ports.serverport"),
+            BeaconPort: Config.get("satisfactory.ports.beaconport"),
+            Port: Config.get("satisfactory.ports.port")
         }
     }
 
@@ -381,7 +382,7 @@ class SF_Server_Handler {
         logger.debug("[SFS_Handler] [SERVER_ACTION] - Stopping SF Server ...");
         Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
-            this.getServerStatus().then(server_status => {
+            this._getServerState().then(server_status => {
                 if (server_status.pid != -1) {
 
                     process.kill(server_status.pid, 'SIGINT');
@@ -408,7 +409,7 @@ class SF_Server_Handler {
         logger.debug("[SFS_Handler] [SERVER_ACTION] - Killing SF Server ...");
         Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
-            this.getServerStatus().then(server_status => {
+            this._getServerState().then(server_status => {
                 if (server_status.pid != -1) {
                     process.kill(server_status.pid, 'SIGKILL');
                     this.wailTillSFServerStopped().then(() => {

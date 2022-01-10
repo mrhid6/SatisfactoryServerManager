@@ -44,6 +44,8 @@ class DiscordNotification extends NotificationInterface {
                 promise.then(() => {
                     resolve();
                 })
+            } else {
+                resolve();
             }
         });
     }

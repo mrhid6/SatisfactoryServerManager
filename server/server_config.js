@@ -196,6 +196,9 @@ class ServerConfig extends iConfig {
             super.set("ssm.agent.id", parseInt(data.agentId));
             super.set("ssm.agent.key", AgentHash);
             super.set("ssm.agent.setup", true)
+            super.set("satisfactory.ports.serverport", data.ports.server);
+            super.set("satisfactory.ports.beaconport", data.ports.beacon);
+            super.set("satisfactory.ports.port", data.ports.port);
         }
     }
 }

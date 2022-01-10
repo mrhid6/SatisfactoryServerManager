@@ -778,8 +778,20 @@ class AgentHandler {
         })
     }
 
-    API_UploadSaveFile(fileData, data) {
+    API_UploadSaveFile(fileData, data, UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`settings.saves.upload`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -823,8 +835,20 @@ class AgentHandler {
         })
     }
 
-    API_DeleteSaveFile(data) {
+    API_DeleteSaveFile(data, UserID) {
         return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`settings.saves.delete`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -845,8 +869,21 @@ class AgentHandler {
         })
     }
 
-    API_DownloadSaveFile(data) {
+    API_DownloadSaveFile(data, UserID) {
         return new Promise((resolve, reject) => {
+
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`settings.saves.download`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
 
             const Agent = this.GetAgentById(data.agentid)
             if (Agent == null) {
@@ -895,6 +932,41 @@ class AgentHandler {
                 reject(err);
             })
 
+        });
+    }
+
+    API_GetBackups(data, UserID) {
+        return new Promise((resolve, reject) => {
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`settings.backup.view`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is not defined!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.remoteRequestGET(Agent, "backups").then(res => {
+                resolve(res.data.data);
+            }).catch(err => {
+                reject(err);
+            })
         });
     }
 }

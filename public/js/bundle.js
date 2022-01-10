@@ -17995,7 +17995,7 @@ class Page_Logs {
             const el = $("#smlauncher-log-viewer samp");
             el.empty();
             if (res.result == "success") {
-                res.data.forEach((logline) => {
+                res.data.logArray.forEach((logline) => {
                     el.append("<p>" + logline + "</p>")
                 })
             } else {

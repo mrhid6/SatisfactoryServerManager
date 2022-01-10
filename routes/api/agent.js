@@ -257,6 +257,8 @@ router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
         agentid: req.params.agentid
     };
 
+    const UserID = req.session.userid;
+
     GameSaveUpload(req, res, (err) => {
         if (err) {
             res.json({
@@ -264,7 +266,7 @@ router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
                 error: err.message
             })
         } else {
-            AgentHandler.API_UploadSaveFile(req.file, data).then(() => {
+            AgentHandler.API_UploadSaveFile(req.file, data, UserID).then(() => {
                 res.json({
                     result: "success"
                 })
@@ -280,7 +282,9 @@ router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
 
 router.post('/gamesaves/delete', middleWare, function (req, res) {
 
-    AgentHandler.API_DeleteSaveFile(req.body).then(() => {
+    const UserID = req.session.userid;
+
+    AgentHandler.API_DeleteSaveFile(req.body, UserID).then(() => {
         res.json({
             result: "success"
         })
@@ -294,7 +298,9 @@ router.post('/gamesaves/delete', middleWare, function (req, res) {
 
 router.post('/gamesaves/download', middleWare, function (req, res) {
 
-    AgentHandler.API_DownloadSaveFile(req.body).then(saveFile => {
+    const UserID = req.session.userid;
+
+    AgentHandler.API_DownloadSaveFile(req.body, UserID).then(saveFile => {
         res.download(saveFile);
     }).catch(err => {
         res.json({
@@ -345,6 +351,23 @@ router.post('/logs/sfserverlog', middleWare, function (req, res) {
         })
     })
 });
+
+router.post('/backup', middleWare, (req, res) => {
+    const post = req.body;
+    const UserID = req.session.userid;
+
+    AgentHandler.API_GetBackups(post, UserID).then(logs => {
+        res.json({
+            result: "success",
+            data: logs
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+})
 
 
 module.exports = router;

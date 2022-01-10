@@ -175,7 +175,8 @@ class ServerDB {
                             "page.saves",
                             "mods.*",
                             "manageusers.create",
-                            "settings.saves.*"
+                            "settings.saves.*",
+                            "settings.backups.*",
                         ]
                     },
                     {
@@ -230,7 +231,9 @@ class ServerDB {
                     "manageusers.resetpass",
                     "settings.agent.sf",
                     "settings.agent.mod",
-                    "settings.agent.backup",
+                    "settings.backup.view",
+                    "settings.backup.download",
+                    "settings.backup.delete",
                     "settings.saves.upload",
                     "settings.saves.download",
                     "settings.saves.delete",

@@ -154,6 +154,30 @@ class BackupManager {
             });
         });
     }
+
+
+    API_ListBackups() {
+        return new Promise((resolve, reject) => {
+            recursive(Config.get("ssm.backup.location"), [BackupFileFilter], (err, files) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const sortedFiles = files.sort().reverse();
+                const resarray = [];
+                sortedFiles.forEach(file => {
+                    const fileInfo = fs.statSync(file);
+                    const pathInfo = path.parse(file);
+                    resarray.push({
+                        filename: pathInfo.base,
+                        size: fileInfo.size,
+                        created: fileInfo.birthtime
+                    })
+                })
+                resolve(resarray)
+            })
+        });
+    }
 }
 
 function BackupFileFilter(file, stats) {

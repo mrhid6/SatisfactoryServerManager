@@ -11,6 +11,7 @@ const fs = require("fs-extra");
 
 const AgentApp = require("../server/server_agent_app");
 const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
+const BackupManager = require("../server/ms_agent/server_backup_manager");
 const SSM_Mod_Handler = require("../server/ms_agent/server_mod_handler");
 const SSM_Log_Handler = require("../server/server_log_handler");
 const ServerApp = require("../server/server_app");
@@ -380,6 +381,21 @@ router.get('/logs/sfserverlog', checkHeaderKey, function (req, res, next) {
         });
     })
 });
+
+router.get("/backups", checkHeaderKey, (req, res, next) => {
+    BackupManager.API_ListBackups().then(result => {
+        res.json({
+            result: "success",
+            data: result
+        });
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
+    })
+})
+
 
 
 
