@@ -17226,7 +17226,7 @@ function main() {
 $(document).ready(() => {
     main();
 });
-},{"./logger":73,"./page_handler":75}],72:[function(require,module,exports){
+},{"./logger":73,"./page_handler":76}],72:[function(require,module,exports){
 const logger = require("./logger");
 
 const EventEmitter = require('events');
@@ -17466,6 +17466,93 @@ Logger.debug = (Message) => {
 module.exports = Logger;
 },{}],74:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
+const Tools = require("../Mrhid6Utils/lib/tools");
+
+const PageCache = require("./cache");
+
+class Page_Backups {
+    constructor() {
+        this._ROLES = [];
+    }
+
+    init() {
+        this.setupJqueryListeners();
+        this.SetupEventHandlers();
+    }
+
+    SetupEventHandlers() {
+        PageCache.on("setactiveagent", () => {
+            this.MainDisplayFunction();
+        })
+    }
+
+    setupJqueryListeners() {}
+
+    MainDisplayFunction() {
+        this.DisplayBackupsTable();
+    }
+
+    DisplayBackupsTable() {
+
+        const Agent = PageCache.getActiveAgent()
+
+        const postData = {
+            agentid: Agent.id
+        }
+
+        API_Proxy.postData("agent/backups", postData).then(res => {
+
+            const isDataTable = $.fn.dataTable.isDataTable("#backups-table")
+            const tableData = [];
+
+            const backups = res.data;
+
+            if (backups != null && backups.length > 0) {
+                let index = 0;
+                backups.forEach(backup => {
+                    const $btn_info = $("<button/>")
+                        .addClass("btn btn-light btn-block delete-backup")
+                        .attr("data-backup-index", index)
+                        .html("<i class='fas fa-trash'></i>");
+
+                    const OpenUserStr = $btn_info.prop('outerHTML')
+
+                    tableData.push([
+                        backup.filename,
+                        backup.created,
+                        backup.size,
+                        OpenUserStr
+                    ])
+                    index++;
+                })
+            }
+
+            if (isDataTable == false) {
+                $("#backups-table").DataTable({
+                    paging: true,
+                    searching: false,
+                    info: false,
+                    order: [
+                        [0, "desc"]
+                    ],
+                    columnDefs: [],
+                    data: tableData
+                })
+            } else {
+                const datatable = $("#backups-table").DataTable();
+                datatable.clear();
+                datatable.rows.add(tableData);
+                datatable.draw();
+            }
+        })
+    }
+}
+
+const page = new Page_Backups();
+
+module.exports = page;
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],75:[function(require,module,exports){
+const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
@@ -17702,7 +17789,7 @@ class Page_Dashboard {
 const page = new Page_Dashboard();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],75:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],76:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const PageCache = require("./cache");
 
@@ -17715,6 +17802,7 @@ const Page_Settings = require("./page_settings");
 const Page_Servers = require("./page_servers");
 const Page_Server = require("./page_server");
 const Page_Users = require("./page_users");
+const Page_Backups = require("./page_backups");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -17771,6 +17859,9 @@ class PageHandler {
                 break;
             case "users":
                 Page_Users.init();
+                break;
+            case "backups":
+                Page_Backups.init();
                 break;
         }
 
@@ -17919,7 +18010,7 @@ function eraseCookie(name) {
 const pagehandler = new PageHandler();
 
 module.exports = pagehandler;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73,"./page_dashboard":74,"./page_logs":76,"./page_mods":77,"./page_saves":78,"./page_server":79,"./page_servers":80,"./page_settings":81,"./page_users":82}],76:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73,"./page_backups":74,"./page_dashboard":75,"./page_logs":77,"./page_mods":78,"./page_saves":79,"./page_server":80,"./page_servers":81,"./page_settings":82,"./page_users":83}],77:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
@@ -18030,7 +18121,7 @@ class Page_Logs {
 const page = new Page_Logs();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],77:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],78:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
@@ -18484,7 +18575,7 @@ class Page_Mods {
 const page = new Page_Mods();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],78:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],79:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -18764,7 +18855,7 @@ function saveDate(dateStr) {
 const page = new Page_Settings();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],79:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72}],80:[function(require,module,exports){
 const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 const Logger = require("./logger");
@@ -19185,7 +19276,7 @@ class Page_Server {
 const page = new Page_Server();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],80:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],81:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 
 const Tools = require("../Mrhid6Utils/lib/tools");
@@ -19356,7 +19447,7 @@ class Page_Servers {
 const page = new Page_Servers();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],81:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70,"./cache":72,"./logger":73}],82:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 
@@ -19499,7 +19590,7 @@ class Page_Settings {
 const page = new Page_Settings();
 
 module.exports = page;
-},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70}],82:[function(require,module,exports){
+},{"../Mrhid6Utils/lib/tools":66,"./api_proxy":70}],83:[function(require,module,exports){
 const API_Proxy = require("./api_proxy");
 const Tools = require("../Mrhid6Utils/lib/tools");
 

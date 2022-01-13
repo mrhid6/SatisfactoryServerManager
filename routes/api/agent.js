@@ -352,7 +352,7 @@ router.post('/logs/sfserverlog', middleWare, function (req, res) {
     })
 });
 
-router.post('/backup', middleWare, (req, res) => {
+router.post('/backups', middleWare, (req, res) => {
     const post = req.body;
     const UserID = req.session.userid;
 
