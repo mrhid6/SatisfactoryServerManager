@@ -231,6 +231,7 @@ class ServerDB {
                     "manageusers.resetpass",
                     "settings.agent.sf",
                     "settings.agent.mod",
+                    "settings.agent.backup",
                     "settings.backup.view",
                     "settings.backup.download",
                     "settings.backup.delete",

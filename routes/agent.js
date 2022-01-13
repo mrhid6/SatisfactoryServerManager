@@ -4,6 +4,7 @@ const CryptoJS = require("crypto-js");
 
 const Config = require("../server/server_config");
 const Cleanup = require("../server/server_cleanup");
+const Logger = require("../server/server_logger");
 
 const path = require("path");
 const multer = require("multer");
@@ -332,6 +333,7 @@ router.post('/gamesaves/download', checkHeaderKey, function (req, res) {
     if (fs.existsSync(saveFile)) {
         res.download(saveFile);
     } else {
+        Logger.error(`Cant find save file: ${saveFile}`)
         res.status(404).send('Not found');
     }
 });
@@ -395,6 +397,20 @@ router.get("/backups", checkHeaderKey, (req, res, next) => {
         });
     })
 })
+
+router.post('/backups/download', checkHeaderKey, function (req, res) {
+
+    const post = req.body
+
+    const backupFile = path.join(Config.get("ssm.backup.location"), post.backupfile)
+
+    if (fs.existsSync(backupFile)) {
+        res.download(backupFile);
+    } else {
+        Logger.error(`Cant find backup file: ${backupFile}`)
+        res.status(404).send('Not found');
+    }
+});
 
 
 

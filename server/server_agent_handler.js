@@ -969,6 +969,41 @@ class AgentHandler {
             })
         });
     }
+
+    API_DownloadBackupFile(data, UserID) {
+        return new Promise((resolve, reject) => {
+
+
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission(`settings.backup.download`)) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+            const Agent = this.GetAgentById(data.agentid)
+            if (Agent == null) {
+                reject(new Error("Agent is null!"))
+                return;
+            }
+
+            if (Agent.isRunning() == false || Agent.isActive() == false) {
+                reject(new Error("Agent is offline"))
+                return;
+            }
+
+            AgentAPI.DownloadAgentBackupFile(Agent, data.backupfile).then(backupfile => {
+                resolve(backupfile)
+            }).catch(err => {
+                reject(err);
+            })
+        });
+    }
 }
 
 const agentHandler = new AgentHandler();

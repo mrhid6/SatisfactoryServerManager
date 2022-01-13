@@ -369,5 +369,18 @@ router.post('/backups', middleWare, (req, res) => {
     })
 })
 
+router.post("/backups/download", middleWare, (req, res) => {
+    const UserID = req.session.userid;
+
+    AgentHandler.API_DownloadBackupFile(req.body, UserID).then(saveFile => {
+        res.download(saveFile);
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+})
+
 
 module.exports = router;
