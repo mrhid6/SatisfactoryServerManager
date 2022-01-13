@@ -17,24 +17,24 @@ class NotificationInterface {
         return this.getOptions().events;
     }
 
-    ListeningForEvent(event) {
-        const listeningevent = this.getEvents().find(e => e == event);
+    ListeningForEvent(Notification) {
+        const listeningevent = this.getEvents().find(e => e == Notification.GetEventName());
         return listeningevent != null;
     }
 
-    CanTriggerEvent(event, payload) {
+    CanTriggerEvent(Notification) {
         if (this.isEnabled() == false) {
             return false;
         }
 
-        if (!this.ListeningForEvent(event)) {
+        if (!this.ListeningForEvent(Notification)) {
             return false;
         }
 
         return true;
     }
 
-    TriggerEvent(event, payload) {
+    TriggerEvent(Notification) {
 
     }
 }

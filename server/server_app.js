@@ -14,6 +14,9 @@ const UserManager = require("./server_user_manager");
 const NotificationHandler = require("./server_notifcation_handler");
 const DiscordNotification = require("./notifications/DiscordNotification");
 
+const ObjNotifySSMStartup = require("../objects/notifications/obj_notify_ssmstartup");
+const ObjNotifySSMShutdown = require("../objects/notifications/obj_notify_ssmshutdown");
+
 class SSM_Server_App {
 
     constructor() {
@@ -33,8 +36,10 @@ class SSM_Server_App {
                 UserManager.init();
                 SSM_Agent_Handler.init();
                 DiscordNotification.init();
+                const Notification = new ObjNotifySSMStartup();
+                Notification.build();
 
-                NotificationHandler.TriggerNotification("ssm.startup", {});
+                NotificationHandler.TriggerNotification(Notification);
             })
         }
 
@@ -45,7 +50,10 @@ class SSM_Server_App {
             logger.info("[SERVER_APP] [CLEANUP] - Closing Server App...");
 
             Cleanup.increaseCounter(1);
-            NotificationHandler.TriggerNotification("ssm.shutdown", {}).then(() => {
+            const Notification = new ObjNotifySSMShutdown();
+            Notification.build();
+
+            NotificationHandler.TriggerNotification(Notification).then(() => {
                 Cleanup.decreaseCounter(1);
             })
         })

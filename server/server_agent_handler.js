@@ -15,11 +15,27 @@ const IAgent = require("../objects/obj_agent");
 const UserManager = require("./server_user_manager");
 const DB = require("./server_db");
 
+
+const NotificationHandler = require("./server_notifcation_handler");
+
+const ObjNotifyAgentCreated = require("../objects/notifications/obj_notify_agentcreated");
+const ObjNotifyAgentStarted = require("../objects/notifications/obj_notify_agentstarted");
+const ObjNotifyAgentShutdown = require("../objects/notifications/obj_notify_agentshutdown");
+
+const ObjNotifyServerStarting = require("../objects/notifications/obj_notify_serverstarting");
+const ObjNotifyServerRunning = require("../objects/notifications/obj_notify_serverrunning");
+const ObjNotifyServerStopping = require("../objects/notifications/obj_notify_serverstopping");
+const ObjNotifyServerOffline = require("../objects/notifications/obj_notify_serveroffline");
+
+
+
+
+
 const promisifyStream = (stream) => new Promise((resolve, reject) => {
     stream.on('data', (d) => {})
     stream.on('end', resolve)
     stream.on('error', reject)
-})
+});
 
 
 
@@ -307,6 +323,13 @@ class AgentHandler {
             }).then(container => {
                 logger.info("[AGENT_HANDLER] - Created agent successfully!");
                 return this.CreateAgentInDB(container, Name, DisplayName, AgentPort, ServerQueryPort, BeaconPort, Port).then(() => {
+
+                    const Notification = new ObjNotifyAgentCreated(DisplayName);
+                    Notification.build();
+
+                    NotificationHandler.TriggerNotification(Notification);
+
+
                     logger.info("[AGENT_HANDLER] - Starting Agent ...");
                     return container.start()
                 })
@@ -315,6 +338,12 @@ class AgentHandler {
                 return this.WaitForAgentToStart(Agent)
             }).then(Agent => {
                 logger.info("[AGENT_HANDLER] - Agent Started!");
+
+                const Notification = new ObjNotifyAgentStarted(Agent);
+                Notification.build();
+
+                NotificationHandler.TriggerNotification(Notification);
+
                 return AgentAPI.InitNewAgent(Agent)
             }).then(() => {
                 resolve();
@@ -523,8 +552,16 @@ class AgentHandler {
             }
 
             Agent.getContainer().start().then(() => {
+                return this.WaitForAgentToStart(Agent);
+            }).then(() => {
                 return this.BuildAgentList();
             }).then(() => {
+
+                const Notification = new ObjNotifyAgentStarted(Agent);
+                Notification.build();
+
+                NotificationHandler.TriggerNotification(Notification);
+
                 logger.info("[AGENT_HANDLER] - Agent Started!");
                 resolve();
             }).catch(err => {
@@ -579,6 +616,10 @@ class AgentHandler {
             }).then(() => {
                 return this.BuildAgentList();
             }).then(() => {
+                const Notification = new ObjNotifyAgentShutdown(Agent);
+                Notification.build();
+
+                NotificationHandler.TriggerNotification(Notification);
                 logger.info("[AGENT_HANDLER] - Agent Stopped!");
                 resolve();
             }).catch(err => {
@@ -711,8 +752,33 @@ class AgentHandler {
                 return;
             }
 
+            if (data.action == "start") {
+                const Notification = new ObjNotifyServerStarting(Agent);
+                Notification.build();
+
+                NotificationHandler.TriggerNotification(Notification);
+            } else {
+                const Notification = new ObjNotifyServerStopping(Agent);
+                Notification.build();
+
+                NotificationHandler.TriggerNotification(Notification);
+            }
+
             AgentAPI.remoteRequestPOST(Agent, "serveraction", data).then(res => {
                 if (res.data.result == "success") {
+
+                    if (data.action == "start") {
+                        const Notification1 = new ObjNotifyServerRunning(Agent);
+                        Notification1.build();
+
+                        NotificationHandler.TriggerNotification(Notification1);
+                    } else {
+                        const Notification1 = new ObjNotifyServerOffline(Agent);
+                        Notification1.build();
+
+                        NotificationHandler.TriggerNotification(Notification1);
+                    }
+
                     resolve();
                 } else {
                     reject(new Error(res.data.error));

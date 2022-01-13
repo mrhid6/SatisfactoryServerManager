@@ -8,12 +8,12 @@ class NotificationHandler {
         this._notifyinterfaces.push(NotifyInterface);
     }
 
-    TriggerNotification(event, payload) {
+    TriggerNotification(Notification) {
         return new Promise((resolve, reject) => {
             const promises = [];
             for (let i = 0; i < this._notifyinterfaces.length; i++) {
                 const NotifyInterface = this._notifyinterfaces[i];
-                promises.push(NotifyInterface.TriggerEvent(event, payload));
+                promises.push(NotifyInterface.TriggerEvent(Notification));
             }
 
             Promise.all(promises).then(() => {

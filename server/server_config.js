@@ -73,21 +73,28 @@ class ServerConfig extends iConfig {
             super.set("ssm.tempdir", path.join(userDataPath, "temp"));
 
             fs.ensureDirSync(super.get("ssm.tempdir"))
+
+
+            const NotificationEvents = [
+                "ssm.startup",
+                "ssm.shutdown",
+                "agent.created",
+                "agent.started",
+                "agent.shutdown",
+                "server.starting",
+                "server.running",
+                "server.stopping",
+                "server.offline",
+            ]
+            super.get("ssm.notifications.discord.enabled", false)
+            super.get("ssm.notifications.discord.webhookurl", "");
+            super.set("ssm.notifications.discord.events", NotificationEvents);
         }
 
         super.set("ssm.backup.location", path.join(userDataPath, "backups"));
 
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.1.13`);
-
-
-        const NotificationEvents = [
-            "ssm.startup",
-            "ssm.shutdown"
-        ]
-        super.get("ssm.notifications.discord.enabled", false)
-        super.get("ssm.notifications.discord.webhookurl", "");
-        super.set("ssm.notifications.discord.events", NotificationEvents);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");

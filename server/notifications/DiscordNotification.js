@@ -26,18 +26,27 @@ class DiscordNotification extends NotificationInterface {
 
     }
 
-    TriggerEvent(event, payload) {
+    TriggerEvent(Notification) {
         return new Promise((resolve, reject) => {
-            if (super.CanTriggerEvent(event, payload)) {
-                Logger.info("[NOTIFCATION] - Discord Triggered Event " + event);
+            if (super.CanTriggerEvent(Notification)) {
+                Logger.info("[NOTIFCATION] - Discord Triggered Event " + Notification.GetEventName());
 
                 let promise;
-                switch (event) {
+                switch (Notification.GetEventName()) {
                     case "ssm.startup":
-                        promise = this.TriggerSSMStartupEvent();
-                        break;
                     case "ssm.shutdown":
-                        promise = this.TriggerSSMShutdownEvent();
+                        promise = this.TriggerSSMEvent(Notification);
+                        break;
+                    case "agent.created":
+                    case "agent.started":
+                    case "agent.shutdown":
+                        promise = this.TriggerAgentEvent(Notification);
+                        break;
+                    case "server.starting":
+                    case "server.running":
+                    case "server.stopping":
+                    case "server.offline":
+                        promise = this.TriggerServerEvent(Notification);
                         break;
                 }
 
@@ -50,14 +59,13 @@ class DiscordNotification extends NotificationInterface {
         });
     }
 
-    TriggerSSMStartupEvent() {
+    TriggerSSMEvent(Notification) {
         return new Promise((resolve, reject) => {
             const embed = new MessageBuilder()
-                .setTitle('SSM Start Up Event')
+                .setTitle(Notification.get("Title"))
                 .setColor('#00b0f4')
-                .setDescription('SSM Core Has Just Been Started!')
+                .setDescription(Notification.get("Text"))
                 .setTimestamp();
-
             this._hook.send(embed).then(() => {
                 resolve();
             })
@@ -65,18 +73,33 @@ class DiscordNotification extends NotificationInterface {
         });
     }
 
-    TriggerSSMShutdownEvent() {
+    TriggerAgentEvent(Notification) {
         return new Promise((resolve, reject) => {
             const embed = new MessageBuilder()
-                .setTitle('SSM Shutdown Up Event')
+                .setTitle(Notification.get("Title"))
                 .setColor('#00b0f4')
-                .setDescription('SSM Core Has Just Been Shutdown!')
+                .setDescription(Notification.get("Text"))
+                .addField("**Agent:**", Notification.get("AgentName"), true)
                 .setTimestamp();
 
             this._hook.send(embed).then(() => {
                 resolve();
             })
+        });
+    }
 
+    TriggerServerEvent(Notification) {
+        return new Promise((resolve, reject) => {
+            const embed = new MessageBuilder()
+                .setTitle(Notification.get("Title"))
+                .setColor('#00b0f4')
+                .setDescription(Notification.get("Text"))
+                .addField("**Agent:**", Notification.get("AgentName"), true)
+                .setTimestamp();
+
+            this._hook.send(embed).then(() => {
+                resolve();
+            })
         });
     }
 }
