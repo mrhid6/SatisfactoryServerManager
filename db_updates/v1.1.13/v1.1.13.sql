@@ -1,0 +1,1 @@
+UPDATE config SET config_value = 'v1.1.13' WHERE config_key='version';

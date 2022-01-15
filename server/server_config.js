@@ -60,15 +60,23 @@ class ServerConfig extends iConfig {
 
     setDefaults() {
 
-        const defaultpasshash = CryptoJS.MD5("SSM:admin-ssm").toString();
-
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {
+
             this.setAgentDefaults();
+
         } else {
             super.set("ssm.agent.isagent", false)
             const uuid = Mrhid6Utils.Tools.generateRandomString(16);
             super.get("ssm.agent.publickey", uuid);
+
+            super.delete("ssm.agent.id");
+            super.delete("ssm.agent.key");
+            super.delete("ssm.backup");
+            super.delete("ssm.setup");
+            super.delete("ssm.steamcmd");
+            super.delete("satisfactory");
+            super.delete("mods");
 
             super.set("ssm.tempdir", path.join(userDataPath, "temp"));
 
@@ -89,9 +97,9 @@ class ServerConfig extends iConfig {
             super.get("ssm.notifications.discord.enabled", false)
             super.get("ssm.notifications.discord.webhookurl", "");
             super.set("ssm.notifications.discord.events", NotificationEvents);
-        }
 
-        super.set("ssm.backup.location", path.join(userDataPath, "backups"));
+
+        }
 
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.1.13`);
@@ -111,6 +119,7 @@ class ServerConfig extends iConfig {
         super.set("ssm.agent.isagent", true)
         super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
 
+        super.set("ssm.backup.location", path.join(userDataPath, "backups"));
         super.get("ssm.backup.interval", 1);
         super.get("ssm.backup.keep", 24);
         super.get("ssm.backup.nextbackup", 0);

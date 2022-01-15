@@ -4,6 +4,9 @@ const fs = require("fs-extra");
 const platform = process.platform;
 const logger = require("./server_logger");
 
+const Config = require("./server_config");
+
+const semver = require("semver");
 
 class ServerDB {
     constructor() {
@@ -28,7 +31,8 @@ class ServerDB {
             "users",
             "roles",
             "permissions",
-            "agents"
+            "agents",
+            "config"
         ]
 
     }
@@ -52,6 +56,8 @@ class ServerDB {
 
                 logger.info('Connected to the database.');
                 this.createTables().then(() => {
+                    return this.applyDBPatches();
+                }).then(() => {
                     resolve();
                 }).catch(reject);
 
@@ -109,6 +115,9 @@ class ServerDB {
                             case "agents":
                                 promises.push(this.createAgentsTable())
                                 break;
+                            case "config":
+                                promises.push(this.createConfigTable())
+                                break;
                         }
                     }
                 })
@@ -118,6 +127,44 @@ class ServerDB {
                 }).catch(reject);
             })
 
+        });
+    }
+
+    createConfigTable() {
+        return new Promise((resolve, reject) => {
+
+            logger.info("Creating Config Table")
+            const configTableSql = `CREATE TABLE "config" (
+                "config_key" VARCHAR(255) NOT NULL DEFAULT '' UNIQUE,
+                "config_value" TEXT NOT NULL DEFAULT ''
+            );`
+
+            let InsertSQL = `INSERT INTO config(config_key, config_value) VALUES `
+
+            const defaultValues = [
+                ["version", Config.get("ssm.version")]
+            ]
+
+            const sqlData = [];
+
+            defaultValues.forEach(configVal => {
+                InsertSQL += `(?, ?), `
+                sqlData.push(configVal[0]);
+                sqlData.push(configVal[1]);
+            })
+
+            InsertSQL = InsertSQL.substring(0, InsertSQL.length - 2);
+            InsertSQL += ";";
+
+
+
+            this.queryRun(configTableSql).then(() => {
+                return this.queryRun(InsertSQL, sqlData)
+            }).then(() => {
+                resolve();
+            }).catch(err => {
+                console.log(err);
+            });
         });
     }
 
@@ -355,6 +402,76 @@ class ServerDB {
         })
     }
 
+    applyDBPatches = async () => {
+        const needPatch = await this.DoesDBNeedPatching();
+
+        if (needPatch == true) {
+            const manifestPath = path.join(__basedir, "db_updates", "manifest.json");
+            const manifest = require(manifestPath)
+
+            const patches = manifest.patches;
+            let startAddingVersions = false;
+            const versionPatches = [];
+
+            for (let i = 0; i < patches.length; i++) {
+                const patch = patches[i];
+                if (semver.compare(this._DBVERSION, patch) == 0) {
+                    startAddingVersions = true;
+                    continue;
+                }
+
+                if (startAddingVersions) {
+                    versionPatches.push(patch)
+                }
+            }
+
+            for (let i = 0; i < versionPatches.length; i++) {
+                const patchVersion = versionPatches[i];
+                await this.applyPatch(patchVersion);
+            }
+        }
+    }
+
+    applyPatch = async version => {
+
+        const versionFolder = path.join(__basedir, "db_updates", version);
+
+        if (fs.existsSync(versionFolder)) {
+
+            logger.info(`[DB] - Applying DB patch (${version})..`)
+            const sqlFile = path.join(versionFolder, `${version}.sql`)
+            let SQL = fs.readFileSync(sqlFile).toString();
+
+            const dataFile = path.join(versionFolder, "data.json")
+            const data = JSON.parse(fs.readFileSync(dataFile).toString());
+
+            SQL = this.buildSqlData(SQL, data);
+
+            await this.queryExec(SQL);
+        }
+    }
+
+    DoesDBNeedPatching = async () => {
+        return this.getDBVersion().then(DBVersion => {
+            if (Config.get("ssm.version") != DBVersion) {
+                return true;
+            }
+
+            return false;
+        }).catch(err => {
+            return false;
+        })
+    }
+
+    getDBVersion() {
+        return new Promise((resolve, reject) => {
+            this.querySingle("SELECT config_value FROM config WHERE config_key='version'").then(row => {
+                this._DBVERSION = row.config_value;
+                resolve(this._DBVERSION)
+            }).catch(reject)
+        });
+    }
+
 
     query(sql, data = []) {
         return new Promise((resolve, reject) => {
@@ -390,6 +507,28 @@ class ServerDB {
                 reject(err);
             }
         })
+    }
+
+    queryExec(sql) {
+        return new Promise((resolve, reject) => {
+
+            try {
+                this.DB.exec(sql);
+                resolve();
+            } catch (err) {
+                reject(err);
+            }
+        })
+    }
+
+    buildSqlData(SQL, data = []) {
+        let NewSQL = SQL;
+        for (let i = 0; i < data.length; i++) {
+            const d = data[i];
+            NewSQL = NewSQL.replace("?", d)
+        }
+
+        return NewSQL;
     }
 }
 
