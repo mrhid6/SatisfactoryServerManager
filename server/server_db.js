@@ -367,16 +367,28 @@ class ServerDB {
                             }
 
                             const Ports = containers[0].data.Ports;
-                            let BeaconPort = 0,
-                                ServerPort = 0,
-                                SSMPort = 0,
-                                Port = 0;
+                            let BeaconPort = 15000,
+                                ServerPort = 15777,
+                                SSMPort = 3001,
+                                Port = 7777;
 
-                            if (Ports.length > 0) {
-                                BeaconPort = Ports[0].PublicPort;
-                                ServerPort = Ports[1].PublicPort;
-                                SSMPort = Ports[2].PublicPort;
-                                Port = Ports[3].PublicPort;
+                            const parsedID = parseInt(name.replace("SSMAgent"));
+
+                            if (isNaN(parsedID)) {
+
+                                if (Ports.length > 0) {
+                                    BeaconPort = Ports[0].PublicPort;
+                                    ServerPort = Ports[1].PublicPort;
+                                    SSMPort = Ports[2].PublicPort;
+                                    Port = Ports[3].PublicPort;
+                                }
+
+                            } else {
+                                const relativeID = parsedID - 1;
+                                SSMPort = 3001 + relativeID;
+                                ServerPort = 15777 + relativeID;
+                                BeaconPort = 15000 + relativeID;
+                                Port = 7777 + relativeID;
                             }
 
                             SQLData.push(name, DisplayName, container.data.Id, SSMPort, ServerPort, BeaconPort, Port);

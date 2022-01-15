@@ -102,7 +102,7 @@ class ServerConfig extends iConfig {
         }
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.13`);
+        super.set("ssm.version", `v1.1.14`);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");
@@ -155,6 +155,23 @@ class ServerConfig extends iConfig {
 
         super.get("mods.enabled", false);
         super.get("mods.autoupdate", false);
+
+        if (super.get("satisfactory.ports") == null && super.get("ssm.agent.setup") == true) {
+
+            const parsedID = parseInt(super.get("ssm.agent.id"));
+
+            if (isNaN(parsedID) == false) {
+
+                const relativeID = parsedID - 1;
+                const ServerPort = 15777 + relativeID;
+                const BeaconPort = 15000 + relativeID;
+                const Port = 7777 + relativeID;
+
+                super.set("satisfactory.ports.serverport", ServerPort);
+                super.set("satisfactory.ports.beaconport", BeaconPort);
+                super.set("satisfactory.ports.port", Port);
+            }
+        }
     }
 
     getSessionStorePath() {
