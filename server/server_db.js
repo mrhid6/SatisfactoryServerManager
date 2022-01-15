@@ -372,10 +372,9 @@ class ServerDB {
                                 SSMPort = 3001,
                                 Port = 7777;
 
-                            const parsedID = parseInt(name.replace("SSMAgent"));
+                            const parsedID = parseInt(name.replace("SSMAgent", ""));
 
                             if (isNaN(parsedID)) {
-
                                 if (Ports.length > 0) {
                                     BeaconPort = Ports[0].PublicPort;
                                     ServerPort = Ports[1].PublicPort;
@@ -401,6 +400,8 @@ class ServerDB {
 
                     AgentSQL = AgentSQL.substring(0, AgentSQL.length - 2);
                     AgentSQL += ";";
+
+                    console.log(AgentSQL, SQLData)
 
                     return this.queryRun(AgentSQL, SQLData)
                 }).then(() => {
