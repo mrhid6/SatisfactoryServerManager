@@ -2393,10 +2393,10 @@ symbol-observable@^4.0.0:
   resolved "https://registry.yarnpkg.com/symbol-observable/-/symbol-observable-4.0.0.tgz#5b425f192279e87f2f9b937ac8540d1984b39205"
   integrity sha512-b19dMThMV4HVFynSAM1++gBHAbk2Tc/osgLIBZMKsyqh34jb2e8Os7T6ZW/Bt3pJFdBTd2JwAnAAEQV7rSNvcQ==
 
-systeminformation@^5.10.6:
-  version "5.10.6"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.10.6.tgz#3454d9cf8c9a9c950dc5efc0c2c803bca0b1f66b"
-  integrity sha512-bZMl6NdkVjLfJpo3ZAoFFfmczs1wyZeFeSH4iw+vC74OQ+AJVaP041hYQC6i9E4EB8YwbQefBOXlR/j5LOMMyw==
+systeminformation@^5.10.7:
+  version "5.10.7"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.10.7.tgz#82aecd2509cfa0f22eb7ec8c59f5b83dc603def1"
+  integrity sha512-elAv0h67BDuafy+zuS/yF9QCgQcROXaK9AXMnLz+NHq/LRv7p2/k5qWIwaVxwsSZE8r+dVyIw0BtFO/FoHtZaw==
 
 tar-fs@^2.0.0:
   version "2.1.1"
