@@ -57,4 +57,13 @@ router.get("/roles", middleWare, function (req, res, next) {
     })
 });
 
+router.get("/permissions", middleWare, function (req, res, next) {
+    UserManager.API_GetAllPermissions().then(perms => {
+        res.json({
+            result: "success",
+            data: perms
+        });
+    })
+});
+
 module.exports = router;

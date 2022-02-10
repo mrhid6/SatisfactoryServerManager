@@ -80,7 +80,7 @@ class SSM_Log_Handler {
                 const dataArr = (dataStr.split("\n")).reverse().filter(el => el != "");
                 const resData = {
                     logArray: dataArr,
-                    playerJoins: dataArr.filter(l=>l.includes("Join suc"))
+                    playerJoins: dataArr.filter(l => l.includes("Join suc"))
                 }
                 resolve(resData)
             })

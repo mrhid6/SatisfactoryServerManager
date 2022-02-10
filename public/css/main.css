@@ -328,6 +328,27 @@ body {
     width: 20%;
 }
 
+#permissions-accordion h4 {
+    position: relative;
+    font-size: 14px;
+}
+
+#permissions-accordion h4 .form-check-input {
+    margin-left: 0px;
+    margin-top: unset;
+    left: 12px;
+    top: 10px;
+    z-index: 100;
+    width: 18px;
+    height: 18px;
+}
+
+#permissions-accordion h4 button {
+    padding-left: 45px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
 @media(max-width:991px) {
     .status-info-card {
         height: 70px;

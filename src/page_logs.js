@@ -73,7 +73,7 @@ class Page_Logs {
             const el = $("#smlauncher-log-viewer samp");
             el.empty();
             if (res.result == "success") {
-                res.data.logArray.forEach((logline) => {
+                res.data.forEach((logline) => {
                     el.append("<p>" + logline + "</p>")
                 })
             } else {
@@ -91,15 +91,24 @@ class Page_Logs {
         } else {
             postData.agentid = Agent.id;
         }
+
         API_Proxy.postData("agent/logs/sfserverlog", postData).then(res => {
             const el = $("#sf-log-viewer samp");
+            const el2 = $("#sf-logins-viewer samp");
             el.empty();
+            el2.empty();
             if (res.result == "success") {
-                res.data.forEach((logline) => {
+                console.log(res.data)
+                res.data.logArray.forEach((logline) => {
                     el.append("<p>" + logline + "</p>")
+                })
+
+                res.data.playerJoins.forEach((logline) => {
+                    el2.append("<p>" + logline + "</p>")
                 })
             } else {
                 el.text(res.error)
+                el2.text(res.error)
             }
         })
     }

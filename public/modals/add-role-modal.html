@@ -1,0 +1,30 @@
+<div class="modal ssm-modal" id="add-role-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Role</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="inp_rolename" class="form-label">Role Name:</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-user-tag"></i></span>
+                        <input id="inp_rolename" type="text" class="form-control" placeholder="Role Name" />
+                    </div>
+                </div>
+
+                <div class="accordion mb-3" id="permissions-accordion"></div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <button class="btn btn-primary" id="submit-add-role-btn"><i class="fas fa-plus"></i> Add
+                            Role</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>

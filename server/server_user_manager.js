@@ -197,6 +197,15 @@ class UserManager {
     }
 
 
+    API_GetAllPermissions() {
+        return new Promise((resolve, reject) => {
+            this.GetPermissions("%").then(perms => {
+                resolve(perms);
+            })
+        });
+    }
+
+
     UpdateUserPassword(User, NewPassword) {
         return new Promise((resolve, reject) => {
             DB.queryRun("UPDATE users SET user_pass=? WHERE user_id=?", [NewPassword, User.getId()]).then(() => {

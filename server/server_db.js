@@ -32,7 +32,8 @@ class ServerDB {
             "roles",
             "permissions",
             "agents",
-            "config"
+            "config",
+            "webhooks",
         ]
 
     }
@@ -117,6 +118,9 @@ class ServerDB {
                                 break;
                             case "config":
                                 promises.push(this.createConfigTable())
+                                break;
+                            case "webhooks":
+                                promises.push(this.createWebhooksTable())
                                 break;
                         }
                     }
@@ -412,6 +416,23 @@ class ServerDB {
                 });
             });
 
+        })
+    }
+
+    createWebhooksTable() {
+        return new Promise((resolve, reject) => {
+            logger.info("Creating Webhooks Table")
+            const webhooksTableSql = `CREATE TABLE "webhooks" (
+                "webhook_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "webhook_name" VARCHAR(255) NOT NULL DEFAULT '',
+                "webhook_url" TEXT NOT NULL DEFAULT '',
+                "webhook_enabled" INTEGER NOT NULL DEFAULT '0',
+                "webhook_events" TEXT NOT NULL DEFAULT ''
+            );`
+
+            this.queryRun(webhooksTableSql).then(() => {
+                resolve();
+            })
         })
     }
 
