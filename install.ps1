@@ -87,26 +87,40 @@ if($nodocker -eq $false){
     }else{
 
         if($osInfo.BuildNumber -gt 19041){
+            $Installed = Test-Path("HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Docker Desktop")
 
-            dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-            dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+            if($Installed -and $update){
+                $InstalledDockerVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Docker Desktop" -ErrorAction SilentlyContinue).DisplayVersion
 
-            $WSLInstaller = Join-Path $Env:Temp "WSL2.0.msi"
-            Invoke-WebRequest "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi" -OutFile $WSLInstaller
-            msiexec.exe /I $WSLInstaller /quiet
-            wsl --set-default-version 2
+                $DockerVersionFile = Join-Path $Env:Temp OnlineDockerVersion.xml
+                Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/appcast.xml" -OutFile $DockerVersionFile
 
-            sleep -m 3000
+                $versionInfo = (Select-Xml -Path $DockerVersionFile -XPath "rss/channel/item/title")
+                $OnlineVersion = (($versionInfo[$versionInfo.Count -1]).Node.InnerText).Split(" ")[0];
 
-            del $WSLInstaller
+                if($InstalledDockerVersion -ne $OnlineVersion){
+
+                    dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+                    dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+
+                    $WSLInstaller = Join-Path $Env:Temp "WSL2.0.msi"
+                    Invoke-WebRequest "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi" -OutFile $WSLInstaller
+                    msiexec.exe /I $WSLInstaller /quiet
+                    wsl --set-default-version 2
+
+                    sleep -m 3000
+
+                    del $WSLInstaller
         
-            $DockerInstaller = Join-Path $Env:Temp InstallDocker.msi
-            Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
+                    $DockerInstaller = Join-Path $Env:Temp InstallDocker.msi
+                    Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
 
-            cmd /c start /wait $DockerInstaller install --quiet
+                    cmd /c start /wait $DockerInstaller install --quiet
 
-            sleep -m 3000
-            del $DockerInstaller
+                    sleep -m 3000
+                    del $DockerInstaller
+                }
+            }
         }else{
             write-Error "Cant Install docker on this machine! Must be Windows 10 20H2 and Build Number 19041 or higher!"
             exit;
