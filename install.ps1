@@ -104,6 +104,8 @@ if($nodocker -eq $false){
             Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
 
             cmd /c start /wait $DockerInstaller install --quiet
+
+            sleep -m 3000
             del $DockerInstaller
         }else{
             write-Error "Cant Install docker on this machine! Must be Windows 10 20H2 and Build Number 19041 or higher!"
