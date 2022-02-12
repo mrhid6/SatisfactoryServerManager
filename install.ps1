@@ -59,11 +59,13 @@ if((Test-Path $installDir) -eq $true){
 }
 
 $SSM_Service = Get-Service -Name "SSM" -ErrorAction SilentlyContinue
-
+sleep -m 1000
 
 if($SSM_Service -ne $null -and $isAdmin -eq $true){
 	write-host "Stopping SSM Service"
-	$SSM_Service | Stop-Service -ErrorAction SilentlyContinue | out-null
+    & "$($installDir)\nssm.exe" "stop" "SSM" "confirm"
+
+    sleep -m 2000
 }
 
 if($nodocker -eq $false){
@@ -84,21 +86,29 @@ if($nodocker -eq $false){
         Restart-Service docker
     }else{
 
-        dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
-        dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
+        if($osInfo.BuildNumber -gt 19041){
 
-        $WSLInstaller = Join-Path $Env:Temp "WSL2.0.msi"
-        Invoke-WebRequest "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi" -OutFile $WSLInstaller
-        msiexec.exe /I $WSLInstaller /quiet
-        wsl --set-default-version 2
+            dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart
+            dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart
 
-        del $WSLInstaller
+            $WSLInstaller = Join-Path $Env:Temp "WSL2.0.msi"
+            Invoke-WebRequest "https://wslstorestorage.blob.core.windows.net/wslblob/wsl_update_x64.msi" -OutFile $WSLInstaller
+            msiexec.exe /I $WSLInstaller /quiet
+            wsl --set-default-version 2
+
+            sleep -m 3000
+
+            del $WSLInstaller
         
-        $DockerInstaller = Join-Path $Env:Temp InstallDocker.msi
-        Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
+            $DockerInstaller = Join-Path $Env:Temp InstallDocker.msi
+            Invoke-WebRequest "https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe" -OutFile $DockerInstaller
 
-        cmd /c start /wait $DockerInstaller install --quiet
-        del $DockerInstaller
+            cmd /c start /wait $DockerInstaller install --quiet
+            del $DockerInstaller
+        }else{
+            write-Error "Cant Install docker on this machine! Must be Windows 10 20H2 and Build Number 19041 or higher!"
+            exit;
+        }
     }
     write-host "* Docker Installed"
 }
@@ -127,6 +137,7 @@ if($noservice -eq $false -and $isAdmin -eq $true){
 	if($SSM_Service -ne $null){
 		write-host "* Removing Old SSM Service"
 		& "$($installDir)\nssm.exe" "remove" "SSM" "confirm" | out-null
+        sleep -m 2000
 	}
 	
 	write-host "* Create SSM Service"
@@ -139,7 +150,7 @@ if($noservice -eq $false -and $isAdmin -eq $true){
 
     sleep -m 1500
 	write-host "* Start SSM Service"
-	$SSM_Service | Start-Service | out-null
+	& "$($installDir)\nssm.exe" "start" "SSM"
 }else{
     write-host "SSM Service Skipped"
     $SSM_Service = Get-Service -Name "SSM" -ErrorAction SilentlyContinue

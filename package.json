@@ -83,7 +83,8 @@
             "node_modules/ts-invariant/**/*",
             "node_modules/exiftool-vendored.exe/**/*",
             "node_modules/exiftool-vendored/**/*",
-            "node_modules/exiftool-vendored.pl/**/*"
+            "node_modules/exiftool-vendored.pl/**/*",
+            "db_updates/**/*"
         ],
         "targets": [
             "node16"
