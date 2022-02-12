@@ -4,11 +4,11 @@ class ObjNotifyServerOffline extends Notification {
     constructor(Agent) {
         super("server.offline");
 
-        this.SetData({
-            "Title": "Satisfactory Server Is Offline!",
-            "AgentName": Agent.getDisplayName(),
-            "Text": "The Satisfactory Dedicated Server Hosted On This Agent Is Offline!"
-        })
+        this.set("title", "Satisfactory Server Is Offline!");
+        this.set("description", "The Satisfactory Dedicated Server Hosted On This Agent Is Offline!");
+        this.set("details", {
+            agent_name: Agent.getDisplayName()
+        });
     }
 }
 

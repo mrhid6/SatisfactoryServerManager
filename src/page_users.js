@@ -75,8 +75,6 @@ class Page_Users {
                 ])
             })
 
-            console.log(tableData)
-
             if (isDataTable == false) {
                 $("#users-table").DataTable({
                     paging: true,
@@ -124,8 +122,6 @@ class Page_Users {
                 ])
             })
 
-            console.log(tableData)
-
             if (isDataTable == false) {
                 $("#roles-table").DataTable({
                     paging: true,
@@ -165,8 +161,6 @@ class Page_Users {
                     this._PERMISSIONS.push(fullPerm);
 
                 })
-
-                console.log(this._PERMISSIONS)
             }
         });
     }

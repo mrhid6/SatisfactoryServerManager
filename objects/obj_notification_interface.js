@@ -1,3 +1,5 @@
+const Logger = require("../server/server_logger");
+
 class NotificationInterface {
     constructor() {}
 
@@ -35,7 +37,55 @@ class NotificationInterface {
     }
 
     TriggerEvent(Notification) {
+        return new Promise((resolve, reject) => {
+            if (this.CanTriggerEvent(Notification)) {
+                Logger.info("[NOTIFCATION] - Triggered Event " + Notification.GetEventName());
 
+                let promise;
+                switch (Notification.GetEventName()) {
+                    case "ssm.startup":
+                    case "ssm.shutdown":
+                        promise = this.TriggerSSMEvent(Notification);
+                        break;
+                    case "agent.created":
+                    case "agent.started":
+                    case "agent.shutdown":
+                        promise = this.TriggerAgentEvent(Notification);
+                        break;
+                    case "server.starting":
+                    case "server.running":
+                    case "server.stopping":
+                    case "server.offline":
+                        promise = this.TriggerServerEvent(Notification);
+                        break;
+                }
+
+                promise.then(() => {
+                    resolve();
+                })
+            } else {
+                resolve();
+            }
+        });
+    }
+
+
+    TriggerSSMEvent(Notification) {
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    }
+
+    TriggerAgentEvent(Notification) {
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
+    }
+
+    TriggerServerEvent(Notification) {
+        return new Promise((resolve, reject) => {
+            resolve();
+        });
     }
 }
 

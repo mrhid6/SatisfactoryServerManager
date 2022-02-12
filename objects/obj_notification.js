@@ -5,19 +5,24 @@ const objectpath = require("object-path");
 
 class Notification {
     constructor(eventName) {
+
+        const date = new Date();
+
+        this._data = {
+            event: eventName,
+            timestamp: date.getTime()
+        };
         this._eventName = eventName;
         this._TemplateHtmlPath = path.join(__basedir, "notifications", this._eventName + ".hbs");
         this._html = "";
-
-        this._data = {};
     }
 
-    SetData(data) {
-        this._data = data;
+    GetData() {
+        return this._data;
     }
 
     GetEventName() {
-        return this._eventName;
+        return this.get("event");
     }
 
     get(key, defaultval) {

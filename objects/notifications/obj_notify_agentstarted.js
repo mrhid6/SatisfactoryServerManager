@@ -4,11 +4,11 @@ class ObjNotifyAgentStarted extends Notification {
     constructor(Agent) {
         super("agent.started");
 
-        this.SetData({
-            "Title": "A SSM Agent Was Started!",
-            "AgentName": Agent.getDisplayName(),
-            "Text": "A SSM Agent Was Successfully Started!"
-        })
+        this.set("title", "A SSM Agent Was Started!");
+        this.set("description", "A SSM Agent Was Successfully Started!");
+        this.set("details", {
+            agent_name: Agent.getDisplayName()
+        });
     }
 }
 

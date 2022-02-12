@@ -15,8 +15,7 @@
     <script defer src="/public/js/bundle.js"></script>
 
     <link rel='stylesheet' href='/libraries/bootstrap/dist/css/bootstrap.min.css' />
-    <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/solid.min.css' />
-    <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/regular.min.css' />
+    <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/all.min.css' />
     <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/fontawesome.min.css' />
     <link rel='stylesheet' href='/libraries/datatables.net-bs5/css/dataTables.bootstrap5.min.css' />
     <link rel='stylesheet' href='/libraries/bootstrap4-toggle/css/bootstrap4-toggle.min.css' />
@@ -111,15 +110,6 @@
                     </div>
                 </li>
                 {{/if}}
-
-                {{#if perms.settings}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/settings">
-                        <i class="fas fa-cog"></i>
-                        Settings
-                    </a>
-                </li>
-                {{/if}}
             </ul>
             <div class="my-2 my-lg-0">
                 <ul class="navbar-nav mr-auto rightnavbar">
@@ -138,7 +128,7 @@
         <footer class="page-footer font-small blue bg-dark">
 
             <!-- Copyright -->
-            <div class="footer-copyright text-center py-3">© 2020 Copyright:
+            <div class="footer-copyright text-center py-3">© 2020 - 2022 Copyright:
                 <a href="https://github.com/mrhid6/SatisfactoryServerManager"> Refined R&D</a>
                 MIT License.
             </div>

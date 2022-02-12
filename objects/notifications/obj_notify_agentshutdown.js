@@ -4,11 +4,11 @@ class ObjNotifyAgentShutdown extends Notification {
     constructor(Agent) {
         super("agent.shutdown");
 
-        this.SetData({
-            "Title": "A SSM Agent Was Shutdown!",
-            "AgentName": Agent.getDisplayName(),
-            "Text": "A SSM Agent Was Successfully Shutdown!"
-        })
+        this.set("title", "A SSM Agent Was Shutdown!");
+        this.set("description", "A SSM Agent Was Successfully Shutdown!");
+        this.set("details", {
+            agent_name: Agent.getDisplayName()
+        });
     }
 }
 

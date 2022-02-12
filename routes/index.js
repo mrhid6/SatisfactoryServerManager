@@ -304,11 +304,11 @@ function GetPagePermissions(UserID) {
     const UserAccount = UserManager.getUserById(UserID);
 
     const Perms = {
-        dashboard: UserAccount.HasPermission("page.dashboard"),
-        servers: UserAccount.HasPermission("page.servers"),
-        mods: UserAccount.HasPermission("page.mods"),
-        logs: UserAccount.HasPermission("page.logs"),
-        saves: UserAccount.HasPermission("page.saves"),
+        dashboard: UserAccount.HasPermission("page.user.dashboard"),
+        servers: UserAccount.HasPermission("page.user.servers"),
+        mods: UserAccount.HasPermission("page.user.mods"),
+        logs: UserAccount.HasPermission("page.user.logs"),
+        saves: UserAccount.HasPermission("page.user.saves"),
         admin: {
             settings: UserAccount.HasPermission("page.admin.settings"),
             users: UserAccount.HasPermission("page.admin.users"),

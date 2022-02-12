@@ -4,11 +4,11 @@ class ObjNotifyServerStarting extends Notification {
     constructor(Agent) {
         super("server.starting");
 
-        this.SetData({
-            "Title": "Satisfactory Server Is Starting!",
-            "AgentName": Agent.getDisplayName(),
-            "Text": "The Satisfactory Dedicated Server Hosted On This Agent Is Starting!"
-        })
+        this.set("title", "Satisfactory Server Is Starting!");
+        this.set("description", "The Satisfactory Dedicated Server Hosted On This Agent Is Starting!");
+        this.set("details", {
+            agent_name: Agent.getDisplayName()
+        });
     }
 }
 

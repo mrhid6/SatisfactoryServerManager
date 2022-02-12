@@ -210,7 +210,7 @@ class ServerDB {
 
                 const defaultRoles = [{
                         name: "User",
-                        permissions: ["login.*", "page.dashboard"]
+                        permissions: ["login.*", "page.user.dashboard"]
                     },
                     {
                         name: "Moderator",
@@ -219,11 +219,11 @@ class ServerDB {
                             "serveractions.start",
                             "serveractions.stop",
                             "serveractions.kill",
-                            "page.dashboard",
-                            "page.servers",
-                            "page.mods",
-                            "page.logs",
-                            "page.saves",
+                            "page.user.dashboard",
+                            "page.user.servers",
+                            "page.user.mods",
+                            "page.user.logs",
+                            "page.user.saves",
                             "mods.*",
                             "manageusers.create",
                             "settings.saves.*",
@@ -289,12 +289,12 @@ class ServerDB {
                     "settings.saves.upload",
                     "settings.saves.download",
                     "settings.saves.delete",
-                    "page.dashboard",
-                    "page.servers",
-                    "page.mods",
-                    "page.logs",
-                    "page.saves",
-                    "page.admin",
+                    "page.user.dashboard",
+                    "page.user.servers",
+                    "page.user.mods",
+                    "page.user.logs",
+                    "page.user.saves",
+                    "page.user.admin",
                     "page.admin.settings",
                     "page.admin.users",
                     "page.admin.backups",
@@ -427,7 +427,8 @@ class ServerDB {
                 "webhook_name" VARCHAR(255) NOT NULL DEFAULT '',
                 "webhook_url" TEXT NOT NULL DEFAULT '',
                 "webhook_enabled" INTEGER NOT NULL DEFAULT '0',
-                "webhook_events" TEXT NOT NULL DEFAULT ''
+                "webhook_events" TEXT NOT NULL DEFAULT '',
+                "webhook_discord" INTEGER NOT NULL DEFAULT '0'
             );`
 
             this.queryRun(webhooksTableSql).then(() => {

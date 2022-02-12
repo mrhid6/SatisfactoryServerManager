@@ -5,7 +5,7 @@ const ServerApp = require("../../server/server_app");
 const Config = require("../../server/server_config");
 
 const UserManager = require("../../server/server_user_manager");
-
+const NotificationHandler = require("../../server/server_notifcation_handler")
 
 
 const middleWare = [
@@ -62,6 +62,15 @@ router.get("/permissions", middleWare, function (req, res, next) {
         res.json({
             result: "success",
             data: perms
+        });
+    })
+});
+
+router.get("/webhooks", middleWare, function (req, res, next) {
+    NotificationHandler.API_GetAllWebhooks().then(webhooks => {
+        res.json({
+            result: "success",
+            data: webhooks
         });
     })
 });

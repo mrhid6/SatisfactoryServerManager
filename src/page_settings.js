@@ -18,39 +18,52 @@ class Page_Settings {
     }
 
     setupJqueryListeners() {
-        $("body").on("click", "#btn-adduser", e => {
+        $("body").on("click", "#btn-addwebhook", e => {
             const $btn = $(e.currentTarget);
-            this.OpenAddUserModal($btn);
+            this.OpenAddWebhookModal($btn);
         })
     }
 
     MainDisplayFunction() {
         this.DisplayUsersTable();
-        this.DisplayRolesTable();
     }
 
     DisplayUsersTable() {
 
 
-        API_Proxy.get("info/users").then(res => {
+        API_Proxy.get("info/webhooks").then(res => {
 
-            const isDataTable = $.fn.dataTable.isDataTable("#users-table")
+            const isDataTable = $.fn.dataTable.isDataTable("#webhooks-table")
             const tableData = [];
 
-            const users = res.data;
+            const webhooks = res.data;
+            console.log(webhooks)
 
-            users.forEach(user => {
+            webhooks.forEach(webhook => {
                 const $btn_info = $("<button/>")
-                    .addClass("btn btn-light btn-block configure-user")
-                    .attr("data-user-id", user.id)
+                    .addClass("btn btn-light btn-block configure-webhook")
+                    .attr("data-user-id", webhook.id)
                     .html("<i class='fas fa-cog'></i>");
 
                 const OpenUserStr = $btn_info.prop('outerHTML')
 
+                const $RunningIcon = $("<i/>").addClass("fas fa-times text-danger")
+
+                if (webhook.enabled == true) {
+                    $RunningIcon.removeClass("fa-times text-danger").addClass("fa-check text-success")
+                }
+
+                const $typeIcon = $("<i/>").addClass("fa-brands fa-discord fa-xl");
+
+                if (webhook.type == 0) {
+                    $typeIcon.removeClass("fa-brands fa-discord").addClass("fa-solid fa-bell")
+                }
+
                 tableData.push([
-                    user.id,
-                    user.username,
-                    user.role.name,
+                    webhook.id,
+                    webhook.name,
+                    $RunningIcon.prop('outerHTML'),
+                    $typeIcon.prop('outerHTML'),
                     OpenUserStr
                 ])
             })
@@ -58,18 +71,18 @@ class Page_Settings {
             console.log(tableData)
 
             if (isDataTable == false) {
-                $("#users-table").DataTable({
+                $("#webhooks-table").DataTable({
                     paging: true,
                     searching: false,
                     info: false,
                     order: [
-                        [0, "desc"]
+                        [0, "asc"]
                     ],
                     columnDefs: [],
                     data: tableData
                 })
             } else {
-                const datatable = $("#users-table").DataTable();
+                const datatable = $("#webhooks-table").DataTable();
                 datatable.clear();
                 datatable.rows.add(tableData);
                 datatable.draw();
@@ -77,56 +90,7 @@ class Page_Settings {
         })
     }
 
-    DisplayRolesTable() {
-
-
-        API_Proxy.get("info/roles").then(res => {
-
-            const isDataTable = $.fn.dataTable.isDataTable("#roles-table")
-            const tableData = [];
-
-            const roles = res.data;
-            this._ROLES = roles;
-
-            roles.forEach(role => {
-                const $btn_info = $("<button/>")
-                    .addClass("btn btn-light btn-block configure-role")
-                    .attr("data-role-id", role.id)
-                    .html("<i class='fas fa-cog'></i>");
-
-                const OpenUserStr = $btn_info.prop('outerHTML')
-
-                tableData.push([
-                    role.id,
-                    role.name,
-                    role.permissions.length,
-                    OpenUserStr
-                ])
-            })
-
-            console.log(tableData)
-
-            if (isDataTable == false) {
-                $("#roles-table").DataTable({
-                    paging: true,
-                    searching: false,
-                    info: false,
-                    order: [
-                        [0, "desc"]
-                    ],
-                    columnDefs: [],
-                    data: tableData
-                })
-            } else {
-                const datatable = $("#roles-table").DataTable();
-                datatable.clear();
-                datatable.rows.add(tableData);
-                datatable.draw();
-            }
-        })
-    }
-
-    OpenAddUserModal(btn) {
+    OpenAddWebhookModal(btn) {
         Tools.openModal("/public/modals", "add-user-modal", modal => {
             const $roleSelect = modal.find("#sel_role")
 

@@ -12,7 +12,6 @@ const DB = require("./server_db");
 const UserManager = require("./server_user_manager");
 
 const NotificationHandler = require("./server_notifcation_handler");
-const DiscordNotification = require("./notifications/DiscordNotification");
 
 const ObjNotifySSMStartup = require("../objects/notifications/obj_notify_ssmstartup");
 const ObjNotifySSMShutdown = require("../objects/notifications/obj_notify_ssmshutdown");
@@ -35,11 +34,13 @@ class SSM_Server_App {
             DB.init().then(() => {
                 UserManager.init();
                 SSM_Agent_Handler.init();
-                DiscordNotification.init();
-                const Notification = new ObjNotifySSMStartup();
-                Notification.build();
+                NotificationHandler.init().then(() => {
+                    const Notification = new ObjNotifySSMStartup();
+                    Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                    NotificationHandler.TriggerNotification(Notification);
+                })
+
             })
         }
 

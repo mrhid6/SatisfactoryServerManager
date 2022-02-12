@@ -4,10 +4,8 @@ class ObjNotifySSMShutdown extends Notification {
     constructor() {
         super("ssm.shutdown");
 
-        this.SetData({
-            "Title": "SSM Shutdown Up Event",
-            "Text": "SSM Core Has Just Been Shutdown!"
-        })
+        this.set("title", "SSM Shutdown Event");
+        this.set("description", "SSM Core Has Just Been Shutdown!");
     }
 }
 

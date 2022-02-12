@@ -4,10 +4,8 @@ class ObjNotifySSMStartup extends Notification {
     constructor() {
         super("ssm.startup");
 
-        this.SetData({
-            "Title": "SSM Start Up Event",
-            "Text": "SSM Core Has Just Been Started!"
-        })
+        this.set("title", "SSM Start Up Event");
+        this.set("description", "SSM Core Has Just Been Started!");
     }
 }
 
