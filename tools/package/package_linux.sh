@@ -86,6 +86,16 @@ if [ ${COMPILEONLY} -eq 0 ]; then
 
     ${SCP_CMD} root@${LINUX_SERVER}:/nodejs/build/SSM/release-builds/linux/* ${release_dir_linux}/.
 
+    DOCKERIMG="mrhid6/ssmagent"
+
+    echo "${DOCKER_PASS}" | docker login -u mrhid6 --password-stdin
+    docker build -t ${DOCKERIMG}:latest ${BASEDIR}/.
+
+    docker tag ${DOCKERIMG}:latest ${DOCKERIMG}:${VERSION}
+
+    docker push ${DOCKERIMG}:latest
+    docker push ${DOCKERIMG}:${VERSION}
+
 else
     release_dir="${BASEDIR}/release-builds"
     release_dir_linux="${release_dir}/linux"

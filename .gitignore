@@ -5,6 +5,7 @@ build
 assets/version.txt
 release-builds
 tools/TOKEN.txt
+tools/DOCKERPASS.txt
 tools/app_config.txt
 *.log
 
