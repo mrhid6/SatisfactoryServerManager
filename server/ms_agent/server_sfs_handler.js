@@ -136,7 +136,7 @@ class SF_Server_Handler {
                 } else {
                     resolve();
                 }
-            })
+            }).catch(reject)
         });
     }
 
@@ -211,7 +211,7 @@ class SF_Server_Handler {
                             return GameConfig.load()
                         }).then(() => {
                             resolve(true);
-                        })
+                        }).catch(reject)
                     } else {
                         reject(new SFFailedInstall())
                         return;

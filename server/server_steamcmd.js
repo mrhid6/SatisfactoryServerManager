@@ -250,13 +250,18 @@ class ServerSteamCMD {
             'find e' // fill the buffer so info's not truncated on Windows
         ]
 
-        const output = await this.run(commands);
+        try {
 
-        var infoTextStart = output.indexOf('"' + appId + '"')
-        var infoTextEnd = output.indexOf('ConVars:')
-        var infoText = output.substr(infoTextStart, infoTextEnd - infoTextStart).replace("find e", "")
+            const output = await this.run(commands);
 
-        return vdf.parse(infoText)[appId]
+            var infoTextStart = output.indexOf('"' + appId + '"')
+            var infoTextEnd = output.indexOf('ConVars:')
+            var infoText = output.substr(infoTextStart, infoTextEnd - infoTextStart).replace("find e", "")
+
+            return vdf.parse(infoText)[appId]
+        } catch (err) {
+            throw err;
+        }
     }
 
     isInstalled() {

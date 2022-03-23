@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1
 FROM ubuntu:20.04
-
+RUN add-apt-repository multiverse
+RUN dpkg --add-architecture i386
+RUN apt update
+RUN apt install lib32gcc-s1 -y 
 RUN apt-get update -y && apt-get install apt-utils wget curl htop -y
 
 RUN apt-get upgrade -y
