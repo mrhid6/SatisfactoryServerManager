@@ -112,6 +112,10 @@ class ServerConfig extends iConfig {
             super.delete("ssm.metrics");
         }
 
+        this.getGitHubReleaseVersion().then(github_version => {
+            super.set("ssm.github_version", github_version)
+        }).catch(err => {})
+
     }
 
     setAgentDefaults() {
@@ -181,32 +185,28 @@ class ServerConfig extends iConfig {
     getSSMVersion() {
 
         return new Promise((resolve, reject) => {
-            this.getGitHubReleaseVersion().then(github_version => {
-                const current_version_sem = semver.coerce(super.get("ssm.version"))
-                const github_version_sem = semver.coerce(github_version)
+            const current_version_sem = semver.coerce(super.get("ssm.version"))
+            const github_version_sem = semver.coerce(super.get("ssm.github_version"))
 
-                const ver_gt = semver.gt(current_version_sem, github_version_sem);
-                const ver_eq = semver.satisfies(current_version_sem, github_version_sem);
-                const ver_lt = semver.lt(current_version_sem, github_version_sem);
+            const ver_gt = semver.gt(current_version_sem, github_version_sem);
+            const ver_eq = semver.satisfies(current_version_sem, github_version_sem);
+            const ver_lt = semver.lt(current_version_sem, github_version_sem);
 
-                let ver_diff = "eq";
+            let ver_diff = "eq";
 
-                if (ver_gt == true) {
-                    ver_diff = "gt"
-                } else if (ver_lt == true) {
-                    ver_diff = "lt"
-                }
+            if (ver_gt == true) {
+                ver_diff = "gt"
+            } else if (ver_lt == true) {
+                ver_diff = "lt"
+            }
 
-                const resData = {
-                    current_version: super.get("ssm.version"),
-                    github_version: github_version,
-                    version_diff: ver_diff
-                }
-                resolve(resData)
-            }).catch(err => {
-                reject(err);
-            })
-        });
+            const resData = {
+                current_version: super.get("ssm.version"),
+                github_version: super.get("ssm.github_version"),
+                version_diff: ver_diff
+            }
+            resolve(resData)
+        })
     }
 
     getGitHubReleaseVersion() {
@@ -222,10 +222,8 @@ class ServerConfig extends iConfig {
 
     InitAgentSettings(data) {
         if (super.get("ssm.agent.setup") == false) {
-            console.log(data);
-
             const AgentHash = CryptoJS.MD5(`${data.publicKey}-SSMAgent${data.agentId}`).toString();
-            console.log(AgentHash)
+
             super.set("ssm.agent.id", parseInt(data.agentId));
             super.set("ssm.agent.key", AgentHash);
             super.set("ssm.agent.setup", true)

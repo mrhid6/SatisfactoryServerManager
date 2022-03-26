@@ -15,6 +15,9 @@ const IAgent = require("../objects/obj_agent");
 const UserManager = require("./server_user_manager");
 const DB = require("./server_db");
 
+const fs = require("fs-extra")
+const path = require("path");
+
 
 const NotificationHandler = require("./server_notifcation_handler");
 
@@ -72,12 +75,14 @@ class AgentHandler {
 
     PullDockerImage() {
         return new Promise((resolve, reject) => {
+            logger.info("[AGENT_HANDLER] - Pulling Docker Image..");
             this._docker.image.create({}, {
                     fromImage: "mrhid6/ssmagent",
                     tag: "latest"
                 })
                 .then(stream => promisifyStream(stream))
                 .then(() => {
+                    logger.info("[AGENT_HANDLER] - Pulled Docker Image Successfully!");
                     resolve()
                 });
         })
@@ -86,7 +91,7 @@ class AgentHandler {
 
     BuildAgentList() {
         return new Promise((resolve, reject) => {
-
+            logger.info("[AGENT_HANDLER] - Building SSM Agent List...");
             this._AGENTS = [];
 
             const SQL = `SELECT * FROM agents`
@@ -143,6 +148,7 @@ class AgentHandler {
                 }).then(() => {
                     return this.FixAgentsMigrationPortData();
                 }).then(() => {
+                    logger.info("[AGENT_HANDLER] - Built SSM Agent List Successfully!");
                     resolve();
                 }).catch(reject)
             });
@@ -313,10 +319,30 @@ class AgentHandler {
             ExposedPorts[`${BeaconPort}/udp`] = {}
             ExposedPorts[`${Port}/udp`] = {}
 
+            const TempBinds = [
+                `/SSMAgents/${Name}/SSM:/home/ssm/.SatisfactoryServerManager`,
+                `/SSMAgents/${Name}/.config:/home/ssm/.config/Epic/FactoryGame`,
+            ]
+
+            let Binds = []
+
+            for (let i = 0; i < TempBinds.length; i++) {
+                const Bind = TempBinds[i];
+                const splitBind = Bind.split(":");
+                const desiredMode = 0o2777
+                const Dir = path.resolve(splitBind[0]);
+                if (fs.existsSync(Dir) == false) {
+                    fs.ensureDirSync(Dir, desiredMode)
+                }
+
+                Binds.push(`${Dir}:${splitBind[1]}`)
+            }
+
             this._docker.container.create({
                 Image: 'mrhid6/ssmagent:latest',
                 name: Name,
                 HostConfig: {
+                    Binds,
                     PortBindings: PortBindings
                 },
                 ExposedPorts
