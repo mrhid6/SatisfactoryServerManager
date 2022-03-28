@@ -1,43 +1,22 @@
 <div class="page-container" data-page="dashboard">
-    <h2 class="mb-3">Dashboard</h2>
-    <div class="card border-secondary mb-3">
-        <div class="card-header">
-            <h5>SSM Server Status</h5>
+    <div class="row page-header">
+        <div class="col-12 col-md-9">
+            <h3 class="mb-3">Dashboard</h3>
         </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-12 col-md-4">
-                    <div class="status-info-card blue">
-                        <div class="status-info-card-main">Servers:</div>
-                        <div class="status-info-card-secondary"><span id="server-count">0 / 0</span></div>
-                        <div class="status-info-card-icon">
-                            <i class="fas fa-server"></i>
-                        </div>
-                    </div>
+
+        <div class="col-12 col-md-3">
+            <div class="status-info-card blue">
+                <div class="status-info-card-main">Servers:</div>
+                <div class="status-info-card-secondary"><span id="server-count">0 / 0</span></div>
+                <div class="status-info-card-icon">
+                    <i class="fas fa-server"></i>
                 </div>
             </div>
         </div>
     </div>
-    <div class="card border-secondary mb-3">
-        <div class="card-header">
-            <h5>Select Server</h5>
-        </div>
-        <div class="card-body">
-            <div class="row settings-row">
-                <div class="col-12 col-md-4">
-                    <b class="settings-prop">Server:</b>
-                    <span class="settings-info">
-                        Select a Server instance to manage.
-                    </span>
-                </div>
-                <div class="col-12 col-md-6">
-                    <select class="form-control" id="inp_server">
-                        <option value="-1">-- Select Server --</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
+
+    <div id="agents-wrapper"></div>
+
     <div class="card border-secondary mb-3">
         <div class="card-header">
             <h5>Satisfactory Server Status</h5>
@@ -47,7 +26,8 @@
                 <div class="col-12 col-md-4">
                     <div class="status-info-card blue">
                         <div class="status-info-card-main">Status:</div>
-                        <div class="status-info-card-secondary"><span id="server-status">Select An Active Server</span>
+                        <div class="status-info-card-secondary"><span id="server-status">Select An Active
+                                Server</span>
                         </div>
                         <div class="status-info-card-icon">
                             <i class="fas fa-server"></i>
@@ -65,10 +45,9 @@
                 </div>
                 <div class="col-12 col-md-4">
                     <div class="status-info-card green">
-                        <div class="status-info-card-main">Mods:</div>
-                        <div class="status-info-card-secondary"><span id="mod-status">Select An Active Server</span>
+                        <div class="status-info-card-main">Installed Mods:</div>
+                        <div class="status-info-card-secondary"><span class="installed-mods">0</span>
                         </div>
-                        <div class="status-info-card-info">Count: <span class="installed-mods">0</span></div>
                         <div class="status-info-card-icon">
                             <i class="fas fa-pencil-ruler"></i>
                         </div>

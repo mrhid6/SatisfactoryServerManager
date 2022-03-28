@@ -5,7 +5,7 @@ body {
 
 body {
     background: #333 url("/public/images/logonbg.png") no-repeat bottom center !important;
-    color: #000;
+    color: #fff;
     font-size: 12px;
 }
 
@@ -21,7 +21,6 @@ body {
 }
 
 .login-card {
-    background: #fff;
     position: absolute;
     top: 50%;
     left: 50%;
@@ -34,7 +33,6 @@ body {
 }
 
 .login-card .card-header {
-    background: rgba(0, 0, 0, 0.1);
     position: relative;
     height: 40px;
     padding: 0;
@@ -72,12 +70,6 @@ body {
     line-height: 29px;
     margin: 0;
     font-size: 12px;
-}
-
-.login-card input,
-.login-card select {
-    font-size: 12px;
-    height: 29px;
 }
 
 .login-card .error-content {

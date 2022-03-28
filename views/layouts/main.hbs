@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="utf-8" />
     <title>Satisfactory Server Manager</title>
     <script defer src="/libraries/jquery/dist/jquery.min.js"></script>
     <script defer src="/libraries/jquery-steps/build/jquery.steps.min.js"></script>
@@ -26,7 +27,8 @@
     <link rel='stylesheet' href='/public/css/bootswatch.min.css' />
     <link rel='stylesheet' href='/public/css/main.min.css' />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+     <meta name="HandheldFriendly" content="True" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     <link rel="apple-touch-icon" sizes="180x180" href="/public/images/favicons/apple-touch-icon.png?v=9B95M7ezK3">
     <link rel="icon" type="image/png" sizes="32x32" href="/public/images/favicons/favicon-32x32.png?v=9B95M7ezK3">
@@ -40,100 +42,98 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="/">
-            <img src="/public/images/ssm_logo128.png" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01"
-            aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+    <div id="viewport" class="minimal">
+        <!-- Sidebar -->
+        <div id="sidebar">
 
-        <div class="collapse navbar-collapse" id="navbarColor01">
-            <ul class="navbar-nav mr-auto">
-                {{#if perms.dashboard}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/">
-                        <i class="fas fa-tachometer-alt"></i>
-                        Dashboard
-                    </a>
-                </li>
-                {{/if}}
-                {{#if perms.servers}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/servers">
-                        <i class="fas fa-server"></i>
-                        Servers
-                    </a>
-                </li>
-                {{/if}}
-                {{#if perms.mods}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/mods">
-                        <i class="fas fa-pencil-ruler"></i>
-                        Mods
-                    </a>
-                </li>
-                {{/if}}
-                {{#if perms.logs}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/logs">
-                        <i class="fas fa-file-alt"></i>
-                        Logs
-                    </a>
-                </li>
-                {{/if}}
-                {{#if perms.saves}}
-                <li class="nav-item">
-                    <a class="nav-link" href="/saves">
-                        <i class="fas fa-save"></i>
-                        Saves
-                    </a>
-                </li>
-                {{/if}}
+            <nav class="navbar navbar-expand-lg navbar-dark flex-column">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/"><img src="/public/images/ssm_logo64.png" alt=""></a>
 
-                {{#if (or perms.admin.settings perms.admin.users perms.admin.backups)}}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
-                        aria-haspopup="true" aria-expanded="false"> <i class="fas fa-user-shield"></i>
-                        Admin</a>
-                    <div class="dropdown-menu">
-                        {{#if perms.admin.backups}}
-                        <a class="dropdown-item" href="/backups">Backups</a>
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav flex-column">
+                        {{#if perms.dashboard}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Dashboard">
+                                <i class="fas fa-tachometer-alt"></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
                         {{/if}}
-                        {{#if perms.admin.settings}}
-                        <a class="dropdown-item" href="/settings">Settings</a>
+                        {{#if perms.servers}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/servers" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Servers">
+                                <i class="fas fa-server"></i>
+                                <span>Servers</span>
+                            </a>
+                        </li>
                         {{/if}}
-                        {{#if perms.admin.users}}
-                        <a class="dropdown-item" href="/users">Users</a>
+                        {{#if perms.mods}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/mods" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Mods">
+                                <i class="fas fa-pencil-ruler"></i>
+                                <span>Mods</span>
+                            </a>
+                        </li>
                         {{/if}}
-                    </div>
-                </li>
-                {{/if}}
-            </ul>
-            <div class="my-2 my-lg-0">
-                <ul class="navbar-nav mr-auto rightnavbar">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout"><i class="fas fa-lock"></i> Logout</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link">SSM: <span id="ssm-version"></span></a>
-                    </li>
-                </ul>
-            </div>
+                        {{#if perms.logs}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/logs" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Log Files">
+                                <i class="fas fa-file-alt"></i>
+                                <span>Logs</span>
+                            </a>
+                        </li>
+                        {{/if}}
+                        {{#if perms.saves}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/saves" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Save Files">
+                                <i class="fas fa-save"></i>
+                                <span>Saves</span>
+                            </a>
+                        </li>
+                        {{/if}}
+
+                        {{#if (or perms.admin.settings perms.admin.users perms.admin.backups)}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/admin" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Admin">
+                                <i class="fas fa-user-shield"></i>
+                                <span>Admin</span>
+                            </a>
+                        </li>
+                        {{/if}}
+                    </ul>
+                </div>
+            </nav>
         </div>
-    </nav>
-    <div class="container main-container">
-        {{{body}}}
-        <footer class="page-footer font-small blue bg-dark">
-
-            <!-- Copyright -->
-            <div class="footer-copyright text-center py-3">© 2020 - 2022 Copyright:
-                <a href="https://github.com/mrhid6/SatisfactoryServerManager"> Refined R&D</a>
-                MIT License.
+        <!-- Content -->
+        <div id="content">
+            <div class="container-fluid">
+                {{{body}}}
             </div>
-            <!-- Copyright -->
+            <footer class="page-footer font-small blue bg-dark">
 
-        </footer>
+                <!-- Copyright -->
+                <div class="footer-copyright text-center py-3">© 2020 - 2022 Copyright:
+                    <a href="https://github.com/mrhid6/SatisfactoryServerManager"> Refined R&D</a>
+                    MIT License.
+                </div>
+                <!-- Copyright -->
+
+            </footer>
+        </div>
     </div>
 </body>
+
+</html>

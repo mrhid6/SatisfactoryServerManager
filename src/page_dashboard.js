@@ -58,6 +58,82 @@ class Page_Dashboard {
         const maxCount = PageCache.getAgentsList().length;
 
         el.text(`${runningCount} / ${maxCount}`)
+
+        const $AgentWrapper = $("#agents-wrapper");
+        $AgentWrapper.empty();
+        let $Row = $("<div/>").addClass("row");
+
+        PageCache.getAgentsList().forEach((Agent, index) => {
+            $Row.append(this.BuildAgentsUI(Agent));
+
+            if ((index % 3) == 0 && index > 0) {
+                $AgentWrapper.append($Row);
+                $Row = $("<div/>").addClass("row");
+            }
+        })
+
+        $AgentWrapper.append($Row)
+    }
+
+    BuildAgentsUI(Agent) {
+        console.log(Agent)
+        const $Col = $("<div/>").addClass("col-12 col-md-4");
+
+        const $Card = $("<div/>").addClass("card mb-3").attr("data-agentid", Agent.id);
+        $Col.append($Card);
+
+        const $CardHeader = $("<div/>").addClass("card-header");
+        $CardHeader.html(`<h5>Server: ${Agent.displayname}</h5>`)
+        $Card.append($CardHeader);
+
+        const $CardBody = $("<div/>").addClass("card-body");
+        $Card.append($CardBody);
+
+        let StatusText = "Offline";
+        let UsersText = 0;
+
+        if (Agent != null && Agent.running && Agent.active) {
+            const serverState = Agent.info.serverstate;
+            const SFConfig = Agent.info.config.satisfactory;
+            if (serverState != null) {
+                if (serverState.status == "notinstalled" || SFConfig.installed == false) {
+                    StatusText = "Not Installed"
+                } else if (serverState.status == "stopped") {
+                    StatusText = "Stopped"
+                } else if (serverState.status == "running") {
+                    StatusText = "Running"
+                }
+            }
+
+            UsersText = Agent.info.usercount;
+
+        }
+
+        const $StatusInfoCard = this.BuildAgentInfoCard("blue", "Status", StatusText, "fa-server")
+        $CardBody.append($StatusInfoCard)
+
+        const $UsersInfoCard = this.BuildAgentInfoCard("orange", "Users", UsersText, "fa-user")
+        $CardBody.append($UsersInfoCard)
+
+        const $ModsInfoCard = this.BuildAgentInfoCard("green", "Installed Mods", 0, "fa-pencil-ruler")
+        $CardBody.append($ModsInfoCard)
+
+        $CardBody.append("<hr/>")
+        $CardBody.append("<hr/>")
+
+        return $Col;
+    }
+
+    BuildAgentInfoCard(ClassColour, Title, Data, Icon) {
+        const $infoCard = $(`<div class="status-info-card ${ClassColour}">
+        <div class="status-info-card-main">${Title}:</div>
+        <div class="status-info-card-secondary">${Data}</div>
+        <div class="status-info-card-icon">
+            <i class="fas ${Icon}"></i>
+        </div>
+    </div>`)
+
+        return $infoCard;
     }
 
     getSMLInfo() {

@@ -101,6 +101,8 @@ class PageHandler {
             e.preventDefault();
             PageCache.setActiveAgent($(e.currentTarget).val())
         })
+
+        $("#viewport.minimal #sidebar .navbar .nav-item a").tooltip("_fixTitle");
     }
 
     getAgentsList() {

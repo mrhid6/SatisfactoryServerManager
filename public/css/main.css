@@ -4,34 +4,138 @@ body {
 }
 
 body {
-    background-color: #eee !important;
-    color: #000;
+    color: #fff;
     font-size: 12px;
 }
 
-.navbar {
-    padding-top: 0;
-    padding-bottom: 0;
+/* Toggle Styles */
+
+#viewport {
+    padding-left: 250px;
 }
 
-.navbar ul {
+#viewport.minimal {
+    padding-left: 75px;
+}
+
+#content {
+    width: 100%;
+    position: relative;
+    margin-right: 0;
+    padding-bottom: 55px;
+}
+
+
+/* Sidebar Styles */
+
+#sidebar {
+    z-index: 1000;
+    position: fixed;
+    left: 250px;
+    width: 250px;
+    height: 100%;
+    margin-left: -250px;
+    overflow-y: auto;
+    background: #4f4f4f;
+    transition: all 1s;
+}
+
+#viewport.minimal #sidebar {
+    left: 75px;
+    width: 75px;
+    height: 100%;
+    margin-left: -75px;
+}
+
+#sidebar .navbar {
+    padding: 0;
+    margin: 0;
+}
+
+#sidebar .navbar-header {
+    background-color: #333333;
+    line-height: 52px;
+    text-align: center;
+    font-family: "hemihead";
+    display: block;
+    width: 100%;
+    color: #fff;
+    display: block;
+    text-decoration: none;
+    margin: 0;
+    position: relative;
+    height: 68px;
+}
+
+#sidebar .navbar-brand {
+    color: #fff;
+    font-size: 30px;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 128px;
+}
+
+#sidebar .navbar-brand:hover {
+    color: #fff;
+}
+
+#sidebar .navbar-brand img {
+    width: 64px;
+}
+
+#sidebar .navbar-toggler {
+    position: absolute;
+    top: 11px;
+    right: 12px;
+}
+
+#sidebar .navbar-collapse {
     width: 100%;
 }
 
-.navbar .rightnavbar {
-    min-width: 165px;
+#sidebar .navbar-nav {
+    width: 100%;
 }
 
-.navbar .navbar-brand img {
-    height: 45px;
+#sidebar .nav-item {
+    display: block;
+    width: 100%;
 }
 
-.navbar i {
+#sidebar .nav-item a {
+    background: none;
+    border-bottom: 1px solid #686868;
+    color: #CFD8DC;
     font-size: 14px;
+    padding: 16px 24px;
+}
+
+#sidebar .nav-item a:hover {
+    background: none;
+    color: #ECEFF1;
+}
+
+#sidebar .nav-item a i {
+    margin-right: 16px;
+}
+
+#viewport.minimal #sidebar .nav-item a i {
+    font-size: 26px;
+}
+
+#viewport.minimal #sidebar .nav-item a span {
+    display: none;
+}
+
+.dropdown-menu {
+    position: relative !important;
+    background-color: #333333;
+    margin: 0;
+    padding: 0;
 }
 
 .main-container {
-    background: #fff;
     padding: 15px 15px 15px 15px;
     min-height: calc(100% - 58.41px);
     overflow: hidden;
@@ -39,10 +143,15 @@ body {
     padding-bottom: 55px;
 }
 
+.page-header {
+    padding-top: 12px;
+    background-color: #333;
+    margin-bottom: 12px;
+}
+
 .page-footer {
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    position: fixed;
+    bottom: 0px;
     width: 100%;
     color: #fff;
     font-size: 14px;
@@ -75,7 +184,7 @@ body {
 .status-info-card {
     background: #eee;
     width: 100%;
-    height: 100px;
+    height: 45px;
     display: block;
     border-radius: 5px;
     -webkit-box-shadow: 0 0 3px 0 rgba(0, 0, 0, 0.2);
@@ -85,6 +194,7 @@ body {
     padding: 8px 12px;
     position: relative;
     margin-bottom: 8px;
+    margin-top: 0;
 }
 
 .status-info-card.blue {
@@ -108,19 +218,25 @@ body {
 .status-info-card .status-info-card-main {
     font-size: 15px;
     font-weight: 700;
-    margin-top: 10px;
+    line-height: 29px;
+    display: inline-block;
+    margin-right: 10px;
 }
 
+
 .status-info-card .status-info-card-secondary {
-    font-size: 20px;
+    font-size: 15px;
     font-weight: 700;
+    line-height: 29px;
+    display: inline-block;
 }
 
 .status-info-card .status-info-card-icon {
     position: absolute;
     right: 20px;
-    top: 8px;
-    font-size: 50px;
+    top: 7px;
+    font-size: 20px;
+    line-height: 29px;
     color: #cccccc;
 }
 
@@ -350,21 +466,35 @@ body {
 }
 
 @media(max-width:991px) {
-    .status-info-card {
-        height: 70px;
+    #viewport {
+        padding-left: 0 !important;
     }
 
-    .status-info-card .status-info-card-main {
-        margin-top: 2px;
-        font-size: 13px;
+    #viewport.minimal {
+        padding-left: 0 !important;
     }
 
-    .status-info-card .status-info-card-secondary {
-        font-size: 15px;
+    #viewport.minimal #sidebar,
+    #viewport #sidebar {
+        z-index: 1000;
+        position: relative;
+        left: 0;
+        width: 100%;
+        height: auto;
+        margin-left: 0;
+        overflow-y: auto;
+        background: #4f4f4f;
     }
 
-    .status-info-card .status-info-card-icon {
-        font-size: 35px;
+    #viewport #sidebar .nav-item a span,
+    #viewport.minimal #sidebar .nav-item a span {
+        display: inline;
+    }
+
+    #viewport #sidebar .nav-item a i,
+    #viewport.minimal #sidebar .nav-item a i {
+        display: inline;
+        font-size: 14px;
     }
 
     .server-action-btn {
