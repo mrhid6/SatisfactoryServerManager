@@ -271,6 +271,49 @@ body {
     max-width: calc(100% - 80px)
 }
 
+.progress-bar-wrapper {
+    width: 100%;
+    height: 150px;
+    position: relative;
+}
+
+
+.circle {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 150px;
+    height: 150px;
+    display: inline-block;
+}
+
+.circle:last-child {
+    position: absolute;
+    right: 0;
+    top: 0;
+    left: unset;
+}
+
+.circle strong {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 25px;
+}
+
+.circle h6 {
+    position: absolute;
+    top: 68px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    line-height: 40px;
+    font-size: 20px;
+}
+
 
 /* Mods Page*/
 

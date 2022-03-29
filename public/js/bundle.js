@@ -17642,7 +17642,7 @@ class Page_Dashboard {
     init() {
         this.setupEventHandlers();
         this.setupJqueryListeners();
-
+        this.DashboardBuilt = false;
     }
 
     setupEventHandlers() {
@@ -17690,26 +17690,32 @@ class Page_Dashboard {
         el.text(`${runningCount} / ${maxCount}`)
 
         const $AgentWrapper = $("#agents-wrapper");
-        $AgentWrapper.empty();
-        let $Row = $("<div/>").addClass("row");
+        if (this.DashboardBuilt == false) {
+            $AgentWrapper.empty();
+            let $Row = $("<div/>").addClass("row");
 
-        PageCache.getAgentsList().forEach((Agent, index) => {
-            $Row.append(this.BuildAgentsUI(Agent));
+            PageCache.getAgentsList().forEach((Agent, index) => {
+                $Row.append(this.BuildAgentsUI(Agent));
 
-            if ((index % 3) == 0 && index > 0) {
-                $AgentWrapper.append($Row);
-                $Row = $("<div/>").addClass("row");
-            }
-        })
+                if ((index % 4) == 0 && index > 0) {
+                    $AgentWrapper.append($Row);
+                    $Row = $("<div/>").addClass("row");
+                }
+            })
 
-        $AgentWrapper.append($Row)
+            $AgentWrapper.append($Row)
+            this.DashboardBuilt = true;
+        } else {
+
+        }
     }
 
     BuildAgentsUI(Agent) {
         console.log(Agent)
-        const $Col = $("<div/>").addClass("col-12 col-md-4");
 
-        const $Card = $("<div/>").addClass("card mb-3").attr("data-agentid", Agent.id);
+        const $Col = $("<div/>").addClass("col-12 col-md-4 col-lg-4 col-xl-3");
+
+        const $Card = $("<div/>").addClass("card mb-3").attr("id", `server-card-${Agent.id}`);
         $Col.append($Card);
 
         const $CardHeader = $("<div/>").addClass("card-header");
@@ -17749,7 +17755,59 @@ class Page_Dashboard {
         $CardBody.append($ModsInfoCard)
 
         $CardBody.append("<hr/>")
+
+        const $ProgressBarwrapper = $("<div/>").addClass("progress-bar-wrapper");
+        $CardBody.append($ProgressBarwrapper)
+
+        const $cpuProgress = this.BuildAgentProgressBar(Agent.id, "cpu_progress", "CPU");
+        $ProgressBarwrapper.append($cpuProgress)
+
+        const $memProgress = this.BuildAgentProgressBar(Agent.id, "mem_progress", "RAM");
+        $ProgressBarwrapper.append($memProgress)
+
+        const serverState = Agent.info.serverstate;
+        let cpuPercent = 0;
+        let memPercent = 0;
+        if (serverState != null) {
+            cpuPercent = (serverState.pcpu).toDecimal()
+            memPercent = (serverState.pmem).toDecimal()
+        }
+
+        $cpuProgress.circleProgress({
+            startAngle: -Math.PI / 4 * 2,
+            value: cpuPercent / 100,
+            size: 150,
+            lineCap: 'round',
+            emptyFill: "rgba(255, 255, 255, .1)",
+            fill: {
+                color: '#ffa500'
+            }
+        }).on('circle-animation-progress', function (event, progress, stepValue) {
+            $(this).find('strong').text(`${(stepValue.toFixed(2) * 100).toFixed(0)}%`);
+        });
+
+        $memProgress.circleProgress({
+            startAngle: -Math.PI / 4 * 2,
+            value: memPercent / 100,
+            size: 150,
+            lineCap: 'round',
+            emptyFill: "rgba(255, 255, 255, .1)",
+            fill: {
+                color: '#ffa500'
+            }
+        }).on('circle-animation-progress', function (event, progress, stepValue) {
+            $(this).find('strong').text(`${(stepValue.toFixed(2) * 100).toFixed(0)}%`);
+        });
+
         $CardBody.append("<hr/>")
+
+
+        const $ActionButtonWrapper = $(`<div class="row"></div>`)
+        $CardBody.append($ActionButtonWrapper)
+
+        $ActionButtonWrapper.append(this.BuildServerActionButton(Agent.id, "success", "start", "fa-play", "Start Server"))
+        $ActionButtonWrapper.append(this.BuildServerActionButton(Agent.id, "warning", "stop", "fa-stop", "Stop Server"))
+        $ActionButtonWrapper.append(this.BuildServerActionButton(Agent.id, "danger", "kill", "fa-skull-crossbones", "Kill Server"))
 
         return $Col;
     }
@@ -17764,6 +17822,21 @@ class Page_Dashboard {
     </div>`)
 
         return $infoCard;
+    }
+
+    BuildAgentProgressBar(AgentId, elID, Title) {
+        return $(`<div id="${elID}_${AgentId}" class="circle">
+        <strong></strong>
+        <h6>${Title}</h6>
+    </div>`)
+    }
+
+    BuildServerActionButton(AgentID, styleClass, action, icon, Text) {
+        return $(`<div class='col-4'>
+        <div class="d-grid gap-2">
+        <button class='btn btn-${styleClass} btn-block server-action-btn' data-agent-id='${AgentID}' data-action='${action}'><i class="fas ${icon}"></i> ${Text}</button>
+        </div>
+        </div>`)
     }
 
     getSMLInfo() {
@@ -17787,22 +17860,22 @@ class Page_Dashboard {
         });
     }
 
-    getInstalledMods() {
-        const Agent = PageCache.getActiveAgent()
-        if (Agent != null && Agent.running && Agent.active) {
-            const postData = {
-                agentid: Agent.id
-            }
-            API_Proxy.postData("agent/modinfo/installed", postData).then(res => {
-                if (res.result == "success") {
-                    PageCache.SetAgentInstalledMods(res.data);
-                } else {
-                    PageCache.SetAgentInstalledMods([]);
+    getInstalledMods(Agent) {
+        return new Promise((resolve, reject) => {
+            if (Agent != null && Agent.running && Agent.active) {
+                const postData = {
+                    agentid: Agent.id
                 }
-            });
-        } else {
-            $("#mod-status").text("Select An Active Server")
-        }
+                API_Proxy.postData("agent/modinfo/installed", postData).then(res => {
+                    let resData = []
+                    if (res.result == "success") {
+                        resData = res.data;
+                    }
+
+                    return resData
+                });
+            }
+        })
     }
 
     SetServerStatus() {

@@ -1574,12 +1574,19 @@ javascript-natural-sort@^0.7.1:
   resolved "https://registry.yarnpkg.com/javascript-natural-sort/-/javascript-natural-sort-0.7.1.tgz#f9e2303d4507f6d74355a73664d1440fb5a0ef59"
   integrity sha1-+eIwPUUH9tdDVac2ZNFED7Wg71k=
 
+jquery-circle-progress@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/jquery-circle-progress/-/jquery-circle-progress-1.2.2.tgz#260e9130ac8e2b5572eaa7a93b9e8a6b27bc8eea"
+  integrity sha1-Jg6RMKyOK1Vy6qepO56Kaye8juo=
+  dependencies:
+    jquery "*"
+
 jquery-steps@^1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/jquery-steps/-/jquery-steps-1.1.0.tgz#0ceee0b0d2e49143981ad120d458ed56ea8e1924"
   integrity sha1-DO7gsNLkkUOYGtEg1FjtVuqOGSQ=
 
-jquery@>=1.12.0, jquery@>=1.7, jquery@^3.6.0:
+jquery@*, jquery@>=1.12.0, jquery@>=1.7, jquery@^3.6.0:
   version "3.6.0"
   resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.0.tgz#c72a09f15c1bdce142f49dbf1170bdf8adac2470"
   integrity sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==
@@ -2445,10 +2452,10 @@ safe-buffer@~5.1.0, safe-buffer@~5.1.1:
   resolved "https://registry.yarnpkg.com/safer-buffer/-/safer-buffer-2.1.2.tgz#44fa161b0187b9549dd84bb91802f9bd8385cd6a"
   integrity sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==
 
-satisfactory-mod-manager-api@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/satisfactory-mod-manager-api/-/satisfactory-mod-manager-api-4.0.0.tgz#74569c2abf5df3813e96d308bb074d6fb1eccc5d"
-  integrity sha512-FDpP2HR+XnaXA8aAr1tsq/gFVsEhEC+SsLn/iEik5hbF8Lc8LRaVkNgfdDiAYW+BwxTGIJg4qP4FuAj/A857bA==
+satisfactory-mod-manager-api@^4.0.1:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/satisfactory-mod-manager-api/-/satisfactory-mod-manager-api-4.0.1.tgz#e4ad961a7dc94d7d1273fc9367eebe55263c209c"
+  integrity sha512-AwfVY9rjI+qRpj86Y367vflWSsyQs6LHsLTN1+YsvUCoG2OHstBkVWp1dyyyYgC7Xp84SXs+yADmfDu/btTuGQ==
   dependencies:
     "@apollo/client" "^3.4.16"
     apollo-link-scalars "^3.0.0"
