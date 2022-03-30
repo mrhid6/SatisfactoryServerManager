@@ -71,8 +71,11 @@ class AgentApp {
                 return this.GetUserCount()
             }).then(usercount => {
                 resData.usercount = usercount;
+                return SSM_Mod_Handler.getModsInstalled();
+            }).then(mods => {
+                resData.mods = mods;
                 resolve(resData)
-            })
+            }).catch(reject);
 
         });
     }
