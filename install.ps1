@@ -88,7 +88,7 @@ if($nodocker -eq $false){
 
         if($osInfo.BuildNumber -gt 19041){
             $Installed = Test-Path("HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Docker Desktop")
-
+	    
             if($Installed -and $update){
                 $InstalledDockerVersion = (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Docker Desktop" -ErrorAction SilentlyContinue).DisplayVersion
 
@@ -119,6 +119,13 @@ if($nodocker -eq $false){
 
                     sleep -m 3000
                     del $DockerInstaller
+		    
+		    sleep -m 2000
+		    
+		    $dockerSettingPath = "C:\Users\$($env:UserName)\AppData\Roaming\Docker\settings.json"
+	    	    $settingsContent = Get-Content $dockerSettingPath -Raw | ConvertFrom-Json
+	    	    $settingsContent.exposeDockerAPIOnTCP2375 = $true
+	    	    $settingsContent | ConvertTo-Json | Set-Content $dockerSettingPath
                 }
             }
         }else{
