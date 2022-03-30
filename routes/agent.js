@@ -66,6 +66,11 @@ router.get("/info", checkHeaderKey, function (req, res, next) {
             result: "success",
             data
         })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        });
     })
 })
 
