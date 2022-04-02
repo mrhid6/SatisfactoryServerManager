@@ -102,7 +102,7 @@ class ServerConfig extends iConfig {
         }
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.20`);
+        super.set("ssm.version", `v1.1.21`);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");
