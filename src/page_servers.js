@@ -47,14 +47,14 @@ class Page_Servers {
         PageCache.getAgentsList().forEach(agent => {
             const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
             const $btn_info = $("<button/>")
-                .addClass("btn btn-primary me-3")
+                .addClass("btn btn-primary float-start")
                 .html("<i class='fas fa-cog'></i>");
 
             $AgentLink.append($btn_info)
             const OpenAgentStr = $AgentLink.prop('outerHTML')
 
             const $btn_stopstart = $("<button/>")
-                .addClass("btn btn-success ml-3")
+                .addClass("btn btn-success float-end")
                 .html("<i class='fas fa-play'></i>")
                 .attr("data-action", "start")
                 .attr("data-agentid", `${agent.id}`)

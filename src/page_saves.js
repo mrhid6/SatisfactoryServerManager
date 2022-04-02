@@ -129,12 +129,12 @@ class Page_Settings {
                     if (save.result == "failed") return;
 
                     let deleteSaveEl = $("<button/>")
-                        .addClass("btn btn-danger float-right remove-save-btn")
+                        .addClass("btn btn-danger float-end remove-save-btn")
                         .html("<i class='fas fa-trash'></i>")
                         .attr("data-save", save.savename);
 
                     let downloadSaveEl = $("<button/>")
-                        .addClass("btn btn-primary float-left download-save-btn")
+                        .addClass("btn btn-primary float-start download-save-btn")
                         .html("<i class='fas fa-download'></i>")
                         .attr("data-save", save.savename);
 

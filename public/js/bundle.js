@@ -17516,12 +17516,12 @@ class Page_Backups {
                 backups.forEach(backup => {
 
                     let deleteBackupEl = $("<button/>")
-                        .addClass("btn btn-danger float-right remove-backup-btn")
+                        .addClass("btn btn-danger float-end remove-backup-btn")
                         .html("<i class='fas fa-trash'></i>")
                         .attr("data-backup-name", backup.filename);
 
                     let downloadBackupEl = $("<button/>")
-                        .addClass("btn btn-primary float-left download-backup-btn")
+                        .addClass("btn btn-primary float-start download-backup-btn")
                         .html("<i class='fas fa-download'></i>")
                         .attr("data-backup-name", backup.filename);
 
@@ -18898,12 +18898,12 @@ class Page_Settings {
                     if (save.result == "failed") return;
 
                     let deleteSaveEl = $("<button/>")
-                        .addClass("btn btn-danger float-right remove-save-btn")
+                        .addClass("btn btn-danger float-end remove-save-btn")
                         .html("<i class='fas fa-trash'></i>")
                         .attr("data-save", save.savename);
 
                     let downloadSaveEl = $("<button/>")
-                        .addClass("btn btn-primary float-left download-save-btn")
+                        .addClass("btn btn-primary float-start download-save-btn")
                         .html("<i class='fas fa-download'></i>")
                         .attr("data-save", save.savename);
 
@@ -19517,14 +19517,14 @@ class Page_Servers {
         PageCache.getAgentsList().forEach(agent => {
             const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
             const $btn_info = $("<button/>")
-                .addClass("btn btn-primary me-3")
+                .addClass("btn btn-primary float-start")
                 .html("<i class='fas fa-cog'></i>");
 
             $AgentLink.append($btn_info)
             const OpenAgentStr = $AgentLink.prop('outerHTML')
 
             const $btn_stopstart = $("<button/>")
-                .addClass("btn btn-success ml-3")
+                .addClass("btn btn-success float-end")
                 .html("<i class='fas fa-play'></i>")
                 .attr("data-action", "start")
                 .attr("data-agentid", `${agent.id}`)

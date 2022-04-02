@@ -49,12 +49,12 @@ class Page_Backups {
                 backups.forEach(backup => {
 
                     let deleteBackupEl = $("<button/>")
-                        .addClass("btn btn-danger float-right remove-backup-btn")
+                        .addClass("btn btn-danger float-end remove-backup-btn")
                         .html("<i class='fas fa-trash'></i>")
                         .attr("data-backup-name", backup.filename);
 
                     let downloadBackupEl = $("<button/>")
-                        .addClass("btn btn-primary float-left download-backup-btn")
+                        .addClass("btn btn-primary float-start download-backup-btn")
                         .html("<i class='fas fa-download'></i>")
                         .attr("data-backup-name", backup.filename);
 
