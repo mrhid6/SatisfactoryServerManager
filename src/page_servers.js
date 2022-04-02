@@ -47,7 +47,7 @@ class Page_Servers {
         PageCache.getAgentsList().forEach(agent => {
             const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
             const $btn_info = $("<button/>")
-                .addClass("btn btn-light")
+                .addClass("btn btn-primary me-3")
                 .html("<i class='fas fa-cog'></i>");
 
             $AgentLink.append($btn_info)
@@ -68,15 +68,15 @@ class Page_Servers {
 
             const OptionStr = OpenAgentStr + $btn_stopstart.prop('outerHTML')
 
-            const $RunningIcon = $("<i/>").addClass("fas fa-times text-danger")
-            const $ActiveIcon = $("<i/>").addClass("fas fa-times text-danger")
+            const $RunningIcon = $("<i/>").addClass("fas fa-2xl fa-circle-xmark text-danger")
+            const $ActiveIcon = $("<i/>").addClass("fas fa-2xl fa-circle-xmark text-danger")
 
             if (agent.running == true) {
-                $RunningIcon.removeClass("fa-times text-danger").addClass("fa-check text-success")
+                $RunningIcon.removeClass("fa-circle-xmark text-danger").addClass("fa-circle-check text-success")
             }
 
             if (agent.active == true) {
-                $ActiveIcon.removeClass("fa-times text-danger").addClass("fa-check text-success")
+                $ActiveIcon.removeClass("fa-circle-xmark text-danger").addClass("fa-circle-check text-success")
             }
 
             tableData.push([

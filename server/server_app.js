@@ -107,7 +107,7 @@ class SSM_Server_App {
         const user = post.inp_user;
         const pass = post.inp_pass;
 
-        const UserAccount = UserManager.getUserByUername(user);
+        const UserAccount = UserManager.getUserByUsername(user);
 
         var clientip = req.headers['x-real-ip'] || req.connection.remoteAddress;
 
@@ -283,6 +283,11 @@ class SSM_Server_App {
         return;
 
 
+    }
+
+
+    API_CreateUser(data) {
+        return UserManager.API_CreateUser(data);
     }
 }
 

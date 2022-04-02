@@ -56,17 +56,15 @@ class PageHandler {
             case "saves":
                 Page_Saves.init();
                 break;
-            case "settings":
-                Page_Settings.init();
-                break;
             case "servers":
                 Page_Servers.init();
                 break;
             case "server":
                 Page_Server.init();
                 break;
-            case "users":
+            case "admin":
                 Page_Users.init();
+                Page_Settings.init();
                 break;
             case "backups":
                 Page_Backups.init();

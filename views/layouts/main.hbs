@@ -105,6 +105,16 @@
                         </li>
                         {{/if}}
 
+                         {{#if perms.admin.backups}}
+                        <li class="nav-item">
+                            <a class="nav-link" href="/backups" data-bs-toggle="tooltip" data-bs-placement="right"
+                                title="Backup Files">
+                                <i class="fas fa-folder-open"></i>
+                                <span>Backups</span>
+                            </a>
+                        </li>
+                        {{/if}}
+
                         {{#if (or perms.admin.settings perms.admin.users perms.admin.backups)}}
                         <li class="nav-item">
                             <a class="nav-link" href="/admin" data-bs-toggle="tooltip" data-bs-placement="right"

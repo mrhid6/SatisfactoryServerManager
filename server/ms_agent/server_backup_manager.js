@@ -168,12 +168,16 @@ class BackupManager {
                 sortedFiles.forEach(file => {
                     const fileInfo = fs.statSync(file);
                     const pathInfo = path.parse(file);
+
+                    console.log(fileInfo)
+
                     resarray.push({
                         filename: pathInfo.base,
                         size: fileInfo.size,
-                        created: fileInfo.birthtime
+                        created: fileInfo.birthtime.getTime()
                     })
                 })
+                console.log(resarray);
                 resolve(resarray)
             })
         });

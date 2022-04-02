@@ -20,18 +20,6 @@ class Page_Dashboard {
             logger.info("Got Agents List!")
             this.OnGotAgentsList();
         })
-
-        PageCache.on("setactiveagent", () => {
-            logger.info("Set Active Agent!")
-            this.ToggleActionsButtons();
-            this.SetServerStatus();
-            this.getInstalledMods();
-        })
-
-        PageCache.on("setinstalledmods", () => {
-            $(".installed-mods").text(PageCache.getAgentInstalledMods().length)
-            this.getSMLInfo();
-        });
     }
 
     setupJqueryListeners() {
@@ -49,6 +37,18 @@ class Page_Dashboard {
             e.preventDefault();
             this.ServerAction_Kill();
         })
+
+        $("body").on("click", ".server-action-btn", e => {
+            e.preventDefault();
+            const $btn = $(e.currentTarget);
+            const postData = {
+                agentid: $btn.attr("data-agent-id"),
+                action: $btn.attr("data-action")
+            }
+            console.log(postData)
+
+            this.ExecuteServerAction(postData);
+        })
     }
 
     OnGotAgentsList() {
@@ -62,34 +62,50 @@ class Page_Dashboard {
         const $AgentWrapper = $("#agents-wrapper");
         if (this.DashboardBuilt == false) {
             $AgentWrapper.empty();
+
+            if (PageCache.getAgentsList().length == 0) {
+                $AgentWrapper.append(`
+                <div class="alert alert-info">It looks there is no servers set up yet! Go to the <strong>Servers</strong> page to set up your first server.</div>
+                `)
+            }
+
             let $Row = $("<div/>").addClass("row");
 
             PageCache.getAgentsList().forEach((Agent, index) => {
                 $Row.append(this.BuildAgentsUI(Agent));
-
-                if ((index % 4) == 0 && index > 0) {
-                    $AgentWrapper.append($Row);
-                    $Row = $("<div/>").addClass("row");
-                }
             })
 
             $AgentWrapper.append($Row)
+
+            PageCache.getAgentsList().forEach((Agent, index) => {
+                const $Card = $(`#server-card-${Agent.id}`)
+                this.ToggleActionsButtons(Agent, $Card)
+
+            })
+
             this.DashboardBuilt = true;
         } else {
+            PageCache.getAgentsList().forEach((Agent, index) => {
+                const $Card = $(`#server-card-${Agent.id}`)
+                this.UpdateAgentCardInfo(Agent);
+                this.ToggleActionsButtons(Agent, $Card)
 
+            })
         }
     }
 
     BuildAgentsUI(Agent) {
         console.log(Agent)
 
-        const $Col = $("<div/>").addClass("col-12 col-md-4 col-lg-4 col-xl-3");
+        const $Col = $("<div/>").addClass("col-12 col-md-6 col-lg-6 col-xl-3");
 
         const $Card = $("<div/>").addClass("card mb-3").attr("id", `server-card-${Agent.id}`);
         $Col.append($Card);
 
         const $CardHeader = $("<div/>").addClass("card-header");
-        $CardHeader.html(`<h5>Server: ${Agent.displayname}</h5>`)
+        const $CardServerSettingsBtn = $(`<a class="float-end" href="/server/${Agent.id}"><button class="btn btn-primary"><i class='fas fa-cog'></i></button></a>`)
+        $CardHeader.append($CardServerSettingsBtn)
+        $CardHeader.append(`<h5>Server: ${Agent.displayname}</h5>`)
         $Card.append($CardHeader);
 
         const $CardBody = $("<div/>").addClass("card-body");
@@ -97,6 +113,7 @@ class Page_Dashboard {
 
         let StatusText = "Offline";
         let UsersText = 0;
+        let ModCount = 0;
 
         if (Agent != null && Agent.running && Agent.active) {
             const serverState = Agent.info.serverstate;
@@ -111,17 +128,18 @@ class Page_Dashboard {
                 }
             }
 
+            ModCount = Agent.info.mods.length;
             UsersText = Agent.info.usercount;
 
         }
 
-        const $StatusInfoCard = this.BuildAgentInfoCard("blue", "Status", StatusText, "fa-server")
+        const $StatusInfoCard = this.BuildAgentInfoCard("status", "blue", "Status", StatusText, "fa-server")
         $CardBody.append($StatusInfoCard)
 
-        const $UsersInfoCard = this.BuildAgentInfoCard("orange", "Users", UsersText, "fa-user")
+        const $UsersInfoCard = this.BuildAgentInfoCard("users", "orange", "Users", UsersText, "fa-user")
         $CardBody.append($UsersInfoCard)
 
-        const $ModsInfoCard = this.BuildAgentInfoCard("green", "Installed Mods", 0, "fa-pencil-ruler")
+        const $ModsInfoCard = this.BuildAgentInfoCard("mods", "green", "Installed Mods", ModCount, "fa-pencil-ruler")
         $CardBody.append($ModsInfoCard)
 
         $CardBody.append("<hr/>")
@@ -182,8 +200,8 @@ class Page_Dashboard {
         return $Col;
     }
 
-    BuildAgentInfoCard(ClassColour, Title, Data, Icon) {
-        const $infoCard = $(`<div class="status-info-card ${ClassColour}">
+    BuildAgentInfoCard(ClassID, ClassColour, Title, Data, Icon) {
+        const $infoCard = $(`<div class="status-info-card ${ClassColour} info-card-${ClassID}">
         <div class="status-info-card-main">${Title}:</div>
         <div class="status-info-card-secondary">${Data}</div>
         <div class="status-info-card-icon">
@@ -195,93 +213,71 @@ class Page_Dashboard {
     }
 
     BuildAgentProgressBar(AgentId, elID, Title) {
-        return $(`<div id="${elID}_${AgentId}" class="circle">
+        return $(`<div class="circle ${elID}_${AgentId}">
         <strong></strong>
         <h6>${Title}</h6>
     </div>`)
     }
 
     BuildServerActionButton(AgentID, styleClass, action, icon, Text) {
-        return $(`<div class='col-4'>
-        <div class="d-grid gap-2">
+        return $(`<div class='col-12 col-lg-4 mb-2'>
+        <div class="d-grid  gap-2" data-bs-toggle="tooltip" data-bs-placement="bottom"
+        title="Tooltip on bottom">
         <button class='btn btn-${styleClass} btn-block server-action-btn' data-agent-id='${AgentID}' data-action='${action}'><i class="fas ${icon}"></i> ${Text}</button>
         </div>
         </div>`)
     }
 
-    getSMLInfo() {
+    UpdateAgentCardInfo(Agent) {
+        const $Card = $(`#server-card-${Agent.id}`)
 
-        const Agent = PageCache.getActiveAgent()
-        const postData = {
-            agentid: Agent.id
-        }
-
-        API_Proxy.postData("agent/modinfo/smlinfo", postData).then(res => {
-            const el = $("#mod-status");
-            if (res.result == "success") {
-                if (res.data.state == "not_installed") {
-                    el.text("Not Installed")
-                } else {
-                    el.text("Installed")
-                }
-            } else {
-                el.text("Unknown")
-            }
-        });
-    }
-
-    getInstalledMods(Agent) {
-        return new Promise((resolve, reject) => {
-            if (Agent != null && Agent.running && Agent.active) {
-                const postData = {
-                    agentid: Agent.id
-                }
-                API_Proxy.postData("agent/modinfo/installed", postData).then(res => {
-                    let resData = []
-                    if (res.result == "success") {
-                        resData = res.data;
-                    }
-
-                    return resData
-                });
-            }
-        })
-    }
-
-    SetServerStatus() {
-        const Agent = PageCache.getActiveAgent();
-        const $el = $("#server-status");
+        let StatusText = "Offline";
+        let UsersText = 0;
+        let ModCount = 0;
 
         if (Agent != null && Agent.running && Agent.active) {
             const serverState = Agent.info.serverstate;
             const SFConfig = Agent.info.config.satisfactory;
             if (serverState != null) {
                 if (serverState.status == "notinstalled" || SFConfig.installed == false) {
-                    $el.text("Not Installed")
+                    StatusText = "Not Installed"
                 } else if (serverState.status == "stopped") {
-                    $el.text("Stopped")
+                    StatusText = "Stopped"
                 } else if (serverState.status == "running") {
-                    $el.text("Running")
+                    StatusText = "Running"
                 }
-
-                $("#cpu-usage div").width((serverState.pcpu).toDecimal() + "%")
-                $("#ram-usage div").width((serverState.pmem).toDecimal() + "%")
-
-                $(".user-count").text(Agent.info.usercount);
-                return;
             }
 
+            ModCount = Agent.info.mods.length;
+            UsersText = Agent.info.usercount;
 
         }
-        $(".user-count").text(0);
-        $el.text("Select An Active Server")
+
+        $Card.find(`.info-card-status .status-info-card-secondary`).text(StatusText);
+        $Card.find(`.info-card-users .status-info-card-secondary`).text(UsersText);
+        $Card.find(`.info-card-mods .status-info-card-secondary`).text(ModCount);
+
+        const serverState = Agent.info.serverstate;
+        let cpuPercent = 0;
+        let memPercent = 0;
+        if (serverState != null) {
+            cpuPercent = (serverState.pcpu).toDecimal()
+            memPercent = (serverState.pmem).toDecimal()
+        }
+
+        const $cpuProgress = $Card.find(`.cpu_progress_${Agent.id}`)
+        $cpuProgress.circleProgress("value", cpuPercent / 100);
+
+        const $memProgress = $Card.find(`.mem_progress_${Agent.id}`)
+        $memProgress.circleProgress("value", memPercent / 100);
+
     }
 
-    ToggleActionsButtons() {
+    ToggleActionsButtons(Agent, $Card) {
 
-        const $StartButton = $("#server-action-start");
-        const $StopButton = $("#server-action-stop");
-        const $KillButton = $("#server-action-kill");
+        const $StartButton = $Card.find(".server-action-btn[data-action='start']");
+        const $StopButton = $Card.find(".server-action-btn[data-action='stop']");
+        const $KillButton = $Card.find(".server-action-btn[data-action='kill']");
 
         $StartButton.prop("disabled", true);
         $StopButton.prop("disabled", true);
@@ -291,7 +287,7 @@ class Page_Dashboard {
         $StopButton.parent().attr("title", "");
         $KillButton.parent().attr("title", "");
 
-        const Agent = PageCache.getActiveAgent();
+
 
         if (Agent != null && Agent.running === true && Agent.active === true) {
             const serverState = Agent.info.serverstate;
@@ -319,9 +315,9 @@ class Page_Dashboard {
 
             }
         } else {
-            $StartButton.parent().attr("title", "Select An Active Server");
-            $StopButton.parent().attr("title", "Select An Active Server");
-            $KillButton.parent().attr("title", "Select An Active Server");
+            $StartButton.parent().attr("title", "Server Not Online");
+            $StopButton.parent().attr("title", "Server Not Online");
+            $KillButton.parent().attr("title", "Server Not Online");
             $StartButton.parent().tooltip("_fixTitle");
             $StopButton.parent().tooltip("_fixTitle");
             $KillButton.parent().tooltip("_fixTitle");
@@ -337,45 +333,6 @@ class Page_Dashboard {
                 logger.error(res.error);
             }
         })
-    }
-
-    ServerAction_Start() {
-        const Agent = PageCache.getActiveAgent();
-
-        if (Agent != null) {
-            const postData = {
-                agentid: Agent.id,
-                action: "start"
-            }
-
-            this.ExecuteServerAction(postData);
-        }
-    }
-
-    ServerAction_Stop() {
-        const Agent = PageCache.getActiveAgent();
-
-        if (Agent != null) {
-            const postData = {
-                agentid: Agent.id,
-                action: "stop"
-            }
-
-            this.ExecuteServerAction(postData);
-        }
-    }
-
-    ServerAction_Kill() {
-        const Agent = PageCache.getActiveAgent();
-
-        if (Agent != null) {
-            const postData = {
-                agentid: Agent.id,
-                action: "kill"
-            }
-
-            this.ExecuteServerAction(postData);
-        }
     }
 
 

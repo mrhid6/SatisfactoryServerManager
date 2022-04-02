@@ -243,6 +243,25 @@ router.get('/saves', middleWare, function (req, res, next) {
 });
 
 /* GET settings. */
+router.get('/admin', middleWare, function (req, res, next) {
+    if (req.isLoggedin == true) {
+        const UserID = req.session.userid;
+        const perms = GetPagePermissions(UserID);
+
+        if (perms.admin.settings == false) {
+            res.redirect("/");
+            return;
+        }
+        res.render('admin.hbs', {
+            layout: "main.hbs",
+            perms
+        });
+    } else {
+        res.redirect("/login");
+    }
+});
+
+/* GET settings. */
 router.get('/settings', middleWare, function (req, res, next) {
     if (req.isLoggedin == true) {
         const UserID = req.session.userid;

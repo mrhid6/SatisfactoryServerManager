@@ -41,6 +41,10 @@ class Page_Users {
                 e.preventDefault();
                 this.SubmitAddRole()
             })
+            .on("click", "#submit-add-user-btn", e => {
+                e.preventDefault();
+                this.SubmitAddUser()
+            })
     }
 
     MainDisplayFunction() {
@@ -289,6 +293,22 @@ class Page_Users {
         } else {
             $item.find(".perm-category-checkbox").prop("checked", false)
         }
+    }
+
+    SubmitAddUser() {
+        const Username = $("#inp_username").val();
+        const RoleID = $("#sel_role").val();
+
+        const postData = {
+            username: Username,
+            roleid: RoleID
+        }
+
+        API_Proxy.postData("admin/adduser", postData).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err);
+        })
     }
 
     SubmitAddRole() {

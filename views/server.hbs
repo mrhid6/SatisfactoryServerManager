@@ -1,5 +1,9 @@
 <div class="page-container" data-page="server" data-agentid="{{{AGENTID}}}">
-    <h2 class="mb-3">Server - <span id="server-name">{{{AGENTNAME}}}</span></h2>
+    <div class="row page-header">
+        <div class="col-12 col-md-9">
+            <h3 class="mb-3">Server - <span id="server-name">{{{AGENTNAME}}}</span></h3>
+        </div>
+    </div>
 
     <div class="card border-secondary mb-3">
         <div class="card-header">
@@ -89,7 +93,7 @@
                         </span>
                     </div>
                     <div class="col-12 col-md-6">
-                        <input type="range" class="form-control-range" id="inp_maxplayers" min="4" max="500" value="4"
+                        <input type="range" class="form-range" id="inp_maxplayers" min="4" max="500" value="4"
                             disabled>
                     </div>
 
@@ -128,10 +132,10 @@
                 <div class="col-12">
                     <button class="btn btn-warning float-left" id="edit-sf-settings"><i class="fas fa-edit"></i>
                         Edit</button>
-                    <button disabled class="btn btn-success float-right" id="save-sf-settings"><i
+                    <button disabled class="btn btn-success float-end" id="save-sf-settings"><i
                             class="fas fa-save"></i>
                         Save</button>
-                    <button disabled class="btn btn-danger float-right mr-3" id="cancel-sf-settings"><i
+                    <button disabled class="btn btn-danger float-end me-3" id="cancel-sf-settings"><i
                             class="fas fa-times"></i>
                         Cancel</button>
                 </div>
@@ -180,10 +184,10 @@
                 <div class="col-12">
                     <button class="btn btn-warning float-left" id="edit-mods-settings"><i class="fas fa-edit"></i>
                         Edit</button>
-                    <button disabled class="btn btn-success float-right" id="save-mods-settings"><i
+                    <button disabled class="btn btn-success float-end" id="save-mods-settings"><i
                             class="fas fa-save"></i>
                         Save</button>
-                    <button disabled class="btn btn-danger float-right mr-3" id="cancel-mods-settings"><i
+                    <button disabled class="btn btn-danger float-end me-3" id="cancel-mods-settings"><i
                             class="fas fa-times"></i>
                         Cancel</button>
                 </div>
@@ -244,10 +248,10 @@
                 <div class="col-12">
                     <button class="btn btn-warning float-left" id="edit-backup-settings"><i class="fas fa-edit"></i>
                         Edit</button>
-                    <button disabled class="btn btn-success float-right" id="save-backup-settings"><i
+                    <button disabled class="btn btn-success float-end" id="save-backup-settings"><i
                             class="fas fa-save"></i>
                         Save</button>
-                    <button disabled class="btn btn-danger float-right mr-3" id="cancel-backup-settings"><i
+                    <button disabled class="btn btn-danger float-end me-3" id="cancel-backup-settings"><i
                             class="fas fa-times"></i>
                         Cancel</button>
                 </div>

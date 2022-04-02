@@ -1,3 +1,5 @@
+const CryptoJS = require("crypto-js");
+
 const Config = require("../server/server_config");
 const DB = require("../server/server_db");
 const logger = require("../server/server_logger");
@@ -150,7 +152,7 @@ class UserManager {
      * 
      * @returns {ObjUser} - User
      */
-    getUserByUername(username) {
+    getUserByUsername(username) {
         return this.getAllUsers().find(user => user.getUsername() == username);
     }
 
@@ -216,6 +218,24 @@ class UserManager {
                 reject(err);
             })
         })
+    }
+
+    API_CreateUser(data) {
+        return new Promise((resolve, reject) => {
+            const ExistingUser = this.getUserByUsername(data.username);
+            if (ExistingUser != null) {
+                reject(new Error("User already exists!"))
+                return;
+            }
+
+            const defaultpasshash = CryptoJS.MD5(`SSM:${data.username}-ssm`).toString();
+
+            DB.queryRun("INSERT INTO users(user_name, user_pass, user_role_id) VALUES (?,?,?)", [data.username, defaultpasshash, data.roleid]).then(() => {
+                return this.reinit();
+            }).then(() => {
+                resolve();
+            }).catch(reject);
+        });
     }
 }
 

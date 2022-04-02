@@ -47,13 +47,13 @@ class Page_Settings {
 
                 const OpenUserStr = $btn_info.prop('outerHTML')
 
-                const $RunningIcon = $("<i/>").addClass("fas fa-times text-danger")
+                const $RunningIcon = $("<i/>").addClass("fas fa-2xl fa-circle-xmark text-danger")
 
                 if (webhook.enabled == true) {
-                    $RunningIcon.removeClass("fa-times text-danger").addClass("fa-check text-success")
+                    $RunningIcon.removeClass("fa-circle-xmark text-danger").addClass("fa-circle-check text-success")
                 }
 
-                const $typeIcon = $("<i/>").addClass("fa-brands fa-discord fa-xl");
+                const $typeIcon = $("<i/>").addClass("fa-brands fa-discord fa-2xl");
 
                 if (webhook.type == 0) {
                     $typeIcon.removeClass("fa-brands fa-discord").addClass("fa-solid fa-bell")
