@@ -169,12 +169,10 @@ class BackupManager {
                     const fileInfo = fs.statSync(file);
                     const pathInfo = path.parse(file);
 
-                    console.log(fileInfo)
-
                     resarray.push({
                         filename: pathInfo.base,
                         size: fileInfo.size,
-                        created: fileInfo.birthtime.getTime()
+                        created: fileInfo.mtime.getTime()
                     })
                 })
                 console.log(resarray);
