@@ -49,7 +49,7 @@
         "rimraf": "^3.0.2",
         "satisfactory-mod-manager-api": "^4.0.1",
         "simple-node-logger": "^21.8.12",
-        "systeminformation": "^5.11.15",
+        "systeminformation": "^5.11.17",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
