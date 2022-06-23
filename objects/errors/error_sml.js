@@ -6,4 +6,22 @@ class SMLAPINotReady extends Error {
     }
 }
 
+class ModsNotEnabled extends Error {
+    constructor() {
+        super("Mods are not enabled!")
+        this.name = "ModsNotEnabledException"
+        this.stack = (new Error()).stack;
+    }
+}
+
+class ModManifestNotExists extends Error {
+    constructor() {
+        super("Mod Manifest Doesn't Exist!")
+        this.name = "ModManifestNotExistsException"
+        this.stack = (new Error()).stack;
+    }
+}
+
 module.exports.SMLAPINotReady = SMLAPINotReady;
+module.exports.ModsNotEnabled = ModsNotEnabled;
+module.exports.ModManifestNotExists = ModManifestNotExists;

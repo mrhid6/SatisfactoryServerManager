@@ -78,7 +78,7 @@ class ServerConfig extends iConfig {
             super.delete("satisfactory");
             super.delete("mods");
 
-            super.set("ssm.tempdir", path.join(userDataPath, "temp"));
+
 
             fs.ensureDirSync(super.get("ssm.tempdir"))
 
@@ -101,6 +101,8 @@ class ServerConfig extends iConfig {
 
         }
 
+        super.set("ssm.tempdir", path.join(userDataPath, "temp"));
+
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.1.23`);
 
@@ -122,6 +124,10 @@ class ServerConfig extends iConfig {
         super.get("ssm.agent.setup", false)
         super.set("ssm.agent.isagent", true)
         super.set("ssm.steamcmd", path.join(userDataPath, "steamcmd"));
+
+        super.set("ssm.manifestdir", path.join(userDataPath, "manifest"));
+        fs.ensureDirSync(super.get("ssm.manifestdir"))
+
 
         super.set("ssm.backup.location", path.join(userDataPath, "backups"));
         super.get("ssm.backup.interval", 1);

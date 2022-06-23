@@ -30,7 +30,7 @@ const LoggerOpts = {
     logDirectory: LogDir,
     fileNamePattern: '<DATE>-SSM.log',
     dateFormat: 'YYYYMMDD',
-    level: 'debug'
+    level: 'info'
 }
 
 
