@@ -484,7 +484,7 @@ class ModHandler {
                 }
 
                 this.GetInstalledMod(modReference).then(InstalledMod => {
-
+                    Logger.info(`[ModHandler] - Uninstalling Mod (${modReference}) ...`);
                     const promises = []
                     InstalledMod.dependencies.forEach(dep => {
                         const OtherMods = this.GetModsUsingDependency(dep.Name).filter(mod => mod.mod_reference != modReference);
@@ -506,6 +506,7 @@ class ModHandler {
                         const ModIndex = this._Manifest.installed_mods.map(e => e.mod_reference).indexOf(modReference);
                         this._Manifest.installed_mods.splice(ModIndex, 1);
                         this.SaveManifest().then(() => {
+                            Logger.info(`[ModHandler] - Uninstalled Mod (${modReference}) Successfully!`);
                             resolve();
                         })
 
@@ -712,7 +713,7 @@ class ModHandler {
                     for (let i = 0; i < mods.length; i++) {
                         const mod = mods[i];
 
-                        const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0];
+                        const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0].version;
 
                         resArr.push({
                             id: mod.id,
@@ -767,7 +768,7 @@ class ModHandler {
             request(this.FicsitQueryURL, query).then(ModData => {
                 const mod = ModData.getModByReference;
 
-                const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0];
+                const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0].version;
 
                 resolve({
                     id: mod.id,

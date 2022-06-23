@@ -171,8 +171,8 @@ class Page_Mods {
             const mod = installedMods[i];
 
             const ficsitMod = PageCache.getFicsitMods().find(el => el.mod_reference == mod.mod_reference);
-
-            const latestVersion = (mod.version == ficsitMod.latest_version)
+            console.log(ficsitMod)
+            const latestVersion = (mod.version == ficsitMod.latestVersion)
 
             const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
                 .attr("data-modid", mod.mod_reference)
@@ -250,7 +250,7 @@ class Page_Mods {
         API_Proxy.get("ficsitinfo", "smlversions").then(res => {
 
             if (res.result == "success") {
-                console.log(res.data.versions)
+                //console.log(res.data.versions)
                 PageCache.setSMLVersions(res.data.versions);
             }
         });
@@ -272,8 +272,9 @@ class Page_Mods {
         }
 
         API_Proxy.get("ficsitinfo", "modslist").then(res => {
-
+            console.log(res.data)
             if (res.result == "success") {
+
                 PageCache.setFicsitMods(res.data);
             } else {
                 console.log(res)
@@ -449,7 +450,7 @@ class Page_Mods {
         const postData = {
             agentid: Agent.id,
             action: "updatemod",
-            modid: modid
+            modReference: modid
         }
 
         API_Proxy.postData("agent/modaction", postData).then(res => {
