@@ -13,7 +13,7 @@ const fs = require("fs-extra");
 const AgentApp = require("../server/server_agent_app");
 const SFS_Handler = require("../server/ms_agent/server_sfs_handler");
 const BackupManager = require("../server/ms_agent/server_backup_manager");
-const SSM_Mod_Handler = require("../server/ms_agent/server_mod_handler");
+const SSM_Mod_Handler = require("../server/ms_agent/server_new_mod_handler");
 const SSM_Log_Handler = require("../server/server_log_handler");
 const ServerApp = require("../server/server_app");
 
@@ -179,7 +179,7 @@ router.post('/serveraction', checkHeaderKey, function (req, res, next) {
 
 
 router.get('/modinfo/smlinfo', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    SSM_Mod_Handler.getSMLInfo().then(result => {
+    SSM_Mod_Handler.API_GetSMLInstalledInfo().then(result => {
         res.json({
             result: "success",
             data: result
@@ -194,7 +194,7 @@ router.get('/modinfo/smlinfo', checkHeaderKey, ServerApp.checkModsEnabledAPIMidd
 
 router.get('/modinfo/installed', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
 
-    SSM_Mod_Handler.getModsInstalled().then(result => {
+    SSM_Mod_Handler.API_GetInstalledMods().then(result => {
         res.json({
             result: "success",
             data: result
@@ -213,9 +213,9 @@ router.post('/modaction/installsml', checkHeaderKey, ServerApp.checkModsEnabledA
 
     let promise = null;
     if (req_version != "latest") {
-        promise = SSM_Mod_Handler.installSMLVersion(req_version)
+        promise = SSM_Mod_Handler.InstallSMLVersion(req_version)
     } else {
-        promise = SSM_Mod_Handler.installSMLVersionLatest()
+        promise = SSM_Mod_Handler.InstallSMLVersion()
     }
 
     promise.then(result => {
@@ -234,10 +234,10 @@ router.post('/modaction/installsml', checkHeaderKey, ServerApp.checkModsEnabledA
 
 router.post('/modaction/installmod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
     const post = req.body
-    const modid = post.modid;
+    const modReference = post.modReference;
     const version = post.versionid;
 
-    SSM_Mod_Handler.installModVersion(modid, version).then(result => {
+    SSM_Mod_Handler.InstallMod(modReference, version).then(result => {
         res.json({
             result: "success",
             data: result
@@ -252,9 +252,9 @@ router.post('/modaction/installmod', checkHeaderKey, ServerApp.checkModsEnabledA
 
 router.post('/modaction/uninstallmod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
     const post = req.body
-    const modid = post.modid;
+    const modReference = post.modReference;
 
-    SSM_Mod_Handler.uninstallMod(modid).then(result => {
+    SSM_Mod_Handler.UninstallMod(modReference).then(result => {
         res.json({
             result: "success",
             data: result
@@ -269,9 +269,9 @@ router.post('/modaction/uninstallmod', checkHeaderKey, ServerApp.checkModsEnable
 
 router.post('/modaction/updatemod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
     const post = req.body
-    const modid = post.modid;
+    const modReference = post.modReference;
 
-    SSM_Mod_Handler.updateMod(modid).then(result => {
+    SSM_Mod_Handler.UpdateModToLatest(modReference).then(result => {
         res.json({
             result: "success",
             data: result

@@ -10,7 +10,8 @@ const semver = require("semver");
 
 const {
     ModsNotEnabled,
-    ModManifestNotExists
+    ModManifestNotExists,
+    ModNotInstalled
 } = require("../../objects/errors/error_sml");
 
 const {
@@ -34,6 +35,8 @@ class ModHandler {
 
             this.CreateModManifests().then(() => {
                 return this.CreateOrLoadManifest();
+            }).then(() => {
+                return this.CreateSMLManifest();
             }).then(() => {
                 resolve();
             }).catch(err => {
@@ -95,6 +98,41 @@ class ModHandler {
                 Logger.info("[ModHandler] - Finished Creating Mod Manifests!");
                 resolve();
             })
+        })
+    }
+
+    CreateSMLManifest() {
+        return new Promise((resolve, reject) => {
+            Logger.info("[ModHandler] - Creating SML Manifest ...");
+            this.RetrieveSMLVersions().then(versions => {
+
+                const manifestName = path.join(Config.get("ssm.manifestdir"), `SML.json`)
+                fs.writeFileSync(manifestName, JSON.stringify(versions));
+
+                Logger.info("[ModHandler] - Finished Creating SML Manifest!");
+                resolve();
+            })
+
+        });
+
+    }
+
+    GetSMLManifest() {
+        return new Promise((resolve, reject) => {
+            Logger.debug("[ModHandler] - Getting SML Manifest ...");
+            const manifestFileName = path.join(Config.get("ssm.manifestdir"), `SML.json`)
+            if (fs.existsSync(manifestFileName)) {
+                const manifestData = fs.readFileSync(manifestFileName)
+                try {
+                    const manifestJSON = JSON.parse(manifestData);
+                    Logger.debug("[ModHandler] - Finished Getting SML Manifest!");
+                    resolve(manifestJSON);
+                } catch (e) {
+                    reject(e);
+                }
+            } else {
+                resolve(null);
+            }
         })
     }
 
@@ -174,7 +212,7 @@ class ModHandler {
 
     GetInstalledMod(modReference) {
         return new Promise((resolve, reject) => {
-            resolve(this._Manifest.installed_mods.find(mod => mod.reference == modReference));
+            resolve(this._Manifest.installed_mods.find(mod => mod.mod_reference == modReference));
         })
     }
 
@@ -193,21 +231,27 @@ class ModHandler {
 
                 if (installed) {
                     this.GetInstalledMod(ModManifest.mod_reference).then(ModInstalledManifest => {
-                        ModInstalledManifest.version = InstalledVersion.version
-                        return this.SaveManifest();
+                        return this._GetModUPlugin(ModManifest.mod_reference).then(upluginData => {
+                            ModInstalledManifest.version = InstalledVersion.version
+                            ModInstalledManifest.dependencies = upluginData.Plugins.filter(p => p.Name != "SML")
+                            return this.SaveManifest();
+                        })
                     }).then(() => {
                         resolve();
-                    })
+                    }).catch(reject)
                 } else {
-                    this._Manifest.installed_mods.push({
-                        name: ModManifest.name,
-                        reference: ModManifest.mod_reference,
-                        version: InstalledVersion.version
-                    })
+                    this._GetModUPlugin(ModManifest.mod_reference).then(upluginData => {
+                        this._Manifest.installed_mods.push({
+                            name: ModManifest.name,
+                            mod_reference: ModManifest.mod_reference,
+                            version: InstalledVersion.version,
+                            dependencies: upluginData.Plugins.filter(p => p.Name != "SML")
+                        })
 
-                    this.SaveManifest().then(() => {
+                        return this.SaveManifest()
+                    }).then(() => {
                         resolve();
-                    })
+                    }).catch(reject)
                 }
             })
         })
@@ -229,35 +273,53 @@ class ModHandler {
                     reject(new ModManifestNotExists());
                     return;
                 }
-
                 Logger.info(`[ModHandler] - Installing Mod (${modManifest.mod_reference}) ...`);
 
-                let versionToInstall = null;
+                this.GetInstalledMod(modReference).then(InstalledMod => {
 
-                if (version == "latest") {
-                    versionToInstall = modManifest.versions[0]
-                } else {
-                    const versions = modManifest.versions.filter(v => semver.satisfies(v.version, version));
-                    if (version.length > 0) {
-                        versionToInstall = versions[0];
+
+
+                    let versionToInstall = null;
+
+                    if (modManifest.versions.length == 0) {
+                        reject(new Error("Mod has no published versions!"))
+                        return;
                     }
-                }
 
-                if (versionToInstall == null) {
-                    reject(new Error("Mod Version is invalid"))
-                    return;
-                }
+                    if (version == "latest") {
+                        versionToInstall = modManifest.versions[0]
+                    } else {
+                        const versions = modManifest.versions.filter(v => semver.satisfies(v.version, version));
+                        if (version.length > 0) {
+                            versionToInstall = versions[0];
+                        }
+                    }
 
-                this._DownloadModVersion(modManifest, versionToInstall).then(() => {
-                    return this.AddInstalledModToManifest(modManifest, versionToInstall);
-                }).then(() => {
-                    return this.InstallModDependencies(modManifest.mod_reference, versionToInstall.version);
-                }).then(() => {
-                    return this._CopyModToModsFolder(modManifest.mod_reference, versionToInstall.version);
-                }).then(() => {
-                    Logger.info(`[ModHandler] - Successfully Installed Mod (${modManifest.mod_reference})!`);
-                    resolve();
-                }).catch(reject);
+                    if (versionToInstall == null) {
+                        reject(new Error("Mod Version is invalid"))
+                        return;
+                    }
+
+                    if (InstalledMod != null && semver.eq(InstalledMod.version, versionToInstall.version)) {
+                        Logger.info(`[ModHandler] - Installing Mod (${modManifest.mod_reference}) Skipped!`);
+                        resolve()
+                        return;
+                    }
+
+
+                    this._DownloadModVersion(modManifest, versionToInstall).then(() => {
+                        return this.InstallModDependencies(modManifest.mod_reference, versionToInstall.version);
+                    }).then(() => {
+                        return this._CopyModToModsFolder(modManifest.mod_reference, versionToInstall.version);
+                    }).then(() => {
+                        return this.AddInstalledModToManifest(modManifest, versionToInstall);
+                    }).then(() => {
+                        Logger.info(`[ModHandler] - Successfully Installed Mod (${modManifest.mod_reference})!`);
+                        resolve();
+                    }).catch(reject);
+
+                });
+
             }).catch(reject);
         })
     }
@@ -366,7 +428,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async(filePath, destPath) => {
+    UnzipSMODFile = async (filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
@@ -387,6 +449,208 @@ class ModHandler {
 
             fs.copySync(ModFolder, DestModFolder)
             resolve();
+        });
+    }
+
+    _GetModUPlugin(modReference) {
+        return new Promise((resolve, reject) => {
+            const ModsDir = Config.get("mods.directory");
+            const ModFolder = path.join(ModsDir, modReference)
+
+            const uPluginFile = path.join(ModFolder, `${modReference}.uplugin`)
+
+            if (fs.existsSync(uPluginFile) == false) {
+                reject(new Error(`Cant find mod uplugin file: ${uPluginFile}`))
+                return;
+            }
+
+            const pluginFileData = fs.readFileSync(uPluginFile);
+
+            try {
+                const pluginFileJSON = JSON.parse(pluginFileData);
+                resolve(pluginFileJSON);
+            } catch (err) {
+                reject(err);
+            }
+        });
+    }
+
+    UninstallMod(modReference) {
+        return new Promise((resolve, reject) => {
+            this.IsModInstalled(modReference).then(installed => {
+                if (installed == false) {
+                    reject(new ModNotInstalled());
+                    return;
+                }
+
+                this.GetInstalledMod(modReference).then(InstalledMod => {
+
+                    const promises = []
+                    InstalledMod.dependencies.forEach(dep => {
+                        const OtherMods = this.GetModsUsingDependency(dep.Name).filter(mod => mod.mod_reference != modReference);
+
+                        if (OtherMods.length == 0) {
+                            promises.push(this.UninstallMod(dep.Name))
+                        }
+                    })
+
+
+                    Promise.all(promises).then(() => {
+                        const ModsDir = Config.get("mods.directory");
+                        const ModFolder = path.join(ModsDir, modReference)
+
+                        if (fs.existsSync(ModFolder)) {
+                            rimraf.sync(ModFolder)
+                        }
+
+                        const ModIndex = this._Manifest.installed_mods.map(e => e.mod_reference).indexOf(modReference);
+                        this._Manifest.installed_mods.splice(ModIndex, 1);
+                        this.SaveManifest().then(() => {
+                            resolve();
+                        })
+
+                    })
+
+                })
+            })
+        });
+    }
+
+    GetModsUsingDependency(ModDependency) {
+        return this._Manifest.installed_mods.filter(mod => mod.dependencies.find(d => d.Name == ModDependency) != null);
+    }
+
+
+    InstallSMLVersion(version = "latest") {
+        return new Promise((resolve, reject) => {
+            if (Config.get("mods.enabled") == false) {
+                reject(new ModsNotEnabled());
+                return;
+            }
+
+
+
+
+            this.GetSMLManifest().then(SMLManifest => {
+
+                let versionToInstall = null;
+                if (version == "latest") {
+                    versionToInstall = SMLManifest.versions[0];
+                } else {
+                    const versions = SMLManifest.versions.filter(v => semver.satisfies(v.version, version));
+                    if (version.length > 0) {
+                        versionToInstall = versions[0];
+                    }
+                }
+
+                if (versionToInstall == null) {
+                    reject(new Error("Mod Version is invalid"))
+                    return;
+                }
+
+                Logger.info(`[ModHandler] - Installing SML (${versionToInstall.version}) ...`);
+
+                this._DownloadSMLVersion(versionToInstall).then(() => {
+                    return this._CopyModToModsFolder("SML", versionToInstall.version)
+                }).then(() => {
+                    this._Manifest.sml_version.version = versionToInstall.version;
+                    this._Manifest.sml_version.installed = true;
+
+                    return this.SaveManifest();
+                }).then(() => {
+                    Logger.info(`[ModHandler] - Completed Install Of SML!`);
+                    resolve();
+                }).catch(reject)
+
+            })
+
+        });
+    }
+
+
+    _DownloadSMLVersion(SMLVersion) {
+
+        return new Promise((resolve, reject) => {
+            this._CheckIfModAlreadyDownloaded("SML", SMLVersion.version).then(exists => {
+                if (exists == true) {
+                    Logger.debug(`[ModHandler] - Download Skipped SML Already Downloaded`);
+                    resolve();
+                } else {
+                    Logger.debug(`[ModHandler] - Downloading Mod (SML) ...`);
+                    const TempDownloadDir = path.join(Config.get("ssm.tempdir"), "mods")
+
+                    fs.ensureDirSync(TempDownloadDir);
+
+                    const outputFile = path.join(TempDownloadDir, `SML.zip`);
+                    const writer = fs.createWriteStream(outputFile);
+
+                    const reqconfig = {
+                        responseType: 'stream',
+                    }
+                    const gitHubURL = SMLVersion.link.replace("tag", "download")
+                    const url = `${gitHubURL}/SML.zip`;
+                    //console.log(url)
+
+                    axios.get(url, reqconfig).then(res => {
+                        res.data.pipe(writer)
+                        let error = null;
+
+                        writer.on("error", err => {
+                            error = err;
+                            writer.close();
+                            reject(err)
+                        })
+
+                        writer.on("close", err => {
+                            if (!error) {
+                                Logger.debug(`[ModHandler] - Finished Downloading Mod (SML)!`);
+                                Logger.debug(`[ModHandler] - Extracting Downloaded Mod (SML) ...`);
+                                const extractPath = path.join(TempDownloadDir, `SML_${SMLVersion.version}`);
+                                this.UnzipSMODFile(outputFile, extractPath).then(() => {
+                                    Logger.debug(`[ModHandler] - Finished Extracting Mod (SML)!`);
+                                    fs.unlinkSync(outputFile);
+                                    resolve();
+                                }).catch(reject)
+                            }
+                        })
+                    }).catch(reject)
+                }
+            })
+
+        })
+    }
+
+
+    UpdateModToLatest(modReference) {
+        return new Promise((resolve, reject) => {
+            this.IsModInstalled(modReference).then(installed => {
+                if (installed == false) {
+                    reject(new ModNotInstalled())
+                    return;
+                } else {
+                    Logger.info(`[ModHandler] - Updating Mod (${modReference})`);
+
+                    this.UpdateModManifest(modReference).then(() => {
+                        return this.GetInstalledMod(modReference)
+                    }).then(InstalledMod => {
+                        this.GetModManifest(modReference).then(modManifest => {
+
+                            const latestVersion = modManifest.versions[0];
+
+                            if (semver.gt(latestVersion.version, InstalledMod.version)) {
+                                Logger.info(`[ModHandler] - Update Mod (${modReference}) Found Version (${latestVersion.version})`);
+                                this.InstallMod(modReference, latestVersion.version).then(() => {
+                                    Logger.info(`[ModHandler] - Successfully Updated Mod (${modReference}) To Version (${latestVersion.version})`);
+                                    resolve();
+                                })
+                            } else {
+                                Logger.info(`[ModHandler] - Update Mod (${modReference}) Skipped - On Latest Version`);
+                                resolve();
+                            }
+                        })
+                    })
+                }
+            })
         });
     }
 
@@ -448,16 +712,16 @@ class ModHandler {
                     for (let i = 0; i < mods.length; i++) {
                         const mod = mods[i];
 
-                        let latest_version = mod.versions[0];
-
-                        if (latest_version == null) continue;
+                        const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0];
 
                         resArr.push({
                             id: mod.id,
                             mod_reference: mod.mod_reference,
                             name: mod.name,
+                            logo: mod.logo,
                             hidden: mod.hidden,
-                            versions: mod.versions
+                            versions: mod.versions,
+                            latestVersion
                         })
 
                     }
@@ -502,15 +766,73 @@ class ModHandler {
 
             request(this.FicsitQueryURL, query).then(ModData => {
                 const mod = ModData.getModByReference;
+
+                const latestVersion = mod.versions.length == 0 ? "0.0.0" : mod.versions[0];
+
                 resolve({
                     id: mod.id,
                     mod_reference: mod.mod_reference,
                     name: mod.name,
+                    logo: mod.logo,
                     hidden: mod.hidden,
-                    versions: mod.versions
+                    versions: mod.versions,
+                    latestVersion
                 });
             }).catch(reject);
         });
+    }
+
+    RetrieveSMLVersions() {
+        return new Promise((resolve, reject) => {
+            const query = `{
+                getSMLVersions{
+                    sml_versions {
+                      version,
+                      link
+                    }
+                  }
+            }`
+
+            request(this.FicsitQueryURL, query).then(ModData => {
+                const versions = ModData.getSMLVersions.sml_versions;
+                resolve({
+                    versions: versions
+                });
+            }).catch(reject);
+        });
+    }
+
+
+
+    /** API Requests */
+
+
+    API_GetInstalledMods() {
+        return new Promise((resolve, reject) => {
+            const resData = [];
+
+            this._Manifest.installed_mods.forEach(mod => {
+                resData.push({
+                    name: mod.name,
+                    mod_reference: mod.mod_reference,
+                    version: mod.version
+                })
+            })
+
+            resolve(resData);
+        })
+    }
+
+    API_GetSMLInstalledInfo() {
+        return new Promise((resolve, reject) => {
+            const infoObject = {
+                state: this._Manifest.sml_version.installed ? "installed" : "not_installed",
+                version: this._Manifest.sml_version.version
+            }
+
+            resolve(infoObject);
+
+        })
     }
 }
 

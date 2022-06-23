@@ -2,7 +2,7 @@ const Config = require("./server_config");
 const logger = require("./server_logger");
 
 const SFS_Handler = require("./ms_agent/server_sfs_handler");
-const SSM_Mod_Handler = require("./ms_agent/server_mod_handler");
+const SSM_Mod_Handler = require("./ms_agent/server_new_mod_handler");
 const SSM_Log_Handler = require("./server_log_handler");
 const GameConfig = require("./ms_agent/server_gameconfig");
 const SSM_BackupManager = require("./ms_agent/server_backup_manager");
@@ -71,7 +71,7 @@ class AgentApp {
                 return this.GetUserCount()
             }).then(usercount => {
                 resData.usercount = usercount;
-                return SSM_Mod_Handler.getModsInstalled();
+                return SSM_Mod_Handler.API_GetInstalledMods();
             }).then(mods => {
                 resData.mods = mods;
                 resolve(resData)

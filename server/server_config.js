@@ -104,7 +104,7 @@ class ServerConfig extends iConfig {
         super.set("ssm.tempdir", path.join(userDataPath, "temp"));
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.23`);
+        super.set("ssm.version", `v1.1.24`);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");

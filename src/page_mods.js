@@ -3,11 +3,15 @@ const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 
 class Page_Mods {
-    constructor() {}
+    constructor() {
+
+        this.Agent = null;
+    }
 
     init() {
         this.setupJqueryListeners();
         this.SetupEventHandlers();
+
     }
 
     SetupEventHandlers() {
@@ -71,18 +75,26 @@ class Page_Mods {
     }
 
     MainDisplayFunction() {
-        const Agent = PageCache.getActiveAgent()
+        const ActiveAgent = PageCache.getActiveAgent()
+
+        if (this.Agent != null && this.Agent.id == ActiveAgent.id) {
+            return;
+        }
+
+        console.log("Is Different!")
+
+        this.Agent = ActiveAgent;
 
         this.LockAllInputs();
 
-        if (Agent == null) {
+        if (this.Agent == null) {
             return;
         }
 
         this.getFicsitSMLVersions();
         this.getFicsitModList();
 
-        if (Agent.running == true && Agent.active == true) {
+        if (this.Agent.running == true && this.Agent.active == true) {
             this.UnlockAllInputs();
             this.getInstalledMods();
             this.getSMLInfo();
@@ -158,12 +170,12 @@ class Page_Mods {
         for (let i = 0; i < installedMods.length; i++) {
             const mod = installedMods[i];
 
-            const ficsitMod = PageCache.getFicsitMods().find(el => el.id == mod.id);
+            const ficsitMod = PageCache.getFicsitMods().find(el => el.mod_reference == mod.mod_reference);
 
             const latestVersion = (mod.version == ficsitMod.latest_version)
 
             const $btn_update = $("<button/>").addClass("btn btn-secondary btn-update-mod float-right")
-                .attr("data-modid", mod.id)
+                .attr("data-modid", mod.mod_reference)
                 .attr("data-toggle", "tooltip")
                 .attr("data-placement", "bottom")
                 .attr("title", "Update Mod")
@@ -172,7 +184,7 @@ class Page_Mods {
             // Create uninstall btn
             const $btn_uninstall = $("<button/>")
                 .addClass("btn btn-danger btn-block btn-uninstall-mod")
-                .attr("data-modid", mod.id)
+                .attr("data-modid", mod.mod_reference)
                 .html("<i class='fas fa-trash'></i> Uninstall");
 
             const versionStr = mod.version + " " + ((latestVersion == false) ? $btn_update.prop("outerHTML") : "")
@@ -238,7 +250,8 @@ class Page_Mods {
         API_Proxy.get("ficsitinfo", "smlversions").then(res => {
 
             if (res.result == "success") {
-                PageCache.setSMLVersions(res.data);
+                console.log(res.data.versions)
+                PageCache.setSMLVersions(res.data.versions);
             }
         });
     }
@@ -271,7 +284,7 @@ class Page_Mods {
     displayFicsitModList() {
         const el = $("#sel-add-mod-name");
         PageCache.getFicsitMods().forEach(mod => {
-            el.append("<option value='" + mod.id + "'>" + mod.name + "</option");
+            el.append("<option value='" + mod.mod_reference + "'>" + mod.name + "</option");
         })
     }
 
@@ -295,7 +308,7 @@ class Page_Mods {
     }
 
     showNewModInfo(data) {
-
+        console.log(data)
         if (data.logo == "") {
             $("#add-mod-logo").attr("src", "https://ficsit.app/static/assets/images/no_image.png");
         } else {
@@ -323,15 +336,7 @@ class Page_Mods {
 
         if (radioVal == 1) {
             if ($selEl.val() == -1) {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
-                    $btn.prop("disabled", false);
-                    $btn.find("i").addClass("fa-download").removeClass("fa-sync fa-spin");
-                    $selEl.prop("disabled", false);
-                    $("input[name='radio-install-sml']").prop("disabled", false);
-
-                    modal_el.find("#error-msg").text("Please select SML Version!")
-                });
+                toastr.error("Please Select A SML Version!")
                 return;
             } else {
                 version = $selEl.val()
@@ -383,12 +388,22 @@ class Page_Mods {
         $selModEl.prop("disabled", true);
         $selVersionEl.prop("disabled", true);
 
+        const modVersion = $selVersionEl.val();
+
+        if (modVersion == -1) {
+            $selModEl.prop("disabled", false);
+            $selVersionEl.prop("disabled", false);
+
+            toastr.error("Please Select A Mod Version!")
+            return
+        }
+
         const Agent = PageCache.getActiveAgent()
         const postData = {
             agentid: Agent.id,
             action: "installmod",
-            modid: $selModEl.val(),
-            versionid: $selVersionEl.val()
+            modReference: $selModEl.val(),
+            versionid: modVersion
         }
 
         API_Proxy.postData("agent/modaction", postData).then(res => {
@@ -414,7 +429,7 @@ class Page_Mods {
         const postData = {
             agentid: Agent.id,
             action: "uninstallmod",
-            modid: modid
+            modReference: modid
         }
 
         API_Proxy.postData("agent/modaction", postData).then(res => {

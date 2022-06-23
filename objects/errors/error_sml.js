@@ -22,6 +22,15 @@ class ModManifestNotExists extends Error {
     }
 }
 
+class ModNotInstalled extends Error {
+    constructor() {
+        super("Mod Is Not Installed!")
+        this.name = "ModNotInstalledException"
+        this.stack = (new Error()).stack;
+    }
+}
+
 module.exports.SMLAPINotReady = SMLAPINotReady;
 module.exports.ModsNotEnabled = ModsNotEnabled;
 module.exports.ModManifestNotExists = ModManifestNotExists;
+module.exports.ModNotInstalled = ModNotInstalled;

@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 
 const ServerApp = require("../../server/server_app");
-const SSM_Mod_Handler = require("../../server/ms_agent/server_mod_handler");
+const SSM_Mod_Handler = require("../../server/ms_agent/server_new_mod_handler");
 
 const middleWare = [
     ServerApp.checkLoggedInAPIMiddleWare,
@@ -10,7 +10,7 @@ const middleWare = [
 ];
 
 router.get('/smlversions', middleWare, function (req, res, next) {
-    SSM_Mod_Handler.getFicsitSMLVersions().then(result => {
+    SSM_Mod_Handler.RetrieveSMLVersions().then(result => {
         res.json({
             result: "success",
             data: result
@@ -25,7 +25,7 @@ router.get('/smlversions', middleWare, function (req, res, next) {
 });
 
 router.get('/modslist', middleWare, function (req, res, next) {
-    SSM_Mod_Handler.getFicsitModList().then(result => {
+    SSM_Mod_Handler.RetrieveModListFromAPI().then(result => {
         res.json({
             result: "success",
             data: result
@@ -39,11 +39,11 @@ router.get('/modslist', middleWare, function (req, res, next) {
 
 });
 
-router.get('/modinfo/:modid', middleWare, function (req, res, next) {
+router.get('/modinfo/:modReference', middleWare, function (req, res, next) {
 
-    const modid = req.params.modid;
+    const modReference = req.params.modReference;
 
-    SSM_Mod_Handler.getFicsitModInfo(modid).then(result => {
+    SSM_Mod_Handler.RetrieveModFromAPI(modReference).then(result => {
         res.json({
             result: "success",
             data: result
