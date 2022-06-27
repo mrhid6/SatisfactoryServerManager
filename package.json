@@ -51,7 +51,7 @@
         "satisfactory-mod-manager-api": "^4.0.1",
         "semver": "^7.3.7",
         "simple-node-logger": "^21.8.12",
-        "systeminformation": "^5.11.21",
+        "systeminformation": "^5.11.22",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
