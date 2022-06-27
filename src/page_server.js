@@ -104,6 +104,11 @@ class Page_Server {
             this.OpenConfirmDeleteModal();
         })
 
+        $("#server-dangerarea-update").on("click", e => {
+            e.preventDefault();
+            this.OpenConfirmDeleteModal();
+        })
+
         $("body").on("click", "#confirm-action", e => {
             const $btn = $(e.currentTarget);
 
@@ -112,6 +117,10 @@ class Page_Server {
             if (action == "delete-server") {
                 $("#server-action-confirm .close").trigger("click")
                 this.DeleteAgent();
+            }
+            if (action == "update-server") {
+                $("#server-action-confirm .close").trigger("click")
+                this.UpdateAgent();
             }
         })
     }
@@ -393,6 +402,12 @@ class Page_Server {
         })
     }
 
+    OpenConfirmUpdateModal() {
+        Tools.openModal("/public/modals", "server-action-confirm", modal => {
+            modal.find("#confirm-action").attr("data-action", "update-server");
+        })
+    }
+
     DeleteAgent() {
         const postData = {
             agentid: this.agentid
@@ -407,6 +422,25 @@ class Page_Server {
                 }, 10000);
             } else {
                 toastr.error("Failed To Delete Server!")
+                Logger.error(res.error);
+            }
+        })
+    }
+
+    UpdateAgent() {
+        const postData = {
+            agentid: this.agentid
+        }
+
+        API_Proxy.postData("agent/update", postData).then(res => {
+            if (res.result == "success") {
+                toastr.success("Server Has Been Updated!")
+
+                setTimeout(() => {
+                    window.redirect("/servers")
+                }, 10000);
+            } else {
+                toastr.error("Failed To Update Server!")
                 Logger.error(res.error);
             }
         })

@@ -462,6 +462,39 @@ class AgentHandler {
         });
     }
 
+    UpdateAgent(UserID, Data) {
+        return new Promise((resolve, reject) => {
+            const UserAccount = UserManager.getUserById(UserID);
+
+            if (UserAccount == null || typeof UserAccount == undefined) {
+                reject(new Error("User Not Found!"));
+                return;
+            }
+
+            if (!UserAccount.HasPermission("agentactions.delete") || !UserAccount.HasPermission("agentactions.create")) {
+                reject(new Error("User Doesn't Have Permission!"));
+                return;
+            }
+
+            const Agent = this.GetAgentById(Data.agentid)
+
+            if (Agent == null) {
+                reject(new Error("Agent Not Found!"));
+                return;
+            }
+
+            Data.port = Agent.getServerPort();
+            Data.name = Agent.getDisplayName();
+
+            this.DeleteAgent(UserID, Data).then(() => {
+                return this.CreateNewDockerAgent(UserID, Data)
+            }).then(() => {
+                resolve();
+            }).catch(reject);
+
+        });
+    }
+
     WaitForAgentToStart(Agent) {
         return new Promise((resolve, reject) => {
             const AgentId = Agent.getContainerInfo().Id;

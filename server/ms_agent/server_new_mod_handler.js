@@ -428,7 +428,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async (filePath, destPath) => {
+    UnzipSMODFile = async(filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
@@ -443,6 +443,10 @@ class ModHandler {
             //const ModsDir = path.join(Config.get("ssm.tempdir"), "installed_mods");
             const ModsDir = Config.get("mods.directory");
             const DestModFolder = path.join(ModsDir, modReference)
+
+            if (fs.existsSync(DestModFolder)) {
+                rimraf.sync(DestModFolder);
+            }
 
             const TempDownloadDir = path.join(Config.get("ssm.tempdir"), "mods")
             const ModFolder = path.join(TempDownloadDir, `${modReference}_${VersionString}`);
@@ -686,20 +690,20 @@ class ModHandler {
                             hidden: true
                         }) {
                             mods {
-                            id,
-                            name,
-                            hidden,
-                            logo,
-                            mod_reference,
-                            versions {
-                                version,
-                                link,
+                                id,
+                                name,
+                                hidden,
+                                logo,
+                                mod_reference,
+                                versions {
+                                    version,
+                                    link,
                                     sml_version,
                                     dependencies {
                                         mod_id
                                     }
+                                }
                             }
-                          }
                         }
                     }`
                     promises.push(request(this.FicsitQueryURL, query));
