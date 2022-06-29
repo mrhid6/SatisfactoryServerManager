@@ -84,14 +84,14 @@ class BackupManager {
             var outputStream = fs.createWriteStream(backupFilePath);
             var archive = archiver('zip');
 
-            outputStream.on('close', function () {
+            outputStream.on('close', function() {
                 logger.info("[BACKUP_MANAGER] - Backup Task Finished!")
                 Cleanup.decreaseCounter(1);
                 Config.set("ssm.backup.nextbackup", NextBackupTime.getTime())
                 resolve();
             });
 
-            archive.on('error', function (err) {
+            archive.on('error', function(err) {
                 Cleanup.decreaseCounter(1);
                 reject(err)
             });
@@ -107,6 +107,8 @@ class BackupManager {
             archive.file(SSMConfigFile, {
                 name: "Configs/SSM/SSM.json"
             });
+
+            archive.directory(Config.get("ssm.manifestdir"), "Manifest");
 
             archive.finalize();
         })

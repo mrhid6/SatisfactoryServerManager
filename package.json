@@ -48,7 +48,6 @@
         "popper.js": "^1.16.1",
         "recursive-readdir": "^2.2.2",
         "rimraf": "^3.0.2",
-        "satisfactory-mod-manager-api": "^4.0.1",
         "semver": "^7.3.7",
         "simple-node-logger": "^21.8.12",
         "systeminformation": "^5.11.22",
