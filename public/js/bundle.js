@@ -278,10 +278,25 @@ class PageCache extends EventEmitter {
         if (id == null) {
             return;
         }
-        setCookie("currentAgentId", id, 10);
-        const Agent = this.getAgentsList().find(agent => agent.id == id);
-        this.ActiveAgent = Agent;
 
+        const Agent = this.getAgentsList().find(agent => agent.id == id);
+
+        if (Agent == null && this.getAgentsList().length > 0) {
+            this.ActiveAgent = this.getAgentsList()[0];
+            setCookie("currentAgentId", this.ActiveAgent.id, 10);
+            this.emit("setactiveagent");
+            return;
+        } else if (Agent == null) {
+            return;
+        }
+
+        if (this.ActiveAgent != null && this.ActiveAgent.id == Agent.id) {
+            return;
+        }
+
+        setCookie("currentAgentId", id, 10);
+
+        this.ActiveAgent = Agent;
         this.emit("setactiveagent");
     }
 

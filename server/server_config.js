@@ -102,6 +102,7 @@ class ServerConfig extends iConfig {
         }
 
         super.set("ssm.tempdir", path.join(userDataPath, "temp"));
+        fs.ensureDirSync(super.get("ssm.tempdir"))
 
         super.get("ssm.http_port", 3000);
         super.set("ssm.version", `v1.1.25`);
