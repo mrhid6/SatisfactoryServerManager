@@ -8,6 +8,7 @@ const Config = require("./server_config");
 const logger = require("./server_logger");
 const es = require('event-stream');
 const rimraf = require("rimraf");
+const fsR = require('fs-reverse')
 
 class SSM_Log_Handler {
     constructor() {
@@ -84,7 +85,9 @@ class SSM_Log_Handler {
                 return;
             }
 
-            var s = fs.createReadStream(logfile)
+            var s = fsR(logfile, {
+                    matcher: '\r'
+                })
                 .pipe(es.split())
                 .pipe(es.mapSync(function(line) {
                         if (line != "") {
@@ -125,7 +128,7 @@ class SSM_Log_Handler {
         });
     }
 
-    getSFServerLog(offset) {
+    getSFServerLog(offset = 0) {
         return new Promise((resolve, reject) => {
 
 

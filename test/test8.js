@@ -1,5 +1,6 @@
 var fs = require('fs'),
     es = require('event-stream');
+var fsR = require('fs-reverse')
 
 function processLog() {
     var lineNr = 0;
@@ -7,7 +8,17 @@ function processLog() {
     let fileCounter = 0;
     let tempFileContents = [];
 
-    var s = fs.createReadStream('/tmp/log.log')
+    fsR("/tmp/log.log", {
+            matcher: '\r'
+        })
+        .pipe(es.split())
+        .pipe(es.mapSync(function(line) {
+            console.log(line)
+        }))
+
+    var s = fsR('/tmp/log.log', {
+            matcher: '\r'
+        })
         .pipe(es.split())
         .pipe(es.mapSync(function(line) {
                 if (line != "") {
@@ -48,7 +59,7 @@ function getLogLines(offset) {
     const fileNumber = Math.floor(offset / 1000) + 1;
     const logFile = `/tmp/logsplit_${fileNumber}.log`
 
-    if(fs.existsSync(logFile) == false){
+    if (fs.existsSync(logFile) == false) {
         return [];
     }
 
@@ -63,7 +74,9 @@ function getLogLines(offset) {
     return [];
 
 }
+processLog();
 
-const data = getLogLines(-1)
+/*const data = getLogLines(-1)
 
 console.log(data);
+*/
