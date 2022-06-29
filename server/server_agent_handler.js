@@ -1051,7 +1051,13 @@ class AgentHandler {
                 return;
             }
 
-            AgentAPI.remoteRequestGET(Agent, `logs/${LogType}`).then(res => {
+            let query = "";
+
+            if (LogType == "sfserverlog") {
+                query = `?offset=${data.offset}`
+            }
+
+            AgentAPI.remoteRequestGET(Agent, `logs/${LogType}${query}`).then(res => {
                 resolve(res.data.data);
             }).catch(err => {
                 reject(err);

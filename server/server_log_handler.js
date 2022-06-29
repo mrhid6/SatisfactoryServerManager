@@ -12,14 +12,22 @@ const fsR = require('fs-reverse')
 
 class SSM_Log_Handler {
     constructor() {
-
+        this._TotalSFLogLineCount = 0;
     }
 
     init() {
         this.setupEventHandlers();
 
         if (Config.get("ssm.agent.isagent") == true) {
-            this.ProcessSFServerLog();
+            this.ProcessSFServerLog().catch(err => {
+                console.log(err);
+            })
+
+            const interval = setInterval(() => {
+                this.ProcessSFServerLog().catch(err => {
+                    console.log(err);
+                })
+            }, 10000)
         }
     }
 
@@ -67,13 +75,11 @@ class SSM_Log_Handler {
     ProcessSFServerLog() {
         return new Promise((resolve, reject) => {
             var lineNr = 0;
-
-            let fileCounter = 0;
             let tempFileContents = [];
             const joinArray = [];
 
             const logfile = path.join(Config.get("satisfactory.log.location"), "FactoryGame.log");
-            const splitlogDir = path.join(super.get("ssm.tempdir"), "logSplit");
+            const splitlogDir = path.join(Config.get("ssm.tempdir"), "logSplit");
             const playerJoinsFile = path.join(splitlogDir, "playerJoins.log");
 
             fs.ensureDirSync(splitlogDir)
@@ -85,11 +91,11 @@ class SSM_Log_Handler {
                 return;
             }
 
-            var s = fsR(logfile, {
-                    matcher: '\r'
-                })
+            let fileData = [];
+
+            var s = fs.createReadStream(logfile)
                 .pipe(es.split())
-                .pipe(es.mapSync(function(line) {
+                .pipe(es.mapSync(line => {
                         if (line != "") {
                             // pause the readstream
                             s.pause();
@@ -100,9 +106,8 @@ class SSM_Log_Handler {
 
                             tempFileContents.push(line)
                             lineNr++;
-                            if (lineNr % 1000 == 0) {
-                                fileCounter += 1
-                                fs.writeFileSync(`${splitlogDir}/FactoryGame_${fileCounter}.log`, JSON.stringify(tempFileContents));
+                            if (lineNr % 500 == 0) {
+                                fileData.push(tempFileContents)
                                 tempFileContents = [];
                             }
 
@@ -110,16 +115,29 @@ class SSM_Log_Handler {
                             s.resume();
                         }
                     })
-                    .on('error', function(err) {
+                    .on('error', err => {
                         reject(err);
                     })
-                    .on('end', function() {
+                    .on('end', () => {
 
                         if (tempFileContents.length > 0) {
-                            fileCounter += 1
-                            fs.writeFileSync(`${splitlogDir}/FactoryGame_${fileCounter}.log`, JSON.stringify(tempFileContents));
+                            fileData.push(tempFileContents)
                             tempFileContents = [];
                         }
+
+                        fileData = fileData.reverse()
+
+                        for (let i = 0; i < fileData.length; i++) {
+                            const d = fileData[i];
+                            fileData[i] = d.reverse();
+                        }
+
+                        for (let i = 0; i < fileData.length; i++) {
+                            const d = fileData[i];
+                            fs.writeFileSync(`${splitlogDir}/FactoryGame_${i+1}.log`, JSON.stringify(d));
+                        }
+
+                        this._TotalSFLogLineCount = lineNr;
 
                         fs.writeFileSync(playerJoinsFile, JSON.stringify(joinArray));
                         resolve();
@@ -132,13 +150,14 @@ class SSM_Log_Handler {
         return new Promise((resolve, reject) => {
 
 
-            const fileNumber = Math.floor(offset / 1000) + 1;
-            const splitlogDir = path.join(super.get("ssm.tempdir"), "logSplit");
+            const fileNumber = Math.floor(offset / 500) + 1;
+            const splitlogDir = path.join(Config.get("ssm.tempdir"), "logSplit");
             const logFile = `${splitlogDir}/FactoryGame_${fileNumber}.log`
             const playerJoinsFile = path.join(splitlogDir, "playerJoins.log");
 
             if (fs.existsSync(logFile) == false || fs.existsSync(playerJoinsFile) == false) {
                 resolve({
+                    lineCount: 0,
                     logArray: [],
                     playerJoins: []
                 });
@@ -164,6 +183,7 @@ class SSM_Log_Handler {
             }
 
             resolve({
+                lineCount: this._TotalSFLogLineCount,
                 logArray: JsonData,
                 playerJoins: JoinArray
             });

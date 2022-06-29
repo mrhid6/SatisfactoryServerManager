@@ -376,7 +376,8 @@ router.get('/logs/smlauncherlog', checkHeaderKey, function (req, res, next) {
 
 router.get('/logs/sfserverlog', checkHeaderKey, function (req, res, next) {
 
-    SSM_Log_Handler.getSFServerLog().then(result => {
+    const offset = req.query.offset || 0;
+    SSM_Log_Handler.getSFServerLog(offset).then(result => {
         res.json({
             result: "success",
             data: result

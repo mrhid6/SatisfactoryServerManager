@@ -106,7 +106,7 @@ class Page_Server {
 
         $("#server-dangerarea-update").on("click", e => {
             e.preventDefault();
-            this.OpenConfirmDeleteModal();
+            this.OpenConfirmUpdateModal();
         })
 
         $("body").on("click", "#confirm-action", e => {

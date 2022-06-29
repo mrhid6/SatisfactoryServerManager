@@ -5,6 +5,9 @@ const PageCache = require("./cache");
 class Page_Logs {
     constructor() {
         this.ServerState = {}
+
+        this._TotalSFLogLines = 0;
+        this._SFLogOffset = 0;
     }
 
     init() {
@@ -84,7 +87,9 @@ class Page_Logs {
 
     getSFServerLog() {
         const Agent = PageCache.getActiveAgent()
-        const postData = {}
+        const postData = {
+            offset: this._SFLogOffset
+        }
 
         if (Agent == null) {
             postData.agentid = -1;
@@ -98,19 +103,32 @@ class Page_Logs {
             el.empty();
             el2.empty();
             if (res.result == "success") {
-                console.log(res.data)
-                res.data.logArray.forEach((logline) => {
-                    el.append("<p>" + logline + "</p>")
-                })
+                if (res.data.lineCount != this._TotalSFLogLines) {
+                    this._TotalSFLogLines = res.data.lineCount;
+                    this.buildSFLogPagination();
+                    res.data.logArray.forEach((logline) => {
+                        el.append("<p>" + logline + "</p>")
+                    })
 
-                res.data.playerJoins.forEach((logline) => {
-                    el2.append("<p>" + logline + "</p>")
-                })
+                    res.data.playerJoins.forEach((logline) => {
+                        el2.append("<p>" + logline + "</p>")
+                    })
+                }
             } else {
                 el.text(res.error)
                 el2.text(res.error)
             }
         })
+    }
+
+    buildSFLogPagination() {
+        const $el = $("#SFLogPagination .pagination")
+        $el.empty();
+
+        const pageCount = Math.floor(this._TotalSFLogLines / 500) + 1
+        for (let i = 1; i < pageCount; i++) {
+            $el.append(`<li class="page-item"><a class="sf-log-page-link">${i}</a></li>`)
+        }
     }
 }
 
