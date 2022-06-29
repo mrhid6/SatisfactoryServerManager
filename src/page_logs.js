@@ -17,7 +17,14 @@ class Page_Logs {
     }
 
     setupJqueryListeners() {
+        $("body").on("click", ".sf-log-page-link", e => {
+            e.preventDefault();
+            const $pageBtn = $(e.currentTarget);
+            console.log(parseInt($pageBtn.text()) - 1)
+            this._SFLogOffset = (parseInt($pageBtn.text()) - 1) * 500;
 
+            this.getSFServerLog(true);
+        })
     }
 
     SetupEventHandlers() {
@@ -35,7 +42,6 @@ class Page_Logs {
         }
 
         this.getSSMLog();
-        this.getSMLauncherLog();
         this.getSFServerLog();
     }
 
@@ -62,30 +68,7 @@ class Page_Logs {
         })
     }
 
-    getSMLauncherLog() {
-        const Agent = PageCache.getActiveAgent()
-        const postData = {}
-
-        if (Agent == null) {
-            postData.agentid = -1;
-        } else {
-            postData.agentid = Agent.id;
-        }
-
-        API_Proxy.postData("agent/logs/smlauncherlog", postData).then(res => {
-            const el = $("#smlauncher-log-viewer samp");
-            el.empty();
-            if (res.result == "success") {
-                res.data.forEach((logline) => {
-                    el.append("<p>" + logline + "</p>")
-                })
-            } else {
-                el.text(res.error)
-            }
-        })
-    }
-
-    getSFServerLog() {
+    getSFServerLog(force = false) {
         const Agent = PageCache.getActiveAgent()
         const postData = {
             offset: this._SFLogOffset
@@ -103,7 +86,7 @@ class Page_Logs {
             el.empty();
             el2.empty();
             if (res.result == "success") {
-                if (res.data.lineCount != this._TotalSFLogLines) {
+                if (res.data.lineCount != this._TotalSFLogLines || force == true) {
                     this._TotalSFLogLines = res.data.lineCount;
                     this.buildSFLogPagination();
                     res.data.logArray.forEach((logline) => {
@@ -125,9 +108,11 @@ class Page_Logs {
         const $el = $("#SFLogPagination .pagination")
         $el.empty();
 
-        const pageCount = Math.floor(this._TotalSFLogLines / 500) + 1
+        const pageCount = Math.ceil(this._TotalSFLogLines / 500) + 1
         for (let i = 1; i < pageCount; i++) {
-            $el.append(`<li class="page-item"><a class="sf-log-page-link">${i}</a></li>`)
+            const pageOffset = (i - 1) * 500;
+
+            $el.append(`<li class="page-item ${this._SFLogOffset==pageOffset?"active":""}"><a class="page-link sf-log-page-link ">${i}</a></li>`)
         }
     }
 }

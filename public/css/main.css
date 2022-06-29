@@ -327,6 +327,10 @@ body {
 .log-viewer {
     max-height: 400px;
     overflow-x: auto;
+    background: #1d1d1d;
+    padding: 6px;
+    border: 1px solid #000;
+    display: block;
 }
 
 .log-viewer p {
