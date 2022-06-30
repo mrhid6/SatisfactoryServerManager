@@ -459,9 +459,9 @@ class SF_Server_Handler {
                 let process1 = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
                 let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
 
-                if (process1 == null && process2 == null) {
+                if (process1 == null || process2 == null) {
                     state.status = "stopped"
-                } else if (process2 != null) {
+                } else {
                     state.pid1 = process1.pid
                     state.pid2 = process2.pid
                     state.status = "running"
