@@ -38,6 +38,7 @@ class ModHandler {
             }).then(() => {
                 return this.CreateSMLManifest();
             }).then(() => {
+                this.ValidateInstalledModsManifest();
                 resolve();
             }).catch(err => {
                 console.log(err);
@@ -156,6 +157,27 @@ class ModHandler {
 
     }
 
+    ValidateInstalledModsManifest() {
+        Logger.info(`[ModHandler] - Validating Installed Mods Manifest ...`)
+        const promises = []
+        for (let i = 0; i < this._Manifest.installed_mods.length; i++) {
+            const installed_mod = this._Manifest.installed_mods[i];
+            Logger.debug(`[ModHandler] - Checking Mod ${installed_mod.mod_reference} is correctly installed ...`)
+            promises.push(this.CheckModInstalledInModsFolder(installed_mod.mod_reference, installed_mod.version).then(installed => {
+                if (installed == false) {
+                    return this.InstallMod(installed_mod.mod_reference, installed_mod.version).catch(err => {})
+                } else {
+                    Logger.debug(`[ModHandler] - Verified Mod ${installed_mod.mod_reference} is correctly installed!`)
+                    return
+                }
+            }))
+        }
+        Promise.all(promises).then(() => {
+            Logger.info(`[ModHandler] - Validated Installed Mods Manifest!`)
+        })
+
+    }
+
     DoesModManifestExist(modReference) {
         return new Promise((resolve, reject) => {
             const manifestFileName = path.join(Config.get("ssm.manifestdir"), `${modReference}.json`)
@@ -262,6 +284,7 @@ class ModHandler {
         return new Promise((resolve, reject) => {
 
             if (Config.get("mods.enabled") == false) {
+                Logger.warn(`[ModHandler] - Install Mod (${modReference}) Skipped - Mods Not Enabled!`);
                 reject(new ModsNotEnabled());
                 return;
             }
@@ -657,6 +680,21 @@ class ModHandler {
                 }
             })
         });
+    }
+
+    CheckModInstalledInModsFolder(modReference, version) {
+        return new Promise((resolve, reject) => {
+            const ModsDir = Config.get("mods.directory");
+            const DestModFolder = path.join(ModsDir, modReference)
+
+            if (fs.existsSync(DestModFolder)) {
+                this._GetModUPlugin(modReference).then(uPluginData => {
+                    resolve(version == uPluginData.SemVersion)
+                }).catch(reject)
+            } else {
+                resolve(false)
+            }
+        })
     }
 
 

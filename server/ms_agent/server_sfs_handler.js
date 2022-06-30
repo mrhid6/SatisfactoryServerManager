@@ -226,24 +226,6 @@ class SF_Server_Handler {
         });
     }
 
-    execOSCmd(command) {
-        return new Promise((resolve, reject) => {
-            childProcess.exec(command, (error, stdout, stderr) => {
-                if (error) {
-                    reject(error)
-                    return;
-                }
-
-                if (stderr) {
-                    reject(stderr);
-                    return;
-                }
-
-                resolve(stdout);
-            })
-        });
-    }
-
     execSFSCmd(command) {
 
         let SFSExeName = Config.get("satisfactory.server_exe")
@@ -278,7 +260,7 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Starting ...");
             this._getServerState().then(server_status => {
-                if (server_status.pid == -1) {
+                if (server_status.pid1 == -1 && server_status.pid2 == -1) {
                     const LogFile = path.join(Config.get("satisfactory.log.location"), "FactoryServer.Log")
 
                     const {
@@ -383,9 +365,10 @@ class SF_Server_Handler {
         Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
             this._getServerState().then(server_status => {
-                if (server_status.pid != -1) {
+                if (server_status.pid1 != -1 && server_status.pid2 != -1) {
 
-                    process.kill(server_status.pid, 'SIGINT');
+                    process.kill(server_status.pid1, 'SIGINT');
+                    process.kill(server_status.pid2, 'SIGINT');
                     this.wailTillSFServerStopped().then(() => {
                         logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Stopped");
                         Cleanup.decreaseCounter(1);
@@ -410,8 +393,9 @@ class SF_Server_Handler {
         Cleanup.increaseCounter(1);
         return new Promise((resolve, reject) => {
             this._getServerState().then(server_status => {
-                if (server_status.pid != -1) {
-                    process.kill(server_status.pid, 'SIGKILL');
+                if (server_status.pid1 != -1 && server_status.pid2 != -1) {
+                    process.kill(server_status.pid1, 'SIGKILL');
+                    process.kill(server_status.pid2, 'SIGKILL');
                     this.wailTillSFServerStopped().then(() => {
                         logger.debug("[SFS_Handler] [SERVER_ACTION] - SF Server Killed");
                         Cleanup.decreaseCounter(1);
@@ -447,7 +431,8 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             logger.debug("[SFS_Handler] - Getting Server State");
             const state = {
-                pid: -1,
+                pid1: -1,
+                pid2: -1,
                 status: "",
                 pcpu: 0,
                 pmem: 0
@@ -468,13 +453,14 @@ class SF_Server_Handler {
                     return;
                 }
 
-                let process = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
+                let process1 = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
                 let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
 
-                if (process == null && process2 == null) {
+                if (process1 == null && process2 == null) {
                     state.status = "stopped"
                 } else if (process2 != null) {
-                    state.pid = process2.pid
+                    state.pid1 = process1.pid
+                    state.pid2 = process2.pid
                     state.status = "running"
                     state.pcpu = process2.cpu;
                     state.pmem = process2.mem;
@@ -619,14 +605,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function (error) {
+                .on("error", function(error) {
                     reject(error);
                 })
-                .on("close", function () {
+                .on("close", function() {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function (bytesRead, buffer) {
+                .read(length, function(bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();

@@ -4,7 +4,7 @@ const ModHandler = require("../server/ms_agent/server_new_mod_handler");
 Config.load().then(() => {
     return ModHandler.init();
 }).then(() => {
-    return ModHandler.UpdateModToLatest("RefinedPower");
+    return //ModHandler.InstallMod("RefinedPower");
 }).catch(err => {
     console.log(err);
 })
