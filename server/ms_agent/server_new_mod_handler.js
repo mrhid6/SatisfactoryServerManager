@@ -29,6 +29,10 @@ class ModHandler {
 
     init() {
         return new Promise((resolve, reject) => {
+            if (Config.get("mods.enabled") == false) {
+                resolve();
+                return;
+            }
             Logger.info("[ModHandler] - Validating Mods Directory ...");
             this.ValidateModsDirectory();
             Logger.info("[ModHandler] - Mods Directory Validation Completed!");
@@ -451,7 +455,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async(filePath, destPath) => {
+    UnzipSMODFile = async (filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
