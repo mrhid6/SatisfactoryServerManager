@@ -456,7 +456,7 @@ class SF_Server_Handler {
                     return;
                 }
 
-                let process1 = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
+                let process1 = data.list.find(el => el.params.includes(Config.get("satisfactory.server_exe")))
                 let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
 
                 if (process1 == null || process2 == null) {
