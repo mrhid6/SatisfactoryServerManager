@@ -860,6 +860,11 @@ class ModHandler {
         return new Promise((resolve, reject) => {
             const resData = [];
 
+            if (Config.get("mods.enabled") == false) {
+                resolve([]);
+                return;
+            }
+
             this._Manifest.installed_mods.forEach(mod => {
                 resData.push({
                     name: mod.name,
