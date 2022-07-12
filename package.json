@@ -52,7 +52,7 @@
         "rimraf": "^3.0.2",
         "semver": "^7.3.7",
         "simple-node-logger": "^21.8.12",
-        "systeminformation": "^5.11.22",
+        "systeminformation": "^5.12.0",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
