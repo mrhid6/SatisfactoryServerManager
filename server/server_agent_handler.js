@@ -58,8 +58,6 @@ class AgentHandler {
 
         this._docker = new Docker(dockerSettings);
 
-        this._NextAgentId = 1;
-
         this._AGENTS = [];
     }
 
@@ -114,8 +112,6 @@ class AgentHandler {
                         const Agent = this._AGENTS[i];
 
                         Agent.setContainer(container);
-
-
                     }
 
                     const removePromises = [];
@@ -123,10 +119,6 @@ class AgentHandler {
                     this.GetAllAgents().forEach(Agent => {
                         if (!Agent.isValid()) {
                             removePromises.push(this.RemoveAgentFromDB(Agent));
-                        } else {
-                            if (Agent.getId() >= this._NextAgentId) {
-                                this._NextAgentId = Agent.getId() + 1;
-                            }
                         }
                     })
 

@@ -14,6 +14,9 @@ const Cleanup = require("../server_cleanup");
 const Config = require("../server_config");
 
 
+const ModHandler = require("./server_new_mod_handler");
+
+
 const iSteamCMD = require("../server_steamcmd");
 
 const {
@@ -453,12 +456,12 @@ class SF_Server_Handler {
                     return;
                 }
 
-                let process1 = data.list.find(el => el.name == Config.get("satisfactory.server_exe"))
+                let process1 = data.list.find(el => el.params.includes(Config.get("satisfactory.server_exe")))
                 let process2 = data.list.find(el => el.name == Config.get("satisfactory.server_sub_exe"))
 
-                if (process1 == null && process2 == null) {
+                if (process1 == null || process2 == null) {
                     state.status = "stopped"
-                } else if (process2 != null) {
+                } else {
                     state.pid1 = process1.pid
                     state.pid2 = process2.pid
                     state.status = "running"
@@ -605,14 +608,14 @@ class SF_Server_Handler {
             let resBuffer = null;
 
             br.open(file)
-                .on("error", function(error) {
+                .on("error", function (error) {
                     reject(error);
                 })
-                .on("close", function() {
+                .on("close", function () {
                     resolve(resBuffer);
                 })
                 .seek(start)
-                .read(length, function(bytesRead, buffer) {
+                .read(length, function (bytesRead, buffer) {
                     resBuffer = buffer;
                 })
                 .close();
@@ -721,10 +724,19 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             const enabled = (data.enabled == "true");
             const autoupdate = (data.autoupdate == "true");
-
+            const prevEnabled = Config.get("mods.enabled");
             Config.set("mods.enabled", enabled);
             Config.set("mods.autoupdate", autoupdate);
-            resolve();
+
+            if (prevEnabled != enabled) {
+                ModHandler.init().then(() => {
+                    resolve();
+                }).catch(err => {
+
+                })
+            } else {
+                resolve();
+            }
 
         });
     }

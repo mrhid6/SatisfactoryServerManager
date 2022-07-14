@@ -33,6 +33,11 @@ class ModHandler {
             this.ValidateModsDirectory();
             Logger.info("[ModHandler] - Mods Directory Validation Completed!");
 
+            if (Config.get("mods.enabled") == false) {
+                resolve();
+                return;
+            }
+
             this.CreateModManifests().then(() => {
                 return this.CreateOrLoadManifest();
             }).then(() => {
@@ -146,7 +151,7 @@ class ModHandler {
         if (Config.get("mods.enabled") == false) {
             const ModsDirectory = Config.get("mods.directory");
             if (ModsDirectory != null && ModsDirectory != "" && fs.existsSync(ModsDirectory)) {
-                rimraf.unlinkSync(ModsDirectory);
+                rimraf.sync(ModsDirectory);
             }
             return;
         }
@@ -160,6 +165,7 @@ class ModHandler {
     ValidateInstalledModsManifest() {
         Logger.info(`[ModHandler] - Validating Installed Mods Manifest ...`)
         const promises = []
+
         for (let i = 0; i < this._Manifest.installed_mods.length; i++) {
             const installed_mod = this._Manifest.installed_mods[i];
             Logger.debug(`[ModHandler] - Checking Mod ${installed_mod.mod_reference} is correctly installed ...`)
@@ -174,7 +180,7 @@ class ModHandler {
         }
         Promise.all(promises).then(() => {
             Logger.info(`[ModHandler] - Validated Installed Mods Manifest!`)
-        })
+        }).catch(err => {})
 
     }
 
@@ -451,7 +457,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async(filePath, destPath) => {
+    UnzipSMODFile = async (filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
@@ -853,6 +859,11 @@ class ModHandler {
     API_GetInstalledMods() {
         return new Promise((resolve, reject) => {
             const resData = [];
+
+            if (Config.get("mods.enabled") == false) {
+                resolve([]);
+                return;
+            }
 
             this._Manifest.installed_mods.forEach(mod => {
                 resData.push({
