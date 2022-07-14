@@ -1,5 +1,4 @@
 const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
 
 const PageCache = require("./cache");
 
@@ -37,26 +36,14 @@ class Page_Settings {
             const savename = $self.attr("data-save");
 
             if (this.ServerState.status != "stopped") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("server-settings-error", (modal_el) => {
+
+                window.openModal("server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
             }
 
             this.selectSave(savename);
-        })
-
-        $("#new-session-name").click(e => {
-            e.preventDefault();
-            Tools.openModal("server-session-new", (modal_el) => {
-                modal_el.find("#confirm-action").attr("data-action", "new-session")
-            });
-        })
-
-        $("body").on("click", "#cancel-action", (e) => {
-            $("#server-session-new .close").trigger("click");
-            Tools.modal_opened = false;
         })
 
         $("#btn-save-upload").on("click", e => {
@@ -219,7 +206,7 @@ class Page_Settings {
     RemoveSave(btn) {
         const SaveFile = btn.attr("data-save");
 
-        Tools.openModal("/public/modals", "server-settings-confirm", $modalEl => {
+        window.openModal("/public/modals", "server-settings-confirm", $modalEl => {
             $modalEl.find("#confirm-action")
                 .attr("data-action", "remove-save")
                 .attr("data-save", SaveFile);

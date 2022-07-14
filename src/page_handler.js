@@ -12,8 +12,6 @@ const Page_Server = require("./page_server");
 const Page_Users = require("./page_users");
 const Page_Backups = require("./page_backups");
 
-const Tools = require("../Mrhid6Utils/lib/tools");
-
 const Logger = require("./logger");
 
 class PageHandler {
@@ -78,21 +76,6 @@ class PageHandler {
 
     setupJqueryHandler() {
         $('[data-toggle="tooltip"]').tooltip()
-
-        $("body").on("click", "#metrics-opt-in #cancel-action", (e) => {
-            $("#metrics-opt-in .close").trigger("click");
-            Tools.modal_opened = false;
-            this.sendRejectMetrics()
-        })
-
-        $("body").on("click", "#metrics-opt-in #confirm-action", (e) => {
-            const $btnel = $(e.currentTarget);
-            $("#metrics-opt-in .close").trigger("click");
-            Tools.modal_opened = false;
-            this.sendAcceptMetrics();
-        }).on("click", "#btn_setup_findinstall", e => {
-            this.getSetupSFInstalls(e)
-        })
 
 
         $("#inp_server").on("change", e => {
@@ -214,6 +197,58 @@ function getCookie(name) {
 function eraseCookie(name) {
     document.cookie = name + '=; Max-Age=-99999999;';
 }
+
+window.openModal = function(modal_dir, modal_name, var1, var2) {
+
+    let options = {
+        allowBackdropRemoval: true
+    };
+
+    let callback = null;
+
+    if (arguments.length == 3) {
+        callback = var1;
+    } else if (arguments.length == 4) {
+        options = var1;
+        callback = var2;
+    }
+
+    if ($("body").hasClass("modal-open")) {
+        return;
+    }
+
+    $.ajax({
+        url: modal_dir + "/" + modal_name + ".html",
+        success: function(data) {
+
+            $('body').append(data);
+
+            var modalEl = $("#" + modal_name);
+
+            modalEl.find("button.close").on("click", (e) => {
+                e.preventDefault();
+                const $this = $(e.currentTarget).parent().parent().parent().parent();
+                $this.remove();
+                $this.trigger("hidden.bs.modal");
+                $this.modal("hide");
+                $("body").removeClass("modal-open").attr("style", null);
+                $(".modal-backdrop").remove();
+            })
+
+            modalEl.on('hidden.bs.modal', () => {
+                $(this).remove();
+                $('[name^="__privateStripe"]').remove();
+                Tools.modal_opened = false;
+                if (options.allowBackdropRemoval == true)
+                    $('.modal-backdrop').remove();
+            });
+            modalEl.modal('show');
+            if (callback)
+                callback(modalEl);
+        },
+        dataType: 'html'
+    });
+};
 
 const pagehandler = new PageHandler();
 

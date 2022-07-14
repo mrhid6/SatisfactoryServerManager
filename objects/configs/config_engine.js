@@ -1,28 +1,17 @@
-const Mrhid6Utils = require("../../Mrhid6Utils");
-const iConfig = Mrhid6Utils.Config;
+const iConfig = require("mrhid6utils").Config;
 
 class ObjEngineConfig extends iConfig {
     constructor(configDir) {
         super({
-            configPath: configDir,
-            filename: "Engine.ini",
+            useExactPath: true,
+            configBaseDirectory: configDir,
+            configName: "Engine",
+            configType: "ini",
             createConfig: true
         });
     }
 
-    load() {
-        return new Promise((resolve, reject) => {
-            super.load().then(() => {
-                this.setDefaults();
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-
-        });
-    }
-
-    setDefaults() {
+    setDefaultValues = async() => {
         super.set("/Script/Engine.Player.ConfiguredInternetSpeed", 104857600);
         super.set("/Script/Engine.Player.ConfiguredLanSpeed", 104857600);
 

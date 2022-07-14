@@ -1,6 +1,4 @@
 const API_Proxy = require("./api_proxy");
-
-const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 const Logger = require("./logger");
 
@@ -137,7 +135,7 @@ class Page_Servers {
     }
 
     OpenCreateServerModal() {
-        Tools.openModal("/public/modals", "create-server-modal", modal => {})
+        window.openModal("/public/modals", "create-server-modal", modal => {})
     }
 
     CreateNewServer() {

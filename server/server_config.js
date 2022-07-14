@@ -5,8 +5,7 @@ const CryptoJS = require("crypto-js");
 const SSMCloud = require("./server_cloud");
 const semver = require("semver");
 
-const Mrhid6Utils = require("../Mrhid6Utils");
-const iConfig = Mrhid6Utils.Config;
+const iConfig = require("mrhid6utils").Config;
 const platform = process.platform;
 
 const {
@@ -40,25 +39,13 @@ if (fs.pathExistsSync(sessionStorePath) == false) {
 class ServerConfig extends iConfig {
     constructor() {
         super({
-            configPath: userDataPath,
-            filename: "SSM.json",
-            createConfig: true
+            configName: "SSM",
+            createConfig: true,
+            configBaseDirectory: path.join(userDataPath, "configs")
         });
     }
 
-    load() {
-        return new Promise((resolve, reject) => {
-            super.load().then(() => {
-                this.setDefaults();
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-
-        });
-    }
-
-    setDefaults() {
+    setDefaultValues = async() => {
 
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {

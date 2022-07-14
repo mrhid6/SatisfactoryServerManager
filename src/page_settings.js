@@ -1,5 +1,4 @@
 const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
 
 class Page_Settings {
     constructor() {
@@ -91,7 +90,7 @@ class Page_Settings {
     }
 
     OpenAddWebhookModal(btn) {
-        Tools.openModal("/public/modals", "add-user-modal", modal => {
+        window.openModal("/public/modals", "add-user-modal", modal => {
             const $roleSelect = modal.find("#sel_role")
 
             this._ROLES.forEach(role => {

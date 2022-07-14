@@ -1,4 +1,4 @@
-const Mrhid6Utils = require("../Mrhid6Utils");
+const Mrhid6Utils = require("mrhid6utils");
 
 const Cleanup = new Mrhid6Utils.Cleanup();
 

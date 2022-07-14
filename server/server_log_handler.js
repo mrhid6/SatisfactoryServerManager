@@ -38,7 +38,7 @@ class SSM_Log_Handler {
     getSSMLog() {
         return new Promise((resolve, reject) => {
 
-            this.getLogFiles(logger.logdir).then(files => {
+            this.getLogFiles(logger._options.logDirectory).then(files => {
                 const logfile = files.find(el => {
                     const filename = path.basename(el);
 

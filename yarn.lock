@@ -17,10 +17,10 @@
   resolved "https://registry.yarnpkg.com/@redis/bloom/-/bloom-1.0.2.tgz#42b82ec399a92db05e29fffcdfd9235a5fc15cdf"
   integrity sha512-EBw7Ag1hPgFzdznK2PBblc1kdlj5B5Cw3XwI9/oG7tSn85/HKy3X9xHy/8tm/eNXJYHLXHJL/pkwBpFMVVefkw==
 
-"@redis/client@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@redis/client/-/client-1.1.0.tgz#e52a85aee802796ceb14bf27daf9550f51f238b8"
-  integrity sha512-xO9JDIgzsZYDl3EvFhl6LC52DP3q3GCMUer8zHgKV6qSYsq1zB+pZs9+T80VgcRogrlRYhi4ZlfX6A+bHiBAgA==
+"@redis/client@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@redis/client/-/client-1.2.0.tgz#be2ef974881e57276123cb76d08756c03eed946f"
+  integrity sha512-a8Nlw5fv2EIAFJxTDSSDVUT7yfBGpZO96ybZXzQpgkyLg/dxtQ1uiwTc0EGfzg1mrPjZokeBSEGTbGXekqTNOg==
   dependencies:
     cluster-key-slot "1.1.0"
     generic-pool "3.8.2"
@@ -62,9 +62,9 @@
   integrity sha512-vt+kDhq/M2ayberEtJcIN/hxXy1Pk+59g2FV/ZQceeaTyCtCucjL2Q7FXlFjtWn4n15KCr1NE2lNNFhp0lEThw==
 
 "@types/node@*", "@types/node@>=10.0.0":
-  version "18.0.0"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.0.0.tgz#67c7b724e1bcdd7a8821ce0d5ee184d3b4dd525a"
-  integrity sha512-cHlGmko4gWLVI27cGJntjs/Sj8th9aYwplmZFwmmgYQQvL5NUsgVJG7OddLvNfLqYS31KFN0s3qlaD9qCaxACA==
+  version "18.0.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.0.4.tgz#48aedbf35efb3af1248e4cd4d792c730290cd5d6"
+  integrity sha512-M0+G6V0Y4YV8cqzHssZpaNCqvYwlCiulmm0PwpNLF55r/+cT8Ol42CHRU1SEaYFH2rTwiiE1aYg/2g2rrtGdPA==
 
 "@types/yauzl@^2.9.1":
   version "2.10.0"
@@ -174,9 +174,9 @@ base64id@2.0.0, base64id@~2.0.0:
   integrity sha512-lGe34o6EHj9y3Kts9R4ZYs/Gr+6N7MCaMlIFA3F1R2O5/m7K06AxfSeO5530PEERE6/WyEg3lsuyw4GHlPZHog==
 
 better-sqlite3@^7.5.3:
-  version "7.5.3"
-  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.5.3.tgz#b42e02941f918cb8048971273abc458d937ab2b9"
-  integrity sha512-tNIrDsThpWT8j1mg+svI1pqCYROqNOWMbB2qXVg+TJqH9UR5XnbAHyRsLZoJagldGTTqJPj/sUPVOkW0GRpYqw==
+  version "7.6.1"
+  resolved "https://registry.yarnpkg.com/better-sqlite3/-/better-sqlite3-7.6.1.tgz#bffc5515552ab950668f5e9f6c6d77463ab9f5e5"
+  integrity sha512-kI2NV1qjKyO2I7iDKgrsbpYR7CxNVrObiGVxbrwYJRy6Sjn/4N6YwZmi0LP2kWZswSqeJlnnEThoYJ7eKCmqAg==
   dependencies:
     bindings "^1.5.0"
     prebuild-install "^7.1.0"
@@ -402,11 +402,6 @@ connect-fs2@^0.1.8:
   integrity sha512-Kj5jeuG/HQR2zMMd5C6svQ+UGZF09jDtvgvRB7ZmFsbGF2H/wYdMDyROtnwtKkgs5ZD9rrK/m0SoHWI0I0Ifuw==
   dependencies:
     json-string "0.0.1"
-
-consolecolors@0.x.x:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/consolecolors/-/consolecolors-0.0.1.tgz#1821ddde67e29847705931cc0d27868bc29504ab"
-  integrity sha512-WFdBRSf99IkGpSYdZSMa54vOuJH86cMr8pByIC8oG6bOQ3iup3W1CgM57/zd5dZQMQgq1pLLBwsNGMjMMATYGg==
 
 content-disposition@0.5.4:
   version "0.5.4"
@@ -1502,14 +1497,14 @@ minimatch@3.0.4:
   dependencies:
     brace-expansion "^1.1.7"
 
-minimatch@^3.0.2, minimatch@^3.0.4, minimatch@^3.1.1:
+minimatch@^3.0.2, minimatch@^3.1.1:
   version "3.1.2"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-3.1.2.tgz#19cd194bfd3e428f049a70817c038d89ab4be35b"
   integrity sha512-J7p63hRiAjw1NDEww1W7i37+ByIrOWO5XQQAzZ3VOcL0PNybwpfmV/N05zFAzwQ9USyEcX6t3UO+K5aqBQOIHw==
   dependencies:
     brace-expansion "^1.1.7"
 
-minimatch@^5.0.1:
+minimatch@^5.0.1, minimatch@^5.1.0:
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/minimatch/-/minimatch-5.1.0.tgz#1717b464f4971b144f6aabe8f2d0b8e4511e09c7"
   integrity sha512-9TPBGGak4nHfGZsPBohm9AWg6NoT7QTCehS3BIJABslyZbzxfV78QM2Y6+i741OPZIafFAaiiEMh5OyIrJPgtg==
@@ -1554,9 +1549,29 @@ mkdirp@^1.0.3:
   integrity sha512-vVqVZQyf3WLx2Shd0qJ9xuvqgAyKPLAiqITEtqW0oIUjzo3PePDd6fW9iFz30ef7Ysp/oiWqbhszeGWW2T6Gzw==
 
 moment@^2.20.1, moment@^2.29.3:
-  version "2.29.3"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.3.tgz#edd47411c322413999f7a5940d526de183c031f3"
-  integrity sha512-c6YRvhEo//6T2Jz/vVtYzqBzwvPT95JBQ+smCytzf7c50oMZRsR/a4w88aD34I+/QVSfnoAnSBFPJHItlOMJVw==
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+
+mrhid6utils@^1.0.2:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/mrhid6utils/-/mrhid6utils-1.0.3.tgz#d7f79065198dc8e580ff6572a87e9338456df91a"
+  integrity sha512-3Sk4mMHY5WwNJcOYqXVk3YdnDNE4+nv7+EuefoDUNrrhCfym0/f5jxBkeRDP8Nr+L/oPu0RjV/2I4zgzvDAOeg==
+  dependencies:
+    axios "^0.27.2"
+    better-sqlite3 "^7.5.3"
+    bluebird "^3.7.2"
+    express "^4.18.1"
+    express-socket.io-session "^1.3.5"
+    fs-extra "^10.1.0"
+    ini "^3.0.0"
+    mysql2 "^2.3.3"
+    object-path "^0.11.8"
+    redis "^4.1.0"
+    serialijse "^0.3.0"
+    simple-node-logger "^21.8.12"
+    socket.io "^4.5.1"
+    ws "^8.8.0"
 
 ms@2.0.0:
   version "2.0.0"
@@ -1626,13 +1641,6 @@ neo-async@^2.6.0:
   version "2.6.2"
   resolved "https://registry.yarnpkg.com/neo-async/-/neo-async-2.6.2.tgz#b4aafb93e3aeb2d8174ca53cf163ab7d7308305f"
   integrity sha512-Yd3UES5mWCSqR+qNT93S3UoYUkqAZ9lLg8a7g9rimsWmYGK8cVToA4/sF3RrshdyV3sAGMXVUmpMYOw+dLpOuw==
-
-nicelogger@^17.4.4-b:
-  version "17.4.4-b"
-  resolved "https://registry.yarnpkg.com/nicelogger/-/nicelogger-17.4.4-b.tgz#4ad41060706674d4263232ec78ae909b623dcd79"
-  integrity sha512-uh7TUyzgY40RzbyULZSu0OCNwKpluWtMbSC3aMlOtZIWua4UsTxc8EEMy8EKnQm47cDVRGLuXrEEMT7FxMHa2w==
-  dependencies:
-    consolecolors "0.x.x"
 
 node-abi@^3.3.0:
   version "3.22.0"
@@ -1898,11 +1906,11 @@ readable-stream@~1.0.26-4:
     string_decoder "~0.10.x"
 
 readdir-glob@^1.0.0:
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/readdir-glob/-/readdir-glob-1.1.1.tgz#f0e10bb7bf7bfa7e0add8baffdc54c3f7dbee6c4"
-  integrity sha512-91/k1EzZwDx6HbERR+zucygRFfiPl2zkIYZtv3Jjr6Mn7SkKcVct8aVO+sSRiGMc6fLf72du3d92/uY63YPdEA==
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/readdir-glob/-/readdir-glob-1.1.2.tgz#b185789b8e6a43491635b6953295c5c5e3fd224c"
+  integrity sha512-6RLVvwJtVwEDfPdn6X6Ille4/lxGl0ATOY4FN/B9nxQcgOazvvI0nodiD19ScKq0PvA/29VpaOQML36o5IzZWA==
   dependencies:
-    minimatch "^3.0.4"
+    minimatch "^5.1.0"
 
 recursive-readdir@^2.2.2:
   version "2.2.2"
@@ -1912,12 +1920,12 @@ recursive-readdir@^2.2.2:
     minimatch "3.0.4"
 
 redis@^4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/redis/-/redis-4.1.0.tgz#6e400e8edf219e39281afe95e66a3d5f7dcf7289"
-  integrity sha512-5hvJ8wbzpCCiuN1ges6tx2SAh2XXCY0ayresBmu40/SGusWHFW86TAlIPpbimMX2DFHOX7RN34G2XlPA1Z43zg==
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/redis/-/redis-4.2.0.tgz#1278a265b8aa1e096a585d103bdead027cd04e43"
+  integrity sha512-bCR0gKVhIXFg8zCQjXEANzgI01DDixtPZgIUZHBCmwqixnu+MK3Tb2yqGjh+HCLASQVVgApiwhNkv+FoedZOGQ==
   dependencies:
     "@redis/bloom" "1.0.2"
-    "@redis/client" "1.1.0"
+    "@redis/client" "1.2.0"
     "@redis/graph" "1.0.1"
     "@redis/json" "1.0.3"
     "@redis/search" "1.0.6"
@@ -2167,9 +2175,9 @@ strip-json-comments@~2.0.1:
   integrity sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==
 
 systeminformation@^5.11.22:
-  version "5.11.22"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.11.22.tgz#52eb78fd6bb48eef372f502b494ff59aacf82c02"
-  integrity sha512-sBZJ/WBCf2vDLeMZaEyVuo+aXylOSmNHHB2cX0jHULFxSBLXHX+QUHYrCvmz+YiflKY3bsahVWX7vwuz1p1QZA==
+  version "5.12.1"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.12.1.tgz#8e512e4f9f21caaaa5f802fcb6a337cb4dc8b2f5"
+  integrity sha512-qAV0xSeSJlg0ZHmQ1T2rLrL54SATalBx6v4T8Sd5s17pEm6saX3LKzlPhfPx+EfT91y9yhRYnKhnMoLTFkxbqw==
 
 tar-fs@^2.0.0:
   version "2.1.1"
@@ -2277,9 +2285,9 @@ typedarray@^0.0.6:
   integrity sha512-/aCDEGatGvZ2BIk+HmLf4ifCJFwvKFNb9/JeZPMulfgFracn9QFcAf5GO8B/mweUjSoblS5In0cWhqpfs/5PQA==
 
 uglify-js@^3.1.4:
-  version "3.16.1"
-  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.16.1.tgz#0e7ec928b3d0b1e1d952bce634c384fd56377317"
-  integrity sha512-X5BGTIDH8U6IQ1TIRP62YC36k+ULAa1d59BxlWvPUJ1NkW5L3FwcGfEzuVvGmhJFBu0YJ5Ge25tmRISqCmLiRQ==
+  version "3.16.2"
+  resolved "https://registry.yarnpkg.com/uglify-js/-/uglify-js-3.16.2.tgz#0481e1dbeed343ad1c2ddf3c6d42e89b7a6d4def"
+  integrity sha512-AaQNokTNgExWrkEYA24BTNMSjyqEXPSfhqoS0AxmHkCJ4U+Dyy5AvbGV/sqxuxficEfGGoX3zWw9R7QpLFfEsg==
 
 uglifyify@^5.0.2:
   version "5.0.2"

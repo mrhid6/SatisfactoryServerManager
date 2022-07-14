@@ -1,5 +1,4 @@
 const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 
 class Page_Mods {
@@ -109,8 +108,8 @@ class Page_Mods {
     CheckServerIsRunning() {
         const Agent = PageCache.getActiveAgent()
         if (Agent.info.serverstate.status == "running") {
-            if (Tools.modal_opened == true) return;
-            Tools.openModal("/public/modals", "server-mods-error", (modal_el) => {
+
+            window.openModal("/public/modals", "server-mods-error", (modal_el) => {
                 modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
             });
             return true;

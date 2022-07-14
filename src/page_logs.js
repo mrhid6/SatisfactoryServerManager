@@ -1,5 +1,4 @@
 const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 
 class Page_Logs {

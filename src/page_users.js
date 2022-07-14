@@ -1,5 +1,4 @@
 const API_Proxy = require("./api_proxy");
-const Tools = require("../Mrhid6Utils/lib/tools");
 
 class Page_Users {
     constructor() {
@@ -170,7 +169,7 @@ class Page_Users {
     }
 
     OpenAddUserModal(btn) {
-        Tools.openModal("/public/modals", "add-user-modal", modal => {
+        window.openModal("/public/modals", "add-user-modal", modal => {
             const $roleSelect = modal.find("#sel_role")
 
             this._ROLES.forEach(role => {
@@ -180,7 +179,7 @@ class Page_Users {
     }
 
     OpenAddRoleModal(btn) {
-        Tools.openModal("/public/modals", "add-role-modal", modal => {
+        window.openModal("/public/modals", "add-role-modal", modal => {
             const $permissionsaccordion = modal.find("#permissions-accordion")
             $permissionsaccordion.empty();
 
@@ -324,7 +323,7 @@ class Page_Users {
         $roleName.parent().parent().removeClass("has-danger")
 
         var selected = [];
-        $('#permissions-accordion input:checked').each(function () {
+        $('#permissions-accordion input:checked').each(function() {
             selected.push($(this).val());
         });
 

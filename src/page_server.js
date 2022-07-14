@@ -1,4 +1,3 @@
-const Tools = require("../Mrhid6Utils/lib/tools");
 const PageCache = require("./cache");
 const Logger = require("./logger");
 const API_Proxy = require("./api_proxy");
@@ -42,8 +41,8 @@ class Page_Server {
 
             const Agent = this.Agent;
             if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
+
+                window.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -67,8 +66,8 @@ class Page_Server {
 
             const Agent = PageCache.getActiveAgent();
             if (Agent.info.serverstate != null && Agent.info.serverstate.status == "running") {
-                if (Tools.modal_opened == true) return;
-                Tools.openModal("/public/modals", "server-settings-error", (modal_el) => {
+
+                window.openModal("/public/modals", "server-settings-error", (modal_el) => {
                     modal_el.find("#error-msg").text("Server needs to be stopped before making changes!")
                 });
                 return;
@@ -374,9 +373,7 @@ class Page_Server {
 
     installSFServer() {
         const Agent = this.Agent;
-
-        if (Tools.modal_opened == true) return;
-        Tools.openModal("/public/modals", "server-action-installsf", () => {
+        window.openModal("/public/modals", "server-action-installsf", () => {
 
             const postData = {
                 agentid: Agent.id,
@@ -394,16 +391,17 @@ class Page_Server {
                 }
             })
         });
+
     }
 
     OpenConfirmDeleteModal() {
-        Tools.openModal("/public/modals", "server-action-confirm", modal => {
+        window.openModal("/public/modals", "server-action-confirm", modal => {
             modal.find("#confirm-action").attr("data-action", "delete-server");
         })
     }
 
     OpenConfirmUpdateModal() {
-        Tools.openModal("/public/modals", "server-action-confirm", modal => {
+        window.openModal("/public/modals", "server-action-confirm", modal => {
             modal.find("#confirm-action").attr("data-action", "update-server");
         })
     }
