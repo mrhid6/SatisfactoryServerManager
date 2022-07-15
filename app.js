@@ -1,6 +1,6 @@
 global.__basedir = __dirname;
 
-process.on('uncaughtException', function (err) {
+process.on('uncaughtException', function(err) {
     fs.writeFileSync('log.txt', err.message);
 });
 
@@ -25,7 +25,7 @@ const GameConfig = require("./server/ms_agent/server_gameconfig");
 
 const SSM_Server_App = require("./server/server_app");
 
-Number.prototype.pad = function (width, z) {
+Number.prototype.pad = function(width, z) {
     let n = this;
     z = z || '0';
     n = n + '';
@@ -47,20 +47,20 @@ class AppServer {
         this.init();
     }
 
-    init() {
+    init = async() => {
+
+        logger.init();
         logger.info("[APP] [PREINIT] - Loading Configs..");
-        Config.load().then(() => {
-            if (Config.get("ssm.agent.isagent") == true) {
-                return GameConfig.load();
-            } else {
-                return;
-            }
-        }).then(() => {
-            logger.info("[APP] [PREINIT] - Starting SSM..");
-            this.startExpress()
-        }).catch(err => {
-            console.log(err);
-        })
+        await Config.load();
+
+
+
+        if (Config.get("ssm.agent.isagent") == true) {
+            await GameConfig.load();
+        }
+
+        logger.info("[APP] [PREINIT] - Starting SSM..");
+        this.startExpress()
 
     }
 
@@ -92,7 +92,7 @@ class AppServer {
             defaultLayout: 'main.hbs',
             layoutsDir: path.join(__dirname + '/views/layouts'),
             helpers: {
-                or: function () {
+                or: function() {
                     return Array.prototype.slice.call(arguments, 0, -1).some(Boolean)
                 }
             }
@@ -110,7 +110,7 @@ class AppServer {
         }
         app.use(cors(corsOptions));
 
-        app.use(function (req, res, next) {
+        app.use(function(req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
             res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
             next();
@@ -168,12 +168,12 @@ class AppServer {
     }
 
     fixFileStoreSessionDelete() {
-        FSStore.prototype.reap = function () {
+        FSStore.prototype.reap = function() {
             var now = new Date().getTime();
             var self = this;
             //console.log("deleting old sessions");
-            var checkExpiration = function (filePath) {
-                fs.readFile(filePath, function (err, data) {
+            var checkExpiration = function(filePath) {
+                fs.readFile(filePath, function(err, data) {
                     if (!err) {
                         try {
                             data = JSON.parse(data);
@@ -187,11 +187,11 @@ class AppServer {
                     }
                 });
             };
-            fs.readdir(self.dir, function (err, files) {
+            fs.readdir(self.dir, function(err, files) {
                 if (err || files.length <= 0) {
                     return;
                 }
-                files.forEach(function (file, i) {
+                files.forEach(function(file, i) {
                     if (/\.json$/.test(files[i])) {
                         checkExpiration(path.join(self.dir, files[i]));
                     }
@@ -199,7 +199,7 @@ class AppServer {
             });
         };
 
-        FSStore.prototype.destroy = function (sid) {
+        FSStore.prototype.destroy = function(sid) {
             const sessionFile = path.join(this.dir, sid + '.json');
             if (fs.existsSync(sessionFile))
                 fs.unlinkSync(sessionFile);

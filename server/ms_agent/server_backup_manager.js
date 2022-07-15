@@ -98,7 +98,7 @@ class BackupManager {
 
             archive.pipe(outputStream);
 
-            const SSMConfigFile = path.join(this.userDataPath, "SSM.json")
+            const SSMConfigFile = path.join(this.userDataPath, "configs", "SSM.json")
 
             // append files from a sub-directory, putting its contents at the root of archive
             archive.directory(Config.get("satisfactory.save.location"), "Saves");

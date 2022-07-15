@@ -8,6 +8,8 @@ const axios = require("axios").default;
 const StreamZip = require("node-stream-zip");
 const semver = require("semver");
 
+const schedule = require("node-schedule");
+
 const {
     ModsNotEnabled,
     ModManifestNotExists,
@@ -17,6 +19,9 @@ const {
 const {
     request
 } = require("graphql-request");
+const {
+    async
+} = require("node-stream-zip");
 
 class ModHandler {
     constructor() {
@@ -33,10 +38,16 @@ class ModHandler {
             this.ValidateModsDirectory();
             Logger.info("[ModHandler] - Mods Directory Validation Completed!");
 
+            schedule.scheduleJob("*/30 * * * *", () => {
+                this.AutoUpdateMods();
+            })
+
             if (Config.get("mods.enabled") == false) {
                 resolve();
                 return;
             }
+
+
 
             this.CreateModManifests().then(() => {
                 return this.CreateOrLoadManifest();
@@ -457,7 +468,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async (filePath, destPath) => {
+    UnzipSMODFile = async(filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
@@ -703,17 +714,41 @@ class ModHandler {
         })
     }
 
+    AutoUpdateMods = async() => {
+        Logger.info(`[ModHandler] - Auto Updating Mods`);
+        const ServerHandler = require("./server_sfs_handler");
+        const serverState = await ServerHandler._getServerState();
+
+        if (serverState.status == "running") {
+            Logger.info(`[ModHandler] - Auto Updating Mods Skipped Server Running`);
+            return;
+        }
+
+        if (Config.get("mod.enabled") == false) {
+            Logger.info(`[ModHandler] - Auto Updating Mods Skipped Mods Disabled`);
+            return;
+        }
+
+        for (let i = 0; i < this._Manifest.installed_mods.length; i++) {
+            const installMod = this._Manifest.installed_mods[i];
+            await this.UpdateModToLatest(installMod.mod_reference);
+        }
+    }
+
 
 
     /* Ficsit API Requests */
 
     RetrieveModCountFromAPI() {
         return new Promise((resolve, reject) => {
-            const query = `{
-                getMods(filter: {hidden:true}){
-                  count
-                }
-              }`
+            const query = ` {
+                            getMods(filter: {
+                                hidden: true
+                            }) {
+                                count
+                            }
+                        }
+                        `
             request(this.FicsitQueryURL, query).then(res => {
                 resolve(res.getMods.count)
             }).catch(reject)
@@ -727,29 +762,30 @@ class ModHandler {
             this.RetrieveModCountFromAPI().then(count => {
                 const promises = [];
                 for (let i = 0; i < (count / 100); i++) {
-                    const query = `{
-                        getMods(filter: {
-                            limit:100,
-                            offset: ${i*100},
-                            hidden: true
-                        }) {
-                            mods {
-                                id,
-                                name,
-                                hidden,
-                                logo,
-                                mod_reference,
-                                versions {
-                                    version,
-                                    link,
-                                    sml_version,
-                                    dependencies {
-                                        mod_id
+                    const query = ` {
+                            getMods(filter: {
+                                limit: 100,
+                                offset: ${i * 100},
+                                hidden: true
+                            }) {
+                                mods {
+                                    id,
+                                    name,
+                                    hidden,
+                                    logo,
+                                    mod_reference,
+                                    versions {
+                                        version,
+                                        link,
+                                        sml_version,
+                                        dependencies {
+                                            mod_id
+                                        }
                                     }
                                 }
                             }
                         }
-                    }`
+                        `
                     promises.push(request(this.FicsitQueryURL, query));
                 }
                 return Promise.all(promises)
@@ -794,24 +830,24 @@ class ModHandler {
 
     RetrieveModFromAPI(modReference) {
         return new Promise((resolve, reject) => {
-            const query = `{
-                getModByReference(modReference: "${modReference}") {
-                    id,
-                    name,
-                    hidden,
-                    logo,
-                    mod_reference,
-                    versions
-                     {
-                        version,
-                        link,
-                        sml_version,
-                            dependencies {
-                                mod_id
+            const query = ` {
+                            getModByReference(modReference: "${modReference}") {
+                                id,
+                                name,
+                                hidden,
+                                logo,
+                                mod_reference,
+                                versions {
+                                    version,
+                                    link,
+                                    sml_version,
+                                    dependencies {
+                                        mod_id
+                                    }
+                                }
                             }
-                    }
-                }
-            }`
+                        }
+                        `
 
             request(this.FicsitQueryURL, query).then(ModData => {
                 const mod = ModData.getModByReference;
@@ -833,14 +869,15 @@ class ModHandler {
 
     RetrieveSMLVersions() {
         return new Promise((resolve, reject) => {
-            const query = `{
-                getSMLVersions{
-                    sml_versions {
-                      version,
-                      link
-                    }
-                  }
-            }`
+            const query = ` {
+                            getSMLVersions {
+                                sml_versions {
+                                    version,
+                                    link
+                                }
+                            }
+                        }
+                        `
 
             request(this.FicsitQueryURL, query).then(ModData => {
                 const versions = ModData.getSMLVersions.sml_versions;

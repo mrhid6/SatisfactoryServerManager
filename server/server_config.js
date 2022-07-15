@@ -5,7 +5,8 @@ const CryptoJS = require("crypto-js");
 const SSMCloud = require("./server_cloud");
 const semver = require("semver");
 
-const iConfig = require("mrhid6utils").Config;
+const mrhid6utils = require("mrhid6utils");
+const iConfig = mrhid6utils.Config;
 const platform = process.platform;
 
 const {
@@ -41,6 +42,7 @@ class ServerConfig extends iConfig {
         super({
             configName: "SSM",
             createConfig: true,
+            useExactPath: true,
             configBaseDirectory: path.join(userDataPath, "configs")
         });
     }
@@ -54,7 +56,7 @@ class ServerConfig extends iConfig {
 
         } else {
             super.set("ssm.agent.isagent", false)
-            const uuid = Mrhid6Utils.Tools.generateRandomString(16);
+            const uuid = mrhid6utils.Tools.generateRandomString(16);
             super.get("ssm.agent.publickey", uuid);
 
             super.delete("ssm.agent.id");
@@ -65,9 +67,6 @@ class ServerConfig extends iConfig {
             super.delete("satisfactory");
             super.delete("mods");
 
-
-
-            fs.ensureDirSync(super.get("ssm.tempdir"))
 
 
             const NotificationEvents = [
