@@ -468,7 +468,7 @@ class ModHandler {
     }
 
 
-    UnzipSMODFile = async(filePath, destPath) => {
+    UnzipSMODFile = async (filePath, destPath) => {
         const zipData = new StreamZip.async({
             file: filePath
         });
@@ -714,7 +714,7 @@ class ModHandler {
         })
     }
 
-    AutoUpdateMods = async() => {
+    AutoUpdateMods = async () => {
         Logger.info(`[ModHandler] - Auto Updating Mods`);
         const ServerHandler = require("./server_sfs_handler");
         const serverState = await ServerHandler._getServerState();
@@ -724,7 +724,7 @@ class ModHandler {
             return;
         }
 
-        if (Config.get("mod.enabled") == false) {
+        if (Config.get("mods.enabled") == false) {
             Logger.info(`[ModHandler] - Auto Updating Mods Skipped Mods Disabled`);
             return;
         }
