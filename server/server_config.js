@@ -47,7 +47,7 @@ class ServerConfig extends iConfig {
         });
     }
 
-    setDefaultValues = async() => {
+    setDefaultValues = async () => {
 
         var AppArgs = process.argv.slice(2);
         if (AppArgs.indexOf("--agent") > -1) {
@@ -91,7 +91,7 @@ class ServerConfig extends iConfig {
         fs.ensureDirSync(super.get("ssm.tempdir"))
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.28`);
+        super.set("ssm.version", `v1.1.29`);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");
