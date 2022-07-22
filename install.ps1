@@ -82,7 +82,7 @@ if($nodocker -eq $false){
         }
         Install-Module DockerProvider -Confirm:$false -force |out-null
         Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview -Confirm:$false -force |out-null
-        [Environment]::SetEnvironmentVariable(“LCOW_SUPPORTED”, “1”, “Machine”)
+        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
         Restart-Service docker
     }else{
 
@@ -120,13 +120,17 @@ if($nodocker -eq $false){
                     sleep -m 3000
                     del $DockerInstaller
 		    
-		    sleep -m 2000
-		    
-		    $dockerSettingPath = "C:\Users\$($env:UserName)\AppData\Roaming\Docker\settings.json"
-	    	    $settingsContent = Get-Content $dockerSettingPath -Raw | ConvertFrom-Json
-	    	    $settingsContent.exposeDockerAPIOnTCP2375 = $true
-	    	    $settingsContent | ConvertTo-Json | Set-Content $dockerSettingPath
+                    sleep -m 2000
+                    
+                    
                 }
+
+                $dockerSettingPath = "C:\Users\$($env:UserName)\AppData\Roaming\Docker\settings.json"
+                $settingsContent = Get-Content $dockerSettingPath -Raw | ConvertFrom-Json
+                $settingsContent.exposeDockerAPIOnTCP2375 = $true
+                $settingsContent | ConvertTo-Json | Set-Content $dockerSettingPath
+
+                restart-service "com.docker.service"
             }
         }else{
             write-Error "Cant Install docker on this machine! Must be Windows 10 20H2 and Build Number 19041 or higher!"
