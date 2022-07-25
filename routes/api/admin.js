@@ -23,5 +23,35 @@ router.post("/adduser", middleWare, (req, res) => {
     })
 })
 
+router.post("/generatedebugreport", middleWare, (req, res) => {
+    const post = req.body;
+
+    ServerApp.API_GenerateDebugReport(post).then(() => {
+        res.json({
+            result: "success"
+        })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+})
+
+router.get("/debugreports", middleWare, (req, res) => {
+    ServerApp.API_GetDebugReports().then(rows => {
+        res.json({
+            result: "success",
+            data: rows
+        })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+
+})
+
 
 module.exports = router;

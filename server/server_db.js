@@ -34,6 +34,7 @@ class ServerDB {
             "agents",
             "config",
             "webhooks",
+            "debugreports"
         ]
 
     }
@@ -122,6 +123,9 @@ class ServerDB {
                             case "webhooks":
                                 promises.push(this.createWebhooksTable())
                                 break;
+                            case "debugreports":
+                                promises.push(this.createDebugReportsTable())
+                                break;
                         }
                     }
                 })
@@ -209,32 +213,29 @@ class ServerDB {
                 const sqlData = [];
 
                 const defaultRoles = [{
-                        name: "User",
-                        permissions: ["login.*", "page.user.dashboard"]
-                    },
-                    {
-                        name: "Moderator",
-                        permissions: [
-                            "login.*",
-                            "serveractions.start",
-                            "serveractions.stop",
-                            "serveractions.kill",
-                            "page.user.dashboard",
-                            "page.user.servers",
-                            "page.user.mods",
-                            "page.user.logs",
-                            "page.user.saves",
-                            "mods.*",
-                            "manageusers.create",
-                            "settings.saves.*",
-                            "settings.backups.*",
-                        ]
-                    },
-                    {
-                        name: "Administrator",
-                        permissions: ["*"]
-                    }
-                ]
+                    name: "User",
+                    permissions: ["login.*", "page.user.dashboard"]
+                }, {
+                    name: "Moderator",
+                    permissions: [
+                        "login.*",
+                        "serveractions.start",
+                        "serveractions.stop",
+                        "serveractions.kill",
+                        "page.user.dashboard",
+                        "page.user.servers",
+                        "page.user.mods",
+                        "page.user.logs",
+                        "page.user.saves",
+                        "mods.*",
+                        "manageusers.create",
+                        "settings.saves.*",
+                        "settings.backups.*",
+                    ]
+                }, {
+                    name: "Administrator",
+                    permissions: ["*"]
+                }]
 
                 defaultRoles.forEach(role => {
                     RoleSQL += `(?, ?), `
@@ -437,7 +438,18 @@ class ServerDB {
         })
     }
 
-    applyDBPatches = async () => {
+    createDebugReportsTable = async() => {
+        logger.info("Creating Debug Reports Table")
+        const debugReportsTableSql = `CREATE TABLE "debugreports" (
+                "dr_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "dr_created" VARCHAR(255) NOT NULL DEFAULT '',
+                "dr_path" TEXT NOT NULL DEFAULT ''
+            );`
+
+        await this.queryRun(debugReportsTableSql);
+    }
+
+    applyDBPatches = async() => {
         const needPatch = await this.DoesDBNeedPatching();
 
         if (needPatch == true) {
@@ -486,7 +498,7 @@ class ServerDB {
         }
     }
 
-    DoesDBNeedPatching = async () => {
+    DoesDBNeedPatching = async() => {
         return this.getDBVersion().then(DBVersion => {
             if (Config.get("ssm.version") != DBVersion) {
                 return true;

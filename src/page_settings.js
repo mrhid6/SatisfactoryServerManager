@@ -18,9 +18,13 @@ class Page_Settings {
 
     setupJqueryListeners() {
         $("body").on("click", "#btn-addwebhook", e => {
-            const $btn = $(e.currentTarget);
-            this.OpenAddWebhookModal($btn);
-        })
+                const $btn = $(e.currentTarget);
+                this.OpenAddWebhookModal($btn);
+            })
+            .on("click", "#btn-generatedebug", e => {
+                e.preventDefault();
+                this.GenerateDebugInfo();
+            })
     }
 
     MainDisplayFunction() {
@@ -98,6 +102,83 @@ class Page_Settings {
             })
         })
     }
+
+    GenerateDebugInfo() {
+        API_Proxy.postData("admin/generatedebugreport", {}).then(res => {
+            if (res.result == "success") {
+                toastr.success("Generated Debug Report!")
+            } else {
+                toastr.error("Failed To Generate Debug Report!")
+                Logger.error(res.error);
+            }
+        })
+    }
+
+    DisplayDebugReportsTable() {
+        API_Proxy.get("admin/debugreports").then(res => {
+
+            const isDataTable = $.fn.dataTable.isDataTable("#debugreports-table")
+            const tableData = [];
+
+            const debugreports = res.data;
+
+            debugreports.forEach(debugreport => {
+
+                let deleteBackupEl = $("<button/>")
+                    .addClass("btn btn-danger float-end remove-backup-btn")
+                    .html("<i class='fas fa-trash'></i>")
+                    .attr("data-debugreport-id", debugreport.dr_id)
+
+                let downloadBackupEl = $("<button/>")
+                    .addClass("btn btn-primary float-start download-backup-btn")
+                    .html("<i class='fas fa-download'></i>")
+                    .attr("data-debugreport-id", debugreport.dr_id)
+
+                const downloadSaveStr = deleteBackupEl.prop('outerHTML')
+                const deleteSaveStr = downloadBackupEl.prop('outerHTML')
+
+
+                tableData.push([
+                    debugreport.dr_id,
+                    readableDate(debugreport.dr_created),
+                    downloadSaveStr + deleteSaveStr
+                ])
+            })
+
+            console.log(tableData)
+
+            if (isDataTable == false) {
+                $("#debugreports-table").DataTable({
+                    paging: true,
+                    searching: false,
+                    info: false,
+                    order: [
+                        [0, "asc"]
+                    ],
+                    columnDefs: [],
+                    data: tableData
+                })
+            } else {
+                const datatable = $("#debugreports-table").DataTable();
+                datatable.clear();
+                datatable.rows.add(tableData);
+                datatable.draw();
+            }
+        })
+    }
+}
+
+function readableDate(dateStr) {
+    const date = new Date(dateStr)
+    const day = date.getDate().pad(2);
+    const month = (date.getMonth() + 1).pad(2);
+    const year = date.getFullYear();
+
+    const hour = date.getHours().pad(2);
+    const min = date.getMinutes().pad(2);
+    const sec = date.getSeconds().pad(2);
+
+    return day + "/" + month + "/" + year + " " + hour + ":" + min + ":" + sec;
 }
 
 const page = new Page_Settings();

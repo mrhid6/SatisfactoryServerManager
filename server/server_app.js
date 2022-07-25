@@ -16,6 +16,10 @@ const NotificationHandler = require("./server_notifcation_handler");
 const ObjNotifySSMStartup = require("../objects/notifications/obj_notify_ssmstartup");
 const ObjNotifySSMShutdown = require("../objects/notifications/obj_notify_ssmshutdown");
 
+const archiver = require('archiver');
+const path = require("path");
+const fs = require("fs-extra");
+
 class SSM_Server_App {
 
     constructor() {
@@ -288,6 +292,81 @@ class SSM_Server_App {
 
     API_CreateUser(data) {
         return UserManager.API_CreateUser(data);
+    }
+
+
+    API_GenerateDebugReport = async() => {
+
+        const date = new Date();
+        const date_Year = date.getFullYear();
+        const date_Month = (date.getMonth() + 1).pad(2);
+        const date_Day = date.getDate().pad(2);
+        const date_Hour = date.getHours().pad(2);
+        const date_Min = date.getMinutes().pad(2);
+        const debugFile = `${date_Year}${date_Month}${date_Day}_${date_Hour}${date_Min}_DebugReport.zip`
+        const debugFilePath = path.join(Config.get("ssm.tempdir"), debugFile)
+
+        var outputStream = fs.createWriteStream(debugFilePath);
+        var archive = archiver('zip');
+
+        outputStream.on('close', async() => {
+            logger.info("[SERVER_APP] - Debug Report Finished!")
+
+            const sql = "INSERT INTO debugreports(dr_created,dr_path) VALUES (?,?)"
+            const data = [date.getTime(), debugFilePath]
+            await DB.queryRun(sql, data)
+        });
+
+        archive.on('error', (err) => {
+            throw err
+        });
+
+        archive.pipe(outputStream);
+
+
+        const SSMConfigFile = Config._options.configFilePath;
+
+        archive.file(SSMConfigFile, {
+            name: "Configs/SSM/SSM.json"
+        });
+
+        archive.file(DB.DBFile, {
+            name: "DB/SSM.db"
+        });
+
+        archive.directory(logger._options.logDirectory, "Logs/SSM");
+
+        const SSMAgentDirectory = path.resolve("/SSMAgents");
+        const Agents = SSM_Agent_Handler.GetAllAgents()
+
+        for (let i = 0; i < Agents.length; i++) {
+            const Agent = Agents[i];
+
+            const AgentConfigFile = path.join(SSMAgentDirectory, Agent.getName(), "SSM", "configs", "SSM.json")
+
+            archive.file(AgentConfigFile, {
+                name: `Configs/${Agent.getName()}/SSM.json`
+            });
+
+            const container = await SSM_Agent_Handler.GetDockerForAgent(Agent);
+
+            const dockerInfo = await container.status();
+            const DockerStatusFile = path.join(Config.get("ssm.tempdir"), `${Agent.getName()}.dockerfile.txt`)
+
+            fs.writeFileSync(DockerStatusFile, JSON.stringify(dockerInfo, null, 4));
+
+            archive.file(DockerStatusFile, {
+                name: `Configs/${Agent.getName()}/dockerfile.json`
+            });
+
+        }
+
+        archive.finalize();
+    }
+
+    API_GetDebugReports = async() => {
+        const rows = await DB.queryRun("select * from debugreports")
+        return rows;
     }
 }
 
