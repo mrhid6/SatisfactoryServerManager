@@ -20,6 +20,8 @@ const archiver = require('archiver');
 const path = require("path");
 const fs = require("fs-extra");
 
+const rimraf = require("rimraf");
+
 class SSM_Server_App {
 
     constructor() {
@@ -295,7 +297,7 @@ class SSM_Server_App {
     }
 
 
-    API_GenerateDebugReport = async() => {
+    API_GenerateDebugReport = async () => {
 
         const date = new Date();
         const date_Year = date.getFullYear();
@@ -309,7 +311,7 @@ class SSM_Server_App {
         var outputStream = fs.createWriteStream(debugFilePath);
         var archive = archiver('zip');
 
-        outputStream.on('close', async() => {
+        outputStream.on('close', async () => {
             logger.info("[SERVER_APP] - Debug Report Finished!")
 
             const sql = "INSERT INTO debugreports(dr_created,dr_path) VALUES (?,?)"
@@ -351,6 +353,10 @@ class SSM_Server_App {
             const container = await SSM_Agent_Handler.GetDockerForAgent(Agent);
 
             const dockerInfo = await container.status();
+            delete dockerInfo['modem'];
+            delete dockerInfo['fs'];
+            delete dockerInfo['exec'];
+
             const DockerStatusFile = path.join(Config.get("ssm.tempdir"), `${Agent.getName()}.dockerfile.txt`)
 
             fs.writeFileSync(DockerStatusFile, JSON.stringify(dockerInfo, null, 4));
@@ -364,9 +370,27 @@ class SSM_Server_App {
         archive.finalize();
     }
 
-    API_GetDebugReports = async() => {
-        const rows = await DB.queryRun("select * from debugreports")
+    API_GetDebugReports = async () => {
+        const rows = await DB.query("SELECT * FROM debugreports")
         return rows;
+    }
+
+
+    API_DownloadDebugReportFile = async (data) => {
+        const row = await DB.querySingle("SELECT * FROM debugreports WHERE dr_id=?", [data.debugreportid])
+        return row;
+    }
+
+    API_RemoveDebugReportFile = async (data) => {
+
+        const row = await DB.querySingle("SELECT * FROM debugreports WHERE dr_id=?", [data.debugreportid])
+        const filePath = row.dr_path;
+
+        if (fs.existsSync(filePath)) {
+            rimraf.sync(filePath);
+        }
+
+        await DB.queryRun("DELETE FROM debugreports WHERE dr_id=?", [data.debugreportid])
     }
 }
 

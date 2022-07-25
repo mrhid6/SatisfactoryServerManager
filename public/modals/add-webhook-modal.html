@@ -1,0 +1,50 @@
+<div class="modal ssm-modal" id="add-webhook-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Webhook</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="inp_webhookname" class="form-label">Name:</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        <input id="inp_webhookname" type="text" class="form-control" placeholder="Webhook Name" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inp_webhookurl" class="form-label">URL:</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"><i class="fas fa-globe"></i></span>
+                        <input id="inp_webhookurl" type="text" class="form-control" placeholder="Webhook URL" />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <span>Events:</span>
+                    <div id="webhook-events" class="mt-2 rounded"></div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+
+                        <button class="btn btn-primary float-end" id="submit-add-user-btn"><i class="fas fa-plus"></i>
+                            Add
+                            Webhook</button>
+                        <div class="checkbox">
+                            <input id="inp_webhook_enabled" type="checkbox" data-on="Enabled" data-off="Disabled"
+                                data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-width="100"
+                                data-size="small">
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>

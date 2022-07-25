@@ -117,7 +117,6 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "19.10" ]]; then
     fi
 fi
 
-git submodule update --init
 yarn
 resCode = $?
 

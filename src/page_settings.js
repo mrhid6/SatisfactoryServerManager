@@ -1,5 +1,7 @@
 const API_Proxy = require("./api_proxy");
 
+const logger = require("./logger");
+
 class Page_Settings {
     constructor() {
         this._ROLES = [];
@@ -25,10 +27,21 @@ class Page_Settings {
                 e.preventDefault();
                 this.GenerateDebugInfo();
             })
+            .on("click", ".download-debugreport-btn", e => {
+                e.preventDefault();
+                const $this = $(e.currentTarget);
+                this.DownloadDebugReport($this.attr("data-debugreport-id"));
+            })
+            .on("click", ".remove-debugreport-btn", e => {
+                e.preventDefault();
+                const $this = $(e.currentTarget);
+                this.RemoveDebugReport($this.attr("data-debugreport-id"));
+            })
     }
 
     MainDisplayFunction() {
         this.DisplayUsersTable();
+        this.DisplayDebugReportsTable();
     }
 
     DisplayUsersTable() {
@@ -94,12 +107,35 @@ class Page_Settings {
     }
 
     OpenAddWebhookModal(btn) {
-        window.openModal("/public/modals", "add-user-modal", modal => {
-            const $roleSelect = modal.find("#sel_role")
+        window.openModal("/public/modals", "add-webhook-modal", modal => {
+            modal.find('#inp_webhook_enabled').bootstrapToggle()
 
-            this._ROLES.forEach(role => {
-                $roleSelect.append(`<option value='${role.id}'>${role.name}</option>`)
+            const events = [
+                "ssm.startup",
+                "ssm.shutdown",
+                "agent.created",
+                "agent.started",
+                "agent.shutdown",
+                "server.starting",
+                "server.running",
+                "server.stopping",
+                "server.offline"
+            ]
+
+            const $webhookEventsDiv = modal.find("#webhook-events");
+
+            events.forEach(webhook_event => {
+                $webhookEventsDiv.append(`<div class="mb-2 event_wrapper">
+                <div class="checkbox" style="display:inline-block;">
+                    <input data-event-data="${webhook_event}" type="checkbox" data-on="Enabled" data-off="Disabled"
+                        data-onstyle="success" data-offstyle="danger" data-toggle="toggle" data-width="100"
+                        data-size="small">
+                </div>
+                <b class="ms-2 text-black">${webhook_event}</b>
+                </div>`)
             })
+
+            $webhookEventsDiv.find('input').bootstrapToggle()
         })
     }
 
@@ -109,8 +145,10 @@ class Page_Settings {
                 toastr.success("Generated Debug Report!")
             } else {
                 toastr.error("Failed To Generate Debug Report!")
-                Logger.error(res.error);
+                logger.error(res.error);
             }
+
+            this.DisplayDebugReportsTable();
         })
     }
 
@@ -125,12 +163,12 @@ class Page_Settings {
             debugreports.forEach(debugreport => {
 
                 let deleteBackupEl = $("<button/>")
-                    .addClass("btn btn-danger float-end remove-backup-btn")
+                    .addClass("btn btn-danger float-end remove-debugreport-btn")
                     .html("<i class='fas fa-trash'></i>")
                     .attr("data-debugreport-id", debugreport.dr_id)
 
                 let downloadBackupEl = $("<button/>")
-                    .addClass("btn btn-primary float-start download-backup-btn")
+                    .addClass("btn btn-primary float-start download-debugreport-btn")
                     .html("<i class='fas fa-download'></i>")
                     .attr("data-debugreport-id", debugreport.dr_id)
 
@@ -140,12 +178,10 @@ class Page_Settings {
 
                 tableData.push([
                     debugreport.dr_id,
-                    readableDate(debugreport.dr_created),
+                    readableDate(parseInt(debugreport.dr_created)),
                     downloadSaveStr + deleteSaveStr
                 ])
             })
-
-            console.log(tableData)
 
             if (isDataTable == false) {
                 $("#debugreports-table").DataTable({
@@ -153,7 +189,7 @@ class Page_Settings {
                     searching: false,
                     info: false,
                     order: [
-                        [0, "asc"]
+                        [1, "asc"]
                     ],
                     columnDefs: [],
                     data: tableData
@@ -164,6 +200,34 @@ class Page_Settings {
                 datatable.rows.add(tableData);
                 datatable.draw();
             }
+        })
+    }
+
+    DownloadDebugReport(id) {
+        const postData = {
+            debugreportid: id
+        }
+
+        API_Proxy.download("admin/debugreport/download", postData).then(res => {
+            console.log(res);
+        }).catch(err => {
+            console.log(err)
+        })
+    }
+
+    RemoveDebugReport(id) {
+        const postData = {
+            debugreportid: id
+        }
+
+        API_Proxy.postData("admin/debugreport/remove", postData).then(res => {
+            if (res.result == "success") {
+                toastr.success("Removed Debug Report!")
+            } else {
+                toastr.error("Failed To Remove Debug Report!")
+                logger.error(res.error);
+            }
+            this.DisplayDebugReportsTable();
         })
     }
 }

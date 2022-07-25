@@ -115,7 +115,6 @@ net start winnat
 * Install nodejs (tested on v12.13.1)
 * Install Docker Desktop
 * Git clone this repo
-* Fetch git submodule `git submodule update --init`
 * Install Dependencies:
 ```
 bash ./tools/build_app.sh -i -u

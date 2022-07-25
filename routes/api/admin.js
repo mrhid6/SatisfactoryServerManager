@@ -42,7 +42,7 @@ router.get("/debugreports", middleWare, (req, res) => {
     ServerApp.API_GetDebugReports().then(rows => {
         res.json({
             result: "success",
-            data: rows
+            data: rows || []
         })
     }).catch(err => {
         res.json({
@@ -51,6 +51,33 @@ router.get("/debugreports", middleWare, (req, res) => {
         })
     })
 
+})
+
+router.post("/debugreport/download", middleWare, (req, res) => {
+    const UserID = req.session.userid;
+
+    ServerApp.API_DownloadDebugReportFile(req.body, UserID).then(saveFile => {
+        res.download(saveFile.dr_path);
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+})
+
+router.post("/debugreport/remove", middleWare, (req, res) => {
+
+    ServerApp.API_RemoveDebugReportFile(req.body).then(() => {
+        res.json({
+            result: "success"
+        })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
 })
 
 

@@ -238,7 +238,6 @@ window.openModal = function(modal_dir, modal_name, var1, var2) {
             modalEl.on('hidden.bs.modal', () => {
                 $(this).remove();
                 $('[name^="__privateStripe"]').remove();
-                Tools.modal_opened = false;
                 if (options.allowBackdropRemoval == true)
                     $('.modal-backdrop').remove();
             });
