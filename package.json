@@ -58,13 +58,12 @@
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
-        "uglifyify": "^5.0.2",
         "vdf": "^0.0.2"
     },
     "scripts": {
         "start": "node app.js",
         "watch": "watchify src/app.js -o public/js/bundle.js",
-        "bundle": "browserify -t uglifyify src/app.js -o public/js/bundle.js",
+        "bundle": "browserify -g uglifyify src/app.js -o public/js/bundle.js",
         "clean-css": "bash tools/clean-css.sh"
     },
     "resolutions": {
@@ -92,5 +91,8 @@
         "targets": [
             "node16"
         ]
+    },
+    "devDependencies": {
+        "uglifyify": "^5.0.2"
     }
 }
