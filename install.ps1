@@ -33,6 +33,7 @@ echo "#-----------------------------#"
 write-host "# Script Options:"
 write-host "# Update: `t`t$($update)"
 write-host "# Force: `t`t$($force)"
+write-host "# Install Docker: `t$($nodocker -eq $false)"
 write-host "# Install Service: `t$($noservice -eq $false)"
 write-host "# Install Directory: `t$($installDir)"
 
