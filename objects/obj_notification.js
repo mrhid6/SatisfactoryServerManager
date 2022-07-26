@@ -10,10 +10,13 @@ class Notification {
 
         this._data = {
             event: eventName,
-            timestamp: date.getTime()
+            timestamp: date.getTime(),
+            webhook_id: -1,
+            handled: false,
+            attempts: 0,
+            lastError: ""
         };
-        this._eventName = eventName;
-        this._TemplateHtmlPath = path.join(__basedir, "notifications", this._eventName + ".hbs");
+        this._TemplateHtmlPath = path.join(__basedir, "notifications", eventName + ".hbs");
         this._html = "";
     }
 
@@ -23,6 +26,11 @@ class Notification {
 
     GetEventName() {
         return this.get("event");
+    }
+
+    ParseSQLData(data) {
+        this._data = JSON.parse(data.we_data);
+        this._id = data.we_id;
     }
 
     get(key, defaultval) {

@@ -44,7 +44,7 @@ class SSM_Server_App {
                     const Notification = new ObjNotifySSMStartup();
                     Notification.build();
 
-                    NotificationHandler.TriggerNotification(Notification);
+                    NotificationHandler.StoreNotification(Notification);
                 })
 
             })
@@ -60,7 +60,7 @@ class SSM_Server_App {
             const Notification = new ObjNotifySSMShutdown();
             Notification.build();
 
-            NotificationHandler.TriggerNotification(Notification).then(() => {
+            NotificationHandler.StoreNotification(Notification).then(() => {
                 Cleanup.decreaseCounter(1);
             })
         })
@@ -391,6 +391,21 @@ class SSM_Server_App {
         }
 
         await DB.queryRun("DELETE FROM debugreports WHERE dr_id=?", [data.debugreportid])
+    }
+
+    API_AddWebhook = async (data) => {
+        const sqlData = [
+            data.name,
+            data.url,
+            (data.enabled == "true" ? 1 : 0),
+            JSON.stringify(data.events),
+            (data.url.startsWith("https://discord.com/api/webhooks") ? 1 : 0)
+        ];
+
+        const sql = "INSERT INTO webhooks(webhook_name, webhook_url, webhook_enabled, webhook_events, webhook_discord) VALUES (?,?,?,?,?)"
+        await DB.queryRun(sql, sqlData);
+
+        await NotificationHandler.LoadWebHooksFromDB();
     }
 }
 

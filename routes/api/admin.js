@@ -80,5 +80,19 @@ router.post("/debugreport/remove", middleWare, (req, res) => {
     })
 })
 
+router.post("/addwebhook", middleWare, (req, res) => {
+
+    ServerApp.API_AddWebhook(req.body).then(() => {
+        res.json({
+            result: "success"
+        })
+    }).catch(err => {
+        res.json({
+            result: "error",
+            error: err.message
+        })
+    })
+})
+
 
 module.exports = router;

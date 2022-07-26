@@ -34,7 +34,8 @@ class ServerDB {
             "agents",
             "config",
             "webhooks",
-            "debugreports"
+            "debugreports",
+            "webhook_events"
         ]
 
     }
@@ -125,6 +126,9 @@ class ServerDB {
                                 break;
                             case "debugreports":
                                 promises.push(this.createDebugReportsTable())
+                                break;
+                            case "webhook_events":
+                                promises.push(this.createWebhookEventsTable())
                                 break;
                         }
                     }
@@ -438,7 +442,21 @@ class ServerDB {
         })
     }
 
-    createDebugReportsTable = async() => {
+    createWebhookEventsTable() {
+        return new Promise((resolve, reject) => {
+            logger.info("Creating Webhook Events Table")
+            const webhooksTableSql = `CREATE TABLE "webhook_events" (
+                "we_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "we_data" TEXT NOT NULL DEFAULT ''
+            );`
+
+            this.queryRun(webhooksTableSql).then(() => {
+                resolve();
+            })
+        })
+    }
+
+    createDebugReportsTable = async () => {
         logger.info("Creating Debug Reports Table")
         const debugReportsTableSql = `CREATE TABLE "debugreports" (
                 "dr_id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -449,7 +467,7 @@ class ServerDB {
         await this.queryRun(debugReportsTableSql);
     }
 
-    applyDBPatches = async() => {
+    applyDBPatches = async () => {
         const needPatch = await this.DoesDBNeedPatching();
 
         if (needPatch == true) {
@@ -498,7 +516,7 @@ class ServerDB {
         }
     }
 
-    DoesDBNeedPatching = async() => {
+    DoesDBNeedPatching = async () => {
         return this.getDBVersion().then(DBVersion => {
             if (Config.get("ssm.version") != DBVersion) {
                 return true;

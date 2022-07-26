@@ -12,41 +12,43 @@ class WebhookNotificationInterface extends NotificationInterface {
         super.init(data);
     }
 
-    PostData(data) {
-        return new Promise((resolve, reject) => {
+    PostData = async (data) => {
 
-            const url = this.getOptions().url;
-            //console.log(url)
+        const url = this.getURL();
 
-            axios.post(url, data).then(res => {
-                resolve(res);
-
-            }).catch(err => {})
-        });
+        try {
+            const res = await axios.post(url, data)
+            return res;
+        } catch (err) {
+            throw new Error(err.message);
+        }
     }
 
-    TriggerSSMEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            this.PostData(Notification.GetData()).then(res => {
-                resolve();
-            })
-        });
+    TriggerSSMEvent = async (Notification) => {
+        try {
+            const res = await this.PostData(Notification.GetData())
+            return res;
+        } catch (err) {
+            throw err;
+        }
     }
 
-    TriggerAgentEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            this.PostData(Notification.GetData()).then(res => {
-                resolve();
-            })
-        });
+    TriggerAgentEvent = async (Notification) => {
+        try {
+            const res = await this.PostData(Notification.GetData())
+            return res;
+        } catch (err) {
+            throw err;
+        }
     }
 
-    TriggerServerEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            this.PostData(Notification.GetData()).then(res => {
-                resolve();
-            })
-        });
+    TriggerServerEvent = async (Notification) => {
+        try {
+            const res = await this.PostData(Notification.GetData())
+            return res;
+        } catch (err) {
+            throw err;
+        }
     }
 }
 

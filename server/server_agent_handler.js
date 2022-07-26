@@ -345,7 +345,7 @@ class AgentHandler {
                     const Notification = new ObjNotifyAgentCreated(DisplayName);
                     Notification.build();
 
-                    NotificationHandler.TriggerNotification(Notification);
+                    NotificationHandler.StoreNotification(Notification);
 
 
                     logger.info("[AGENT_HANDLER] - Starting Agent ...");
@@ -360,7 +360,7 @@ class AgentHandler {
                 const Notification = new ObjNotifyAgentStarted(Agent);
                 Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                NotificationHandler.StoreNotification(Notification);
 
                 return AgentAPI.InitNewAgent(Agent)
             }).then(() => {
@@ -611,7 +611,7 @@ class AgentHandler {
                 const Notification = new ObjNotifyAgentStarted(Agent);
                 Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                NotificationHandler.StoreNotification(Notification);
 
                 logger.info("[AGENT_HANDLER] - Agent Started!");
                 resolve();
@@ -670,7 +670,7 @@ class AgentHandler {
                 const Notification = new ObjNotifyAgentShutdown(Agent);
                 Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                NotificationHandler.StoreNotification(Notification);
                 logger.info("[AGENT_HANDLER] - Agent Stopped!");
                 resolve();
             }).catch(err => {
@@ -807,12 +807,12 @@ class AgentHandler {
                 const Notification = new ObjNotifyServerStarting(Agent);
                 Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                NotificationHandler.StoreNotification(Notification);
             } else {
                 const Notification = new ObjNotifyServerStopping(Agent);
                 Notification.build();
 
-                NotificationHandler.TriggerNotification(Notification);
+                NotificationHandler.StoreNotification(Notification);
             }
 
             AgentAPI.remoteRequestPOST(Agent, "serveraction", data).then(res => {
@@ -822,12 +822,12 @@ class AgentHandler {
                         const Notification1 = new ObjNotifyServerRunning(Agent);
                         Notification1.build();
 
-                        NotificationHandler.TriggerNotification(Notification1);
+                        NotificationHandler.StoreNotification(Notification1);
                     } else {
                         const Notification1 = new ObjNotifyServerOffline(Agent);
                         Notification1.build();
 
-                        NotificationHandler.TriggerNotification(Notification1);
+                        NotificationHandler.StoreNotification(Notification1);
                     }
 
                     resolve();

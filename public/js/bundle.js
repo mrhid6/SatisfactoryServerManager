@@ -3358,14 +3358,18 @@ class Page_Settings {
                 const $this = $(e.currentTarget);
                 this.RemoveDebugReport($this.attr("data-debugreport-id"));
             })
+            .on("click", "#submit-add-webhook-btn", e => {
+                e.preventDefault();
+                this.SubmitNewWebhook();
+            })
     }
 
     MainDisplayFunction() {
-        this.DisplayUsersTable();
+        this.DisplayWebhooksTable();
         this.DisplayDebugReportsTable();
     }
 
-    DisplayUsersTable() {
+    DisplayWebhooksTable() {
 
 
         API_Proxy.get("info/webhooks").then(res => {
@@ -3393,7 +3397,7 @@ class Page_Settings {
                 const $typeIcon = $("<i/>").addClass("fa-brands fa-discord fa-2xl");
 
                 if (webhook.type == 0) {
-                    $typeIcon.removeClass("fa-brands fa-discord").addClass("fa-solid fa-bell")
+                    $typeIcon.removeClass("fa-brands fa-discord").addClass("fa-solid fa-globe")
                 }
 
                 tableData.push([
@@ -3458,6 +3462,60 @@ class Page_Settings {
 
             $webhookEventsDiv.find('input').bootstrapToggle()
         })
+    }
+
+    SubmitNewWebhook() {
+
+        const $webhookEventsDiv = $("#webhook-events");
+        const events = []
+        $webhookEventsDiv.find('input:checkbox:checked').each(function () {
+            events.push($(this).attr("data-event-data"));
+        });
+
+        const postData = {
+            name: $("#inp_webhookname").val(),
+            url: $("#inp_webhookurl").val(),
+            events,
+            enabled: $("#inp_webhook_enabled").is(":checked")
+        }
+
+        let hasError = false;
+
+        if (postData.name.trim() == "") {
+            $("#inp_webhookname").addClass("is-invalid")
+            $("#inp_webhookname").parent().find(".input-group-text").addClass("bg-danger text-white border-danger")
+            $("#inp_webhookname").parent().parent().addClass("has-danger")
+            hasError = true;
+        }
+
+        if (postData.url.trim() == "") {
+            $("#inp_webhookurl").addClass("is-invalid")
+            $("#inp_webhookurl").parent().find(".input-group-text").addClass("bg-danger text-white border-danger")
+            $("#inp_webhookurl").parent().parent().addClass("has-danger")
+            hasError = true;
+        }
+
+        if (hasError == false) {
+
+            $("#inp_webhookname").removeClass("is-invalid")
+            $("#inp_webhookname").parent().find(".input-group-text").removeClass("bg-danger text-white border-danger")
+            $("#inp_webhookname").parent().parent().removeClass("has-danger")
+            $("#inp_webhookurl").removeClass("is-invalid")
+            $("#inp_webhookurl").parent().find(".input-group-text").removeClass("bg-danger text-white border-danger")
+            $("#inp_webhookurl").parent().parent().removeClass("has-danger")
+
+
+            API_Proxy.postData("admin/addwebhook", postData).then(res => {
+                if (res.result == "success") {
+                    toastr.success("Webhook Added!")
+                } else {
+                    toastr.error("Failed To Add Webhook!")
+                    logger.error(res.error);
+                }
+
+                this.DisplayWebhooksTable()
+            })
+        }
     }
 
     GenerateDebugInfo() {

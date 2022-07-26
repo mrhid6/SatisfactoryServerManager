@@ -11,6 +11,18 @@ class NotificationInterface {
         return this._options;
     }
 
+    getId() {
+        return this.getOptions().id;
+    }
+
+    getURL() {
+        return this.getOptions().url;
+    }
+
+    getName() {
+        return this.getOptions().name;
+    }
+
     isEnabled() {
         return this.getOptions().enabled;
     }
@@ -36,56 +48,45 @@ class NotificationInterface {
         return true;
     }
 
-    TriggerEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            if (this.CanTriggerEvent(Notification)) {
-                Logger.info("[NOTIFCATION] - Triggered Event " + Notification.GetEventName());
+    TriggerEvent = async (Notification) => {
+        if (this.CanTriggerEvent(Notification)) {
+            Logger.debug("[NOTIFCATION] - Triggered Event " + Notification.GetEventName());
 
-                let promise;
+            try {
                 switch (Notification.GetEventName()) {
                     case "ssm.startup":
                     case "ssm.shutdown":
-                        promise = this.TriggerSSMEvent(Notification);
+                        await this.TriggerSSMEvent(Notification);
                         break;
                     case "agent.created":
                     case "agent.started":
                     case "agent.shutdown":
-                        promise = this.TriggerAgentEvent(Notification);
+                        await this.TriggerAgentEvent(Notification);
                         break;
                     case "server.starting":
                     case "server.running":
                     case "server.stopping":
                     case "server.offline":
-                        promise = this.TriggerServerEvent(Notification);
+                        await this.TriggerServerEvent(Notification);
                         break;
                 }
-
-                promise.then(() => {
-                    resolve();
-                })
-            } else {
-                resolve();
+            } catch (err) {
+                throw err;
             }
-        });
+        }
     }
 
 
-    TriggerSSMEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
+    TriggerSSMEvent = async (Notification) => {
+        return;
     }
 
-    TriggerAgentEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
+    TriggerAgentEvent = async (Notification) => {
+        return;
     }
 
-    TriggerServerEvent(Notification) {
-        return new Promise((resolve, reject) => {
-            resolve();
-        });
+    TriggerServerEvent = async (Notification) => {
+        return;
     }
 }
 
