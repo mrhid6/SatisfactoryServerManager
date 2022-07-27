@@ -41,7 +41,7 @@
         "method-override": "^3.0.0",
         "mime-type": "^4.0.0",
         "moment": "^2.29.3",
-        "mrhid6utils": "^1.0.2",
+        "mrhid6utils": "^1.0.4",
         "multer": "^1.4.5-lts.1",
         "node-docker-api": "^1.1.22",
         "node-pty": "^0.10.1",

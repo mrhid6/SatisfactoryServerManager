@@ -1558,10 +1558,10 @@ moment@^2.20.1, moment@^2.29.3:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
-mrhid6utils@^1.0.2:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/mrhid6utils/-/mrhid6utils-1.0.3.tgz#d7f79065198dc8e580ff6572a87e9338456df91a"
-  integrity sha512-3Sk4mMHY5WwNJcOYqXVk3YdnDNE4+nv7+EuefoDUNrrhCfym0/f5jxBkeRDP8Nr+L/oPu0RjV/2I4zgzvDAOeg==
+mrhid6utils@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/mrhid6utils/-/mrhid6utils-1.0.4.tgz#9e90c33d92250e1faad0abe301d17f7aa9351814"
+  integrity sha512-ZKdJV0v+ZnPJpzKQpHwz/8wJCES9YjbT4oVkkxwYDERjylb16eFcFJ9EPLc1PDVMluz4MLDBeVP7573O+OaadA==
   dependencies:
     axios "^0.27.2"
     better-sqlite3 "^7.5.3"
@@ -1571,6 +1571,7 @@ mrhid6utils@^1.0.2:
     fs-extra "^10.1.0"
     ini "^3.0.0"
     mysql2 "^2.3.3"
+    node-docker-api "^1.1.22"
     object-path "^0.11.8"
     redis "^4.1.0"
     serialijse "^0.3.0"
