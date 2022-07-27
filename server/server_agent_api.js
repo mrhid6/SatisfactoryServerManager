@@ -101,7 +101,7 @@ class AgentAPI {
     GetAgentInfo(Agent) {
         return new Promise((resolve, reject) => {
 
-            if (Agent.isRunning() === false || Agent.isActive() == false) {
+            if (!Agent.isActive()) {
                 resolve({});
                 return;
             }

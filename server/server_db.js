@@ -330,7 +330,8 @@ class ServerDB {
                 "agent_beaconport" INTEGER NOT NULL DEFAULT 0,
                 "agent_port" INTEGER NOT NULL DEFAULT 0,
                 "agent_running" INTEGER NOT NULL DEFAULT 0,
-                "agent_active" INTEGER NOT NULL DEFAULT 0
+                "agent_active" INTEGER NOT NULL DEFAULT 0,
+                "agent_info" TEXT NOT NULL DEFAULT ''
             );`
 
             this.queryRun(agentsTableSql).then(() => {
@@ -458,7 +459,7 @@ class ServerDB {
         })
     }
 
-    createDebugReportsTable = async() => {
+    createDebugReportsTable = async () => {
         logger.info("Creating Debug Reports Table")
         const debugReportsTableSql = `CREATE TABLE "debugreports" (
                 "dr_id" INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -469,7 +470,7 @@ class ServerDB {
         await this.queryRun(debugReportsTableSql);
     }
 
-    applyDBPatches = async() => {
+    applyDBPatches = async () => {
         const needPatch = await this.DoesDBNeedPatching();
 
         if (needPatch == true) {
@@ -518,7 +519,7 @@ class ServerDB {
         }
     }
 
-    DoesDBNeedPatching = async() => {
+    DoesDBNeedPatching = async () => {
         return this.getDBVersion().then(DBVersion => {
             if (Config.get("ssm.version") != DBVersion) {
                 return true;

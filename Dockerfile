@@ -12,7 +12,7 @@ RUN apt-get install lib32gcc-s1 -y
 RUN apt-get update -y && apt-get install apt-utils wget curl htop -y
 
 
-RUN useradd -m -s /bin/bash ssm 
+RUN useradd -m -u 9999 -s /bin/bash ssm 
 
 RUN mkdir /opt/SSM
 RUN chown -R ssm:ssm /opt/SSM

@@ -15,7 +15,7 @@ const middleWare = [
 //set Storage Engine
 const TempStorage = multer.diskStorage({
     destination: path.resolve(Config.get("ssm.tempdir")),
-    filename: function(req, file, cb) {
+    filename: function (req, file, cb) {
         cb(null, file.originalname);
     }
 })
@@ -31,7 +31,7 @@ const GameSaveUpload = multer({
 
 
 
-router.get('/agents', middleWare, function(req, res, next) {
+router.get('/agents', middleWare, function (req, res, next) {
     AgentHandler.API_GetAllAgents().then(agents => {
         res.json({
             result: "success",
@@ -45,7 +45,7 @@ router.get('/agents', middleWare, function(req, res, next) {
     })
 });
 
-router.post('/create', middleWare, function(req, res, next) {
+router.post('/create', middleWare, function (req, res, next) {
 
     const UserID = req.session.userid;
     const post = req.body;
@@ -61,7 +61,7 @@ router.post('/create', middleWare, function(req, res, next) {
     })
 });
 
-router.post('/delete', middleWare, function(req, res, next) {
+router.post('/delete', middleWare, function (req, res, next) {
 
     const UserID = req.session.userid;
     const post = req.body;
@@ -77,7 +77,7 @@ router.post('/delete', middleWare, function(req, res, next) {
     })
 });
 
-router.post('/update', middleWare, function(req, res, next) {
+router.post('/update', middleWare, function (req, res, next) {
 
     const UserID = req.session.userid;
     const post = req.body;
@@ -93,10 +93,10 @@ router.post('/update', middleWare, function(req, res, next) {
     })
 });
 
-router.post('/start', middleWare, function(req, res, next) {
+router.post('/start', middleWare, function (req, res, next) {
     const agentId = parseInt(req.body.id);
     const UserID = req.session.userid;
-    AgentHandler.StartDockerAgent(agentId, UserID).then(() => {
+    AgentHandler.API_StartDockerAgent(agentId, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -108,11 +108,11 @@ router.post('/start', middleWare, function(req, res, next) {
     })
 });
 
-router.post('/stop', middleWare, function(req, res, next) {
+router.post('/stop', middleWare, function (req, res, next) {
     const agentId = parseInt(req.body.id);
     const UserID = req.session.userid;
 
-    AgentHandler.StopDockerAgent(agentId, UserID).then(() => {
+    AgentHandler.API_StopDockerAgent(agentId, UserID).then(() => {
         res.json({
             result: "success"
         });
@@ -125,7 +125,7 @@ router.post('/stop', middleWare, function(req, res, next) {
 });
 
 
-router.post("/config/ssmsettings", middleWare, function(req, res, next) {
+router.post("/config/ssmsettings", middleWare, function (req, res, next) {
     const post = req.body;
 
     const UserID = req.session.userid;
@@ -141,7 +141,7 @@ router.post("/config/ssmsettings", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/config/sfsettings", middleWare, function(req, res, next) {
+router.post("/config/sfsettings", middleWare, function (req, res, next) {
     const post = req.body;
     const UserID = req.session.userid;
     AgentHandler.API_SetConfigSettings("sfsettings", post, UserID).then(() => {
@@ -156,7 +156,7 @@ router.post("/config/sfsettings", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/config/modsettings", middleWare, function(req, res, next) {
+router.post("/config/modsettings", middleWare, function (req, res, next) {
     const post = req.body;
     const UserID = req.session.userid;
     AgentHandler.API_SetConfigSettings("modsettings", post, UserID).then(() => {
@@ -171,7 +171,7 @@ router.post("/config/modsettings", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/config/backupsettings", middleWare, function(req, res, next) {
+router.post("/config/backupsettings", middleWare, function (req, res, next) {
     const post = req.body;
     const UserID = req.session.userid;
     AgentHandler.API_SetConfigSettings("backupsettings", post, UserID).then(() => {
@@ -186,7 +186,7 @@ router.post("/config/backupsettings", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/serveractions/installsf", middleWare, function(req, res, next) {
+router.post("/serveractions/installsf", middleWare, function (req, res, next) {
     const post = req.body;
     const UserID = req.session.userid;
 
@@ -202,7 +202,7 @@ router.post("/serveractions/installsf", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/serveraction", middleWare, function(req, res, next) {
+router.post("/serveraction", middleWare, function (req, res, next) {
     const post = req.body;
     const UserID = req.session.userid;
     AgentHandler.API_ExecuteServerAction(post, UserID).then(() => {
@@ -217,7 +217,7 @@ router.post("/serveraction", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/modinfo/:info", middleWare, function(req, res, next) {
+router.post("/modinfo/:info", middleWare, function (req, res, next) {
     const RequestedInfo = req.params.info;
     const post = req.body;
     post.info = RequestedInfo;
@@ -235,7 +235,7 @@ router.post("/modinfo/:info", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/modaction", middleWare, function(req, res, next) {
+router.post("/modaction", middleWare, function (req, res, next) {
     const post = req.body;
 
     AgentHandler.API_ExecuteModAction(post).then(data => {
@@ -251,7 +251,7 @@ router.post("/modaction", middleWare, function(req, res, next) {
     })
 })
 
-router.post("/gamesaves", middleWare, function(req, res, next) {
+router.post("/gamesaves", middleWare, function (req, res, next) {
     const post = req.body;
 
     AgentHandler.API_GetGameSaves(post).then(data => {
@@ -268,7 +268,7 @@ router.post("/gamesaves", middleWare, function(req, res, next) {
 })
 
 
-router.post('/gamesaves/upload/:agentid', middleWare, function(req, res) {
+router.post('/gamesaves/upload/:agentid', middleWare, function (req, res) {
     const data = {
         agentid: req.params.agentid
     };
@@ -296,7 +296,7 @@ router.post('/gamesaves/upload/:agentid', middleWare, function(req, res) {
     });
 });
 
-router.post('/gamesaves/delete', middleWare, function(req, res) {
+router.post('/gamesaves/delete', middleWare, function (req, res) {
 
     const UserID = req.session.userid;
 
@@ -312,7 +312,7 @@ router.post('/gamesaves/delete', middleWare, function(req, res) {
     })
 });
 
-router.post('/gamesaves/download', middleWare, function(req, res) {
+router.post('/gamesaves/download', middleWare, function (req, res) {
 
     const UserID = req.session.userid;
 
@@ -326,7 +326,7 @@ router.post('/gamesaves/download', middleWare, function(req, res) {
     })
 });
 
-router.post('/logs/ssmlog', middleWare, function(req, res) {
+router.post('/logs/ssmlog', middleWare, function (req, res) {
     AgentHandler.API_GetLogs("ssmlog", req.body).then(logs => {
         res.json({
             result: "success",
@@ -340,7 +340,7 @@ router.post('/logs/ssmlog', middleWare, function(req, res) {
     })
 });
 
-router.post('/logs/smlauncherlog', middleWare, function(req, res) {
+router.post('/logs/smlauncherlog', middleWare, function (req, res) {
     AgentHandler.API_GetLogs("smlauncherlog", req.body).then(logs => {
         res.json({
             result: "success",
@@ -354,7 +354,7 @@ router.post('/logs/smlauncherlog', middleWare, function(req, res) {
     })
 });
 
-router.post('/logs/sfserverlog', middleWare, function(req, res) {
+router.post('/logs/sfserverlog', middleWare, function (req, res) {
     AgentHandler.API_GetLogs("sfserverlog", req.body).then(logs => {
         res.json({
             result: "success",

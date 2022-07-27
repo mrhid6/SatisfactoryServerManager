@@ -29,26 +29,19 @@ class ObjectAgent {
 
         this._running = data.agent_running == 1;
         this._active == data.agent_active == 1;
+        this._info == JSON.parse((data.agent_info || "{}"));
     }
 
     isActive() {
+        if (!this.isRunning()) {
+            return false;
+        }
+
         return this._active
     }
 
     setActive(active) {
         this._active = active;
-    }
-
-    setContainer(container) {
-        this._container = container;
-    }
-
-    getContainer() {
-        return this._container;
-    }
-
-    getContainerInfo() {
-        return this._container.data;
     }
 
     isValid() {

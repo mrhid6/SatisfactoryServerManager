@@ -62,7 +62,7 @@ class AgentHandler {
         this._AGENTS = [];
     }
 
-    init = async() => {
+    init = async () => {
         try {
             logger.info("[AGENT_HANDLER] - Pulling Docker Image..");
             await DockerAPI.PullDockerImage();
@@ -72,10 +72,18 @@ class AgentHandler {
         } catch (err) {
             console.log(err);
         }
+
+        setInterval(async () => {
+            try {
+                await this.BuildAgentList();
+            } catch (err) {
+                console.log(err);
+            }
+        }, 20000)
     }
 
 
-    BuildAgentList = async() => {
+    BuildAgentList = async () => {
 
         logger.info("[AGENT_HANDLER] - Building SSM Agent List...");
         try {
@@ -144,22 +152,57 @@ class AgentHandler {
         } catch (err) {
             throw err;
         }
+
+        try {
+            await this.PingAllAgents();
+        } catch (err) {
+            throw err;
+        }
+
+        try {
+            await this.RetrieveAgentInfos();
+        } catch (err) {
+            throw err;
+        }
     }
 
 
-    SaveAgent = async(Agent) => {
+    SaveAgent = async (Agent) => {
 
-        const sql = "UPDATE agents SET agent_running=?, agent_docker_id=?, agent_active=? WHERE agent_id=?"
+        const sql = "UPDATE agents SET agent_running=?, agent_docker_id=?, agent_active=?, agent_info=? WHERE agent_id=?"
         const sqlData = [
             (Agent.isRunning() ? 1 : 0),
             Agent.getDockerId(),
             (Agent.isActive() ? 1 : 0),
+            JSON.stringify(Agent.getInfo()),
             Agent.getId()
         ]
 
         await DB.queryRun(sql, sqlData);
 
     }
+
+    PingAllAgents = async () => {
+        for (let i = 0; i < this._AGENTS.length; i++) {
+            const Agent = this._AGENTS[i];
+            const pingResult = await AgentAPI.PingAgent(Agent);
+            Agent.setActive(pingResult);
+            await this.SaveAgent(Agent);
+        }
+    }
+
+    RetrieveAgentInfos = async () => {
+
+        for (let i = 0; i < this._AGENTS.length; i++) {
+            const Agent = this._AGENTS[i];
+            const AgentInfo = await AgentAPI.GetAgentInfo(Agent);
+            Agent.setInfo(AgentInfo);
+            await this.SaveAgent(Agent);
+        }
+    }
+
+
+    /* Agent Getters */
 
     GetAgentByDockerId(id) {
         return this._AGENTS.find(agent => agent.getDockerId() == id);
@@ -181,6 +224,8 @@ class AgentHandler {
         return this._AGENTS.find(agent => agent.getServerPort() == port);
     }
 
+    /* End Getters */
+
     GetNewDockerInfo(ServerName, portOffset) {
         return {
             Name: "SSMAgent_" + ServerName,
@@ -191,46 +236,7 @@ class AgentHandler {
         }
     }
 
-    FixAgentsMigrationPortData() {
-        return new Promise((resolve, reject) => {
-            const promises = [];
-
-            this.GetAllAgents().forEach(Agent => {
-                if (Agent.getSSMPort() == 0 && Agent.isRunning()) {
-
-                    const Ports = Agent.getContainerInfo().Ports;
-                    let BeaconPort = 0,
-                        ServerPort = 0,
-                        SSMPort = 0,
-                        Port = 0;
-
-                    if (Ports.length > 0) {
-                        BeaconPort = Ports[0].PublicPort;
-                        ServerPort = Ports[1].PublicPort;
-                        SSMPort = Ports[2].PublicPort;
-                        Port = Ports[3].PublicPort;
-                    }
-
-                    const SQL = `UPDATE agents SET agent_ssm_port=?, agent_serverport=?, agent_beaconport=?, agent_port=? WHERE agent_id=?`
-                    const SQLData = [
-                        SSMPort,
-                        ServerPort,
-                        BeaconPort,
-                        Port,
-                        Agent.getId()
-                    ];
-                    promises.push(DB.queryRun(SQL, SQLData));
-                }
-            })
-
-            Promise.all(promises).then(() => {
-                resolve();
-            })
-
-        });
-    }
-
-    CreateNewDockerAgent = async(UserID, Data) => {
+    CreateNewDockerAgent = async (UserID, Data) => {
         const UserAccount = UserManager.getUserById(UserID);
 
         if (UserAccount == null || typeof UserAccount == undefined) {
@@ -314,7 +320,7 @@ class AgentHandler {
         for (let i = 0; i < TempBinds.length; i++) {
             const Bind = TempBinds[i];
             const splitBind = Bind.split(":");
-            const desiredMode = 0o2777
+            const desiredMode = 0o2755
             const Dir = path.resolve(splitBind[0]);
             if (fs.existsSync(Dir) == false) {
                 fs.ensureDirSync(Dir, desiredMode)
@@ -357,7 +363,7 @@ class AgentHandler {
 
     }
 
-    CreateAgentInDB = async(container, Name, DisplayName, SSMPort, ServerPort, BeaconPort, Port) => {
+    CreateAgentInDB = async (container, Name, DisplayName, SSMPort, ServerPort, BeaconPort, Port) => {
         const SQL = "INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port, agent_running) VALUES (?,?,?,?,?,?,?,?)"
 
         const SQLData = [
@@ -388,7 +394,7 @@ class AgentHandler {
     }
 
 
-    DeleteAgent = async(UserID, Data) => {
+    DeleteAgent = async (UserID, Data) => {
 
         const UserAccount = UserManager.getUserById(UserID);
 
@@ -483,141 +489,64 @@ class AgentHandler {
         });
     }
 
-    WaitForAgentToStart(Agent) {
-        return new Promise((resolve, reject) => {
-            const AgentId = Agent.getContainerInfo().Id;
+    StopAgent = async (Agent) => {
+        if (Agent.isActive() == false && Agent.isRunning() == false) {
+            logger.info("[AGENT_HANDLER] - Agent Already Stopped!");
+            return;
+        }
 
-            let interval = setInterval(() => {
-                logger.debug("[AGENT_HANDLER] - Waiting for agent to start ...");
+        if (Agent.isActive() == false) {
+            await DockerAPI.StopDockerContainer(Agent.getDockerId());
+        } else {
+            await AgentAPI.StopAgent(Agent)
+        }
 
-                this.BuildAgentList().then(() => {
-                    const TempAgent = this.GetAgentByDockerId(AgentId);
+        await DockerAPI.WaitForContainerToStop(Agent.getDockerId());
+        await this.BuildAgentList();
 
-                    if (TempAgent == null) {
-                        return;
-                    }
+        const Notification = new ObjNotifyAgentShutdown(Agent);
+        Notification.build();
 
-                    if (TempAgent.isActive() === true) {
-                        resolve(TempAgent);
-                        clearInterval(interval);
-                    }
-                }).catch(err => {})
-            }, 5000)
-        });
+        await NotificationHandler.StoreNotification(Notification);
+        logger.info("[AGENT_HANDLER] - Agent Stopped!");
     }
 
-    WaitForAgentToStop(Agent) {
-        return new Promise((resolve, reject) => {
-            const AgentId = Agent.getContainerInfo().Id;
+    /* API Functions */
 
-            let interval = setInterval(() => {
-                logger.debug("[AGENT_HANDLER] - Waiting for agent to stop ...");
+    API_StartDockerAgent = async (id, UserID) => {
 
-                this.BuildAgentList().then(() => {
-                    const TempAgent = this.GetAgentByDockerId(AgentId);
+        const UserAccount = UserManager.getUserById(UserID);
 
-                    if (TempAgent == null) {
-                        return;
-                    }
+        if (UserAccount == null || typeof UserAccount == undefined) {
+            throw new Error("User Not Found!");
+        }
 
-                    if (TempAgent.isActive() === false && TempAgent.isRunning() == false) {
-                        resolve(TempAgent);
-                        clearInterval(interval);
-                    }
-                }).catch(err => {})
-            }, 5000)
-        });
+        if (!UserAccount.HasPermission("agentactions.start")) {
+            throw new Error("User Doesn't Have Permission!");
+        }
+
+        logger.info("[AGENT_HANDLER] - Starting Agent...");
+
+        const Agent = this.GetAgentById(id);
+
+        if (Agent == null) {
+            logger.error(`[AGENT_HANDLER] - Cant Find Agent ${id}`);
+            throw new Error("Agent is Null");
+        }
+
+
+        await DockerAPI.StartDockerContainer(Agent.getDockerId());
+        logger.info("[AGENT_HANDLER] - Agent Started!");
+
+        await this.BuildAgentList();
+
+        const Notification = new ObjNotifyAgentStarted(Agent);
+        Notification.build();
+
+        await NotificationHandler.StoreNotification(Notification);
     }
 
-    CheckAllAgentsActive() {
-        return new Promise((resolve, reject) => {
-            const promises = [];
-
-            for (let i = 0; i < this._AGENTS.length; i++) {
-                const Agent = this._AGENTS[i];
-                promises.push(AgentAPI.PingAgent(Agent))
-            }
-
-            Promise.all(promises).then(values => {
-                for (let i = 0; i < values.length; i++) {
-                    const active = values[i];
-                    this._AGENTS[i].setActive(active);
-                }
-                return this.CheckAgentInfo()
-            }).then(() => {
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-        });
-    }
-
-    CheckAgentInfo() {
-        return new Promise((resolve, reject) => {
-            const promises = [];
-            for (let i = 0; i < this._AGENTS.length; i++) {
-                const Agent = this._AGENTS[i];
-                promises.push(AgentAPI.GetAgentInfo(Agent));
-            }
-
-            Promise.all(promises).then(values => {
-                for (let i = 0; i < values.length; i++) {
-                    const active = values[i];
-                    this._AGENTS[i].setInfo(active);
-                }
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-        })
-    }
-
-    StartDockerAgent(id, UserID) {
-
-        return new Promise((resolve, reject) => {
-
-            const UserAccount = UserManager.getUserById(UserID);
-
-            if (UserAccount == null || typeof UserAccount == undefined) {
-                reject(new Error("User Not Found!"));
-                return;
-            }
-
-            if (!UserAccount.HasPermission("agentactions.start")) {
-                reject(new Error("User Doesn't Have Permission!"));
-                return;
-            }
-
-            logger.info("[AGENT_HANDLER] - Starting Agent...");
-
-            const Agent = this.GetAgentById(id);
-
-            if (Agent == null) {
-                logger.error(`[AGENT_HANDLER] - Cant Find Agent ${id}`);
-                reject("Agent is Null");
-                return;
-            }
-
-            Agent.getContainer().start().then(() => {
-                return this.WaitForAgentToStart(Agent);
-            }).then(() => {
-                return this.BuildAgentList();
-            }).then(() => {
-
-                const Notification = new ObjNotifyAgentStarted(Agent);
-                Notification.build();
-
-                NotificationHandler.StoreNotification(Notification);
-
-                logger.info("[AGENT_HANDLER] - Agent Started!");
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-        });
-    }
-
-    StopDockerAgent = async(id, UserID) => {
+    API_StopDockerAgent = async (id, UserID) => {
 
 
         const UserAccount = UserManager.getUserById(UserID);
@@ -642,42 +571,14 @@ class AgentHandler {
         await this.StopAgent(Agent);
     }
 
-    StopAgent = async(Agent) => {
-        if (Agent.isActive() == false && Agent.isRunning() == false) {
-            logger.info("[AGENT_HANDLER] - Agent Already Stopped!");
-            return;
+    API_GetAllAgents = async () => {
+        const ResAgents = []
+        for (let i = 0; i < this.GetAllAgents().length; i++) {
+            const agent = this.GetAllAgents()[i];
+            ResAgents.push(agent.getWebJson());
         }
 
-        if (Agent.isActive() == false) {
-            await DockerAPI.StopDockerContainer(Agent.getDockerId());
-        } else {
-            await AgentAPI.StopAgent(Agent)
-        }
-
-        await DockerAPI.WaitForContainerToStop(Agent.getDockerId());
-        await this.BuildAgentList();
-
-        const Notification = new ObjNotifyAgentShutdown(Agent);
-        Notification.build();
-
-        await NotificationHandler.StoreNotification(Notification);
-        logger.info("[AGENT_HANDLER] - Agent Stopped!");
-    }
-
-    API_GetAllAgents() {
-        return new Promise((resolve, reject) => {
-            this.CheckAllAgentsActive().then(() => {
-                const ResAgents = []
-                for (let i = 0; i < this.GetAllAgents().length; i++) {
-                    const agent = this.GetAllAgents()[i];
-                    ResAgents.push(agent.getWebJson());
-                }
-
-                resolve(ResAgents);
-            }).catch(err => {
-                reject(err);
-            })
-        })
+        return ResAgents;
     }
 
     API_SetConfigSettings(ConfigKey, data, UserID) {

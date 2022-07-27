@@ -166,7 +166,7 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "20.04" ]]; then
     fi
 fi
 
-useradd -m ssm -s /bin/bash >/dev/null 2>&1
+useradd -m ssm -u 9999 -s /bin/bash >/dev/null 2>&1
 
 if [ $ISDOCKER -eq 0 ]; then
     echo "Installing Docker"

@@ -48,6 +48,12 @@ class AgentApp {
 
         delete ssmConfig_clone.users;
         delete ssmConfig_clone.agent;
+        delete ssmConfig_clone.steamcmd;
+        delete ssmConfig_clone.tempdir;
+        delete ssmConfig_clone.github_version;
+
+        delete sfConfig_clone.server_exe;
+        delete sfConfig_clone.server_sub_exe;
 
 
         return {
@@ -58,26 +64,30 @@ class AgentApp {
         }
     }
 
-    API_GetInfo() {
-        return new Promise((resolve, reject) => {
-
+    API_GetInfo = async () => {
+        try {
             const resData = {
                 version: Config.get("ssm.version"),
                 config: this.AgentConfig()
             }
 
-            SFS_Handler.getServerStatus().then(status => {
-                resData.serverstate = status;
-                return this.GetUserCount()
-            }).then(usercount => {
-                resData.usercount = usercount;
-                return SSM_Mod_Handler.API_GetInstalledMods();
-            }).then(mods => {
-                resData.mods = mods;
-                resolve(resData)
-            }).catch(reject);
+            const serverstate = await SFS_Handler.getServerStatus();
 
-        });
+            resData.serverstate = serverstate;
+            delete resData.serverstate.pid1;
+            delete resData.serverstate.pid2;
+
+            const usercount = await this.GetUserCount();
+            resData.usercount = usercount;
+
+            const mods = await SSM_Mod_Handler.API_GetInstalledMods();
+            resData.mods = mods;
+
+            return resData;
+
+        } catch (err) {
+            throw err;
+        }
     }
 
     GetUserCount() {
