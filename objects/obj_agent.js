@@ -26,6 +26,9 @@ class ObjectAgent {
         this._serverport = data.agent_serverport;
         this._beaconport = data.agent_beaconport;
         this._port = data.agent_port;
+
+        this._running = data.agent_running == 1;
+        this._active == data.agent_active == 1;
     }
 
     isActive() {
@@ -49,7 +52,7 @@ class ObjectAgent {
     }
 
     isValid() {
-        if (this.getContainer() == null) {
+        if (this.getDockerId() == null) {
             return false;
         }
 
@@ -62,7 +65,7 @@ class ObjectAgent {
             return false;
         }
 
-        return this.getContainerInfo().State == "running" && this.getContainerInfo().Ports != null
+        return this._running;
     }
 
     getName() {
