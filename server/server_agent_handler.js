@@ -62,7 +62,7 @@ class AgentHandler {
         this._AGENTS = [];
     }
 
-    init = async () => {
+    init = async() => {
         try {
             logger.info("[AGENT_HANDLER] - Pulling Docker Image..");
             await DockerAPI.PullDockerImage();
@@ -73,7 +73,7 @@ class AgentHandler {
             console.log(err);
         }
 
-        setInterval(async () => {
+        setInterval(async() => {
             try {
                 await this.BuildAgentList();
             } catch (err) {
@@ -83,7 +83,7 @@ class AgentHandler {
     }
 
 
-    BuildAgentList = async () => {
+    BuildAgentList = async() => {
 
         logger.info("[AGENT_HANDLER] - Building SSM Agent List...");
         try {
@@ -167,7 +167,7 @@ class AgentHandler {
     }
 
 
-    SaveAgent = async (Agent) => {
+    SaveAgent = async(Agent) => {
 
         const sql = "UPDATE agents SET agent_running=?, agent_docker_id=?, agent_active=?, agent_info=? WHERE agent_id=?"
         const sqlData = [
@@ -182,7 +182,7 @@ class AgentHandler {
 
     }
 
-    PingAllAgents = async () => {
+    PingAllAgents = async() => {
         for (let i = 0; i < this._AGENTS.length; i++) {
             const Agent = this._AGENTS[i];
             const pingResult = await AgentAPI.PingAgent(Agent);
@@ -191,7 +191,7 @@ class AgentHandler {
         }
     }
 
-    RetrieveAgentInfos = async () => {
+    RetrieveAgentInfos = async() => {
 
         for (let i = 0; i < this._AGENTS.length; i++) {
             const Agent = this._AGENTS[i];
@@ -236,7 +236,7 @@ class AgentHandler {
         }
     }
 
-    CreateNewDockerAgent = async (UserID, Data) => {
+    CreateNewDockerAgent = async(UserID, Data) => {
         const UserAccount = UserManager.getUserById(UserID);
 
         if (UserAccount == null || typeof UserAccount == undefined) {
@@ -271,73 +271,18 @@ class AgentHandler {
         let ExistingAgent = this.GetAgentByServerPort(ServerQueryPort);
 
         if (ExistingAgent != null) {
-            reject(new Error(`Server Instance with this port (${ServerQueryPort}) Already Exist!`))
-            return;
+            throw new Error(`Server Instance with this port (${ServerQueryPort}) Already Exist!`)
         }
 
         ExistingAgent = this.GetAgentByDisplayName(DisplayName);
 
         if (ExistingAgent != null) {
-            reject(new Error(`Server Instance with this name (${DisplayName}) Already Exist!`))
-            return;
+            throw new Error(`Server Instance with this name (${DisplayName}) Already Exist!`)
         }
 
         logger.info(`[AGENT_HANDLER] - Creating Agent (${DisplayName}) ...`);
 
-        const PortBindings = {};
-
-        PortBindings["3000/tcp"] = [{
-            "HostPort": `${AgentPort}`
-        }]
-
-        PortBindings[`${ServerQueryPort}/udp`] = [{
-            "HostPort": `${ServerQueryPort}`
-        }]
-
-        PortBindings[`${BeaconPort}/udp`] = [{
-            "HostPort": `${BeaconPort}`
-        }]
-
-        PortBindings[`${Port}/udp`] = [{
-            "HostPort": `${Port}`
-        }]
-
-        const ExposedPorts = {
-            "3000/tcp": {}
-        }
-
-        ExposedPorts[`${ServerQueryPort}/udp`] = {}
-        ExposedPorts[`${BeaconPort}/udp`] = {}
-        ExposedPorts[`${Port}/udp`] = {}
-
-        const TempBinds = [
-            `/SSMAgents/${Name}/SSM:/home/ssm/.SatisfactoryServerManager`,
-            `/SSMAgents/${Name}/.config:/home/ssm/.config/Epic/FactoryGame`,
-        ]
-
-        let Binds = []
-
-        for (let i = 0; i < TempBinds.length; i++) {
-            const Bind = TempBinds[i];
-            const splitBind = Bind.split(":");
-            const desiredMode = 0o2755
-            const Dir = path.resolve(splitBind[0]);
-            if (fs.existsSync(Dir) == false) {
-                fs.ensureDirSync(Dir, desiredMode)
-            }
-
-            Binds.push(`${Dir}:${splitBind[1]}`)
-        }
-
-        const newContainer = await DockerAPI.CreateDockerContainer({
-            Image: 'mrhid6/ssmagent:latest',
-            name: Name,
-            HostConfig: {
-                Binds,
-                PortBindings: PortBindings
-            },
-            ExposedPorts
-        })
+        const newContainer = await this.CreateAgentDockerContainer(Data);
 
         logger.info("[AGENT_HANDLER] - Created agent successfully!");
         await this.CreateAgentInDB(newContainer, Name, DisplayName, AgentPort, ServerQueryPort, BeaconPort, Port)
@@ -363,7 +308,92 @@ class AgentHandler {
 
     }
 
-    CreateAgentInDB = async (container, Name, DisplayName, SSMPort, ServerPort, BeaconPort, Port) => {
+    CreateAgentDockerContainer = async(Data) => {
+        try {
+            const portOffset = Data.port - 15776;
+
+            if (portOffset < 0) {
+                reject(new Error("Server Port must be above 15776"))
+                return;
+            }
+
+            const DisplayName = Data.name.replace(" ", "");
+
+
+            const {
+                Name,
+                AgentPort,
+                ServerQueryPort,
+                BeaconPort,
+                Port
+            } = this.GetNewDockerInfo(DisplayName, portOffset)
+
+            logger.info(`[AGENT_HANDLER] - Creating Agent Docker Container(${Name}) ...`);
+
+            const PortBindings = {};
+
+            PortBindings["3000/tcp"] = [{
+                "HostPort": `${AgentPort}`
+            }]
+
+            PortBindings[`${ServerQueryPort}/udp`] = [{
+                "HostPort": `${ServerQueryPort}`
+            }]
+
+            PortBindings[`${BeaconPort}/udp`] = [{
+                "HostPort": `${BeaconPort}`
+            }]
+
+            PortBindings[`${Port}/udp`] = [{
+                "HostPort": `${Port}`
+            }]
+
+            const ExposedPorts = {
+                "3000/tcp": {}
+            }
+
+            ExposedPorts[`${ServerQueryPort}/udp`] = {}
+            ExposedPorts[`${BeaconPort}/udp`] = {}
+            ExposedPorts[`${Port}/udp`] = {}
+
+            const TempBinds = [
+                `/SSMAgents/${Name}/SSM:/home/ssm/.SatisfactoryServerManager`,
+                `/SSMAgents/${Name}/.config:/home/ssm/.config/Epic/FactoryGame`,
+            ]
+
+            let Binds = []
+
+            for (let i = 0; i < TempBinds.length; i++) {
+                const Bind = TempBinds[i];
+                const splitBind = Bind.split(":");
+                const desiredMode = 0o2755
+                const Dir = path.resolve(splitBind[0]);
+                if (fs.existsSync(Dir) == false) {
+                    fs.ensureDirSync(Dir, desiredMode)
+                }
+
+                Binds.push(`${Dir}:${splitBind[1]}`)
+            }
+
+            const newContainer = await DockerAPI.CreateDockerContainer({
+                Image: 'mrhid6/ssmagent:latest',
+                name: Name,
+                HostConfig: {
+                    Binds,
+                    PortBindings: PortBindings
+                },
+                ExposedPorts
+            })
+
+            logger.info("[AGENT_HANDLER] - Created Agent Docker Container successfully!");
+
+            return newContainer;
+        } catch (err) {
+            throw err;
+        }
+    }
+
+    CreateAgentInDB = async(container, Name, DisplayName, SSMPort, ServerPort, BeaconPort, Port) => {
         const SQL = "INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port, agent_running) VALUES (?,?,?,?,?,?,?,?)"
 
         const SQLData = [
@@ -394,7 +424,7 @@ class AgentHandler {
     }
 
 
-    DeleteAgent = async (UserID, Data) => {
+    DeleteAgent = async(UserID, Data) => {
 
         const UserAccount = UserManager.getUserById(UserID);
 
@@ -414,10 +444,6 @@ class AgentHandler {
         }
 
 
-        logger.info(`[AGENT_HANDLER] - Deleting Agent`);
-        let VolumeID = "";
-
-
         try {
             logger.info(`[AGENT_HANDLER] - Stopping Agent`);
             await this.StopAgent(Agent);
@@ -426,8 +452,10 @@ class AgentHandler {
             throw err;
         }
 
+        logger.info(`[AGENT_HANDLER] - Deleting Agent`);
 
         try {
+            let VolumeID = "";
             const container = await DockerAPI.GetDockerContainerByID(Agent.getDockerId())
 
             if (container != null) {
@@ -456,40 +484,83 @@ class AgentHandler {
 
     }
 
-    UpdateAgent(UserID, Data) {
-        return new Promise((resolve, reject) => {
-            const UserAccount = UserManager.getUserById(UserID);
+    UpdateAgent = async(UserID, Data) => {
 
-            if (UserAccount == null || typeof UserAccount == undefined) {
-                reject(new Error("User Not Found!"));
-                return;
+        const UserAccount = UserManager.getUserById(UserID);
+
+        if (UserAccount == null || typeof UserAccount == undefined) {
+            throw new Error("User Not Found!");
+        }
+
+        if (!UserAccount.HasPermission("agentactions.delete")) {
+            throw new Error("User Doesn't Have Permission!");
+        }
+
+        const Agent = this.GetAgentById(Data.agentid);
+
+        if (Agent == null) {
+            logger.error(`[AGENT_HANDLER] - Cant Find Agent ${Data.agentid}`);
+            throw new Error("Agent is Null");
+        }
+
+
+        try {
+            logger.info(`[AGENT_HANDLER] - Stopping Agent`);
+            await this.StopAgent(Agent);
+            logger.info(`[AGENT_HANDLER] - Agent Stopped`);
+        } catch (err) {
+            throw err;
+        }
+
+        logger.info(`[AGENT_HANDLER] - Deleting Docker Container`);
+
+        try {
+            let VolumeID = "";
+            const container = await DockerAPI.GetDockerContainerByID(Agent.getDockerId())
+
+            if (container != null) {
+                VolumeID = container.data.Mounts[0].Name;
+                await DockerAPI.DeleteDockerContainerById(Agent.getDockerId())
+                logger.info(`[AGENT_HANDLER] - Docker Container Deleted`);
+
+                const DockerConnection = await DockerAPI.ConnectDocker();
+                const Volume = await DockerConnection.volume.get(VolumeID);
+
+                if (Volume != null) {
+                    logger.info(`[AGENT_HANDLER] - Deleting Docker Volume`);
+                    await Volume.remove({
+                        force: true
+                    });
+                    logger.info(`[AGENT_HANDLER] - Docker Volume Deleted`);
+                }
             }
 
-            if (!UserAccount.HasPermission("agentactions.delete") || !UserAccount.HasPermission("agentactions.create")) {
-                reject(new Error("User Doesn't Have Permission!"));
-                return;
-            }
+            await this.BuildAgentList();
+        } catch (err) {
+            throw err;
+        }
 
-            const Agent = this.GetAgentById(Data.agentid)
 
-            if (Agent == null) {
-                reject(new Error("Agent Not Found!"));
-                return;
-            }
-
+        try {
             Data.port = Agent.getServerPort();
             Data.name = Agent.getDisplayName();
 
-            this.DeleteAgent(UserID, Data).then(() => {
-                return this.CreateNewDockerAgent(UserID, Data)
-            }).then(() => {
-                resolve();
-            }).catch(reject);
+            const newContainer = await this.CreateAgentDockerContainer(Data)
+            Agent._docker_id = newContainer.id;
 
-        });
+            await this.SaveAgent(Agent);
+
+            logger.info("[AGENT_HANDLER] - Starting Agent ...");
+            await DockerAPI.StartDockerContainer(newContainer.id);
+            logger.info("[AGENT_HANDLER] - Agent Started!");
+
+            await this.BuildAgentList();
+        } catch (err) {
+            throw err;
+        }
     }
 
-    StopAgent = async (Agent) => {
+    StopAgent = async(Agent) => {
         if (Agent.isActive() == false && Agent.isRunning() == false) {
             logger.info("[AGENT_HANDLER] - Agent Already Stopped!");
             return;
@@ -513,7 +584,7 @@ class AgentHandler {
 
     /* API Functions */
 
-    API_StartDockerAgent = async (id, UserID) => {
+    API_StartDockerAgent = async(id, UserID) => {
 
         const UserAccount = UserManager.getUserById(UserID);
 
@@ -546,7 +617,7 @@ class AgentHandler {
         await NotificationHandler.StoreNotification(Notification);
     }
 
-    API_StopDockerAgent = async (id, UserID) => {
+    API_StopDockerAgent = async(id, UserID) => {
 
 
         const UserAccount = UserManager.getUserById(UserID);
@@ -571,7 +642,7 @@ class AgentHandler {
         await this.StopAgent(Agent);
     }
 
-    API_GetAllAgents = async () => {
+    API_GetAllAgents = async() => {
         const ResAgents = []
         for (let i = 0; i < this.GetAllAgents().length; i++) {
             const agent = this.GetAllAgents()[i];
