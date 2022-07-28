@@ -37,7 +37,6 @@ body {
     margin-left: -250px;
     overflow-y: auto;
     background: #4f4f4f;
-    transition: all 1s;
 }
 
 #viewport.minimal #sidebar {
@@ -139,6 +138,10 @@ body {
     display: none;
 }
 
+#content .container-fluid{
+    padding:0;
+}
+
 .dropdown-menu {
     position: relative !important;
     background-color: #333333;
@@ -154,8 +157,12 @@ body {
     padding-bottom: 55px;
 }
 
+.page-container {
+    padding: 0 12px;
+}
+
 .page-header {
-    padding-top: 12px;
+    padding: 12px 12px 0 12px;
     background-color: #333;
     margin-bottom: 12px;
 }

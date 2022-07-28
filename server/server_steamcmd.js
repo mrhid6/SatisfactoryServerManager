@@ -179,6 +179,8 @@ class ServerSteamCMD {
 
             return output;
 
+        }catch(err){
+            throw err;
         } finally {
             // Always cleanup the temp file
             await commandFile.cleanup()
