@@ -1,12 +1,9 @@
 const logger = require("./logger");
 
-const EventEmitter = require('events');
-const {
-    stringify
-} = require("querystring");
+const EventEmitter = require("events");
+const { stringify } = require("querystring");
 
 class PageCache extends EventEmitter {
-
     constructor() {
         super();
 
@@ -15,12 +12,11 @@ class PageCache extends EventEmitter {
         this.SMLVersions = [];
         this.FicsitMods = GetLocalStorage("FicsitMods", []);
         this.InstalledMods = [];
-
     }
 
     setAgentsList(agentList) {
         this.AgentList = agentList;
-        this.setActiveAgent(getCookie("currentAgentId"))
+        this.setActiveAgent(getCookie("currentAgentId"));
         this.emit("setagentslist");
     }
 
@@ -33,7 +29,7 @@ class PageCache extends EventEmitter {
             return;
         }
 
-        const Agent = this.getAgentsList().find(agent => agent.id == id);
+        const Agent = this.getAgentsList().find((agent) => agent.id == id);
 
         if (Agent == null && this.getAgentsList().length > 0) {
             this.ActiveAgent = this.getAgentsList()[0];
@@ -71,8 +67,8 @@ class PageCache extends EventEmitter {
         this.FicsitMods = mods;
 
         const StorageData = {
-            data: this.FicsitMods
-        }
+            data: this.FicsitMods,
+        };
 
         StoreInLocalStorage("FicsitMods", StorageData, 1);
         this.emit("setficsitmods");
@@ -93,18 +89,17 @@ class PageCache extends EventEmitter {
 }
 
 function StoreInLocalStorage(Key, Data, ExpiryHrs) {
-
     var date = new Date();
-    date.setTime(date.getTime() + (ExpiryHrs * 60 * 60 * 1000));
+    date.setTime(date.getTime() + ExpiryHrs * 60 * 60 * 1000);
     Data.expiry = date.getTime();
 
     const DataStr = JSON.stringify(Data);
 
-    localStorage.setItem(Key, DataStr)
+    localStorage.setItem(Key, DataStr);
 }
 
 function RemoveLocalStorage(Key) {
-    localStorage.removeItem(Key)
+    localStorage.removeItem(Key);
 }
 
 function GetLocalStorage(Key, defaultReturn) {
@@ -121,16 +116,14 @@ function GetLocalStorage(Key, defaultReturn) {
         return defaultReturn;
     }
 
-    return data.data
+    return data.data;
 }
-
-
 
 function setCookie(name, value, days) {
     var expires = "";
     if (days) {
         var date = new Date();
-        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
         expires = "; expires=" + date.toUTCString();
     }
     document.cookie = name + "=" + (value || "") + expires + "; path=/";
@@ -138,10 +131,10 @@ function setCookie(name, value, days) {
 
 function getCookie(name) {
     var nameEQ = name + "=";
-    var ca = document.cookie.split(';');
+    var ca = document.cookie.split(";");
     for (var i = 0; i < ca.length; i++) {
         var c = ca[i];
-        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        while (c.charAt(0) == " ") c = c.substring(1, c.length);
         if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
     }
     return null;
@@ -149,4 +142,4 @@ function getCookie(name) {
 
 const pageCache = new PageCache();
 
-module.exports = pageCache
+module.exports = pageCache;

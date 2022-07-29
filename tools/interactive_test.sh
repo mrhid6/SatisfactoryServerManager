@@ -65,7 +65,7 @@ done
 while true; do
     read -p "Mods List populated? [Y/n]: " yn
     case $yn in
-   [Yy]*)
+    [Yy]*)
         break
         ;;
     *)

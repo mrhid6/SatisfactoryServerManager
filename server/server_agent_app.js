@@ -8,27 +8,29 @@ const GameConfig = require("./ms_agent/server_gameconfig");
 const SSM_BackupManager = require("./ms_agent/server_backup_manager");
 
 const path = require("path");
-const fs = require("fs-extra")
+const fs = require("fs-extra");
 
-const rimraf = require("rimraf")
+const rimraf = require("rimraf");
 
 class AgentApp {
     constructor() {}
 
     init() {
-        SFS_Handler.init().then(() => {
-            SSM_Mod_Handler.init();
-            SSM_BackupManager.init();
-        }).catch(err => {
-            logger.error("[SFS_HANDLER] - Failed To Initialize - " + err.message);
-        })
+        SFS_Handler.init()
+            .then(() => {
+                SSM_Mod_Handler.init();
+                SSM_BackupManager.init();
+            })
+            .catch((err) => {
+                logger.error(
+                    "[SFS_HANDLER] - Failed To Initialize - " + err.message
+                );
+            });
 
         this.SetupEventHandlers();
     }
 
-    SetupEventHandlers() {
-
-    }
+    SetupEventHandlers() {}
 
     AgentConfig() {
         const ssmConfig = Config.get("ssm");
@@ -40,11 +42,14 @@ class AgentApp {
             gameConfig = {
                 Engine: GameConfig.getEngineConfig().get(),
                 Game: GameConfig.getGameConfig().get(),
-            }
+            };
         }
 
         const ssmConfig_clone = JSON.parse(JSON.stringify(ssmConfig));
-        const sfConfig_clone = Object.assign(Object.create(Object.getPrototypeOf(sfConfig)), sfConfig)
+        const sfConfig_clone = Object.assign(
+            Object.create(Object.getPrototypeOf(sfConfig)),
+            sfConfig
+        );
 
         delete ssmConfig_clone.users;
         delete ssmConfig_clone.agent;
@@ -55,21 +60,20 @@ class AgentApp {
         delete sfConfig_clone.server_exe;
         delete sfConfig_clone.server_sub_exe;
 
-
         return {
             satisfactory: sfConfig_clone,
             ssm: ssmConfig_clone,
             mods: modsConfig,
-            game: gameConfig
-        }
+            game: gameConfig,
+        };
     }
 
     API_GetInfo = async () => {
         try {
             const resData = {
                 version: Config.get("ssm.version"),
-                config: this.AgentConfig()
-            }
+                config: this.AgentConfig(),
+            };
 
             const serverstate = await SFS_Handler.getServerStatus();
 
@@ -84,42 +88,50 @@ class AgentApp {
             resData.mods = mods;
 
             return resData;
-
         } catch (err) {
             throw err;
         }
-    }
+    };
 
     GetUserCount() {
         return new Promise((resolve, reject) => {
-            SSM_Log_Handler.getSFServerLog().then(logRows => {
+            SSM_Log_Handler.getSFServerLog()
+                .then((logRows) => {
+                    const FilteredJoinLogRows = logRows.filter((row) =>
+                        row.includes(
+                            "AddClientConnection: Added client connection:"
+                        )
+                    );
+                    const FilteredLeaveLogRows = logRows.filter((row) =>
+                        row.includes("UNetConnection::Close: [UNetConnection]")
+                    );
 
-                const FilteredJoinLogRows = logRows.filter(row => row.includes("AddClientConnection: Added client connection:"));
-                const FilteredLeaveLogRows = logRows.filter(row => row.includes("UNetConnection::Close: [UNetConnection]"));
-
-                const count = FilteredJoinLogRows.length - FilteredLeaveLogRows.length;
-                if (count < 0) {
-                    resolve(0)
-                } else {
-                    resolve(count);
-                }
-            }).catch(err => {
-                resolve(0)
-            })
-        })
+                    const count =
+                        FilteredJoinLogRows.length -
+                        FilteredLeaveLogRows.length;
+                    if (count < 0) {
+                        resolve(0);
+                    } else {
+                        resolve(count);
+                    }
+                })
+                .catch((err) => {
+                    resolve(0);
+                });
+        });
     }
 
     API_DeleteSave(data) {
         return new Promise((resolve, reject) => {
-            SFS_Handler.deleteSaveFile(data.savefile).then(() => {
-                resolve()
-            }).catch(err => {
-                reject(err);
-            })
-        })
+            SFS_Handler.deleteSaveFile(data.savefile)
+                .then(() => {
+                    resolve();
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
     }
-
-
 }
 
 const agentApp = new AgentApp();

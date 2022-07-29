@@ -6,45 +6,51 @@ const path = require("path");
 
 const Config = require("../server_config");
 
-
 const IEngineConfig = require("../../objects/configs/config_engine.js");
 const IGameConfig = require("../../objects/configs/config_game.js");
-
 
 class GameConfig {
     constructor() {}
 
     load() {
         return new Promise((resolve, reject) => {
-            SFS_Handler.isGameInstalled().then(installed => {
-                if (installed === true) {
+            SFS_Handler.isGameInstalled()
+                .then((installed) => {
+                    if (installed === true) {
+                        let PlatformFolder = "";
+                        if (platform == "win32") {
+                            PlatformFolder = "WindowsServer";
+                        } else {
+                            PlatformFolder = "LinuxServer";
+                        }
 
-                    let PlatformFolder = ""
-                    if (platform == "win32") {
-                        PlatformFolder = "WindowsServer";
+                        const configDir = path.join(
+                            Config.get("satisfactory.server_location"),
+                            "FactoryGame",
+                            "Saved",
+                            "Config",
+                            PlatformFolder
+                        );
+                        fs.ensureDirSync(configDir);
+
+                        this._EngineConfig = new IEngineConfig(configDir);
+                        this._GameConfig = new IGameConfig(configDir);
+
+                        const promises = [];
+                        promises.push(this._EngineConfig.load());
+                        promises.push(this._GameConfig.load());
+
+                        return Promise.all(promises);
                     } else {
-                        PlatformFolder = "LinuxServer";
+                        return;
                     }
-
-                    const configDir = path.join(Config.get("satisfactory.server_location"), "FactoryGame", "Saved", "Config", PlatformFolder);
-                    fs.ensureDirSync(configDir);
-
-                    this._EngineConfig = new IEngineConfig(configDir);
-                    this._GameConfig = new IGameConfig(configDir);
-
-                    const promises = [];
-                    promises.push(this._EngineConfig.load())
-                    promises.push(this._GameConfig.load())
-
-                    return Promise.all(promises);
-                } else {
-                    return;
-                }
-            }).then(() => {
-                resolve();
-            }).catch(err => {
-                console.log(err);
-            })
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
         });
     }
 

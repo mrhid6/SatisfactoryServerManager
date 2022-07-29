@@ -1,11 +1,10 @@
-const hbs = require('handlebars');
+const hbs = require("handlebars");
 const path = require("path");
 const fs = require("fs-extra");
 const objectpath = require("object-path");
 
 class Notification {
     constructor(eventName) {
-
         const date = new Date();
 
         this._data = {
@@ -14,9 +13,13 @@ class Notification {
             webhook_id: -1,
             handled: false,
             attempts: 0,
-            lastError: ""
+            lastError: "",
         };
-        this._TemplateHtmlPath = path.join(__basedir, "notifications", eventName + ".hbs");
+        this._TemplateHtmlPath = path.join(
+            __basedir,
+            "notifications",
+            eventName + ".hbs"
+        );
         this._html = "";
     }
 

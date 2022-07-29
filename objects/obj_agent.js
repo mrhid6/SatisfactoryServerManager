@@ -9,7 +9,6 @@ class ObjectAgent {
         this._beaconport = -1;
         this._port = -1;
 
-
         this._container = container;
 
         this._active = false;
@@ -28,8 +27,8 @@ class ObjectAgent {
         this._port = data.agent_port;
 
         this._running = data.agent_running == 1;
-        this._active == data.agent_active == 1;
-        this._info == JSON.parse((data.agent_info || "{}"));
+        (this._active == data.agent_active) == 1;
+        this._info == JSON.parse(data.agent_info || "{}");
     }
 
     isActive() {
@@ -37,7 +36,7 @@ class ObjectAgent {
             return false;
         }
 
-        return this._active
+        return this._active;
     }
 
     setActive(active) {
@@ -53,7 +52,6 @@ class ObjectAgent {
     }
 
     isRunning() {
-
         if (!this.isValid()) {
             return false;
         }
@@ -77,7 +75,6 @@ class ObjectAgent {
         return this._docker_id;
     }
 
-
     /** Start Ports */
 
     getSSMPort() {
@@ -96,12 +93,11 @@ class ObjectAgent {
         return this._port;
     }
 
-
     /** End Ports */
 
     getURL() {
         const port = this.getSSMPort();
-        this._url = "http://localhost:" + port + "/agent/"
+        this._url = "http://localhost:" + port + "/agent/";
 
         return this._url;
     }
@@ -125,10 +121,10 @@ class ObjectAgent {
                 AgentPort: this.getSSMPort(),
                 ServerQueryPort: this.getServerPort(),
                 BeaconPort: this.getBeaconPort(),
-                ServerPort: this.getPort()
+                ServerPort: this.getPort(),
             },
-            info: this.getInfo()
-        }
+            info: this.getInfo(),
+        };
     }
 }
 

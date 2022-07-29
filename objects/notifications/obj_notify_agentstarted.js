@@ -7,10 +7,9 @@ class ObjNotifyAgentStarted extends Notification {
         this.set("title", "A SSM Agent Was Started!");
         this.set("description", "A SSM Agent Was Successfully Started!");
         this.set("details", {
-            agent_name: Agent.getDisplayName()
+            agent_name: Agent.getDisplayName(),
         });
     }
 }
-
 
 module.exports = ObjNotifyAgentStarted;

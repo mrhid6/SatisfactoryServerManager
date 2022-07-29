@@ -1,91 +1,119 @@
 const iDockerHelper = require("mrhid6utils").DockerHelper;
 const platform = process.platform;
 
-const {
-    Docker
-} = require('node-docker-api');
-
+const { Docker } = require("node-docker-api");
 
 const DockerHelper = new iDockerHelper();
 
 class DockerAPI {
-
     constructor() {}
 
-    ConnectDocker = async() => {
+    ConnectDocker = async () => {
         let dockerSettings = {
             host: "http://127.0.0.1",
-            port: 2375
-        }
+            port: 2375,
+        };
 
         if (platform != "win32") {
             dockerSettings = {
-                socketPath: "/var/run/docker.sock"
-            }
+                socketPath: "/var/run/docker.sock",
+            };
         }
 
         return new Docker(dockerSettings);
     };
 
-    PullDockerImage = async() => {
+    PullDockerImage = async () => {
         const DockerConnection = await this.ConnectDocker();
-        await DockerHelper.PullDockerImage(DockerConnection, "mrhid6/ssmagent", "latest", {});
+        await DockerHelper.PullDockerImage(
+            DockerConnection,
+            "mrhid6/ssmagent",
+            "latest",
+            {}
+        );
     };
 
-    CheckDockerContainerExists = async(ContainerID) => {
+    CheckDockerContainerExists = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.CheckDockerContainerExists(DockerConnection, ContainerID);
+        return await DockerHelper.CheckDockerContainerExists(
+            DockerConnection,
+            ContainerID
+        );
     };
 
-    CheckDockerContainerExistsWithName = async(ContainerName) => {
+    CheckDockerContainerExistsWithName = async (ContainerName) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.CheckDockerContainerExistsWithName(DockerConnection, ContainerName);
+        return await DockerHelper.CheckDockerContainerExistsWithName(
+            DockerConnection,
+            ContainerName
+        );
     };
 
-    GetDockerContainersWithName = async(ContainerName) => {
+    GetDockerContainersWithName = async (ContainerName) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.GetDockerContainersWithName(DockerConnection, ContainerName);
+        return await DockerHelper.GetDockerContainersWithName(
+            DockerConnection,
+            ContainerName
+        );
     };
 
-    GetDockerContainerByID = async(ContainerID) => {
+    GetDockerContainerByID = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.GetDockerContainerByID(DockerConnection, ContainerID);
+        return await DockerHelper.GetDockerContainerByID(
+            DockerConnection,
+            ContainerID
+        );
     };
 
-
-    CreateDockerContainer = async(ContainerSettings) => {
+    CreateDockerContainer = async (ContainerSettings) => {
         const DockerConnection = await this.ConnectDocker();
         await this.PullDockerImage();
-        return await DockerHelper.CreateDockerContainer(DockerConnection, ContainerSettings, true);
+        return await DockerHelper.CreateDockerContainer(
+            DockerConnection,
+            ContainerSettings,
+            true
+        );
     };
 
-    StartDockerContainer = async(ContainerID) => {
+    StartDockerContainer = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.StartDockerContainer(DockerConnection, ContainerID)
+        return await DockerHelper.StartDockerContainer(
+            DockerConnection,
+            ContainerID
+        );
     };
 
-    StopDockerContainer = async(ContainerID) => {
+    StopDockerContainer = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        return await DockerHelper.StopDockerContainer(DockerConnection, ContainerID)
+        return await DockerHelper.StopDockerContainer(
+            DockerConnection,
+            ContainerID
+        );
     };
 
-    WaitForContainerToStart = async(ContainerID) => {
+    WaitForContainerToStart = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        await DockerHelper.WaitForContainerToStart(DockerConnection, ContainerID);
-    }
+        await DockerHelper.WaitForContainerToStart(
+            DockerConnection,
+            ContainerID
+        );
+    };
 
-    WaitForContainerToStop = async(ContainerID) => {
+    WaitForContainerToStop = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        await DockerHelper.WaitForContainerToStop(DockerConnection, ContainerID);
-    }
+        await DockerHelper.WaitForContainerToStop(
+            DockerConnection,
+            ContainerID
+        );
+    };
 
-    DeleteDockerContainerById = async(ContainerID) => {
+    DeleteDockerContainerById = async (ContainerID) => {
         const DockerConnection = await this.ConnectDocker();
-        await DockerHelper.DeleteDockerContainerById(DockerConnection, ContainerID);
-    }
-
-
-
+        await DockerHelper.DeleteDockerContainerById(
+            DockerConnection,
+            ContainerID
+        );
+    };
 }
 
 const dockerAPI = new DockerAPI();

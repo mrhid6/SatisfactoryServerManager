@@ -9,5 +9,4 @@ class ObjNotifySSMShutdown extends Notification {
     }
 }
 
-
 module.exports = ObjNotifySSMShutdown;

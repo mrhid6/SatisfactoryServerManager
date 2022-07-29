@@ -1,58 +1,57 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
-
-
 
 const ServerApp = require("../../server/server_app");
 const SSM_Log_Handler = require("../../server/server_log_handler");
 
-const middleWare = [
-    ServerApp.checkLoggedInAPIMiddleWare
-]
+const middleWare = [ServerApp.checkLoggedInAPIMiddleWare];
 
-router.get('/ssmlog', middleWare, function (req, res, next) {
-
-    SSM_Log_Handler.getSSMLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.get("/ssmlog", middleWare, function (req, res, next) {
+    SSM_Log_Handler.getSSMLog()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err
-        });
-    })
 });
 
-router.get('/smlauncherlog', middleWare, function (req, res, next) {
-
-    SSM_Log_Handler.getSMLauncherLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.get("/smlauncherlog", middleWare, function (req, res, next) {
+    SSM_Log_Handler.getSMLauncherLog()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err
-        });
-    })
 });
 
-router.get('/sfserverlog', middleWare, function (req, res, next) {
-
-    SSM_Log_Handler.getSFServerLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.get("/sfserverlog", middleWare, function (req, res, next) {
+    SSM_Log_Handler.getSFServerLog()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err
-        });
-    })
 });
 
 module.exports = router;

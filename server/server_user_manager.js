@@ -6,13 +6,10 @@ const logger = require("../server/server_logger");
 const ObjUser = require("../objects/obj_user");
 const ObjUserRole = require("../objects/obj_user_role");
 
-
 class UserManager {
-
     constructor() {
         /** @type {Array.<ObjUser>} */
         this._USERS = [];
-
 
         /** @type {Array.<ObjUserRole>} */
         this._ROLES = [];
@@ -24,53 +21,58 @@ class UserManager {
 
     reinit() {
         return new Promise((resolve, reject) => {
-            this.GetAllUsersFromDB().then(users => {
-                this._USERS = users;
-                return this.GetAllRoles()
-            }).then(roles => {
-                this._ROLES = roles;
-                resolve();
-            })
-        })
+            this.GetAllUsersFromDB()
+                .then((users) => {
+                    this._USERS = users;
+                    return this.GetAllRoles();
+                })
+                .then((roles) => {
+                    this._ROLES = roles;
+                    resolve();
+                });
+        });
     }
 
     GetAllUsersFromDB() {
         return new Promise((resolve, reject) => {
-            DB.query("SELECT * FROM users").then(rows => {
-                const USERS = [];
-                const UserRolePromises = [];
+            DB.query("SELECT * FROM users")
+                .then((rows) => {
+                    const USERS = [];
+                    const UserRolePromises = [];
 
-                rows.forEach(row => {
-                    const User = new ObjUser();
-                    User.parseDBData(row);
-                    UserRolePromises.push(this.GetDBRoleByID(User.getRoleId()))
-                    USERS.push(User);
+                    rows.forEach((row) => {
+                        const User = new ObjUser();
+                        User.parseDBData(row);
+                        UserRolePromises.push(
+                            this.GetDBRoleByID(User.getRoleId())
+                        );
+                        USERS.push(User);
+                    });
+
+                    Promise.all(UserRolePromises).then((values) => {
+                        for (let i = 0; i < values.length; i++) {
+                            const role = values[i];
+                            USERS[i].SetRole(role);
+                        }
+                        resolve(USERS);
+                    });
                 })
-
-                Promise.all(UserRolePromises).then(values => {
-                    for (let i = 0; i < values.length; i++) {
-                        const role = values[i];
-                        USERS[i].SetRole(role);
-                    }
-                    resolve(USERS);
-                })
-
-            }).catch(err => {
-                console.log(err);
-            })
+                .catch((err) => {
+                    console.log(err);
+                });
         });
     }
 
     GetAllRoles() {
         return new Promise((resolve, reject) => {
-            DB.query("SELECT * FROM roles").then(roleRows => {
+            DB.query("SELECT * FROM roles").then((roleRows) => {
                 const ROLES = [];
                 const rolesPromises = [];
-                roleRows.forEach(roleRow => {
-                    rolesPromises.push(this.GetDBRoleByID(roleRow.role_id))
-                })
+                roleRows.forEach((roleRow) => {
+                    rolesPromises.push(this.GetDBRoleByID(roleRow.role_id));
+                });
 
-                Promise.all(rolesPromises).then(values => {
+                Promise.all(rolesPromises).then((values) => {
                     for (let i = 0; i < values.length; i++) {
                         const role = values[i];
                         ROLES.push(role);
@@ -78,26 +80,27 @@ class UserManager {
 
                     resolve(ROLES);
                 });
-
             });
         });
     }
 
     GetDBRoleByID(RoleID) {
         return new Promise((resolve, reject) => {
-            DB.querySingle("SELECT * FROM roles WHERE role_id=?", [RoleID]).then(roleRow => {
+            DB.querySingle("SELECT * FROM roles WHERE role_id=?", [
+                RoleID,
+            ]).then((roleRow) => {
                 const Role = new ObjUserRole();
                 Role.parseDBData(roleRow);
 
                 const perms = JSON.parse(roleRow.role_permissions);
                 const permPromises = [];
 
-                perms.forEach(perm => {
+                perms.forEach((perm) => {
                     perm = perm.replace("*", "%");
-                    permPromises.push(this.GetPermissions(perm))
-                })
+                    permPromises.push(this.GetPermissions(perm));
+                });
 
-                Promise.all(permPromises).then(values => {
+                Promise.all(permPromises).then((values) => {
                     const Permissions = [];
                     for (let i = 0; i < values.length; i++) {
                         const perms = values[i];
@@ -112,7 +115,7 @@ class UserManager {
 
                     Role.SetPermissions(Permissions);
                     resolve(Role);
-                })
+                });
             });
         });
     }
@@ -120,20 +123,22 @@ class UserManager {
     GetPermissions(PermissionShort) {
         return new Promise((resolve, reject) => {
             const Permissions = [];
-            DB.query("SELECT * FROM permissions WHERE perm_name LIKE ?", [PermissionShort]).then(permRows => {
-                permRows.forEach(permRow => {
+            DB.query("SELECT * FROM permissions WHERE perm_name LIKE ?", [
+                PermissionShort,
+            ]).then((permRows) => {
+                permRows.forEach((permRow) => {
                     if (Permissions.includes(permRow.perm_name) == false) {
-                        Permissions.push(permRow.perm_name)
+                        Permissions.push(permRow.perm_name);
                     }
-                })
+                });
 
                 resolve(Permissions);
-            })
-        })
+            });
+        });
     }
 
     /**
-     * 
+     *
      * @returns {Array.<ObjUserRole>} - User Array
      */
     getAllUserRoles() {
@@ -141,7 +146,7 @@ class UserManager {
     }
 
     /**
-     * 
+     *
      * @returns {Array.<ObjUser>} - User Array
      */
     getAllUsers() {
@@ -149,28 +154,29 @@ class UserManager {
     }
 
     /**
-     * 
+     *
      * @returns {ObjUser} - User
      */
     getUserByUsername(username) {
-        return this.getAllUsers().find(user => user.getUsername() == username);
+        return this.getAllUsers().find(
+            (user) => user.getUsername() == username
+        );
     }
 
     /**
-     * 
+     *
      * @returns {ObjUser} - User
      */
     getUserById(id) {
-        return this.getAllUsers().find(user => user.getId() == id);
+        return this.getAllUsers().find((user) => user.getId() == id);
     }
-
 
     API_GetAllUsers() {
         return new Promise((resolve, reject) => {
             const users = [];
-            this.getAllUsers().forEach(user => {
+            this.getAllUsers().forEach((user) => {
                 users.push(user.getWebJson());
-            })
+            });
 
             resolve(users);
         });
@@ -179,9 +185,9 @@ class UserManager {
     API_GetAllRoles() {
         return new Promise((resolve, reject) => {
             const roles = [];
-            this.getAllUserRoles().forEach(role => {
+            this.getAllUserRoles().forEach((role) => {
                 roles.push(role.getWebJson());
-            })
+            });
 
             resolve(roles);
         });
@@ -190,51 +196,63 @@ class UserManager {
     API_GetAllUsers() {
         return new Promise((resolve, reject) => {
             const users = [];
-            this.getAllUsers().forEach(user => {
+            this.getAllUsers().forEach((user) => {
                 users.push(user.getWebJson());
-            })
+            });
 
             resolve(users);
         });
     }
 
-
     API_GetAllPermissions() {
         return new Promise((resolve, reject) => {
-            this.GetPermissions("%").then(perms => {
+            this.GetPermissions("%").then((perms) => {
                 resolve(perms);
-            })
+            });
         });
     }
 
-
     UpdateUserPassword(User, NewPassword) {
         return new Promise((resolve, reject) => {
-            DB.queryRun("UPDATE users SET user_pass=? WHERE user_id=?", [NewPassword, User.getId()]).then(() => {
-                return this.reinit();
-            }).then(() => {
-                resolve();
-            }).catch(err => {
-                reject(err);
-            })
-        })
+            DB.queryRun("UPDATE users SET user_pass=? WHERE user_id=?", [
+                NewPassword,
+                User.getId(),
+            ])
+                .then(() => {
+                    return this.reinit();
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch((err) => {
+                    reject(err);
+                });
+        });
     }
 
     API_CreateUser(data) {
         return new Promise((resolve, reject) => {
             const ExistingUser = this.getUserByUsername(data.username);
             if (ExistingUser != null) {
-                reject(new Error("User already exists!"))
+                reject(new Error("User already exists!"));
                 return;
             }
 
-            const defaultpasshash = CryptoJS.MD5(`SSM:${data.username}-ssm`).toString();
+            const defaultpasshash = CryptoJS.MD5(
+                `SSM:${data.username}-ssm`
+            ).toString();
 
-            DB.queryRun("INSERT INTO users(user_name, user_pass, user_role_id) VALUES (?,?,?)", [data.username, defaultpasshash, data.roleid]).then(() => {
-                return this.reinit();
-            }).then(() => {
-                resolve();
-            }).catch(reject);
+            DB.queryRun(
+                "INSERT INTO users(user_name, user_pass, user_role_id) VALUES (?,?,?)",
+                [data.username, defaultpasshash, data.roleid]
+            )
+                .then(() => {
+                    return this.reinit();
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch(reject);
         });
     }
 }

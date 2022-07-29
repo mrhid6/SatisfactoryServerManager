@@ -1,11 +1,10 @@
 const iLogger = require("mrhid6utils").Logger;
 
 class Logger extends iLogger {
-
     constructor() {
         super({
-            logName: "SSM"
-        })
+            logName: "SSM",
+        });
     }
 }
 

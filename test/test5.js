@@ -4,63 +4,66 @@ const logger = require("../server/server_logger");
 const ObjUser = require("../objects/obj_user");
 const ObjUserRole = require("../objects/obj_user_role");
 
-Config.load().then(() => {
-    return DB.init()
-}).then(() => {
-    GetAllUsersFromDB();
-}).catch(err => {
-    logger.error(err.message);
-})
-
-
+Config.load()
+    .then(() => {
+        return DB.init();
+    })
+    .then(() => {
+        GetAllUsersFromDB();
+    })
+    .catch((err) => {
+        logger.error(err.message);
+    });
 
 function GetAllUsersFromDB() {
     return new Promise((resolve, reject) => {
-        DB.query("SELECT * FROM users").then(rows => {
-            const USERS = [];
-            const UserRolePromises = [];
+        DB.query("SELECT * FROM users")
+            .then((rows) => {
+                const USERS = [];
+                const UserRolePromises = [];
 
-            rows.forEach(row => {
-                const User = new ObjUser();
-                User.parseDBData(row);
-                UserRolePromises.push(GetRoleForUser(User))
-                USERS.push(User);
+                rows.forEach((row) => {
+                    const User = new ObjUser();
+                    User.parseDBData(row);
+                    UserRolePromises.push(GetRoleForUser(User));
+                    USERS.push(User);
+                });
+
+                Promise.all(UserRolePromises).then((values) => {
+                    for (let i = 0; i < values.length; i++) {
+                        const role = values[i];
+                        USERS[i].SetRole(role);
+                    }
+
+                    console.log(JSON.stringify(USERS, null, 4));
+                });
             })
-
-            Promise.all(UserRolePromises).then(values => {
-                for (let i = 0; i < values.length; i++) {
-                    const role = values[i];
-                    USERS[i].SetRole(role);
-                }
-
-                console.log(JSON.stringify(USERS, null, 4));
-            })
-
-        }).catch(err => {
-            console.log(err);
-        })
+            .catch((err) => {
+                console.log(err);
+            });
     });
 }
 
-
 /**
- * @param {ObjUser} User 
+ * @param {ObjUser} User
  */
 function GetRoleForUser(User) {
     return new Promise((resolve, reject) => {
-        DB.querySingle("SELECT * FROM roles WHERE role_id=?", [User.getRoleId()]).then(roleRow => {
+        DB.querySingle("SELECT * FROM roles WHERE role_id=?", [
+            User.getRoleId(),
+        ]).then((roleRow) => {
             const Role = new ObjUserRole();
             Role.parseDBData(roleRow);
 
             const perms = JSON.parse(roleRow.role_permissions);
             const permPromises = [];
 
-            perms.forEach(perm => {
+            perms.forEach((perm) => {
                 perm = perm.replace("*", "%");
-                permPromises.push(GetPermissions(perm))
-            })
+                permPromises.push(GetPermissions(perm));
+            });
 
-            Promise.all(permPromises).then(values => {
+            Promise.all(permPromises).then((values) => {
                 const Permissions = [];
                 for (let i = 0; i < values.length; i++) {
                     const perms = values[i];
@@ -75,7 +78,7 @@ function GetRoleForUser(User) {
 
                 Role.SetPermissions(Permissions);
                 resolve(Role);
-            })
+            });
         });
     });
 }
@@ -83,14 +86,16 @@ function GetRoleForUser(User) {
 function GetPermissions(PermissionShort) {
     return new Promise((resolve, reject) => {
         const Permissions = [];
-        DB.query("SELECT * FROM permissions WHERE perm_name LIKE ?", [PermissionShort]).then(permRows => {
-            permRows.forEach(permRow => {
+        DB.query("SELECT * FROM permissions WHERE perm_name LIKE ?", [
+            PermissionShort,
+        ]).then((permRows) => {
+            permRows.forEach((permRow) => {
                 if (Permissions.includes(permRow.perm_name) == false) {
-                    Permissions.push(permRow.perm_name)
+                    Permissions.push(permRow.perm_name);
                 }
-            })
+            });
 
             resolve(Permissions);
-        })
-    })
+        });
+    });
 }

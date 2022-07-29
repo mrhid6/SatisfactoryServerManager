@@ -6,100 +6,114 @@ class Page_Servers {
     constructor() {}
 
     init() {
-
         this.setupJqueryListeners();
         this.SetupEventHandlers();
     }
 
     setupJqueryListeners() {
-        $("body").on("click", ".btn-startstop-docker", e => {
+        $("body")
+            .on("click", ".btn-startstop-docker", (e) => {
+                e.preventDefault();
+
+                const $button = $(e.currentTarget);
+
+                if ($button.attr("data-action") == "start") {
+                    this.StartDockerAgent($button.attr("data-agentid"));
+                } else {
+                    this.StopDockerAgent($button.attr("data-agentid"));
+                }
+            })
+            .on("click", "#submit-create-server-btn", (e) => {
+                this.CreateNewServer();
+            });
+
+        $("#btn-createserver").on("click", (e) => {
             e.preventDefault();
-
-            const $button = $(e.currentTarget);
-
-            if ($button.attr("data-action") == "start") {
-                this.StartDockerAgent($button.attr("data-agentid"));
-            } else {
-                this.StopDockerAgent($button.attr("data-agentid"));
-            }
-        }).on("click", "#submit-create-server-btn", e => {
-            this.CreateNewServer();
-        })
-
-        $("#btn-createserver").on("click", e => {
-            e.preventDefault()
             this.OpenCreateServerModal();
             //this.CreateNewServer();
-        })
+        });
     }
 
     SetupEventHandlers() {
         PageCache.on("setagentslist", () => {
             this.DisplayAgentsTable();
-        })
+        });
     }
 
     DisplayAgentsTable() {
-        const isDataTable = $.fn.dataTable.isDataTable("#agents-table")
+        const isDataTable = $.fn.dataTable.isDataTable("#agents-table");
         const tableData = [];
-        PageCache.getAgentsList().forEach(agent => {
-            const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`)
+        PageCache.getAgentsList().forEach((agent) => {
+            const $AgentLink = $("<a/>").attr("href", `/server/${agent.id}`);
             const $btn_info = $("<button/>")
                 .addClass("btn btn-primary float-start")
                 .html("<i class='fas fa-cog'></i>");
 
-            $AgentLink.append($btn_info)
-            const OpenAgentStr = $AgentLink.prop('outerHTML')
+            $AgentLink.append($btn_info);
+            const OpenAgentStr = $AgentLink.prop("outerHTML");
 
             const $btn_stopstart = $("<button/>")
                 .addClass("btn btn-success float-end")
                 .html("<i class='fas fa-play'></i>")
                 .attr("data-action", "start")
                 .attr("data-agentid", `${agent.id}`)
-                .addClass("btn-startstop-docker")
+                .addClass("btn-startstop-docker");
 
             if (agent.running == true) {
-                $btn_stopstart.attr("data-action", "stop")
-                    .removeClass("btn-success").addClass("btn-danger");
-                $btn_stopstart.find("i").removeClass("fa-play").addClass("fa-stop");
+                $btn_stopstart
+                    .attr("data-action", "stop")
+                    .removeClass("btn-success")
+                    .addClass("btn-danger");
+                $btn_stopstart
+                    .find("i")
+                    .removeClass("fa-play")
+                    .addClass("fa-stop");
             }
 
-            const OptionStr = OpenAgentStr + $btn_stopstart.prop('outerHTML')
+            const OptionStr = OpenAgentStr + $btn_stopstart.prop("outerHTML");
 
-            const $RunningIcon = $("<i/>").addClass("fas fa-2xl fa-circle-xmark text-danger")
-            const $ActiveIcon = $("<i/>").addClass("fas fa-2xl fa-circle-xmark text-danger")
+            const $RunningIcon = $("<i/>").addClass(
+                "fas fa-2xl fa-circle-xmark text-danger"
+            );
+            const $ActiveIcon = $("<i/>").addClass(
+                "fas fa-2xl fa-circle-xmark text-danger"
+            );
 
             if (agent.running == true) {
-                $RunningIcon.removeClass("fa-circle-xmark text-danger").addClass("fa-circle-check text-success")
+                $RunningIcon
+                    .removeClass("fa-circle-xmark text-danger")
+                    .addClass("fa-circle-check text-success");
             }
 
             if (agent.active == true) {
-                $ActiveIcon.removeClass("fa-circle-xmark text-danger").addClass("fa-circle-check text-success")
+                $ActiveIcon
+                    .removeClass("fa-circle-xmark text-danger")
+                    .addClass("fa-circle-check text-success");
             }
 
             tableData.push([
                 agent.displayname,
-                $RunningIcon.prop('outerHTML'),
-                $ActiveIcon.prop('outerHTML'),
-                (agent.info.version || "Unknown"),
-                OptionStr
-            ])
-        })
+                $RunningIcon.prop("outerHTML"),
+                $ActiveIcon.prop("outerHTML"),
+                agent.info.version || "Unknown",
+                OptionStr,
+            ]);
+        });
 
         if (isDataTable == false) {
             $("#agents-table").DataTable({
                 paging: true,
                 searching: false,
                 info: false,
-                order: [
-                    [2, "desc"]
+                order: [[2, "desc"]],
+                columnDefs: [
+                    {
+                        type: "date-euro",
+                        targets: 2,
+                    },
                 ],
-                columnDefs: [{
-                    type: 'date-euro',
-                    targets: 2
-                }],
-                data: tableData
-            })
+                data: tableData,
+            });
         } else {
             const datatable = $("#agents-table").DataTable();
             datatable.clear();
@@ -110,57 +124,64 @@ class Page_Servers {
 
     StartDockerAgent(id) {
         API_Proxy.postData("agent/start", {
-            id: id
-        }).then(res => {
+            id: id,
+        }).then((res) => {
             if (res.result == "success") {
-                toastr.success("Server Started!")
+                toastr.success("Server Started!");
             } else {
-                toastr.error("Failed to start server")
+                toastr.error("Failed to start server");
                 Logger.error(res.error);
             }
-        })
+        });
     }
 
     StopDockerAgent(id) {
         API_Proxy.postData("agent/stop", {
-            id: id
-        }).then(res => {
+            id: id,
+        }).then((res) => {
             if (res.result == "success") {
-                toastr.success("Server Stopped!")
+                toastr.success("Server Stopped!");
             } else {
-                toastr.error("Failed to stop server")
+                toastr.error("Failed to stop server");
                 Logger.error(res.error);
             }
-        })
+        });
     }
 
     OpenCreateServerModal() {
-        window.openModal("/public/modals", "create-server-modal", modal => {})
+        window.openModal(
+            "/public/modals",
+            "create-server-modal",
+            (modal) => {}
+        );
     }
 
     CreateNewServer() {
         const postData = {
             name: $("#inp_servername").val(),
-            port: parseInt($("#inp_serverport").val())
-        }
+            port: parseInt($("#inp_serverport").val()),
+        };
 
         if (postData.name == "" || postData.port < 15777) {
-            $("#create-server-error").removeClass("hidden").text("Error: Server Name Is Required And Server Port must be more than 15776")
+            $("#create-server-error")
+                .removeClass("hidden")
+                .text(
+                    "Error: Server Name Is Required And Server Port must be more than 15776"
+                );
             return;
         }
 
         $("#create-server-modal .close").trigger("click");
 
-        API_Proxy.postData("agent/create", postData).then(res => {
+        API_Proxy.postData("agent/create", postData).then((res) => {
             if (res.result == "success") {
-                toastr.success("Server created!")
+                toastr.success("Server created!");
             } else {
-                toastr.error("Failed to create server")
+                toastr.error("Failed to create server");
                 Logger.error(res.error);
             }
-        })
+        });
     }
-
 }
 
 const page = new Page_Servers();

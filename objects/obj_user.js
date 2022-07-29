@@ -15,11 +15,10 @@ class ObjUser {
     }
 
     /**
-     * 
+     *
      * @param {Object} data SQL data
      */
     parseDBData(data) {
-
         this._id = data.user_id;
         this._username = data.user_name;
         this._password = data.user_pass;
@@ -35,7 +34,7 @@ class ObjUser {
     }
 
     /**
-     * 
+     *
      * @returns {String} - Username
      */
     getUsername() {
@@ -43,7 +42,7 @@ class ObjUser {
     }
 
     /**
-     * 
+     *
      * @returns {String} - Password
      */
     getPassword() {
@@ -58,9 +57,8 @@ class ObjUser {
         return this._role_id;
     }
 
-
     /**
-     * 
+     *
      * @returns {ObjUserRole} User Role
      */
     getRole() {
@@ -68,15 +66,15 @@ class ObjUser {
     }
 
     /**
-     * 
-     * @param {ObjUserRole} Role 
+     *
+     * @param {ObjUserRole} Role
      */
     SetRole(Role) {
         this._role = Role;
     }
     /**
-     * 
-     * @param {String} RequiredPermission 
+     *
+     * @param {String} RequiredPermission
      * @returns {Boolean} - Has Requested Permission
      */
     HasPermission(RequiredPermission) {
@@ -84,16 +82,13 @@ class ObjUser {
         return Role.HasPermission(RequiredPermission);
     }
 
-
     getWebJson() {
         return {
             id: this.getId(),
             username: this.getUsername(),
-            role: this.getRole().getWebJson()
-        }
+            role: this.getRole().getWebJson(),
+        };
     }
-
-
 }
 
 module.exports = ObjUser;

@@ -32,7 +32,9 @@ class NotificationInterface {
     }
 
     ListeningForEvent(Notification) {
-        const listeningevent = this.getEvents().find(e => e == Notification.GetEventName());
+        const listeningevent = this.getEvents().find(
+            (e) => e == Notification.GetEventName()
+        );
         return listeningevent != null;
     }
 
@@ -50,7 +52,9 @@ class NotificationInterface {
 
     TriggerEvent = async (Notification) => {
         if (this.CanTriggerEvent(Notification)) {
-            Logger.debug("[NOTIFCATION] - Triggered Event " + Notification.GetEventName());
+            Logger.debug(
+                "[NOTIFCATION] - Triggered Event " + Notification.GetEventName()
+            );
 
             try {
                 switch (Notification.GetEventName()) {
@@ -74,20 +78,19 @@ class NotificationInterface {
                 throw err;
             }
         }
-    }
-
+    };
 
     TriggerSSMEvent = async (Notification) => {
         return;
-    }
+    };
 
     TriggerAgentEvent = async (Notification) => {
         return;
-    }
+    };
 
     TriggerServerEvent = async (Notification) => {
         return;
-    }
+    };
 }
 
 module.exports = NotificationInterface;

@@ -1,78 +1,71 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 
 const ServerApp = require("../../server/server_app");
 const Config = require("../../server/server_config");
 
 const UserManager = require("../../server/server_user_manager");
-const NotificationHandler = require("../../server/server_notifcation_handler")
+const NotificationHandler = require("../../server/server_notifcation_handler");
 
+const middleWare = [ServerApp.checkLoggedInAPIMiddleWare];
 
-const middleWare = [
-    ServerApp.checkLoggedInAPIMiddleWare
-]
-
-
-router.get('/ssmversion', middleWare, function (req, res, next) {
-
-    Config.getSSMVersion().then(data => {
-        res.json({
-            result: "success",
-            data: data
+router.get("/ssmversion", middleWare, function (req, res, next) {
+    Config.getSSMVersion()
+        .then((data) => {
+            res.json({
+                result: "success",
+                data: data,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-
 });
 
-router.get('/loggedin', middleWare, function (req, res, next) {
-
+router.get("/loggedin", middleWare, function (req, res, next) {
     res.json({
         result: "success",
-        data: ""
+        data: "",
     });
-
 });
 
-
 router.get("/users", middleWare, function (req, res, next) {
-    UserManager.API_GetAllUsers().then(users => {
+    UserManager.API_GetAllUsers().then((users) => {
         res.json({
             result: "success",
-            data: users
+            data: users,
         });
-    })
+    });
 });
 
 router.get("/roles", middleWare, function (req, res, next) {
-    UserManager.API_GetAllRoles().then(roles => {
+    UserManager.API_GetAllRoles().then((roles) => {
         res.json({
             result: "success",
-            data: roles
+            data: roles,
         });
-    })
+    });
 });
 
 router.get("/permissions", middleWare, function (req, res, next) {
-    UserManager.API_GetAllPermissions().then(perms => {
+    UserManager.API_GetAllPermissions().then((perms) => {
         res.json({
             result: "success",
-            data: perms
+            data: perms,
         });
-    })
+    });
 });
 
 router.get("/webhooks", middleWare, function (req, res, next) {
-    NotificationHandler.API_GetAllWebhooks().then(webhooks => {
+    NotificationHandler.API_GetAllWebhooks().then((webhooks) => {
         res.json({
             result: "success",
-            data: webhooks
+            data: webhooks,
         });
-    })
+    });
 });
 
 module.exports = router;

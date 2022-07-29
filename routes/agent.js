@@ -1,4 +1,4 @@
-var express = require('express');
+var express = require("express");
 var router = express.Router();
 const CryptoJS = require("crypto-js");
 
@@ -22,136 +22,146 @@ const SaveStorage = multer.diskStorage({
     destination: path.resolve(Config.get("satisfactory.save.location")),
     filename: function (req, file, cb) {
         cb(null, file.originalname);
-    }
-})
+    },
+});
 
 const GameSaveUpload = multer({
     storage: SaveStorage,
     limits: {
-        fileSize: (200 * 1024 * 1024 * 1024) //give no. of bytes
-    }
-}).single('savefile');
-
+        fileSize: 200 * 1024 * 1024 * 1024, //give no. of bytes
+    },
+}).single("savefile");
 
 router.get("/ping", function (req, res, next) {
     res.json({
-        result: "success"
-    })
-})
+        result: "success",
+    });
+});
 
 router.post("/init", function (req, res, next) {
     Config.InitAgentSettings(req.body);
     res.json({
-        result: "success"
-    })
-})
+        result: "success",
+    });
+});
 
 router.get("/check", checkHeaderKey, function (req, res, next) {
     res.json({
-        result: "success"
-    })
-})
+        result: "success",
+    });
+});
 
 router.post("/stopagent", checkHeaderKey, function (req, res, next) {
     Cleanup.cleanup();
     res.json({
-        result: "success"
-    })
-})
+        result: "success",
+    });
+});
 
 router.get("/info", checkHeaderKey, function (req, res, next) {
-
-    AgentApp.API_GetInfo().then(data => {
-        res.json({
-            result: "success",
-            data
+    AgentApp.API_GetInfo()
+        .then((data) => {
+            res.json({
+                result: "success",
+                data,
+            });
         })
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    })
-})
-
-router.post('/config/ssmsettings', checkHeaderKey, function (req, res, next) {
-
-    const post = req.body
-    SFS_Handler.updateSSMSettings(post).then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/config/sfsettings', checkHeaderKey, function (req, res, next) {
-
-    const post = req.body
-    SFS_Handler.updateSFSettings(post).then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.post("/config/ssmsettings", checkHeaderKey, function (req, res, next) {
+    const post = req.body;
+    SFS_Handler.updateSSMSettings(post)
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/config/modsettings', checkHeaderKey, function (req, res, next) {
-
-    const post = req.body
-    SFS_Handler.updateModsSettings(post).then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.post("/config/sfsettings", checkHeaderKey, function (req, res, next) {
+    const post = req.body;
+    SFS_Handler.updateSFSettings(post)
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/config/backupsettings', checkHeaderKey, function (req, res, next) {
-
-    const post = req.body
-    SFS_Handler.updateBackupSettings(post).then(() => {
-        res.json({
-            result: "success"
+router.post("/config/modsettings", checkHeaderKey, function (req, res, next) {
+    const post = req.body;
+    SFS_Handler.updateModsSettings(post)
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/installsf', checkHeaderKey, function (req, res, next) {
-    SFS_Handler.InstallSFServer(true).then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.post(
+    "/config/backupsettings",
+    checkHeaderKey,
+    function (req, res, next) {
+        const post = req.body;
+        SFS_Handler.updateBackupSettings(post)
+            .then(() => {
+                res.json({
+                    result: "success",
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
+
+router.post("/installsf", checkHeaderKey, function (req, res, next) {
+    SFS_Handler.InstallSFServer(true)
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/serveraction', checkHeaderKey, function (req, res, next) {
+router.post("/serveraction", checkHeaderKey, function (req, res, next) {
     const post = req.body;
 
     let promise = null;
@@ -164,276 +174,327 @@ router.post('/serveraction', checkHeaderKey, function (req, res, next) {
         promise = SFS_Handler.killServer();
     }
 
-    promise.then(result => {
-        res.json({
-            result: "success",
-            data: result
+    promise
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-
-router.get('/modinfo/smlinfo', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    SSM_Mod_Handler.API_GetSMLInstalledInfo().then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.get('/modinfo/installed', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-
-    SSM_Mod_Handler.API_GetInstalledMods().then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.post('/modaction/installsml', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    const post = req.body
-    const req_version = post.version;
-
-    let promise = null;
-    if (req_version != "latest") {
-        promise = SSM_Mod_Handler.InstallSMLVersion(req_version)
-    } else {
-        promise = SSM_Mod_Handler.InstallSMLVersion()
+router.get(
+    "/modinfo/smlinfo",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        SSM_Mod_Handler.API_GetSMLInstalledInfo()
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
     }
+);
 
-    promise.then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
+router.get(
+    "/modinfo/installed",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        SSM_Mod_Handler.API_GetInstalledMods()
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
 
+router.post(
+    "/modaction/installsml",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        const post = req.body;
+        const req_version = post.version;
+
+        let promise = null;
+        if (req_version != "latest") {
+            promise = SSM_Mod_Handler.InstallSMLVersion(req_version);
+        } else {
+            promise = SSM_Mod_Handler.InstallSMLVersion();
+        }
+
+        promise
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
+
+router.post(
+    "/modaction/installmod",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        const post = req.body;
+        const modReference = post.modReference;
+        const version = post.versionid;
+
+        SSM_Mod_Handler.InstallMod(modReference, version)
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
+
+router.post(
+    "/modaction/uninstallmod",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        const post = req.body;
+        const modReference = post.modReference;
+
+        SSM_Mod_Handler.UninstallMod(modReference)
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
+
+router.post(
+    "/modaction/updatemod",
+    checkHeaderKey,
+    ServerApp.checkModsEnabledAPIMiddleWare,
+    function (req, res, next) {
+        const post = req.body;
+        const modReference = post.modReference;
+
+        SSM_Mod_Handler.UpdateModToLatest(modReference)
+            .then((result) => {
+                res.json({
+                    result: "success",
+                    data: result,
+                });
+            })
+            .catch((err) => {
+                res.json({
+                    result: "error",
+                    error: err.message,
+                });
+            });
+    }
+);
+
+router.get("/gamesaves", checkHeaderKey, function (req, res, next) {
+    SFS_Handler.getSaves()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
+        });
 });
 
-router.post('/modaction/installmod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    const post = req.body
-    const modReference = post.modReference;
-    const version = post.versionid;
-
-    SSM_Mod_Handler.InstallMod(modReference, version).then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.post('/modaction/uninstallmod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    const post = req.body
-    const modReference = post.modReference;
-
-    SSM_Mod_Handler.UninstallMod(modReference).then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.post('/modaction/updatemod', checkHeaderKey, ServerApp.checkModsEnabledAPIMiddleWare, function (req, res, next) {
-    const post = req.body
-    const modReference = post.modReference;
-
-    SSM_Mod_Handler.UpdateModToLatest(modReference).then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.get('/gamesaves', checkHeaderKey, function (req, res, next) {
-    SFS_Handler.getSaves().then(result => {
-        res.json({
-            result: "success",
-            data: result
-        });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-});
-
-router.post('/gamesaves/upload', checkHeaderKey, function (req, res) {
+router.post("/gamesaves/upload", checkHeaderKey, function (req, res) {
     GameSaveUpload(req, res, (err) => {
         if (err) {
             res.json({
                 result: "error",
-                error: err.message
-            })
+                error: err.message,
+            });
         } else {
             res.json({
-                result: "success"
-            })
+                result: "success",
+            });
         }
     });
 });
 
-router.post('/gamesaves/delete', checkHeaderKey, function (req, res) {
+router.post("/gamesaves/delete", checkHeaderKey, function (req, res) {
+    const post = req.body;
 
-    const post = req.body
-
-    AgentApp.API_DeleteSave(post).then(() => {
-        res.json({
-            result: "success"
+    AgentApp.API_DeleteSave(post)
+        .then(() => {
+            res.json({
+                result: "success",
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.post('/gamesaves/download', checkHeaderKey, function (req, res) {
+router.post("/gamesaves/download", checkHeaderKey, function (req, res) {
+    const post = req.body;
 
-    const post = req.body
-
-    const saveFile = path.join(Config.get("satisfactory.save.location"), post.savefile + ".sav")
+    const saveFile = path.join(
+        Config.get("satisfactory.save.location"),
+        post.savefile + ".sav"
+    );
 
     if (fs.existsSync(saveFile)) {
         res.download(saveFile);
     } else {
-        Logger.error(`Cant find save file: ${saveFile}`)
-        res.status(404).send('Not found');
+        Logger.error(`Cant find save file: ${saveFile}`);
+        res.status(404).send("Not found");
     }
 });
 
-
-router.get('/logs/ssmlog', checkHeaderKey, function (req, res, next) {
-
-    SSM_Log_Handler.getSSMLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.get("/logs/ssmlog", checkHeaderKey, function (req, res, next) {
+    SSM_Log_Handler.getSSMLog()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.get('/logs/smlauncherlog', checkHeaderKey, function (req, res, next) {
-
-    SSM_Log_Handler.getSMLauncherLog().then(result => {
-        res.json({
-            result: "success",
-            data: result
+router.get("/logs/smlauncherlog", checkHeaderKey, function (req, res, next) {
+    SSM_Log_Handler.getSMLauncherLog()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
-router.get('/logs/sfserverlog', checkHeaderKey, function (req, res, next) {
-
+router.get("/logs/sfserverlog", checkHeaderKey, function (req, res, next) {
     const offset = req.query.offset || 0;
-    SSM_Log_Handler.getSFServerLog(offset).then(result => {
-        res.json({
-            result: "success",
-            data: result
+    SSM_Log_Handler.getSFServerLog(offset)
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
 });
 
 router.get("/backups", checkHeaderKey, (req, res, next) => {
-    BackupManager.API_ListBackups().then(result => {
-        res.json({
-            result: "success",
-            data: result
+    BackupManager.API_ListBackups()
+        .then((result) => {
+            res.json({
+                result: "success",
+                data: result,
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
         });
-    }).catch(err => {
-        res.json({
-            result: "error",
-            error: err.message
-        });
-    })
-})
+});
 
-router.post('/backups/download', checkHeaderKey, function (req, res) {
+router.post("/backups/download", checkHeaderKey, function (req, res) {
+    const post = req.body;
 
-    const post = req.body
-
-    const backupFile = path.join(Config.get("ssm.backup.location"), post.backupfile)
+    const backupFile = path.join(
+        Config.get("ssm.backup.location"),
+        post.backupfile
+    );
 
     if (fs.existsSync(backupFile)) {
         res.download(backupFile);
     } else {
-        Logger.error(`Cant find backup file: ${backupFile}`)
-        res.status(404).send('Not found');
+        Logger.error(`Cant find backup file: ${backupFile}`);
+        res.status(404).send("Not found");
     }
 });
 
-
-
-
 function checkHeaderKey(req, res, next) {
     const headers = req.headers;
-    const headerKey = headers['x-ssm-key'];
+    const headerKey = headers["x-ssm-key"];
     if (headerKey == null) {
         console.log("Key is null : ", req.originalUrl);
         res.json({
             success: false,
-            error: "Key is null!"
+            error: "Key is null!",
         });
         return;
     }
 
-    const AgentHash = CryptoJS.MD5(`${headerKey}-SSMAgent${Config.get("ssm.agent.id")}`).toString();
+    const AgentHash = CryptoJS.MD5(
+        `${headerKey}-SSMAgent${Config.get("ssm.agent.id")}`
+    ).toString();
 
     if (AgentHash == Config.get("ssm.agent.key")) {
         next();
@@ -442,12 +503,9 @@ function checkHeaderKey(req, res, next) {
 
     res.json({
         success: false,
-        error: "Key mismatch!"
+        error: "Key mismatch!",
     });
     return;
 }
-
-
-
 
 module.exports = router;

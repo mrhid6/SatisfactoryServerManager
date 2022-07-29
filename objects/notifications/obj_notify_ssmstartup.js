@@ -9,5 +9,4 @@ class ObjNotifySSMStartup extends Notification {
     }
 }
 
-
 module.exports = ObjNotifySSMStartup;
