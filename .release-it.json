@@ -1,19 +1,19 @@
 {
-    "git": {
-        "tagName": "v${version}",
-        "requireCleanWorkingDir": false
-    },
-    "npm": {
-        "publish": false
-    },
-    "github": {
-        "release": true,
-        "assets": ["release-builds/*.zip", "release-builds/*.tar.gz"]
-    },
-    "hooks": {
-        "before:release": [
-            "bash ./tools/package/package_app.sh --version v${version} --windows --linux",
-            "bash ./tools/prerelease-checks.sh --version v${version}"
-        ]
-    }
+  "git": {
+    "tagName": "v${version}",
+    "requireCleanWorkingDir": false
+  },
+  "npm": {
+    "publish": false
+  },
+  "github": {
+    "release": true,
+    "assets": ["release-builds/*.zip", "release-builds/*.tar.gz"]
+  },
+  "hooks": {
+    "before:release": [
+      "bash ./tools/package/package_app.sh --version v${version} --windows --linux",
+      "bash ./tools/prerelease-checks.sh --version v${version}"
+    ]
+  }
 }
