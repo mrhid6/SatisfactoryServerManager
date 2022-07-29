@@ -238,13 +238,11 @@ class AgentHandler {
         const UserAccount = UserManager.getUserById(UserID);
 
         if (UserAccount == null || typeof UserAccount == undefined) {
-            reject(new Error("User Not Found!"));
-            return;
+            throw new Error("User Not Found!");
         }
 
         if (!UserAccount.HasPermission("agentactions.create")) {
-            reject(new Error("User Doesn't Have Permission!"));
-            return;
+            throw new Error("User Doesn't Have Permission!");
         }
 
         const portOffset = Data.port - 15776;

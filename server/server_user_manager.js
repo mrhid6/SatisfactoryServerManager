@@ -275,6 +275,46 @@ class UserManager {
 
         return resArray;
     };
+
+    CheckAPIKeyIsValid = async (key) => {
+        const row = await DB.querySingle(
+            "SELECT * FROM apikeys WHERE api_key=?",
+            [key]
+        );
+
+        if (row == null) {
+            return false;
+        }
+
+        return true;
+    };
+
+    GetUserFromAPIKey = async (key) => {
+        const row = await DB.querySingle(
+            "SELECT * FROM apikeys WHERE api_key=?",
+            [key]
+        );
+
+        if (row == null) {
+            return null;
+        }
+
+        return this.getUserById(row.api_user_id);
+    };
+
+    CheckAPIUserHasPermission = async (permission, key) => {
+        const UserAccount = await this.GetUserFromAPIKey(key);
+
+        if (UserAccount == null || typeof UserAccount == undefined) {
+            throw new Error("User Not Found!");
+        }
+
+        if (!UserAccount.HasPermission(permission)) {
+            throw new Error("User Doesn't Have Permission!");
+        }
+
+        return;
+    };
 }
 
 const userManager = new UserManager();

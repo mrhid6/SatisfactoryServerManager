@@ -4,50 +4,97 @@ var router = express.Router();
 const AgentHandler = require("../../server/server_agent_handler");
 const Config = require("../../server/server_config");
 
-router.get("/servers", function (req, res, next) {
-    AgentHandler.API_GetAllAgents()
-        .then((agents) => {
-            const resData = [];
+const UserManager = require("../../server/server_user_manager");
 
-            for (let i = 0; i < agents.length; i++) {
-                const agent = agents[i];
-                const agent_clone = JSON.parse(JSON.stringify(agent));
+router.get("/servers", checkHeaderKey, async (req, res, next) => {
+    try {
+        await checkAPIPermissions("api.servers", req.apikey);
+    } catch (err) {
+        res.json({
+            result: "error",
+            error: err.message,
+        });
+        return;
+    }
 
-                if (agent_clone.running == true && agent_clone.active == true) {
-                    agent_clone.info.MaxPlayers =
-                        agent_clone.info.config.game.Game[
-                            "/Script/Engine"
-                        ].GameSession.MaxPlayers;
+    try {
+        const agents = await AgentHandler.API_GetAllAgents();
+        const resData = [];
 
-                    delete agent_clone.info.config.satisfactory;
-                    delete agent_clone.info.config.ssm;
-                    delete agent_clone.info.config.smm;
-                    //delete agent_clone.info.config.mods
-                    delete agent_clone.info.config.game;
+        for (let i = 0; i < agents.length; i++) {
+            const agent = agents[i];
+            const agent_clone = JSON.parse(JSON.stringify(agent));
 
-                    delete agent_clone.ports.AgentPort;
-                    delete agent_clone.ports.BeaconPort;
-                    delete agent_clone.ports.ServerPort;
-                    delete agent_clone.info.serverstate.pid1;
-                    delete agent_clone.info.serverstate.pid2;
-                    delete agent_clone.info.serverstate.pcpu;
-                    delete agent_clone.info.serverstate.pmem;
-                }
+            if (agent_clone.running == true && agent_clone.active == true) {
+                agent_clone.info.MaxPlayers =
+                    agent_clone.info.config.game.Game[
+                        "/Script/Engine"
+                    ].GameSession.MaxPlayers;
 
-                resData.push(agent_clone);
+                delete agent_clone.info.config.satisfactory;
+                delete agent_clone.info.config.ssm;
+                delete agent_clone.info.config.smm;
+                //delete agent_clone.info.config.mods
+                delete agent_clone.info.config.game;
+
+                delete agent_clone.ports.AgentPort;
+                delete agent_clone.ports.BeaconPort;
+                delete agent_clone.ports.ServerPort;
+                delete agent_clone.info.serverstate.pid1;
+                delete agent_clone.info.serverstate.pid2;
+                delete agent_clone.info.serverstate.pcpu;
+                delete agent_clone.info.serverstate.pmem;
             }
 
-            res.json({
-                result: "success",
-                data: resData,
-            });
-        })
-        .catch((err) => {
-            res.json({
-                result: "error",
-                error: err,
-            });
+            resData.push(agent_clone);
+        }
+
+        res.json({
+            result: "success",
+            data: resData,
         });
+    } catch (err) {
+        res.json({
+            result: "error",
+            error: err.message,
+        });
+        return;
+    }
 });
+
+const checkAPIPermissions = async (permission, key) => {
+    try {
+        await UserManager.CheckAPIUserHasPermission(permission, key);
+    } catch (err) {
+        throw err;
+    }
+};
+
+function checkHeaderKey(req, res, next) {
+    const headers = req.headers;
+    const headerKey = headers["x-ssm-key"];
+    if (headerKey == null) {
+        console.log("Key is null : ", req.originalUrl);
+        res.json({
+            success: false,
+            error: "Key is null!",
+        });
+        return;
+    }
+
+    UserManager.CheckAPIKeyIsValid(headerKey).then((valid) => {
+        if (valid) {
+            req.apikey = headerKey;
+            next();
+            return;
+        } else {
+            res.json({
+                success: false,
+                error: "Key mismatch!",
+            });
+            return;
+        }
+    });
+}
 
 module.exports = router;
