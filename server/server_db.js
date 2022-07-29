@@ -37,6 +37,7 @@ class ServerDB {
             "webhooks",
             "debugreports",
             "webhook_events",
+            "apikeys",
         ];
     }
 
@@ -132,6 +133,9 @@ class ServerDB {
                                 break;
                             case "webhook_events":
                                 promises.push(this.createWebhookEventsTable());
+                                break;
+                            case "apikeys":
+                                promises.push(this.createAPIKeysTable());
                                 break;
                         }
                     }
@@ -489,6 +493,17 @@ class ServerDB {
                 "dr_id" INTEGER PRIMARY KEY AUTOINCREMENT,
                 "dr_created" VARCHAR(255) NOT NULL DEFAULT '',
                 "dr_path" TEXT NOT NULL DEFAULT ''
+            );`;
+
+        await this.queryRun(debugReportsTableSql);
+    };
+
+    createAPIKeysTable = async () => {
+        logger.info("Creating API Keys Table");
+        const debugReportsTableSql = `CREATE TABLE "apikeys" (
+                "api_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "api_user_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "api_key" VARCHAR(255) NOT NULL DEFAULT ''
             );`;
 
         await this.queryRun(debugReportsTableSql);
