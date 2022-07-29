@@ -453,6 +453,20 @@ class SSM_Server_App {
 
         await NotificationHandler.LoadWebHooksFromDB();
     };
+
+    API_AddAPIKey = async (data) => {
+        const sqlData = [data.apikey, data.userid];
+
+        const sql = "INSERT INTO apikeys(api_key, api_user_id) VALUES (?,?)";
+        await DB.queryRun(sql, sqlData);
+    };
+
+    API_RevokeAPIKey = async (data) => {
+        const sqlData = [data.id];
+
+        const sql = "DELETE FROM apikeys WHERE api_id=?";
+        await DB.queryRun(sql, sqlData);
+    };
 }
 
 const SSM_server_app = new SSM_Server_App();

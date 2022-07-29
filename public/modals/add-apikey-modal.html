@@ -1,0 +1,68 @@
+<div class="modal ssm-modal" id="add-apikey-modal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add API Key</h4>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                >
+                    <span aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="inp_webhookname" class="form-label"
+                        >User:</label
+                    >
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"
+                            ><i class="fas fa-user"></i
+                        ></span>
+                        <select
+                            name=""
+                            id="inp_apiuser"
+                            class="form-select"
+                            place-holder="API Key User"
+                        ></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inp_apikey" class="form-label">API Key:</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"
+                            ><i class="fas fa-key"></i
+                        ></span>
+                        <input
+                            id="inp_apikey"
+                            type="text"
+                            class="form-control"
+                            placeholder="API Key"
+                            readonly
+                        />
+                        <button class="btn btn-primary btn-generateapikey">
+                            Generate Key
+                        </button>
+                    </div>
+                    <div class="valid-feedback"></div>
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-12">
+                        <button
+                            class="btn btn-primary"
+                            id="submit-add-apikey-btn"
+                            disabled
+                        >
+                            <i class="fas fa-plus"></i> Add API Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

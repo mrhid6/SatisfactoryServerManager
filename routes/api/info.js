@@ -50,6 +50,15 @@ router.get("/roles", middleWare, function (req, res, next) {
     });
 });
 
+router.get("/apikeys", middleWare, function (req, res, next) {
+    UserManager.API_GetAllAPIKeys().then((keys) => {
+        res.json({
+            result: "success",
+            data: keys,
+        });
+    });
+});
+
 router.get("/permissions", middleWare, function (req, res, next) {
     UserManager.API_GetAllPermissions().then((perms) => {
         res.json({

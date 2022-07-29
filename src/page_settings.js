@@ -39,7 +39,8 @@ class Page_Settings {
             .on("click", "#submit-add-webhook-btn", (e) => {
                 e.preventDefault();
                 this.SubmitNewWebhook();
-            });
+            })
+            
     }
 
     MainDisplayFunction() {
@@ -198,6 +199,7 @@ class Page_Settings {
             API_Proxy.postData("admin/addwebhook", postData).then((res) => {
                 if (res.result == "success") {
                     toastr.success("Webhook Added!");
+                    $("#add-webhook-modal .btn-close").trigger("click");
                 } else {
                     toastr.error("Failed To Add Webhook!");
                     logger.error(res.error);

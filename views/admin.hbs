@@ -6,34 +6,67 @@
     </div>
 
     <div class="alert alert-info">
-        <strong>Heads up!</strong> This page has not yet been updated!
-    </div>
-    <div class="card border-secondary mb-3">
-        <div class="card-header">
-            <button id="btn-addwebhook" class="btn btn-primary float-end"><i class="fas fa-plus"></i> Add
-                Webhook</button>
-            <h5>Webhooks</h5>
-        </div>
-        <div class="card-body">
-            <table class="table table-bordered" id="webhooks-table">
-                <thead>
-                    <tr>
-                        <th width="50px">ID</th>
-                        <th>Name</th>
-                        <th>Enabled</th>
-                        <th>Type</th>
-                        <th width="60px">Options</th>
-                    </tr>
-                </thead>
-            </table>
-        </div>
+        <strong>Heads up!</strong>
+        This page has not yet been updated!
     </div>
     <div class="row">
         <div class="col-12 col-lg-6">
             <div class="card border-secondary mb-3">
                 <div class="card-header">
-                    <button id="btn-adduser" class="btn btn-primary float-end"><i class="fas fa-plus"></i> Add
-                        User</button>
+                    <button
+                        id="btn-addwebhook"
+                        class="btn btn-primary float-end"
+                    ><i class="fas fa-plus"></i>
+                        Add Webhook</button>
+                    <h5>Webhooks</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="webhooks-table">
+                        <thead>
+                            <tr>
+                                <th width="50px">ID</th>
+                                <th>Name</th>
+                                <th>Enabled</th>
+                                <th>Type</th>
+                                <th width="60px">Options</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">
+                    <button
+                        id="btn-addapikey"
+                        class="btn btn-primary float-end"
+                    ><i class="fas fa-plus"></i> Add API Key</button>
+                    <h5>API Keys</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered" id="apikeys-table">
+                        <thead>
+                            <tr>
+                                <th width="100px">ID</th>
+                                <th width="150px">User Name</th>
+                                <th>API Key</th>
+                                <th width="60px">Options</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 col-md-6">
+            <div class="card border-secondary mb-3">
+                <div class="card-header">
+                    <button
+                        id="btn-adduser"
+                        class="btn btn-primary float-end"
+                    ><i class="fas fa-plus"></i> Add User</button>
                     <h5>Users</h5>
 
                 </div>
@@ -51,11 +84,13 @@
                 </div>
             </div>
         </div>
-        <div class="col-12 col-lg-6">
+        <div class="col-12 col-md-6">
             <div class="card border-secondary mb-3">
                 <div class="card-header">
-                    <button id="btn-addrole" class="btn btn-primary float-end"><i class="fas fa-plus"></i> Add
-                        Role</button>
+                    <button
+                        id="btn-addrole"
+                        class="btn btn-primary float-end"
+                    ><i class="fas fa-plus"></i> Add Role</button>
                     <h5>Roles</h5>
                 </div>
                 <div class="card-body">
@@ -72,13 +107,17 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <div class="row">
         <div class="col-12">
             <div class="card border-secondary mb-3">
                 <div class="card-header">
-                    <button id="btn-generatedebug" class="btn btn-primary float-end"><i class="fas fa-plus"></i> Generate Debug Report</button>
+                    <button
+                        id="btn-generatedebug"
+                        class="btn btn-primary float-end"
+                    ><i class="fas fa-plus"></i> Generate Debug Report</button>
                     <h5>Debug Reports</h5>
                 </div>
                 <div class="card-body">

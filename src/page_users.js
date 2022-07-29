@@ -1,7 +1,9 @@
 const API_Proxy = require("./api_proxy");
+const logger = require("./logger");
 
 class Page_Users {
     constructor() {
+        this._USERS = [];
         this._ROLES = [];
         this._PERMISSIONS = [];
     }
@@ -42,12 +44,73 @@ class Page_Users {
             .on("click", "#submit-add-user-btn", (e) => {
                 e.preventDefault();
                 this.SubmitAddUser();
+            })
+            .on("click", "#btn-addapikey", (e) => {
+                const $btn = $(e.currentTarget);
+                this.OpenAddAPIKeyModal($btn);
+            })
+            .on("click", "#submit-add-apikey-btn", (e) => {
+                const $btn = $(e.currentTarget);
+                this.SubmitAddApiKey();
+            })
+            .on("click", "#confirm-action", (e) => {
+                const $btn = $(e.currentTarget);
+                const action = $btn.attr("data-action");
+
+                if (action == "revokeapikey") {
+                    this.RevokeAPIKey($btn);
+                }
+            })
+            .on("click", ".btn-revoke-apikey", (e) => {
+                const $btn = $(e.currentTarget);
+                window.openModal(
+                    "/public/modals",
+                    "server-action-confirm",
+                    (modal) => {
+                        modal
+                            .find("#confirm-action")
+                            .attr("data-action", "revokeapikey")
+                            .attr(
+                                "data-apikey-id",
+                                $btn.attr("data-apikey-id")
+                            );
+                    }
+                );
+            })
+            .on("click", ".btn-generateapikey", (e) => {
+                e.preventDefault();
+                const newAPIKey = this.GenerateAPIKey();
+                $("#inp_apikey").val(newAPIKey);
+
+                if (!navigator.clipboard) {
+                    // use old commandExec() way
+                } else {
+                    navigator.clipboard
+                        .writeText($("#inp_apikey").val())
+                        .then(function () {
+                            $("#inp_apikey").addClass("is-valid");
+                            $("#inp_apikey")
+                                .parent()
+                                .parent()
+                                .find(".valid-feedback")
+                                .text("Copied to clipboard!")
+                                .show();
+
+                            $("#inp_apikey")
+                                .parent()
+                                .parent()
+                                .addClass("has-success");
+
+                            $("#submit-add-apikey-btn").prop("disabled", false);
+                        });
+                }
             });
     }
 
     MainDisplayFunction() {
         this.DisplayUsersTable();
         this.DisplayRolesTable();
+        this.DisplayAPIKeysTable();
         this.GetPermissions();
     }
 
@@ -57,6 +120,7 @@ class Page_Users {
             const tableData = [];
 
             const users = res.data;
+            this._USERS = users;
 
             users.forEach((user) => {
                 const $btn_info = $("<button/>")
@@ -127,6 +191,49 @@ class Page_Users {
                 });
             } else {
                 const datatable = $("#roles-table").DataTable();
+                datatable.clear();
+                datatable.rows.add(tableData);
+                datatable.draw();
+            }
+        });
+    }
+
+    DisplayAPIKeysTable() {
+        API_Proxy.get("info/apikeys").then((res) => {
+            const isDataTable = $.fn.dataTable.isDataTable("#apikeys-table");
+            const tableData = [];
+
+            const apikeys = res.data;
+
+            apikeys.forEach((apikey) => {
+                const $btn_info = $("<button/>")
+                    .addClass("btn btn-danger btn-block btn-revoke-apikey")
+                    .attr("data-apikey-id", apikey.id)
+                    .html("<i class='fas fa-trash'></i>");
+
+                const revokeApiStr = $btn_info.prop("outerHTML");
+                const User = this._USERS.find(
+                    (user) => user.id == apikey.user_id
+                );
+                tableData.push([
+                    apikey.id,
+                    User.username,
+                    apikey.shortkey,
+                    revokeApiStr,
+                ]);
+            });
+
+            if (isDataTable == false) {
+                $("#apikeys-table").DataTable({
+                    paging: true,
+                    searching: false,
+                    info: false,
+                    order: [[0, "desc"]],
+                    columnDefs: [],
+                    data: tableData,
+                });
+            } else {
+                const datatable = $("#apikeys-table").DataTable();
                 datatable.clear();
                 datatable.rows.add(tableData);
                 datatable.draw();
@@ -333,6 +440,95 @@ class Page_Users {
         }
 
         console.log(PermData);
+    }
+
+    OpenAddAPIKeyModal() {
+        window.openModal("/public/modals", "add-apikey-modal", (modal) => {
+            const $userSel = modal.find("#inp_apiuser");
+
+            for (let i = 0; i < this._USERS.length; i++) {
+                const user = this._USERS[i];
+                $userSel.append(
+                    `<option value='${user.id}'>${user.username}</option>`
+                );
+            }
+        });
+    }
+
+    GenerateAPIKey() {
+        const format = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+        var formatdata = format.split("-");
+
+        var ret_str = "";
+
+        for (var i = 0; i < formatdata.length; i++) {
+            var d = formatdata[i];
+            if (i > 0) {
+                ret_str = ret_str + "-" + this.generateRandomString(d.length);
+            } else {
+                ret_str = ret_str + this.generateRandomString(d.length);
+            }
+        }
+
+        formatdata = undefined;
+        return `API-${ret_str}`;
+    }
+
+    generateRandomString(length) {
+        var text = "";
+        var possible =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for (var i = 0; i < length; i++)
+            text += possible.charAt(
+                Math.floor(Math.random() * possible.length)
+            );
+
+        return text;
+    }
+
+    SubmitAddApiKey() {
+        const userid = $("#inp_apiuser").val();
+        const apiKey = $("#inp_apikey").val();
+
+        if (userid == null || apiKey.trim() == "") {
+            $("#inp_apikey").addClass("is-invalid");
+            logger.error("Must Fill out new api key form!");
+            return;
+        }
+
+        const postData = {
+            userid: userid,
+            apikey: apiKey,
+        };
+
+        API_Proxy.postData("admin/addapikey", postData).then((res) => {
+            if (res.result == "success") {
+                toastr.success("API Key Added!");
+                $("#add-apikey-modal .btn-close").trigger("click");
+                this.DisplayAPIKeysTable();
+            } else {
+                toastr.error("Failed To Add API Key!");
+                logger.error(res.error);
+            }
+        });
+    }
+
+    RevokeAPIKey($btn) {
+        const apikeyid = $btn.attr("data-apikey-id");
+
+        API_Proxy.postData("admin/revokeapikey", { id: apikeyid }).then(
+            (res) => {
+                if (res.result == "success") {
+                    toastr.success("API Key Revoked!");
+                    $("#server-action-confirm .btn-close").trigger("click");
+                    this.DisplayAPIKeysTable();
+                } else {
+                    toastr.error("Failed To Revoke API Key!");
+                    logger.error(res.error);
+                }
+            }
+        );
     }
 }
 

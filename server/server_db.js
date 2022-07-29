@@ -250,6 +250,7 @@ class ServerDB {
                                 "manageusers.create",
                                 "settings.saves.*",
                                 "settings.backups.*",
+                                "api.*",
                             ],
                         },
                         {
@@ -323,6 +324,8 @@ class ServerDB {
                         "page.admin.settings",
                         "page.admin.users",
                         "page.admin.backups",
+                        "api.servers",
+                        "api.serveractions",
                     ];
                     let PermSQL = `INSERT INTO permissions(perm_name) VALUES `;
                     PermSQL += defaultPerms.map((perm) => "(?)").join(",");
@@ -502,7 +505,7 @@ class ServerDB {
         logger.info("Creating API Keys Table");
         const debugReportsTableSql = `CREATE TABLE "apikeys" (
                 "api_id" INTEGER PRIMARY KEY AUTOINCREMENT,
-                "api_user_id" INTEGER PRIMARY KEY AUTOINCREMENT,
+                "api_user_id" INTEGER NOT NULL,
                 "api_key" VARCHAR(255) NOT NULL DEFAULT ''
             );`;
 

@@ -101,4 +101,34 @@ router.post("/addwebhook", middleWare, (req, res) => {
         });
 });
 
+router.post("/addapikey", middleWare, (req, res) => {
+    ServerApp.API_AddAPIKey(req.body)
+        .then(() => {
+            res.json({
+                result: "success",
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
+        });
+});
+
+router.post("/revokeapikey", middleWare, (req, res) => {
+    ServerApp.API_RevokeAPIKey(req.body)
+        .then(() => {
+            res.json({
+                result: "success",
+            });
+        })
+        .catch((err) => {
+            res.json({
+                result: "error",
+                error: err.message,
+            });
+        });
+});
+
 module.exports = router;

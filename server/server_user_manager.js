@@ -255,6 +255,26 @@ class UserManager {
                 .catch(reject);
         });
     }
+
+    API_GetAllAPIKeys = async () => {
+        const rows = await DB.query("SELECT * FROM apikeys");
+        const resArray = [];
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            const keyData = row.api_key.split("-");
+
+            const shortKey = `API-XXXX${keyData[1].slice(-4)}`;
+
+            resArray.push({
+                id: row.api_id,
+                user_id: row.api_user_id,
+                shortkey: shortKey,
+            });
+        }
+
+        return resArray;
+    };
 }
 
 const userManager = new UserManager();
