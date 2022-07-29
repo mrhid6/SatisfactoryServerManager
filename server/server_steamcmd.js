@@ -187,6 +187,9 @@ class ServerSteamCMD {
             const output = await outputPromise;
 
             return output;
+
+        }catch(err){
+            throw err;
         } finally {
             // Always cleanup the temp file
             await commandFile.cleanup();
