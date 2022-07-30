@@ -27,7 +27,7 @@ class AgentApp {
             await SSM_Mod_Handler.init();
 
             SSM_BackupManager.init();
-            
+
             await StatsManager.init();
         } catch (err) {
             logger.error(
@@ -94,6 +94,9 @@ class AgentApp {
 
             const mods = await SSM_Mod_Handler.API_GetInstalledMods();
             resData.mods = mods;
+
+            const stats = await StatsManager.API_ToJson();
+            resData.stats = stats;
 
             return resData;
         } catch (err) {

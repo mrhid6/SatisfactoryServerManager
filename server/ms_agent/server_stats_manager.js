@@ -43,6 +43,7 @@ class ServerStatsManager {
             "game.factories",
             "game.pipes",
             "game.playtime",
+            "game.gamephase",
         ];
 
         const rows = await AgentDB.query("SELECT * FROM stats");
@@ -87,6 +88,7 @@ class ServerStatsManager {
             await this.GetFactoriesCountFromSaveData(SavefileData);
             await this.GetPipelineCountFromSaveData(SavefileData);
             await this.GetPlaytimeFromSaveData(SavefileData);
+            await this.GetGamePhaseFromSaveData(SavefileData);
         } catch (err) {
             throw err;
         }
@@ -176,6 +178,37 @@ class ServerStatsManager {
         }
     };
 
+    GetGamePhaseFromSaveData = async (SaveData) => {
+        const actors = SaveData.actors;
+        const GamePhaseManager = actors.find((a) =>
+            a.pathName.includes("GamePhaseManager")
+        );
+
+        const Phases = {
+            EGP_EarlyGame: 0,
+            EGP_MidGame: 1,
+            EGP_LateGame: 2,
+            EGP_EndGame: 3,
+            EGP_FoodCourt: 4,
+            EGP_Victory: 5,
+        };
+
+        let Phase = Phases.EGP_EarlyGame;
+
+        if (GamePhaseManager != null) {
+            Phase =
+                Phases[
+                    `${GamePhaseManager.entity.properties[0].value.valueName}`
+                ];
+        }
+
+        try {
+            await this.StoreStatInDB("game.gamephase", parseInt(Phase));
+        } catch (err) {
+            throw err;
+        }
+    };
+
     StoreStatInDB = async (key, data) => {
         const SQL = "UPDATE stats SET stat_value=? WHERE stat_key=?";
         const SQLData = [data, key];
@@ -183,6 +216,23 @@ class ServerStatsManager {
             await AgentDB.queryRun(SQL, SQLData);
         } catch (err) {
             throw err;
+        }
+    };
+
+    API_ToJson = async () => {
+        const resObject = {};
+        try {
+            const rows = await AgentDB.query("SELECT * FROM stats");
+
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                resObject[`${row.stat_key}`] = row.stat_value;
+            }
+
+            return resObject;
+        } catch (err) {
+            console.log(err);
+            return resObject;
         }
     };
 }
