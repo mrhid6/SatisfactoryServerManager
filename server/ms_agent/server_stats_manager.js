@@ -193,17 +193,37 @@ class ServerStatsManager {
             EGP_Victory: 5,
         };
 
-        let Phase = Phases.EGP_EarlyGame;
+        const PhasesNames = [
+            "Establishing Phase",
+            "Development Phase",
+            "Expansion Phase",
+            "Retention Phase",
+            "Food Court",
+            "Victory!",
+        ];
 
+        let Phase = Phases.EGP_EarlyGame;
+        let PhaseObj = {
+            enum: Phase,
+            name: PhasesNames[Phase],
+        };
         if (GamePhaseManager != null) {
             Phase =
                 Phases[
                     `${GamePhaseManager.entity.properties[0].value.valueName}`
                 ];
+
+            PhaseObj = {
+                enum: Phase,
+                name: PhasesNames[Phase],
+            };
         }
 
         try {
-            await this.StoreStatInDB("game.gamephase", parseInt(Phase));
+            await this.StoreStatInDB(
+                "game.gamephase",
+                JSON.stringify(PhaseObj)
+            );
         } catch (err) {
             throw err;
         }
@@ -226,7 +246,14 @@ class ServerStatsManager {
 
             for (let i = 0; i < rows.length; i++) {
                 const row = rows[i];
-                resObject[`${row.stat_key}`] = row.stat_value;
+
+                const key = row.stat_key;
+                let value = row.stat_value;
+
+                if (key == "game.gamephase") {
+                    value = JSON.parse(row.stat_value);
+                }
+                resObject[`${key}`] = value;
             }
 
             return resObject;

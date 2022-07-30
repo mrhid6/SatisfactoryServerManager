@@ -26,16 +26,20 @@ router.get("/servers", checkHeaderKey, async (req, res, next) => {
             const agent_clone = JSON.parse(JSON.stringify(agent));
 
             if (agent_clone.running == true && agent_clone.active == true) {
-                agent_clone.info.MaxPlayers =
-                    agent_clone.info.config.game.Game[
-                        "/Script/Engine"
-                    ].GameSession.MaxPlayers;
+                agent_clone.info.MaxPlayers = 0;
+
+                if (agent_clone.info.config.game.Game != null) {
+                    agent_clone.info.MaxPlayers =
+                        agent_clone.info.config.game.Game[
+                            "/Script/Engine"
+                        ].GameSession.MaxPlayers;
+                }
+                delete agent_clone.info.config.game;
 
                 delete agent_clone.info.config.satisfactory;
                 delete agent_clone.info.config.ssm;
                 delete agent_clone.info.config.smm;
                 //delete agent_clone.info.config.mods
-                delete agent_clone.info.config.game;
 
                 delete agent_clone.ports.AgentPort;
                 delete agent_clone.ports.BeaconPort;
