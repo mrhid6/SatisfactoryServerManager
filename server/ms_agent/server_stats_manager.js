@@ -253,7 +253,7 @@ class ServerStatsManager {
                 const key = row.stat_key;
                 let value = row.stat_value;
 
-                if (key == "game.gamephase") {
+                if (key == "game.gamephase" && value.IsJsonString()) {
                     value = JSON.parse(row.stat_value);
                 }
                 resObject[`${key}`] = value;
