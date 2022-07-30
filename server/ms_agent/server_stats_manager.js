@@ -30,7 +30,10 @@ class ServerStatsManager {
 
         try {
             await this.validateStatsDBTable();
-            await this.LoadStatsFromSaveFile();
+            const installed = await SFS_HANDLER.isGameInstalled();
+            if (installed) {
+                await this.LoadStatsFromSaveFile();
+            }
         } catch (err) {
             console.log(err);
         }
