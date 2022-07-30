@@ -25,6 +25,13 @@ class Page_Servers {
             })
             .on("click", "#submit-create-server-btn", (e) => {
                 this.CreateNewServer();
+            })
+            .on("change", "#inp_servermemory", (e) => {
+                const $this = $(e.currentTarget);
+
+                $("#inp_servermemory_value").text(
+                    `${parseFloat($this.val()).toFixed(1)}G`
+                );
             });
 
         $("#btn-createserver").on("click", (e) => {
@@ -157,9 +164,12 @@ class Page_Servers {
     }
 
     CreateNewServer() {
+        const memory = parseFloat($("#inp_servermemory").val());
+
         const postData = {
             name: $("#inp_servername").val(),
             port: parseInt($("#inp_serverport").val()),
+            memory: memory * 1024 * 1024 * 1024,
         };
 
         if (postData.name == "" || postData.port < 15777) {
@@ -171,7 +181,7 @@ class Page_Servers {
             return;
         }
 
-        $("#create-server-modal .close").trigger("click");
+        $("#create-server-modal .btn-close").trigger("click");
 
         API_Proxy.postData("agent/create", postData).then((res) => {
             if (res.result == "success") {

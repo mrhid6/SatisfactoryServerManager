@@ -135,11 +135,11 @@ class Page_Server {
             const action = $btn.attr("data-action");
 
             if (action == "delete-server") {
-                $("#server-action-confirm .close").trigger("click");
+                $("#server-action-confirm .btn-close").trigger("click");
                 this.DeleteAgent();
             }
             if (action == "update-server") {
-                $("#server-action-confirm .close").trigger("click");
+                $("#server-action-confirm .btn-close").trigger("click");
                 this.UpdateAgent();
             }
         });
@@ -411,9 +411,13 @@ class Page_Server {
                 (res) => {
                     if (res.result == "success") {
                         toastr.success("Server has been installed!");
-                        $("#server-action-installsf .close").trigger("click");
+                        $("#server-action-installsf .btn-close").trigger(
+                            "click"
+                        );
                     } else {
-                        $("#server-action-installsf .close").trigger("click");
+                        $("#server-action-installsf .btn-close").trigger(
+                            "click"
+                        );
 
                         toastr.error("Failed To Install Server!");
                         Logger.error(res.error);

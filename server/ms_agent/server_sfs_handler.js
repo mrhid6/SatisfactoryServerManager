@@ -3,6 +3,7 @@ const path = require("path");
 const si = require("systeminformation");
 const fs = require("fs-extra");
 const recursive = require("recursive-readdir");
+const rra = require("recursive-readdir-async");
 const br = require("binary-reader");
 const platform = process.platform;
 const chmodr = require("chmodr");
@@ -406,7 +407,7 @@ class SF_Server_Handler {
                             resolve();
                         });
                     });
-                } else {ú
+                } else {
                     logger.debug(
                         "[SFS_Handler] [SERVER_ACTION] - SF Server Already Stopped"
                     );
@@ -575,6 +576,25 @@ class SF_Server_Handler {
             });
         });
     }
+
+    GetBasicSavesInfo = async () => {
+        const saveLocation = Config.get("satisfactory.save.location");
+        if (saveLocation == "") {
+            throw new Error("Save location not set!");
+        }
+
+        if (fs.ensureDirSync(saveLocation) == false) {
+            throw new Error("Save location doesn't exist!");
+        }
+
+        const options = {
+            stats: true,
+        };
+
+        const result = await rra.list(saveLocation, options);
+        if (result.error) throw result.error;
+        else return result;
+    };
 
     getSaveInfo(file) {
         return new Promise((resolve, reject) => {

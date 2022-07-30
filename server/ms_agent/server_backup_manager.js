@@ -9,6 +9,8 @@ const Config = require("../server_config");
 const Cleanup = require("../server_cleanup");
 const logger = require("../server_logger");
 
+const AgentDB = require("./server_agent_db");
+
 class BackupManager {
     init() {
         this.userDataPath = null;
@@ -115,6 +117,7 @@ class BackupManager {
             );
             archive.directory(Config.get("satisfactory.log.location"), "Logs");
             archive.directory(this.GameConfigDir, "Configs/Game");
+            archive.directory(AgentDB.DBDir, "DB");
             archive.file(SSMConfigFile, {
                 name: "Configs/SSM/SSM.json",
             });

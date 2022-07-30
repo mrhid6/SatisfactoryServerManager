@@ -285,7 +285,8 @@ class AgentHandler {
             AgentPort,
             ServerQueryPort,
             BeaconPort,
-            Port
+            Port,
+            Data.memory
         );
 
         let Notification = new ObjNotifyAgentCreated(DisplayName);
@@ -385,6 +386,7 @@ class AgentHandler {
                 HostConfig: {
                     Binds,
                     PortBindings: PortBindings,
+                    Memory: parseInt(Data.memory),
                 },
                 ExposedPorts,
             });
@@ -406,10 +408,11 @@ class AgentHandler {
         SSMPort,
         ServerPort,
         BeaconPort,
-        Port
+        Port,
+        Memory
     ) => {
         const SQL =
-            "INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port, agent_running) VALUES (?,?,?,?,?,?,?,?)";
+            "INSERT INTO agents(agent_name, agent_displayname, agent_docker_id, agent_ssm_port, agent_serverport, agent_beaconport, agent_port, agent_running, agent_memory) VALUES (?,?,?,?,?,?,?,?,?)";
 
         const SQLData = [
             Name,
@@ -420,6 +423,7 @@ class AgentHandler {
             BeaconPort,
             Port,
             0,
+            Memory,
         ];
         try {
             await DB.queryRun(SQL, SQLData);
@@ -556,6 +560,7 @@ class AgentHandler {
         try {
             Data.port = Agent.getServerPort();
             Data.name = Agent.getDisplayName();
+            Data.memory = Agent.getMemory();
 
             const newContainer = await this.CreateAgentDockerContainer(Data);
             Agent._docker_id = newContainer.id;

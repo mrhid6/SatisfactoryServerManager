@@ -7,6 +7,10 @@ const SSM_Log_Handler = require("./server_log_handler");
 const GameConfig = require("./ms_agent/server_gameconfig");
 const SSM_BackupManager = require("./ms_agent/server_backup_manager");
 
+const AgentDB = require("./ms_agent/server_agent_db");
+
+const StatsManager = require("./ms_agent/server_stats_manager");
+
 const path = require("path");
 const fs = require("fs-extra");
 
@@ -15,20 +19,24 @@ const rimraf = require("rimraf");
 class AgentApp {
     constructor() {}
 
-    init() {
-        SFS_Handler.init()
-            .then(() => {
-                SSM_Mod_Handler.init();
-                SSM_BackupManager.init();
-            })
-            .catch((err) => {
-                logger.error(
-                    "[SFS_HANDLER] - Failed To Initialize - " + err.message
-                );
-            });
+    init = async () => {
+        try {
+            await AgentDB.init();
+
+            await SFS_Handler.init();
+            await SSM_Mod_Handler.init();
+
+            SSM_BackupManager.init();
+            
+            await StatsManager.init();
+        } catch (err) {
+            logger.error(
+                "[SFS_HANDLER] - Failed To Initialize - " + err.message
+            );
+        }
 
         this.SetupEventHandlers();
-    }
+    };
 
     SetupEventHandlers() {}
 

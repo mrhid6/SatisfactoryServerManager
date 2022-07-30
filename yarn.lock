@@ -1923,6 +1923,11 @@ readdir-glob@^1.0.0:
   dependencies:
     minimatch "^5.1.0"
 
+recursive-readdir-async@^1.2.1:
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/recursive-readdir-async/-/recursive-readdir-async-1.2.1.tgz#994beaa07a985e806a5946b4b795fe9b5f1a6b9b"
+  integrity sha512-fU8aySmHIhrycTlXn+hI7dS/p7GnrMHzr2xDdBSd8HZ16mbLkmfIEccIE80gLHftrkTt9oDJiGEJNIPY6n0v6A==
+
 recursive-readdir@^2.2.2:
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/recursive-readdir/-/recursive-readdir-2.2.2.tgz#9946fb3274e1628de6e36b2f6714953b4845094f"

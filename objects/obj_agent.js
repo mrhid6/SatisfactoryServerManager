@@ -13,6 +13,7 @@ class ObjectAgent {
 
         this._active = false;
         this._info = {};
+        this._memory = 0;
     }
 
     parseDBData(data) {
@@ -27,8 +28,9 @@ class ObjectAgent {
         this._port = data.agent_port;
 
         this._running = data.agent_running == 1;
-        (this._active == data.agent_active) == 1;
-        this._info == JSON.parse(data.agent_info || "{}");
+        this._active = data.agent_active == 1;
+        this._info = JSON.parse(data.agent_info || "{}");
+        this._memory = data.agent_memory;
     }
 
     isActive() {
@@ -93,6 +95,10 @@ class ObjectAgent {
         return this._port;
     }
 
+    getMemory() {
+        return this._memory;
+    }
+
     /** End Ports */
 
     getURL() {
@@ -117,6 +123,7 @@ class ObjectAgent {
             id: this.getId(),
             name: this.getName(),
             displayname: this.getDisplayName(),
+            memorylimit: this.getMemory(),
             ports: {
                 AgentPort: this.getSSMPort(),
                 ServerQueryPort: this.getServerPort(),

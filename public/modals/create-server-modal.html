@@ -1,38 +1,92 @@
 <div class="modal ssm-modal" id="create-server-modal" role="dialog">
     <div class="modal-dialog modal-lg">
-
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Add User</h4>
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Create Server</h4>
+                <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                ></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-danger hidden" id="create-server-error"></div>
+                <div
+                    class="alert alert-danger hidden"
+                    id="create-server-error"
+                ></div>
                 <div class="form-group">
-                    <label for="inp_servername" class="form-label">Server Name:</label>
+                    <label for="inp_servername" class="form-label"
+                        >Server Name:</label
+                    >
                     <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="fas fa-server"></i></span>
-                        <input id="inp_servername" type="text" class="form-control" placeholder="Server Name" />
+                        <span class="input-group-text"
+                            ><i class="fas fa-server"></i
+                        ></span>
+                        <input
+                            id="inp_servername"
+                            type="text"
+                            class="form-control"
+                            placeholder="Server Name"
+                        />
                     </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="inp_serverport" class="form-label">Server Port:</label>
+                    <label for="inp_serverport" class="form-label"
+                        >Server Port:</label
+                    >
                     <div class="input-group mb-3">
-                        <span class="input-group-text"><i class="fas fa-network-wired"></i></span>
-                        <input id="inp_serverport" type="number" class="form-control" placeholder="Server Port"
-                            value="15777" />
+                        <span class="input-group-text"
+                            ><i class="fas fa-network-wired"></i
+                        ></span>
+                        <input
+                            id="inp_serverport"
+                            type="number"
+                            class="form-control"
+                            placeholder="Server Port"
+                            value="15777"
+                        />
                     </div>
                 </div>
+
+                <fieldset class="form-group">
+                    <label for="inp_servermemory" class="form-label">
+                        Server Memory:
+                    </label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text"
+                            ><i class="fa-solid fa-memory"></i
+                        ></span>
+                        <input
+                            type="range"
+                            class="form-range custom-range"
+                            min="1"
+                            max="6"
+                            step="0.5"
+                            id="inp_servermemory"
+                            value="1"
+                        />
+                        <span
+                            class="input-group-text"
+                            id="inp_servermemory_value"
+                            >1.0G</span
+                        >
+                    </div>
+                </fieldset>
 
                 <div class="row">
                     <div class="col-12">
-                        <button class="btn btn-primary" id="submit-create-server-btn"><i class="fas fa-plus"></i> Add
-                            Server</button>
+                        <button
+                            class="btn btn-primary"
+                            id="submit-create-server-btn"
+                        >
+                            <i class="fas fa-plus"></i> Add Server
+                        </button>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
+</div>

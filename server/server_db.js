@@ -356,7 +356,8 @@ class ServerDB {
                 "agent_port" INTEGER NOT NULL DEFAULT 0,
                 "agent_running" INTEGER NOT NULL DEFAULT 0,
                 "agent_active" INTEGER NOT NULL DEFAULT 0,
-                "agent_info" TEXT NOT NULL DEFAULT ''
+                "agent_info" TEXT NOT NULL DEFAULT '',
+                "agent_memory" INT NOT NULL DEFAULT 1073741824
             );`;
 
             this.queryRun(agentsTableSql).then(() => {
