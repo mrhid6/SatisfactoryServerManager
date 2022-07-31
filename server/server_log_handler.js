@@ -13,6 +13,7 @@ const fsR = require("fs-reverse");
 class SSM_Log_Handler {
     constructor() {
         this._TotalSFLogLineCount = 0;
+        this._UserCount = 0;
     }
 
     init() {
@@ -113,6 +114,22 @@ class SSM_Log_Handler {
 
                                 if (line.includes("Join suc")) {
                                     joinArray.push(line);
+                                }
+
+                                if (
+                                    line.includes(
+                                        "AddClientConnection: Added client connection:"
+                                    )
+                                ) {
+                                    this._UserCount++;
+                                }
+
+                                if (
+                                    line.includes(
+                                        "UNetConnection::Close: [UNetConnection]"
+                                    )
+                                ) {
+                                    this._UserCount--;
                                 }
 
                                 tempFileContents.push(line);

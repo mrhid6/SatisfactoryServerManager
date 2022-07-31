@@ -104,33 +104,9 @@ class AgentApp {
         }
     };
 
-    GetUserCount() {
-        return new Promise((resolve, reject) => {
-            SSM_Log_Handler.getSFServerLog()
-                .then((logRows) => {
-                    const FilteredJoinLogRows = logRows.filter((row) =>
-                        row.includes(
-                            "AddClientConnection: Added client connection:"
-                        )
-                    );
-                    const FilteredLeaveLogRows = logRows.filter((row) =>
-                        row.includes("UNetConnection::Close: [UNetConnection]")
-                    );
-
-                    const count =
-                        FilteredJoinLogRows.length -
-                        FilteredLeaveLogRows.length;
-                    if (count < 0) {
-                        resolve(0);
-                    } else {
-                        resolve(count);
-                    }
-                })
-                .catch((err) => {
-                    resolve(0);
-                });
-        });
-    }
+    GetUserCount = async () => {
+        return SSM_Log_Handler._UserCount;
+    };
 
     API_DeleteSave(data) {
         return new Promise((resolve, reject) => {
