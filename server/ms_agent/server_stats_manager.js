@@ -22,7 +22,7 @@ class ServerStatsManager {
                 await this.LoadStatsFromSaveFile();
             }
         } catch (err) {
-            console.log(err);
+            console.log("Error1");
         }
 
         setInterval(async () => {
@@ -34,7 +34,7 @@ class ServerStatsManager {
                     await this.LoadStatsFromSaveFile();
                 }
             } catch (err) {
-                console.log(err);
+                console.log("Error2");
             }
         }, 20000);
     };
@@ -99,10 +99,19 @@ class ServerStatsManager {
             throw new Error("Save file doesn't exist!");
         }
 
+        if (SFS_HANDLER.isServerRunning()) {
+            return;
+        }
+
+        let SavefileData = {};
         try {
             var data = fs.readFileSync(this._SaveFile);
-            const SavefileData = await sfSavToJson(data);
+            SavefileData = await sfSavToJson(data);
+        } catch (err) {
+            throw new Error(err.message);
+        }
 
+        try {
             await this.GetFoundationsCountFromSaveData(SavefileData);
             await this.GetConveyorCountFromSaveData(SavefileData);
             await this.GetFactoriesCountFromSaveData(SavefileData);

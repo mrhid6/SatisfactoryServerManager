@@ -66,6 +66,51 @@ router.get("/servers", checkHeaderKey, async (req, res, next) => {
     }
 });
 
+router.post("/serveraction", checkHeaderKey, async (req, res, next) => {
+    try {
+        await checkAPIPermissions("api.serveractions", req.apikey);
+    } catch (err) {
+        res.json({
+            result: "error",
+            error: err.message,
+        });
+        return;
+    }
+
+    const body = req.body;
+
+    if (body.agentid == null || body.agentid == "") {
+        res.json({
+            result: "error",
+            error: "Body doesn't include 'agentid' property!",
+        });
+        return;
+    }
+
+    if (body.action == null || body.action == "") {
+        res.json({
+            result: "error",
+            error: "Body doesn't include 'action' property!",
+        });
+        return;
+    }
+
+    try {
+        const UserAccount = await UserManager.GetUserFromAPIKey(req.apikey);
+        await AgentHandler.API_ExecuteServerAction(body, UserAccount.getId());
+
+        res.json({
+            result: "success",
+        });
+    } catch (err) {
+        res.json({
+            result: "error",
+            error: err.message,
+        });
+        return;
+    }
+});
+
 const checkAPIPermissions = async (permission, key) => {
     try {
         await UserManager.CheckAPIUserHasPermission(permission, key);
