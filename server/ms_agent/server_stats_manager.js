@@ -14,6 +14,33 @@ class ServerStatsManager {
 
     init = async () => {
         try {
+            await this.SetupSaveFile();
+
+            await this.validateStatsDBTable();
+            const installed = await SFS_HANDLER.isGameInstalled();
+            if (installed && this._SaveFile != null) {
+                await this.LoadStatsFromSaveFile();
+            }
+        } catch (err) {
+            console.log(err);
+        }
+
+        setInterval(async () => {
+            try {
+                await this.SetupSaveFile();
+
+                const installed = await SFS_HANDLER.isGameInstalled();
+                if (installed && this._SaveFile != null) {
+                    await this.LoadStatsFromSaveFile();
+                }
+            } catch (err) {
+                console.log(err);
+            }
+        }, 20000);
+    };
+
+    SetupSaveFile = async () => {
+        try {
             let saveFiles = await SFS_HANDLER.GetBasicSavesInfo();
             if (saveFiles.length > 0) {
                 saveFiles.sort(function (a, b) {
@@ -26,16 +53,6 @@ class ServerStatsManager {
             }
         } catch (err) {
             throw err;
-        }
-
-        try {
-            await this.validateStatsDBTable();
-            const installed = await SFS_HANDLER.isGameInstalled();
-            if (installed) {
-                await this.LoadStatsFromSaveFile();
-            }
-        } catch (err) {
-            console.log(err);
         }
     };
 
