@@ -10,7 +10,7 @@ build-windows:
     GIT_CHECKOUT: "true"
     GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
   script:
-    - "& C:\\Program Files\\Git\bin\bash.exe --login -c './tools/package/package_app.sh'"
+    - "& C:\\Program Files\\Git\\bin\\bash.exe --login -c './tools/package/package_app.sh'"
   artifacts:
     paths:
       - release-builds
