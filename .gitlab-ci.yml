@@ -1,0 +1,47 @@
+stages:
+  - build
+
+build-windows:
+  stage: build
+  tags:
+    - windows
+  variables:
+    GIT_STRATEGY: fetch
+    GIT_CHECKOUT: "true"
+    GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  script:
+    - "& C:\\Program Files\\Git\bin\bash.exe --login -c './tools/package/package_app.sh'"
+  artifacts:
+    paths:
+      - release-builds
+    expire_in: 1 week
+
+build-linux:
+  stage: build
+  tags:
+    - docker
+  image: node:latest
+  before_script:
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - mkdir -p ~/.ssh
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' > ~/.ssh/id_rsa
+    - chmod 700 ~/.ssh/id_rsa
+    - eval "$(ssh-agent -s)"
+    - ssh-add ~/.ssh/id_rsa
+    - ssh-keyscan -t rsa 10.10.10.6 > ~/.ssh/known_hosts
+    - echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
+    - chmod 644 ~/.ssh/known_hosts
+    - git remote set-url origin git@10.10.10.6:publicrefinedrd/satisfactoryservermanager.git
+    - git fetch origin "${CI_COMMIT_SHA}"
+    - git reset --hard FETCH_HEAD
+    - 'apt-get update -y && apt-get upgrade -y'
+  script:
+    - "git submodule update --init"
+    - npm i -g yarn --force
+    - npm i -g pkg --force
+    - "yarn install"
+    - "bash tools/package/package_linux.sh --compile"
+  artifacts:
+    paths:
+      - release-builds
+    expire_in: 1 week
