@@ -55,5 +55,7 @@ else
     echo -en "\e[32m✔\e[0m\n"
 fi
 
+ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
+
 cd ${release_dir_linux}
 tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
