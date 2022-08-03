@@ -47,7 +47,7 @@ build-linux:
       - release-builds
     expire_in: 1 week
 
-deploy:
+deploy-docker:
   stage: deploy
   image: docker:20-dind
   tags:
@@ -71,3 +71,14 @@ deploy:
     - docker build . --tag ${DOCKERIMG}:latest --tag ${DOCKERIMG}:${VERSION}
     - docker push ${DOCKERIMG}:latest
     - docker push ${DOCKERIMG}:${VERSION}
+
+deploy-release:
+  stage: deploy
+  tags:
+    - windows
+  variables:
+    GIT_STRATEGY: fetch
+    GIT_CHECKOUT: "true"
+    GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  script:
+    - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "release-it --no-npm --ci -VV"'
