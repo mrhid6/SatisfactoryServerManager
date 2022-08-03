@@ -10,7 +10,7 @@ build-windows:
     GIT_CHECKOUT: "true"
     GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
   script:
-    - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "./tools/package/compile_windows.sh --force"'
+    - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "./tools/package/ci_compile_windows.sh --force"'
   artifacts:
     paths:
       - release-builds
@@ -40,7 +40,7 @@ build-linux:
     - npm i -g yarn --force
     - npm i -g pkg --force
     - "yarn install"
-    - "bash tools/package/package_linux.sh --compile"
+    - "bash tools/package/ci_compile_linux.sh"
   artifacts:
     paths:
       - release-builds

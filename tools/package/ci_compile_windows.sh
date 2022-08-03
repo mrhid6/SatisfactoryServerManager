@@ -1,5 +1,15 @@
 #!/bin/bash
 
+function printDots() {
+    text=$1
+    length=$2
+    textlen=${#text}
+
+    newlength=$((length - textlen - 1))
+
+    v=$(printf "%-${newlength}s" ".")
+    echo -en "${text} ${v// /.} "
+}
 
 CURDIR=$(dirname "$(readlink -f "$0")")
 BASEDIR=$(readlink -f "$CURDIR/../..")
