@@ -50,6 +50,8 @@ build-linux:
 deploy:
   stage: deploy
   image: docker:20-dind
+  tags:
+    - docker
   services:
     - name: docker:20-dind
       command: ["--tls=false"]
