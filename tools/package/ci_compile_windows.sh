@@ -39,9 +39,9 @@ echo -en "\nPackaging Application (Version: \e[34m${VERSION}\e[0m)\n"
 release_dir="${BASEDIR}/release-builds"
 release_dir_win64="${release_dir}/win64"
 
-rm -rf ${release_dir} 2>&1 >/dev/null
+rm -rf ${release_dir_win64}\* 2>&1 >/dev/null
 
-if [ ! -d "${release_dir}" ]; then
+if [ ! -d "${release_dir_win64}" ]; then
     mkdir -p "${release_dir_win64}"
 fi
 

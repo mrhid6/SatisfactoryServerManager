@@ -21,7 +21,7 @@ echo -en "\nPackaging Linux (Version: \e[34m${VERSION}\e[0m)\n"
 release_dir="${BASEDIR}/release-builds"
 release_dir_linux="${release_dir}/linux"
 
-rm -rf ${release_dir_linux} 2>&1 >/dev/null
+rm -rf ${release_dir_linux}\* 2>&1 >/dev/null
 
 if [ ! -d "${release_dir_linux}" ]; then
     mkdir -p "${release_dir_linux}"
