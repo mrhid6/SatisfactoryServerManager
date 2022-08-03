@@ -80,5 +80,9 @@ deploy-release:
     GIT_STRATEGY: fetch
     GIT_CHECKOUT: "true"
     GIT_SSH_COMMAND: "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+  before-script:
+    - git remote set-url origin git@10.10.10.6:publicrefinedrd/satisfactoryservermanager.git
+    - git fetch origin "${CI_COMMIT_SHA}"
+    - git reset --hard FETCH_HEAD
   script:
     - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "release-it --no-npm --ci -VV"'
