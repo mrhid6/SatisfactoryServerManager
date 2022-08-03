@@ -67,8 +67,6 @@ deploy:
   script:
     - sleep 30
     - VERSION=$(cat package.json | grep version | awk '{print $2}' | sed -e 's/"//g' | sed -e 's/,//g')
-    - "ls -l release-builds"
-    - echo "$VERSION - ${DOCKERPASS} - ${DOCKERIMG}"
     - echo "${DOCKERPASS}" | docker login -u mrhid6 --password-stdin
     - docker build . --tag ${DOCKERIMG}:latest --tag ${DOCKERIMG}:${VERSION}
     - docker push ${DOCKERIMG}:latest

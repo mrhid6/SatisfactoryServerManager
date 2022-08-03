@@ -17,7 +17,7 @@ VOLUME /opt/SSM
 
 
 
-COPY release-builds/linux/* /opt/SSM
+COPY release-builds/linux/* /opt/SSM/
 RUN chown -R ssm:ssm /opt/SSM
 
 RUN mkdir -p /home/ssm/.SatisfactoryServerManager && mkdir -p /home/ssm/.config/Epic/FactoryGame
