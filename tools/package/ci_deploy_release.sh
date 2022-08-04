@@ -23,6 +23,4 @@ echo "$PACKAGE_REGISTRY_URL"
 curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipWin64FilePath} ${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}
 curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipLinuxFilePath} ${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}
 
-release-cli create --name "Release $VERSION" --tag-name $VERSION \
-        --assets-link "{\"name\":\"${ZipWin64FileName}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}\"}" \
-        --assets-link "{\"name\":\"${ZipLinuxFileName}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}\"}"
+release-cli --server-url "https://git.hostxtra.co.uk" --project-id ${CI_PROJECT_ID}  --job-token ${CI_JOB_TOKEN} create --name "Release $VERSION" --tag-name $VERSION --assets-link "{\"name\":\"${ZipWin64FileName}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}\"}" --assets-link "{\"name\":\"${ZipLinuxFileName}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}\"}"
