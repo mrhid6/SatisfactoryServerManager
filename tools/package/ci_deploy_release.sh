@@ -18,6 +18,8 @@ ZipLinuxFilePath="${release_dir}/${ZipLinuxFileName}"
 
 PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ssm/${VERSION}"
 
+echo "$PACKAGE_REGISTRY_URL"
+
 curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipWin64FilePath} ${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}
 curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipLinuxFilePath} ${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}
 
