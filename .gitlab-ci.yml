@@ -85,4 +85,4 @@ deploy-release:
     - git fetch origin "${CI_COMMIT_SHA}"
     - git reset --hard FETCH_HEAD
   script:
-    - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "release-it --no-npm --ci -VV"'
+    - '& "C:\\Program Files\\Git\\bin\\bash.exe" --login -c "bash ./tools/package/ci_deploy_release.sh"'
