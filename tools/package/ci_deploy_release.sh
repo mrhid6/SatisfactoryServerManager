@@ -12,8 +12,8 @@ ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
 
 PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ssm/${VERSION}"
 
-curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file bin/${ZipWin64FileName} ${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}
-curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file bin/${ZipLinuxFileName} ${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}
+curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipWin64FileName} ${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}
+curl --header "JOB-TOKEN: ${CI_JOB_TOKEN}" --upload-file ${ZipLinuxFileName} ${PACKAGE_REGISTRY_URL}/${ZipLinuxFileName}
 
 release-cli create --name "Release $VERSION" --tag-name $VERSION \
         --assets-link "{\"name\":\"${ZipWin64FileName}\",\"url\":\"${PACKAGE_REGISTRY_URL}/${ZipWin64FileName}\"}" \
