@@ -2,6 +2,9 @@
 
 VERSION=$(cat package.json | grep version | awk '{print $2}' | sed -e 's/"//g' | sed -e 's/,//g')
 
+CURDIR=$(dirname "$(readlink -f "$0")")
+BASEDIR=$(readlink -f "$CURDIR/../..")
+
 release_dir="${BASEDIR}/release-builds"
 release_dir_win64="${release_dir}/win64"
 release_dir_linux="${release_dir}/linux"
