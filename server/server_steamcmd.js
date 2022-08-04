@@ -187,8 +187,7 @@ class ServerSteamCMD {
             const output = await outputPromise;
 
             return output;
-
-        }catch(err){
+        } catch (err) {
             throw err;
         } finally {
             // Always cleanup the temp file
@@ -215,6 +214,7 @@ class ServerSteamCMD {
                 .replace(/\r/, "")
                 .trim();
             const line = `${stripAnsi(normalisedLine)}`;
+            console.log(line);
 
             datalines.push(line);
         });
@@ -244,7 +244,9 @@ class ServerSteamCMD {
             `force_install_dir "${installDir}"`,
             `app_update ${appId}`,
         ];
-        return await this.run(commands);
+        const output = await this.run(commands);
+        console.log(output);
+        return;
     };
 
     getAppInfo = async (appId) => {
