@@ -16,7 +16,7 @@ ZipLinuxFileName="SSM-Linux-x64-${VERSION}.tar.gz"
 ZipLinuxFilePath="${release_dir}/${ZipLinuxFileName}"
 
 
-PACKAGE_REGISTRY_URL="${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/ssm/${VERSION}"
+PACKAGE_REGISTRY_URL="https://git.hostxtra.co.uk/api/v4/projects/${CI_PROJECT_ID}/packages/generic/ssm/${VERSION}"
 
 echo "$PACKAGE_REGISTRY_URL"
 
