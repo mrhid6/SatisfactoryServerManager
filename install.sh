@@ -166,7 +166,13 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "20.04" ]]; then
     fi
 fi
 
-useradd -m ssm -u 9999 -s /bin/bash >/dev/null 2>&1
+if id "ssm" &>/dev/null; then
+    usermod u 9999 ssm;
+    groupmod -g 9999 ssm;
+else
+    useradd -m ssm -u 9999 -s /bin/bash >/dev/null 2>&1
+fi
+
 
 if [ $ISDOCKER -eq 0 ]; then
     echo "Installing Docker"
@@ -206,6 +212,11 @@ setcap cap_net_bind_service=+ep `readlink -f /opt/SSM/SatisfactoryServerManager`
 
 echo "* Cleanup"
 rm -r ${TEMP_DIR}
+
+if [ -d "/SSMAgents" ]; then
+    chown -R ssm:ssm /SSMAgents
+    chmod -R 755 /SSMAgents
+fi
 
 if [ ${NOSERVICE} -eq 0 ]; then
     echo "Creating SSM Service"

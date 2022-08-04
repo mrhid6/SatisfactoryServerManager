@@ -24,6 +24,7 @@ RUN mkdir -p /home/ssm/.SatisfactoryServerManager && mkdir -p /home/ssm/.config/
 RUN chown -R ssm:ssm /home/ssm
 
 COPY entry.sh /entry.sh
+chmod 755 /entry.sh
 
 RUN ls -l /
 
