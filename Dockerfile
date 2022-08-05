@@ -5,7 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get -qq update -y && apt-get -qq upgrade -y
 
-RUN apt-get -qq install binutils software-properties-common libcap2-bin apt-utils wget curl htop dnsmasq resolvconf -y
+RUN apt-get -qq install binutils software-properties-common libcap2-bin apt-utils wget curl htop dnsmasq -y
 RUN add-apt-repository multiverse
 RUN dpkg --add-architecture i386
 
