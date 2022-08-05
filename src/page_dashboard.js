@@ -16,7 +16,6 @@ class Page_Dashboard {
 
     setupEventHandlers() {
         PageCache.on("setagentslist", () => {
-            logger.info("Got Agents List!");
             this.OnGotAgentsList();
         });
     }

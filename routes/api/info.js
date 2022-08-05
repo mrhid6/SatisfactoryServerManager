@@ -77,4 +77,11 @@ router.get("/webhooks", middleWare, function (req, res, next) {
     });
 });
 
+router.get("/serverrunning", middleWare, function (req, res, next) {
+    res.json({
+        result: "success",
+        running: ServerApp._init,
+    });
+});
+
 module.exports = router;

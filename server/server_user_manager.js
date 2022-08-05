@@ -15,9 +15,9 @@ class UserManager {
         this._ROLES = [];
     }
 
-    init() {
-        this.reinit();
-    }
+    init = async () => {
+        await this.reinit();
+    };
 
     reinit() {
         return new Promise((resolve, reject) => {

@@ -20,6 +20,8 @@ class PageHandler {
             sfinstalls: [],
             selected_sfinstall: null,
         };
+
+        this._server_running = false;
     }
 
     init() {
@@ -68,6 +70,8 @@ class PageHandler {
 
         this.getAgentsList();
         this.startLoggedInCheck();
+        this.startServerRunningCheck();
+        this.checkServerRunning();
         this.startPageInfoRefresh();
     }
 
@@ -85,6 +89,10 @@ class PageHandler {
     }
 
     getAgentsList() {
+        if (this._server_running == false) {
+            return;
+        }
+
         API_Proxy.get("agent", "agents")
             .then((res) => {
                 if (res.result == "success") {
@@ -163,6 +171,35 @@ class PageHandler {
             API_Proxy.get("info", "loggedin").then((res) => {
                 if (res.result == "success") {
                     resolve(true);
+                } else {
+                    resolve(false);
+                }
+            });
+        });
+    }
+
+    startServerRunningCheck() {
+        const interval = setInterval(() => {
+            this.checkServerRunning().then((running) => {
+                if (running == true) {
+                    clearInterval(interval);
+                }
+            });
+        }, 1000);
+    }
+
+    checkServerRunning() {
+        return new Promise((resolve, reject) => {
+            API_Proxy.get("info", "serverrunning").then((res) => {
+                if (res.result == "success") {
+                    if (res.running == true) {
+                        this._server_running = true;
+                        $("#server-running-loading").remove();
+                        this.getAgentsList();
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
                 } else {
                     resolve(false);
                 }

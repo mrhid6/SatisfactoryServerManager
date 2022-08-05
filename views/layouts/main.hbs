@@ -1,161 +1,298 @@
-<!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <meta charset="utf-8" />
-    <title>Satisfactory Server Manager</title>
-    <script defer src="/libraries/jquery/dist/jquery.min.js"></script>
-    <script defer src="/libraries/jquery-steps/build/jquery.steps.min.js"></script>
-    <script defer src="/libraries/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script defer src="/libraries/datatables.net/js/jquery.dataTables.min.js"></script>
-    <script defer src="/libraries/datatables.net-bs5/js/dataTables.bootstrap5.min.js"></script>
-    <script defer src="/libraries/bootstrap4-toggle/js/bootstrap4-toggle.min.js"></script>
-    <script defer src="/libraries/moment/min/moment.min.js"></script>
-    <script defer src="/libraries/toastr/build/toastr.min.js"></script>
-    <script defer src="/public/js/date-euro.js"></script>
-    <script defer src="/libraries/jquery-circle-progress/dist/circle-progress.min.js"></script>
-    <script defer src="/public/js/bundle.js"></script>
+    <head>
+        <meta charset="utf-8" />
+        <title>Satisfactory Server Manager</title>
+        <script defer src="/libraries/jquery/dist/jquery.min.js"></script>
+        <script
+            defer
+            src="/libraries/jquery-steps/build/jquery.steps.min.js"
+        ></script>
+        <script
+            defer
+            src="/libraries/bootstrap/dist/js/bootstrap.bundle.min.js"
+        ></script>
+        <script
+            defer
+            src="/libraries/datatables.net/js/jquery.dataTables.min.js"
+        ></script>
+        <script
+            defer
+            src="/libraries/datatables.net-bs5/js/dataTables.bootstrap5.min.js"
+        ></script>
+        <script
+            defer
+            src="/libraries/bootstrap4-toggle/js/bootstrap4-toggle.min.js"
+        ></script>
+        <script defer src="/libraries/moment/min/moment.min.js"></script>
+        <script defer src="/libraries/toastr/build/toastr.min.js"></script>
+        <script defer src="/public/js/date-euro.js"></script>
+        <script
+            defer
+            src="/libraries/jquery-circle-progress/dist/circle-progress.min.js"
+        ></script>
+        <script defer src="/public/js/bundle.js"></script>
 
-    <link rel='stylesheet' href='/libraries/bootstrap/dist/css/bootstrap.min.css' />
-    <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/all.min.css' />
-    <link rel='stylesheet' href='/libraries/@fortawesome/fontawesome-free/css/fontawesome.min.css' />
-    <link rel='stylesheet' href='/libraries/datatables.net-bs5/css/dataTables.bootstrap5.min.css' />
-    <link rel='stylesheet' href='/libraries/bootstrap4-toggle/css/bootstrap4-toggle.min.css' />
-    <link rel='stylesheet' href='/libraries/toastr/build/toastr.min.css' />
+        <link
+            rel="stylesheet"
+            href="/libraries/bootstrap/dist/css/bootstrap.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="/libraries/@fortawesome/fontawesome-free/css/all.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="/libraries/@fortawesome/fontawesome-free/css/fontawesome.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="/libraries/datatables.net-bs5/css/dataTables.bootstrap5.min.css"
+        />
+        <link
+            rel="stylesheet"
+            href="/libraries/bootstrap4-toggle/css/bootstrap4-toggle.min.css"
+        />
+        <link rel="stylesheet" href="/libraries/toastr/build/toastr.min.css" />
 
+        <link rel="stylesheet" href="/public/css/jquery.steps.css" />
+        <link rel="stylesheet" href="/public/css/bootswatch.min.css" />
+        <link rel="stylesheet" href="/public/css/main.min.css" />
 
-    <link rel='stylesheet' href='/public/css/jquery.steps.css' />
-    <link rel='stylesheet' href='/public/css/bootswatch.min.css' />
-    <link rel='stylesheet' href='/public/css/main.min.css' />
+        <meta name="HandheldFriendly" content="True" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+        />
 
-     <meta name="HandheldFriendly" content="True" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+        <link
+            rel="apple-touch-icon"
+            sizes="180x180"
+            href="/public/images/favicons/apple-touch-icon.png?v=9B95M7ezK3"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="32x32"
+            href="/public/images/favicons/favicon-32x32.png?v=9B95M7ezK3"
+        />
+        <link
+            rel="icon"
+            type="image/png"
+            sizes="16x16"
+            href="/public/images/favicons/favicon-16x16.png?v=9B95M7ezK3"
+        />
+        <link
+            rel="manifest"
+            href="/public/images/favicons/site.webmanifest?v=9B95M7ezK3"
+        />
+        <link
+            rel="mask-icon"
+            href="/public/images/favicons/safari-pinned-tab.svg?v=9B95M7ezK3"
+            color="#5bbad5"
+        />
+        <link
+            rel="shortcut icon"
+            href="/public/images/favicons/favicon.ico?v=9B95M7ezK3"
+        />
+        <meta name="msapplication-TileColor" content="#2d89ef" />
+        <meta
+            name="msapplication-config"
+            content="/public/images/favicons/browserconfig.xml?v=9B95M7ezK3"
+        />
+        <meta name="theme-color" content="#ffffff" />
+    </head>
 
-    <link rel="apple-touch-icon" sizes="180x180" href="/public/images/favicons/apple-touch-icon.png?v=9B95M7ezK3">
-    <link rel="icon" type="image/png" sizes="32x32" href="/public/images/favicons/favicon-32x32.png?v=9B95M7ezK3">
-    <link rel="icon" type="image/png" sizes="16x16" href="/public/images/favicons/favicon-16x16.png?v=9B95M7ezK3">
-    <link rel="manifest" href="/public/images/favicons/site.webmanifest?v=9B95M7ezK3">
-    <link rel="mask-icon" href="/public/images/favicons/safari-pinned-tab.svg?v=9B95M7ezK3" color="#5bbad5">
-    <link rel="shortcut icon" href="/public/images/favicons/favicon.ico?v=9B95M7ezK3">
-    <meta name="msapplication-TileColor" content="#2d89ef">
-    <meta name="msapplication-config" content="/public/images/favicons/browserconfig.xml?v=9B95M7ezK3">
-    <meta name="theme-color" content="#ffffff">
-</head>
+    <body>
+        <div id="viewport" class="minimal">
+            <!-- Sidebar -->
+            <div id="sidebar">
 
-<body>
-    <div id="viewport" class="minimal">
-        <!-- Sidebar -->
-        <div id="sidebar">
+                <nav class="navbar navbar-expand-lg navbar-dark flex-column">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" href="/"><img
+                                src="/public/images/ssm_logo64.png"
+                                alt=""
+                            /></a>
 
-            <nav class="navbar navbar-expand-lg navbar-dark flex-column">
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="/"><img src="/public/images/ssm_logo64.png" alt=""></a>
+                        <button
+                            class="navbar-toggler"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#navbarSupportedContent"
+                            aria-controls="navbarSupportedContent"
+                            aria-expanded="false"
+                            aria-label="Toggle navigation"
+                        >
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                    </div>
+                    <div
+                        class="collapse navbar-collapse"
+                        id="navbarSupportedContent"
+                    >
+                        <ul class="navbar-nav flex-column">
+                            {{#if perms.dashboard}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Dashboard"
+                                    >
+                                        <i class="fas fa-tachometer-alt"></i>
+                                        <span>Dashboard</span>
+                                    </a>
+                                </li>
+                            {{/if}}
 
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                </div>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav flex-column">
-                        {{#if perms.dashboard}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Dashboard">
-                                <i class="fas fa-tachometer-alt"></i>
-                                <span>Dashboard</span>
-                            </a>
-                        </li>
-                        {{/if}}
+                            {{#if perms.servers}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/servers"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Servers"
+                                    >
+                                        <i class="fas fa-server"></i>
+                                        <span>Servers</span>
+                                    </a>
+                                </li>
+                            {{/if}}
+                            {{#if perms.mods}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/mods"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Mods"
+                                    >
+                                        <i class="fas fa-pencil-ruler"></i>
+                                        <span>Mods</span>
+                                    </a>
+                                </li>
+                            {{/if}}
+                            {{#if perms.logs}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/logs"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Log Files"
+                                    >
+                                        <i class="fas fa-file-alt"></i>
+                                        <span>Logs</span>
+                                    </a>
+                                </li>
+                            {{/if}}
+                            {{#if perms.saves}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/saves"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Save Files"
+                                    >
+                                        <i class="fas fa-save"></i>
+                                        <span>Saves</span>
+                                    </a>
+                                </li>
+                            {{/if}}
 
-                        {{#if perms.servers}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/servers" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Servers">
-                                <i class="fas fa-server"></i>
-                                <span>Servers</span>
-                            </a>
-                        </li>
-                        {{/if}}
-                        {{#if perms.mods}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/mods" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Mods">
-                                <i class="fas fa-pencil-ruler"></i>
-                                <span>Mods</span>
-                            </a>
-                        </li>
-                        {{/if}}
-                        {{#if perms.logs}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logs" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Log Files">
-                                <i class="fas fa-file-alt"></i>
-                                <span>Logs</span>
-                            </a>
-                        </li>
-                        {{/if}}
-                        {{#if perms.saves}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/saves" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Save Files">
-                                <i class="fas fa-save"></i>
-                                <span>Saves</span>
-                            </a>
-                        </li>
-                        {{/if}}
+                            {{#if perms.admin.backups}}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/backups"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Backup Files"
+                                    >
+                                        <i class="fas fa-folder-open"></i>
+                                        <span>Backups</span>
+                                    </a>
+                                </li>
+                            {{/if}}
 
-                         {{#if perms.admin.backups}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/backups" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Backup Files">
-                                <i class="fas fa-folder-open"></i>
-                                <span>Backups</span>
-                            </a>
-                        </li>
-                        {{/if}}
+                            {{#if
+                                (or
+                                    perms.admin.settings
+                                    perms.admin.users
+                                    perms.admin.backups
+                                )
+                            }}
+                                <li class="nav-item">
+                                    <a
+                                        class="nav-link"
+                                        href="/admin"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Admin"
+                                    >
+                                        <i class="fas fa-user-shield"></i>
+                                        <span>Admin</span>
+                                    </a>
+                                </li>
+                            {{/if}}
 
-                        {{#if (or perms.admin.settings perms.admin.users perms.admin.backups)}}
-                        <li class="nav-item">
-                            <a class="nav-link" href="/admin" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Admin">
-                                <i class="fas fa-user-shield"></i>
-                                <span>Admin</span>
-                            </a>
-                        </li>
-                        {{/if}}
-
-                         {{#if perms.dashboard}}
-                        <li class="nav-item mt-auto nav-item-bottom">
-                            <a class="nav-link" href="https://github.com/mrhid6/SatisfactoryServerManager/wiki" data-bs-toggle="tooltip" data-bs-placement="right"
-                                title="Docs" target="_blank">
-                                <i class="fas fa-book"></i>
-                                <span>Docs</span>
-                            </a>
-                        </li>
-                        {{/if}}
-                    </ul>
-                </div>
-            </nav>
-        </div>
-        <!-- Content -->
-        <div id="content">
-            <div class="container-fluid">
-                {{{body}}}
+                            {{#if perms.dashboard}}
+                                <li class="nav-item mt-auto nav-item-bottom">
+                                    <a
+                                        class="nav-link"
+                                        href="https://github.com/mrhid6/SatisfactoryServerManager/wiki"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="right"
+                                        title="Docs"
+                                        target="_blank"
+                                    >
+                                        <i class="fas fa-book"></i>
+                                        <span>Docs</span>
+                                    </a>
+                                </li>
+                            {{/if}}
+                        </ul>
+                    </div>
+                </nav>
             </div>
-            <footer class="page-footer font-small blue bg-dark">
-
-                <!-- Copyright -->
-                <div class="footer-copyright text-center py-3">© 2020 - 2022 Copyright:
-                    <a href="https://github.com/mrhid6/SatisfactoryServerManager"> Refined R&D</a>
-                    MIT License.
+            <!-- Content -->
+            <div id="content">
+                <div class="container-fluid">
+                    {{{body}}}
                 </div>
-                <!-- Copyright -->
+                <footer class="page-footer font-small blue bg-dark">
 
-            </footer>
+                    <!-- Copyright -->
+                    <div class="footer-copyright text-center py-3">© 2020 - 2022
+                        Copyright:
+                        <a
+                            href="https://github.com/mrhid6/SatisfactoryServerManager"
+                        > Refined R&D</a>
+                        MIT License.
+                    </div>
+                    <!-- Copyright -->
+
+                </footer>
+            </div>
         </div>
-    </div>
-</body>
+
+        <div id="server-running-loading">
+            <div class="card shadow mx-auto mt-5" style="width:500px">
+                <div class="card-body">
+                    <p class="text-center">
+                        <i class="fa-solid fa-arrows-spin fa-spin fa-5x"></i>
+                        <h5 class="text-center">Satisfactory Server Manager</h5>
+                        <h3 class="text-center">Is Still Initializing!</h3>
+                    </p>
+
+                </div>
+            </div>
+        </div>
+
+    </body>
 
 </html>

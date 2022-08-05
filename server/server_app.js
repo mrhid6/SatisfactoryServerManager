@@ -23,29 +23,33 @@ const fs = require("fs-extra");
 const rimraf = require("rimraf");
 
 class SSM_Server_App {
-    constructor() {}
+    constructor() {
+        this._init = false;
+    }
 
-    init() {
+    init = async () => {
         logger.info("[SERVER_APP] [INIT] - Starting Server App...");
         this.setupEventHandlers();
 
         SSM_Log_Handler.init();
 
         if (Config.get("ssm.agent.isagent") === true) {
-            AgentApp.init();
+            await AgentApp.init();
+            this._init == true;
         } else {
-            DB.init().then(() => {
-                UserManager.init();
-                SSM_Agent_Handler.init();
-                NotificationHandler.init().then(() => {
-                    const Notification = new ObjNotifySSMStartup();
-                    Notification.build();
+            await DB.init();
+            await UserManager.init();
+            await SSM_Agent_Handler.init();
+            this._init = true;
 
-                    NotificationHandler.StoreNotification(Notification);
-                });
+            NotificationHandler.init().then(() => {
+                const Notification = new ObjNotifySSMStartup();
+                Notification.build();
+
+                NotificationHandler.StoreNotification(Notification);
             });
         }
-    }
+    };
 
     setupEventHandlers() {
         Cleanup.addEventHandler(() => {
