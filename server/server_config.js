@@ -79,7 +79,7 @@ class ServerConfig extends iConfig {
         fs.ensureDirSync(super.get("ssm.tempdir"));
 
         super.get("ssm.http_port", 3000);
-        super.set("ssm.version", `v1.1.31`);
+        super.set("ssm.version", `v1.1.32`);
 
         if (super.get("ssm.users") != null) {
             super.delete("ssm.users");
