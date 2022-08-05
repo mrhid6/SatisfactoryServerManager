@@ -21,10 +21,11 @@ class ServerStatsManager {
             await this.validateStatsDBTable();
             const installed = await SFS_HANDLER.isGameInstalled();
             if (installed && this._SaveFile != null) {
+                Logger.info(`[Stats_Manager] - Loading Stats From Save File`);
                 await this.LoadStatsFromSaveFile();
             } else {
                 Logger.warn(
-                    `Stats Manager Failed To Init, Installed: ${installed}, SaveFile: ${this._SaveFile}`
+                    `[Stats_Manager] - Stats Manager Failed To Init, Installed: ${installed}, SaveFile: ${this._SaveFile}`
                 );
             }
         } catch (err) {
@@ -40,7 +41,7 @@ class ServerStatsManager {
                     await this.LoadStatsFromSaveFile();
                 }
             } catch (err) {}
-        }, 20000);
+        }, Config.get("ssm.stats_interval", 120000));
     };
 
     SetupSaveFile = async () => {
@@ -100,28 +101,39 @@ class ServerStatsManager {
 
     LoadStatsFromSaveFile = async () => {
         if (fs.existsSync(this._SaveFile) == false) {
+            Logger.error(
+                "[Stats_Manager] - Skipping Loading: Save File Doesn't exist!"
+            );
             throw new Error("Save file doesn't exist!");
         }
 
-        if (SFS_HANDLER.isServerRunning()) {
+        const ServerRunning = await SFS_HANDLER.isServerRunning();
+
+        if (ServerRunning == true) {
+            Logger.debug("[Stats_Manager] - Skipping Loading: Server Running!");
             return;
         }
 
         let SavefileData = {};
+
         try {
+            Logger.debug("[Stats_Manager] - Loading Save Data...");
             var data = fs.readFileSync(this._SaveFile);
             SavefileData = await sfSavToJson(data);
+            Logger.debug("[Stats_Manager] - Save Data Loaded");
         } catch (err) {
             throw new Error(err.message);
         }
 
         try {
+            Logger.debug("[Stats_Manager] - Parsing Save Data...");
             await this.GetFoundationsCountFromSaveData(SavefileData);
             await this.GetConveyorCountFromSaveData(SavefileData);
             await this.GetFactoriesCountFromSaveData(SavefileData);
             await this.GetPipelineCountFromSaveData(SavefileData);
             await this.GetPlaytimeFromSaveData(SavefileData);
             await this.GetGamePhaseFromSaveData(SavefileData);
+            Logger.debug("[Stats_Manager] - Save Data Parsed!");
         } catch (err) {
             throw err;
         }
