@@ -167,7 +167,7 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "20.04" ]]; then
 fi
 
 if id "ssm" &>/dev/null; then
-    usermod u 9999 ssm;
+    usermod -u 9999 ssm;
     groupmod -g 9999 ssm;
 else
     useradd -m ssm -u 9999 -s /bin/bash >/dev/null 2>&1
