@@ -41,6 +41,7 @@ class Page_Logs {
 
         this.getSSMLog();
         this.getSFServerLog();
+        this.getSteamLog();
     }
 
     getSSMLog() {

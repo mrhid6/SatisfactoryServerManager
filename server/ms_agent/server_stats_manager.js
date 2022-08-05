@@ -7,6 +7,8 @@ const path = require("path");
 const sfSavToJson = require("satisfactory-json").sav2json;
 const sfjson2sav = require("satisfactory-json").json2sav;
 
+const Logger = require("../server_logger");
+
 class ServerStatsManager {
     constructor() {
         this._SaveFile = null;
@@ -20,9 +22,13 @@ class ServerStatsManager {
             const installed = await SFS_HANDLER.isGameInstalled();
             if (installed && this._SaveFile != null) {
                 await this.LoadStatsFromSaveFile();
+            } else {
+                Logger.warn(
+                    `Stats Manager Failed To Init, Installed: ${installed}, SaveFile: ${this._SaveFile}`
+                );
             }
         } catch (err) {
-            console.log("Error1");
+            Logger.error(`[Stats_Manager] - ${err.message}`);
         }
 
         setInterval(async () => {
@@ -33,9 +39,7 @@ class ServerStatsManager {
                 if (installed && this._SaveFile != null) {
                     await this.LoadStatsFromSaveFile();
                 }
-            } catch (err) {
-                console.log("Error2");
-            }
+            } catch (err) {}
         }, 20000);
     };
 
