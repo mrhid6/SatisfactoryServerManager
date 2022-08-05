@@ -10,6 +10,8 @@ const es = require("event-stream");
 const rimraf = require("rimraf");
 const fsR = require("fs-reverse");
 
+const SteamLogger = require("./server_steamcmd").SteamLogger;
+
 class SSM_Log_Handler {
     constructor() {
         this._TotalSFLogLineCount = 0;
@@ -227,11 +229,38 @@ class SSM_Log_Handler {
         });
     }
 
-    getSMLauncherLog() {
-        return new Promise((resolve, reject) => {
-            resolve([]);
-        });
-    }
+    getSteamCMDLog = async () => {
+        try {
+            const logFiles = await this.getLogFiles(
+                SteamLogger._options.logDirectory
+            );
+
+            const logfile = logFiles.find((el) => {
+                const filename = path.basename(el);
+
+                const date = moment().format("YYYYMMDD");
+
+                if (filename.startsWith(date)) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (logfile == null) {
+                throw new Error("Can't find log file");
+            }
+
+            const fileData = fs.readFileSync(logfile);
+            const dataStr = fileData.toString().replace(/\r\n/g, "\n");
+            const dataArr = dataStr
+                .split("\n")
+                .reverse()
+                .filter((el) => el != "");
+
+            return dataArr;
+        } catch (err) {}
+    };
 
     getLogFiles(directory) {
         return new Promise((resolve, reject) => {

@@ -415,8 +415,8 @@ router.get("/logs/ssmlog", checkHeaderKey, function (req, res, next) {
         });
 });
 
-router.get("/logs/smlauncherlog", checkHeaderKey, function (req, res, next) {
-    SSM_Log_Handler.getSMLauncherLog()
+router.get("/logs/steamlog", checkHeaderKey, function (req, res, next) {
+    SSM_Log_Handler.getSteamCMDLog()
         .then((result) => {
             res.json({
                 result: "success",

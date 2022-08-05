@@ -27,6 +27,40 @@ const logger = require("./server_logger");
 const Cleanup = require("./server_cleanup");
 const Config = require("./server_config");
 
+const Mrhid6Utils = require("mrhid6utils");
+const iLogger = Mrhid6Utils.Logger;
+
+const Logger = require("simple-node-logger");
+
+class SteamCMDLogger extends iLogger {
+    constructor() {
+        super({
+            logName: "SSMSteamCMD",
+        });
+    }
+
+    init() {
+        fs.ensureDirSync(this._options.logDirectory);
+
+        const LoggerOpts = {
+            timestampFormat: "YYYY-MM-DD HH:mm:ss",
+            logDirectory: this._options.logDirectory,
+            fileNamePattern: `<DATE>-${this._options.logName}.log`,
+            dateFormat: "YYYYMMDD",
+            level: this._options.logLevel,
+        };
+
+        const LogManager = Logger.createLogManager(LoggerOpts);
+        this._logger = LogManager.createLogger();
+
+        this.debug(`[LOGGER] - Log Directory ${this._options.logDirectory}`);
+    }
+}
+
+const SteamLogger = new SteamCMDLogger();
+
+module.exports.SteamLogger = SteamLogger;
+
 class ServerSteamCMD {
     constructor() {}
 
@@ -38,6 +72,8 @@ class ServerSteamCMD {
             exeName: "",
             ArchiveType: "",
         };
+
+        SteamLogger.init();
 
         switch (process.platform) {
             case "win32":
@@ -146,7 +182,7 @@ class ServerSteamCMD {
         }
     }
 
-    run = async (commands = []) => {
+    run = async (commands = [], shouldLog = false) => {
         const allCommands = [
             "@ShutdownOnFailedCommand 1",
             "@NoPromptForPassword 1",
@@ -173,7 +209,10 @@ class ServerSteamCMD {
 
             const exitPromise = this.getPtyExitPromise(steamCmdPty);
 
-            const outputPromise = this.getPtyDataIterator(steamCmdPty);
+            const outputPromise = this.getPtyDataIterator(
+                steamCmdPty,
+                shouldLog
+            );
 
             const exitCode = await exitPromise;
 
@@ -205,7 +244,7 @@ class ServerSteamCMD {
         });
     }
 
-    getPtyDataIterator = async (pty) => {
+    getPtyDataIterator = async (pty, shouldLog = false) => {
         const datalines = [];
 
         const { dispose: disposeDataListener } = pty.onData((outputLine) => {
@@ -214,7 +253,10 @@ class ServerSteamCMD {
                 .replace(/\r/, "")
                 .trim();
             const line = `${stripAnsi(normalisedLine)}`;
-            console.log(line);
+
+            if (shouldLog) {
+                SteamLogger.debug(line);
+            }
 
             datalines.push(line);
         });
@@ -244,9 +286,8 @@ class ServerSteamCMD {
             `force_install_dir "${installDir}"`,
             `app_update ${appId}`,
         ];
-        const output = await this.run(commands);
-        console.log(output);
-        return;
+        const output = await this.run(commands, true);
+        return output;
     };
 
     getAppInfo = async (appId) => {
@@ -276,4 +317,4 @@ class ServerSteamCMD {
     }
 }
 
-module.exports = ServerSteamCMD;
+module.exports.ServerSteamCMD = ServerSteamCMD;

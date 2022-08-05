@@ -365,8 +365,8 @@ router.post("/logs/ssmlog", middleWare, function (req, res) {
         });
 });
 
-router.post("/logs/smlauncherlog", middleWare, function (req, res) {
-    AgentHandler.API_GetLogs("smlauncherlog", req.body)
+router.post("/logs/steamlog", middleWare, function (req, res) {
+    AgentHandler.API_GetLogs("steamlog", req.body)
         .then((logs) => {
             res.json({
                 result: "success",

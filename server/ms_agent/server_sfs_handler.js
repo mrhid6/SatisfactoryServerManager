@@ -16,7 +16,7 @@ const Config = require("../server_config");
 
 const ModHandler = require("./server_new_mod_handler");
 
-const iSteamCMD = require("../server_steamcmd");
+const iSteamCMD = require("../server_steamcmd").ServerSteamCMD;
 
 const {
     SteamCMDNotInstalled,
@@ -87,7 +87,7 @@ class SF_Server_Handler {
                 .then(() => {
                     logger.info("[SFS_Handler] - SteamCmd Downloaded!");
                     logger.info("[SFS_Handler] - SteamCmd Initializing!");
-                    return this.SteamCMD.run();
+                    return this.SteamCMD.run([], true);
                 })
                 .then(() => {
                     logger.info("[SFS_Handler] - SteamCmd Initialised!");

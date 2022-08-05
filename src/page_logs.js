@@ -66,6 +66,29 @@ class Page_Logs {
         });
     }
 
+    getSteamLog() {
+        const Agent = PageCache.getActiveAgent();
+        const postData = {};
+
+        if (Agent == null) {
+            postData.agentid = -1;
+        } else {
+            postData.agentid = Agent.id;
+        }
+
+        API_Proxy.postData("agent/logs/steamlog", postData).then((res) => {
+            const el = $("#steam-log-viewer samp");
+            el.empty();
+            if (res.result == "success") {
+                res.data.forEach((logline) => {
+                    el.append("<p>" + logline + "</p>");
+                });
+            } else {
+                el.text(res.error.message);
+            }
+        });
+    }
+
     getSFServerLog(force = false) {
         const Agent = PageCache.getActiveAgent();
         const postData = {
