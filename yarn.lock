@@ -2198,10 +2198,10 @@ strip-json-comments@~2.0.1:
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   integrity sha512-4gB8na07fecVVkOI6Rs4e7T6NOTki5EmL7TUduTs6bu3EdnSycntVJ4re8kgZA+wx9IueI2Y11bfbgwtzuE0KQ==
 
-systeminformation@^5.12.3:
-  version "5.12.3"
-  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.12.3.tgz#1e6dc99070ace7d88b6a1dd465f4f3ce7d63901a"
-  integrity sha512-aPyTDzK/VjEheGEODprxFTMahIWTHGyWXxTsh9EOHjeekVltrIWrle4dOZouOlOYgtKM1pDoHkrR+IssgYCK/A==
+systeminformation@^5.12.4:
+  version "5.12.4"
+  resolved "https://registry.yarnpkg.com/systeminformation/-/systeminformation-5.12.4.tgz#2afb07d1f5ea0549f69877f5553fda2a19f1ea89"
+  integrity sha512-wmzAUdjk7IqqdjmtCT8STaZrfXb9aZmcgqjRo8oLTF6CYs7KaRStex92i5cUziaDQ+04v5xK8iqlHcrKFVZAJQ==
 
 tar-fs@^2.0.0:
   version "2.1.1"
