@@ -222,6 +222,14 @@ class AgentHandler {
         return this._AGENTS.find((agent) => agent.getServerPort() == port);
     }
 
+    GetDockerForAgent = async (Agent) => {
+        const container = await DockerAPI.GetDockerContainerByID(
+            Agent.getDockerId()
+        );
+
+        return container;
+    };
+
     /* End Getters */
 
     GetNewDockerInfo(ServerName, portOffset) {

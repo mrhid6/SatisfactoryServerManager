@@ -52,6 +52,7 @@ while [[ $# -gt 0 ]]; do
     *)
         echo "Invalid option must be: [--force, --update, --noservice, --dev, --installdir=<Location>"
         exit 1
+        ;;
     esac
 done
 
@@ -85,8 +86,6 @@ else
     exit 2
 fi
 
-
-
 if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
 
     apt-get -qq install apt-utils curl wget jq -y >/dev/null 2>&1
@@ -97,7 +96,6 @@ if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
         echo "Using Dev build of SSM"
         curl --silent "https://api.github.com/repos/mrhid6/satisfactoryservermanager/releases" | jq -r "first(.[])" >${TEMP_DIR}/SSM_releases.json
     fi
-
 
     SSM_VER=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".tag_name")
     SSM_URL=$(cat ${TEMP_DIR}/SSM_releases.json | jq -r ".assets[].browser_download_url" | grep -i "Linux" | sort | head -1)
@@ -112,7 +110,7 @@ if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
 
                 if [[ "${SSM_CUR}" == "${SSM_VER}" ]] && [[ ${FORCE} -eq 0 ]]; then
                     echo "Skipping update version already installed!"
-                    exit 0;
+                    exit 0
                 fi
 
                 echo "Updating SSM ${SSM_CUR} to ${SSM_VER} ..."
@@ -132,17 +130,16 @@ if [[ "${OS}" == *"Debian"* ]] || [[ "${OS}" == "Ubuntu" ]]; then
     apt-get -qq install -y tzdata >/dev/null 2>&1
     dpkg-reconfigure --frontend noninteractive tzdata >/dev/null 2>&1
 
-
     apt-get -qq install binutils software-properties-common libcap2-bin -y >/dev/null 2>&1
     add-apt-repository multiverse -y >/dev/null 2>&1
     dpkg --add-architecture i386 >/dev/null 2>&1
     apt-get -qq update -y >/dev/null 2>&1
     apt-get -qq install lib32gcc1 -y >/dev/null 2>&1
 
-    CheckDockerContainer=$(grep 'docker\|lxc' /proc/1/cgroup | wc -l);
+    CheckDockerContainer=$(grep 'docker\|lxc' /proc/1/cgroup | wc -l)
 
     if [ $CheckDockerContainer -gt 0 ]; then
-        ISDOCKER=1;
+        ISDOCKER=1
     fi
 else
     echo "Error: This version of Linux is not supported for SSM"
@@ -167,15 +164,14 @@ if [[ "${OS}" == "Ubuntu" ]] && [[ "${VER}" != "20.04" ]]; then
 fi
 
 if id "ssm" &>/dev/null; then
-    usermod -u 9999 ssm;
-    groupmod -g 9999 ssm;
+    usermod -u 9999 ssm
+    groupmod -g 9999 ssm
 
     chown -R ssm:ssm /home/ssm
     chown -R ssm:ssm /opt/SSM
 else
     useradd -m ssm -u 9999 -s /bin/bash >/dev/null 2>&1
 fi
-
 
 if [ $ISDOCKER -eq 0 ]; then
     echo "Installing Docker"
@@ -211,12 +207,16 @@ echo ${SSM_VER} >"${INSTALL_DIR}/version.txt"
 chmod -R 777 ${INSTALL_DIR}
 chown -R ssm:ssm ${INSTALL_DIR}
 
-setcap cap_net_bind_service=+ep `readlink -f /opt/SSM/SatisfactoryServerManager`
+setcap cap_net_bind_service=+ep $(readlink -f /opt/SSM/SatisfactoryServerManager)
 
 echo "* Cleanup"
 rm -r ${TEMP_DIR}
 
 if [ -d "/SSMAgents" ]; then
+    chown -R ssm:ssm /SSMAgents
+    chmod -R 755 /SSMAgents
+else
+    mkdir /SSMAgents
     chown -R ssm:ssm /SSMAgents
     chmod -R 755 /SSMAgents
 fi
