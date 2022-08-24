@@ -56,7 +56,7 @@ fi
 SSM_SERVICENAME="SSM.service"
 SSM_SERVICEFILE="/etc/systemd/system/SSM.service"
 SSM_SERVICE=$(
-    systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}";
+    systemctl list-units --full -all | grep -Fq "${SSM_SERVICENAME}"
     echo $?
 )
 
@@ -77,8 +77,8 @@ echo "* Removing Install Directory ${INSTALL_DIR}"
 rm -r ${INSTALL_DIR} >/dev/null 2>&1
 
 echo "* Removing SSM user"
-deluser --remove-home ssm
-delgroup ssm
+deluser --remove-home ssm >/dev/null 2>&1
+delgroup ssm >/dev/null 2>&1
 rm -r "/home/ssm" >/dev/null 2>&1
 
 echo "* Removing Docker Containers"
