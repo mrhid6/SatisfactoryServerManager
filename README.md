@@ -35,6 +35,13 @@ Install: `.\install.ps1`<br/>
 Update: `.\install.ps1 -update $true`
 
 
+## How To Uninstall:
+
+**Debian / Ubuntu:**
+
+Uninstall: `wget -q https://tinyurl.com/ssmuninstall -O - |bash`
+
+
 ## Development:
 
 * Install nodejs (tested on v12.13.1)
