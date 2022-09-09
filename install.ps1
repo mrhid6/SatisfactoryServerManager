@@ -73,18 +73,8 @@ if($nodocker -eq $false){
     write-host "* Installing Docker"
 
     if($isWorkstation -eq $false){
-        Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force|out-null
-        Enable-WindowsOptionalFeature –Online -FeatureName Microsoft-Hyper-V –All -NoRestart |out-null
-        Install-WindowsFeature RSAT-Hyper-V-Tools -IncludeAllSubFeature -Confirm:$false |out-null
-        Uninstall-Package -Name docker -ProviderName DockerMSFTProvider -Confirm:$false |out-null
-        $VM = Get-VM WinContainerHost -ErrorAction SilentlyContinue;
-        if($VM){
-            $VM | Set-VMProcessor -ExposeVirtualizationExtensions $true |out-null
-        }
-        Install-Module DockerProvider -Confirm:$false -force |out-null
-        Install-Package Docker -ProviderName DockerProvider -RequiredVersion preview -Confirm:$false -force |out-null
-        [Environment]::SetEnvironmentVariable("LCOW_SUPPORTED", "1", "Machine")
-        Restart-Service docker
+        write-error "Windows Server is no longer supported!"
+        exit 1;
     }else{
 
         if($osInfo.BuildNumber -gt 19041){
