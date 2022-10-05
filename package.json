@@ -53,7 +53,7 @@
         "recursive-readdir-async": "^1.2.1",
         "rimraf": "^3.0.2",
         "satisfactory-json": "^0.0.63",
-        "semver": "^7.3.7",
+        "semver": "^7.3.8",
         "simple-node-logger": "^21.8.12",
         "systeminformation": "^5.12.3",
         "tar": "^6.1.11",
