@@ -24,7 +24,7 @@
         "datatables.net-bs5": "^1.12.1",
         "discord-webhook-node": "^1.1.8",
         "event-stream": "^4.0.1",
-        "express": "^4.18.1",
+        "express": "^4.18.2",
         "express-handlebars": "^6.0.6",
         "express-session": "^1.17.3",
         "extract-zip": "^2.0.1",
