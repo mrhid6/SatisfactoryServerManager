@@ -133,6 +133,16 @@ if [ "${USE_LINUX_SERVER}" == "1" ]; then
     "
     pkg app.js -c package.json -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
     echo -en "\e[32m✔\e[0m\n"
+
+    ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
+
+    printDots "* Zipping Binaries" 30
+    cd ${release_dir_linux}
+    tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
+
+    echo -en "\e[32m✔\e[0m\n"
+
+
 fi
 
 printDots "* Copying Win64 Executables" 30
@@ -150,13 +160,10 @@ printDots "* Compiling Win64" 30
 pkg app.js -c package.json -t node16-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
-ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
-ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
-
 printDots "* Zipping Binaries" 30
 
-cd ${release_dir_linux}
-tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
+ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
+
 cd ${release_dir_win64}
 7z a -tzip ${ZipWin64FileName} ./* -xr!build.log >/dev/null
 echo -en "\e[32m✔\e[0m\n"
