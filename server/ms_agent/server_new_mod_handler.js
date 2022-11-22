@@ -4,7 +4,7 @@ const Logger = require("../server_logger");
 const fs = require("fs-extra");
 const path = require("path");
 const rimraf = require("rimraf");
-const axios = require("axios").default;
+const axios = require("axios");
 const StreamZip = require("node-stream-zip");
 const semver = require("semver");
 

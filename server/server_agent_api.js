@@ -1,4 +1,4 @@
-const axios = require("axios").default;
+const axios = require("axios");
 const Config = require("./server_config");
 const fs = require("fs-extra");
 const path = require("path");
@@ -47,7 +47,7 @@ class AgentAPI {
             };
 
             const url = Agent.getURL() + endpoint;
-            //console.log(url)
+            //console.log(url, reqconfig, requestdata);
 
             axios
                 .post(url, requestdata, reqconfig)
@@ -86,6 +86,7 @@ class AgentAPI {
                     resolve();
                 })
                 .catch((err) => {
+                    //console.log(err);
                     reject(err);
                 });
         });

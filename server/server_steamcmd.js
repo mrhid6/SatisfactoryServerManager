@@ -2,7 +2,7 @@ const fs = require("fs-extra");
 const path = require("path");
 const childProcess = require("child_process");
 const platform = process.platform;
-const axios = require("axios").default;
+const axios = require("axios");
 const stripAnsi = require("@electerm/strip-ansi").default;
 
 const { file } = require("tmp-promise");

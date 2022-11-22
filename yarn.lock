@@ -1431,7 +1431,7 @@ moment@^2.20.1, moment@^2.29.3:
   resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
   integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
 
-mrhid6utils@^1.0.4:
+mrhid6utils@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/mrhid6utils/-/mrhid6utils-1.0.6.tgz#7563744fa8bda2fa2895bd4e15955685905c5996"
   integrity sha512-GIHZD00eiMj7rL3RomqcPO8Y85NVF+H8m2Mq0NEc8eanYa3Wb7RYkNWF3G+SRzu9clqzEsX9WV7pU3j6291CPA==
