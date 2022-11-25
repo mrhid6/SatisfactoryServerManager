@@ -788,6 +788,7 @@ class SF_Server_Handler {
             const updatesfonstart = data.updatesfonstart == "true";
             Config.set("satisfactory.updateonstart", updatesfonstart);
             Config.set("satisfactory.worker_threads", data.workerthreads);
+            Config.set("satisfactory.versionBranch", data.sfbranch);
 
             const maxPlayers = data.maxplayers || 4;
 
