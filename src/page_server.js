@@ -275,6 +275,14 @@ class Page_Server {
         }
         $("#inp_updatesfonstart").bootstrapToggle("disable");
 
+        $("#inp_sfbranch").bootstrapToggle("enable");
+        if (ssmConfig.versionBranch == "experimental") {
+            $("#inp_sfbranch").bootstrapToggle("on");
+        } else {
+            $("#inp_sfbranch").bootstrapToggle("off");
+        }
+        $("#inp_sfbranch").bootstrapToggle("disable");
+
         if (Agent.info.serverstate.status != "notinstalled") {
             const gameConfig = Agent.info.config.game;
             $("#inp_maxplayers").val(
@@ -299,6 +307,7 @@ class Page_Server {
         $("#inp_maxplayers").prop("disabled", false);
         $("#inp_workerthreads").prop("disabled", false);
         $("#inp_updatesfonstart").bootstrapToggle("enable");
+        $("#inp_sfbranch").bootstrapToggle("enable");
     }
 
     lockSFSettings() {
@@ -311,6 +320,7 @@ class Page_Server {
         $("#inp_maxplayers").prop("disabled", true);
         $("#inp_workerthreads").prop("disabled", true);
         $("#inp_updatesfonstart").bootstrapToggle("disable");
+        $("#inp_sfbranch").bootstrapToggle("disable");
     }
 
     submitSFSettings() {
@@ -318,12 +328,16 @@ class Page_Server {
         const maxplayers = $("#inp_maxplayers").val();
         const workerthreads = $("#inp_workerthreads").val();
         const updatesfonstart = $("#inp_updatesfonstart").is(":checked");
+        const sfbranch = $("#inp_sfbranch").is(":checked")
+            ? "experimental"
+            : "public";
 
         const postData = {
             agentid: Agent.id,
             maxplayers,
             updatesfonstart,
             workerthreads,
+            sfbranch,
         };
 
         API_Proxy.postData("agent/config/sfsettings", postData).then((res) => {

@@ -176,13 +176,17 @@ class SF_Server_Handler {
         if (forceInstall) {
             try {
                 await this._RemoveSFServer();
-                await this._InstallSFServer();
+                await this._InstallSFServer(
+                    Config.get("satisfactory.versionBranch")
+                );
             } catch (err) {
                 throw err;
             }
         } else {
             try {
-                await this._InstallSFServer();
+                await this._InstallSFServer(
+                    Config.get("satisfactory.versionBranch")
+                );
             } catch (err) {
                 throw err;
             }
@@ -200,7 +204,7 @@ class SF_Server_Handler {
         }
     };
 
-    _InstallSFServer = async () => {
+    _InstallSFServer = async (branch = "public") => {
         Config.set("satisfactory.installed", false);
         logger.info("[SFS_Handler] - Installing SF Dedicated Server");
 
@@ -216,11 +220,13 @@ class SF_Server_Handler {
         }
 
         try {
+            logger.info(`[SFS_Handler] - Installing using ${branch} branch`);
             const steamOutput = await this.SteamCMD.updateApp(
                 1690800,
-                installPath
+                installPath,
+                branch
             );
-            console.log(steamOutput);
+            //console.log(steamOutput);
 
             const installed = await this.isGameInstalled();
             if (installed) {
@@ -230,7 +236,8 @@ class SF_Server_Handler {
 
                 const appInfo = await this.SteamCMD.getAppInfo(1690800);
 
-                const ServerVersion = appInfo.depots.branches.public.buildid;
+                let ServerVersion =
+                    appInfo.depots.branches[`${branch}`].buildid;
                 Config.set("satisfactory.server_version", ServerVersion);
                 const GameConfig = require("./server_gameconfig");
                 await GameConfig.load();

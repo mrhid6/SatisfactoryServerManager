@@ -110,6 +110,7 @@ class ServerConfig extends iConfig {
         super.get("ssm.backup.nextbackup", 0);
 
         super.get("satisfactory.installed", false);
+        super.get("satisfactory.versionBranch", "public");
         super.get("satisfactory.updateonstart", false);
         super.set(
             "satisfactory.server_location",
