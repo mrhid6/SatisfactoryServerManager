@@ -67,7 +67,7 @@ rm ${release_dir_win64}/exe.list
 echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win64" 30
-pkg app.js -c package.json -t node16-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
+pkg app.js -c package.json -t node18-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
 echo -en "\e[32m✔\e[0m\n"
 
 ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
