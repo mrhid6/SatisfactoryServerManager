@@ -46,6 +46,9 @@ build-linux:
         - "git submodule update --init"
         - npm i -g yarn --force
         - npm i -g pkg --force
+        - npm i -g node-abi --force
+        - node --version
+        - node -e "const nodeAbi = require('node-abi'); console.log(nodeAbi.getAbi('18.5.0', 'node'));"
         - "yarn install"
         - "bash tools/package/ci_compile_linux.sh"
     artifacts:
