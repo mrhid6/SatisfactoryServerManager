@@ -50,6 +50,7 @@ build-linux:
         - node --version
         - node -e "const nodeAbi = require('node-abi'); console.log(nodeAbi.getAbi('18.5.0', 'node'));"
         - "yarn install"
+        - yarn add node-abi
         - "bash tools/package/ci_compile_linux.sh"
     artifacts:
         paths:
