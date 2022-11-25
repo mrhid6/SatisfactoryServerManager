@@ -87,6 +87,7 @@
             "node_modules/exiftool-vendored/**/*",
             "node_modules/exiftool-vendored.pl/**/*",
             "node_modules/jquery-circle-progress/**/*",
+            "node_modules/axios/**/*",
             "db_updates/**/*"
         ],
         "targets": [
