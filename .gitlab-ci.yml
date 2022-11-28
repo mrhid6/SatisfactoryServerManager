@@ -27,7 +27,7 @@ build-linux:
     stage: build
     tags:
         - docker
-    image: node:16
+    image: node:18.05
     before_script:
         - "which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )"
         - mkdir -p ~/.ssh

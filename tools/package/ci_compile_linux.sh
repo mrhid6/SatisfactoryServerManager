@@ -46,7 +46,7 @@ rm ${release_dir_linux}/exe.list
 
 printDots "* Compiling Linux" 30
 
-pkg app.js -c package.json -t node16-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
+pkg app.js -c package.json -t node18-linux-x64 -b --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
 
 if [ $? -ne 0 ]; then
     echo -en "\e[31m✘\e[0m\n"
