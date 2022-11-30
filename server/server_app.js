@@ -388,6 +388,11 @@ class SSM_Server_App {
                 name: `Configs/${Agent.getName()}/SSM.json`,
             });
 
+            archive.directory(
+                path.join(SSMAgentDirectory, Agent.getName(), "SSM", "logs"),
+                `Logs/${Agent.getName()}`
+            );
+
             const container = await SSM_Agent_Handler.GetDockerForAgent(Agent);
 
             const dockerInfo = await container.status();

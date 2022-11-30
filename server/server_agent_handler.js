@@ -74,7 +74,7 @@ class AgentHandler {
     };
 
     BuildAgentList = async () => {
-        logger.info("[AGENT_HANDLER] - Building SSM Agent List...");
+        logger.debug("[AGENT_HANDLER] - Polling SSM Agents ...");
         try {
             const SQL = `SELECT * FROM agents`;
             const rows = await DB.query(SQL);

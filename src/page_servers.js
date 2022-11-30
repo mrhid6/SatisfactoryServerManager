@@ -80,10 +80,10 @@ class Page_Servers {
             const OptionStr = OpenAgentStr + $btn_stopstart.prop("outerHTML");
 
             const $RunningIcon = $("<i/>").addClass(
-                "fas fa-2xl fa-circle-xmark text-danger"
+                "fas fa-circle-xmark text-danger"
             );
             const $ActiveIcon = $("<i/>").addClass(
-                "fas fa-2xl fa-circle-xmark text-danger"
+                "fas fa-circle-xmark text-danger"
             );
 
             if (agent.running == true) {

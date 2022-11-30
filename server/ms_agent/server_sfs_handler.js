@@ -141,7 +141,10 @@ class SF_Server_Handler {
         return new Promise((resolve, reject) => {
             this.SteamCMD.getAppInfo(1690800)
                 .then((data) => {
-                    const ServerVersion = data.depots.branches.public.buildid;
+                    const ServerVersion =
+                        data.depots.branches[
+                            `${Config.get("satisfactory.versionBranch")}`
+                        ].buildid;
 
                     if (
                         ServerVersion >
