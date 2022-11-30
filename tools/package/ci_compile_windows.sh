@@ -53,7 +53,7 @@ fi
 
 echo -en "Version: ${VERSION}" >"${BASEDIR}/assets/version.txt"
 
-yarn install
+yarn
 
 printDots "* Copying Win64 Executables" 30
 
