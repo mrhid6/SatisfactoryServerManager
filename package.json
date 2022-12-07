@@ -1,6 +1,6 @@
 {
     "name": "SatisfactoryServerManager",
-    "version": "1.1.33",
+    "version": "1.1.34",
     "main": "app.js",
     "repository": "git@github.com:mrhid6/SatisfactoryServerManager.git",
     "author": "Mrhid6 <mrhid6@gmail.com>",
@@ -29,7 +29,7 @@
         "express-session": "^1.17.3",
         "extract-zip": "^2.0.1",
         "form-data": "^4.0.0",
-        "fs-extra": "^10.1.0",
+        "fs-extra": "^11.1.0",
         "fs-reverse": "^0.0.3",
         "github-api": "3.4.0",
         "graphql": "^16.5.0",
