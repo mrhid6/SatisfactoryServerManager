@@ -68,10 +68,22 @@ echo -en "\e[32m✔\e[0m\n"
 
 printDots "* Compiling Win64" 30
 pkg app.js -c package.json -t node18-win-x64 --out-path ${release_dir_win64} -d >${release_dir_win64}/build.log
-echo -en "\e[32m✔\e[0m\n"
+if [ $? -ne 0 ]; then
+    echo -en "\e[31m✘\e[0m\n"
+    exit 1
+else
+    echo -en "\e[32m✔\e[0m\n"
+fi
 
 ZipWin64FileName="${release_dir}/SSM-Win-x64-${VERSION}.zip"
 
 cd ${release_dir_win64}
+printDots "* Zipping Windows Binaries" 30
 /c/BuildScripts/7z.exe a -tzip ${ZipWin64FileName} ./* -xr!build.log >/dev/null
-echo -en "\e[32m✔\e[0m\n"
+
+if [ $? -ne 0 ]; then
+    echo -en "\e[31m✘\e[0m\n"
+    exit 1
+else
+    echo -en "\e[32m✔\e[0m\n"
+fi

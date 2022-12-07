@@ -44,6 +44,8 @@ while read -r line; do
 done <${release_dir_linux}/exe.list
 rm ${release_dir_linux}/exe.list
 
+echo -en "\e[32m✔\e[0m\n"
+
 printDots "* Compiling Linux" 30
 
 pkg app.js -c package.json -t node18-linux-x64 --out-path ${release_dir_linux} -d >${release_dir_linux}/build.log
@@ -58,4 +60,14 @@ fi
 ZipLinuxFileName="${release_dir}/SSM-Linux-x64-${VERSION}.tar.gz"
 
 cd ${release_dir_linux}
+printDots "* Zipping Linux Binaries" 30
+
 tar cz --exclude='*.log' -f ${ZipLinuxFileName} ./* >/dev/null
+if [ $? -ne 0 ]; then
+    echo -en "\e[31m✘\e[0m\n"
+    exit 1
+else
+    echo -en "\e[32m✔\e[0m\n"
+fi
+
+
