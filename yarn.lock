@@ -1207,10 +1207,10 @@ jquery-steps@^1.1.0:
   resolved "https://registry.yarnpkg.com/jquery-steps/-/jquery-steps-1.1.0.tgz#0ceee0b0d2e49143981ad120d458ed56ea8e1924"
   integrity sha512-2ZODN30XpbdNgDiqydOCroTRVUeCBPx927l3p8SG7tsL1kmOkntg/jeiY9fjPqIff0cyelcwL/SZ+5hMaQyVmA==
 
-jquery@*, jquery@>=1.12.0, jquery@>=1.7, jquery@^3.6.0:
-  version "3.6.1"
-  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.1.tgz#fab0408f8b45fc19f956205773b62b292c147a16"
-  integrity sha512-opJeO4nCucVnsjiXOE+/PcCgYw9Gwpvs/a6B1LL/lQhwWwpbVEVYDZ1FokFr8PRc7ghYlrFPuyHuiiDNTQxmcw==
+jquery@*, jquery@>=1.12.0, jquery@>=1.7, jquery@^3.6.2:
+  version "3.6.2"
+  resolved "https://registry.yarnpkg.com/jquery/-/jquery-3.6.2.tgz#8302bbc9160646f507bdf59d136a478b312783c4"
+  integrity sha512-/e7ulNIEEYk1Z/l4X0vpxGt+B/dNsV8ghOPAWZaJs8pkGvsSC0tm33aMGylXcj/U7y4IcvwtMXPMyBFZn/gK9A==
 
 js-base64@^2.1.9:
   version "2.6.4"
