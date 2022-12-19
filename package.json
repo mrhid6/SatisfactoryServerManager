@@ -33,7 +33,7 @@
         "fs-reverse": "^0.0.3",
         "github-api": "3.4.0",
         "graphql": "^16.5.0",
-        "graphql-request": "^5.0.0",
+        "graphql-request": "^5.1.0",
         "isomorphic-fetch": "^3.0.0",
         "jquery": "^3.6.0",
         "jquery-circle-progress": "^1.2.2",
