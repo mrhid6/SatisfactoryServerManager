@@ -23,8 +23,8 @@ We Recommend not installing SSM in a docker/container but rather on the Host or 
 ## How To Install / Update:
 **Debian / Ubuntu:**
 
-Install: `wget -q https://git.io/Je7rx -O - | bash` <br/>
-Update: `wget -q https://git.io/Je7rx -O - | bash /dev/stdin "--update"`
+Install: `wget -q https://git.io/Je7rx -O - | sudo bash` <br/>
+Update: `wget -q https://git.io/Je7rx -O - | sudo bash /dev/stdin "--update"`
 
 **Windows:**
 
@@ -39,7 +39,7 @@ Update: `.\install.ps1 -update $true`
 
 **Debian / Ubuntu:**
 
-Uninstall: `wget -q https://tinyurl.com/ssmuninstall -O - |bash`
+Uninstall: `wget -q https://tinyurl.com/ssmuninstall -O - | sudo bash`
 
 
 ## Development:
