@@ -17,8 +17,12 @@ echo "Uninstalling SSM will remove all SSM files and Server instances!"
 echo ""
 read -p "Are you sure you want to uninstall SSM (y/n)?" choice
 case "$choice" in
-y | Y) echo "yes" ;;
-*) exit 0 ;;
+    y | Y)
+        echo "yes"
+        ;;
+    *)
+        exit 0
+        ;;
 esac
 
 TEMP_DIR=$(mktemp -d /tmp/XXXXX)
