@@ -56,7 +56,7 @@
         "satisfactory-json": "^0.0.63",
         "semver": "^7.3.7",
         "simple-node-logger": "^21.8.12",
-        "systeminformation": "^5.12.3",
+        "systeminformation": "^5.17.10",
         "tar": "^6.1.11",
         "tmp-promise": "^3.0.3",
         "toastr": "^2.1.4",
