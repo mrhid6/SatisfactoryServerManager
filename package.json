@@ -52,7 +52,7 @@
         "popper.js": "^1.16.1",
         "recursive-readdir": "^2.2.2",
         "recursive-readdir-async": "^1.2.1",
-        "rimraf": "^3.0.2",
+        "rimraf": "^4.2.0",
         "satisfactory-json": "^0.0.63",
         "semver": "^7.3.7",
         "simple-node-logger": "^21.8.12",
